@@ -380,11 +380,30 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
 
+/**
+ * Portrait images are blocked by this harness, not by the environment.
+ *
+ * The degradation path — a portrait that cannot load must fall back to initials
+ * rather than a broken-image icon or a blank frame that reads as an unnamed
+ * person — used to be exercised only because the sandbox happened to block every
+ * external host. Run the same suite on a machine with working egress and the
+ * images load, the failure never happens, and the check passes for an unrelated
+ * reason: a different fixture that has no portrait at all.
+ *
+ * That is the Tuvalu bug wearing a network. Blocking the requests here makes the
+ * failure deterministic on any machine, and the counter below is the positive
+ * control that the block actually had something to block.
+ */
+let blockedPortraits = 0;
+await page.route(/(commons|upload)\.wikimedia\.org/, (route) => {
+  blockedPortraits += 1;
+  return route.abort('failed');
+});
+
 // Uncaught exceptions are always fatal. Resource-load failures are separated
-// out because this build environment blocks all external hosts, so portrait
-// images legitimately 403 here — the app is required to degrade gracefully, and
-// that degradation is asserted directly further down rather than inferred from
-// a silent console.
+// out because portrait requests are deliberately aborted above — the app is
+// required to degrade gracefully, and that degradation is asserted directly
+// further down rather than inferred from a silent console.
 const pageErrors = [];
 const resourceErrors = [];
 page.on('console', (msg) => {
@@ -614,8 +633,8 @@ check('the placeholder carries no image element',
 
 // A portrait whose image cannot load must fall back to initials, not to a
 // broken-image icon and not to a blank frame that reads as an unnamed person.
-// Every external host is blocked here, so every Commons URL fails — which makes
-// this environment an unusually good test of the degradation path.
+// Commons requests are aborted by the route installed at the top of this file,
+// so the failure happens on every machine rather than only inside a sandbox.
 await selectCountry('United States');
 // Polled rather than timed: the image has to 403 and the error handler has to
 // run, and a fixed wait makes this flaky under load.
@@ -626,8 +645,10 @@ check('a portrait whose image fails to load degrades to initials',
     const img = document.querySelector('.dossier .portrait-img');
     return img === null && placeholder.textContent.trim().length > 0;
   }));
-check('blocked portrait requests were actually observed', resourceErrors.length > 0,
-  'expected the sandbox to block commons.wikimedia.org');
+// Rule 10. Without this the degradation check above could pass on a country
+// whose fixture simply has no portrait, having never exercised a failed load.
+check('positive control: portrait requests were attempted and blocked', blockedPortraits > 0,
+  `the route aborted ${blockedPortraits} Commons request(s); zero means the fallback was never exercised`);
 
 // A country with no dossier fixture must say so, not render an empty header.
 await selectCountry('Japan');
