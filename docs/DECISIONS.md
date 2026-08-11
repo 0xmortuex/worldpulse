@@ -105,6 +105,17 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | L7 | **A magnitude in a marker tooltip is a badged fact, not a printed number.** The event carries the magnitude twice: a bare number for sizing, sorting and clustering, which are geometry, and the `Fact` the tooltip renders. Both are built from the same field in `toGlobeEvents` so they cannot disagree. An unreviewed automatic solution must never be presentable as an analyst-reviewed one, and a tooltip is not an exemption from the badge. |
 | L8 | **A layer with no magnitude concept carries no magnitude fact at all.** Distinct from a quake whose magnitude is genuinely null: EONET does not measure magnitude, so rendering "no data" for one would invent a missing value rather than report an absent one. |
 
+## Verification
+
+| # | Decision |
+| --- | --- |
+| V1 | **The browser suite reports per step, every run.** A step whose assertion count silently drops to zero is indistinguishable from a step that passed. Attribution comes from the runner, never from someone counting call sites by hand. |
+| V2 | **A skipped check exits non-zero.** Guarded assertions that do not run are recorded and printed. "All checks passed" must describe the suite the reader thinks they are reading. |
+| V3 | **The runner refuses a bundle older than its sources**, and `npm run verify` builds first. Every prior green run was produced by a runner that could pass without executing the code under test. |
+| V4 | **Every helper whose pass condition is "the problem list is empty" must first assert it examined something.** Applied to `assertTextFits` and `assertSvgTextFits`; `assertLayout` already had it. |
+| V5 | **One mutation per step, run as a suite** (`npm run mutate`). A mutation that survives is a check that cannot see the behaviour it names. Ad-hoc self-tests proved two checks could fail; this proves one per step. |
+| V6 | **String-returning helpers reaching markup are enumerated and must be justified.** The fact-discipline rule is enforced through types, so any `string`-returning function is a bypass. Sanctioned (`factHtml`, `notAFact`) or registered with a written justification — nothing else. |
+
 ## Classification watchlist
 
 `docs/WATCHLIST.md` lists countries expected to be hard to classify, written **before**

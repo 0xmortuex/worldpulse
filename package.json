@@ -12,7 +12,8 @@
     "test": "tsx --test 'tests/*.test.ts'",
     "attribution": "node scripts/gen-attribution.mjs",
     "verify": "npm run build && node scripts/verify-render.mjs",
-    "check:deploy": "node scripts/check-deploy-gate.mjs"
+    "check:deploy": "node scripts/check-deploy-gate.mjs",
+    "mutate": "node scripts/mutation-check.mjs"
   },
   "dependencies": {
     "globe.gl": "^2.46.1",

@@ -84,12 +84,66 @@ async function waitFor(page, fn, timeoutMs = 6000) {
 }
 
 const failures = [];
+
+/**
+ * Which step each check belongs to.
+ *
+ * Attribution comes from the runner rather than from someone reading the script
+ * and counting: a per-step total that is maintained by hand is a number that
+ * drifts, and the whole point of this report is to say precisely which step's
+ * assertions ran.
+ */
+let currentStep = 'harness';
+const steps = [];
+function step(name) {
+  currentStep = name;
+  steps.push({ name, ok: 0, failed: 0, skipped: [] });
+}
+function currentBucket() {
+  return steps.find((entry) => entry.name === currentStep);
+}
+
 function check(label, condition, detail = '') {
-  if (condition) console.log(`  ok   ${label}`);
-  else {
+  const bucket = currentBucket();
+  if (condition) {
+    console.log(`  ok   ${label}`);
+    if (bucket) bucket.ok += 1;
+  } else {
     console.log(`  FAIL ${label} ${detail}`);
-    failures.push(label);
+    failures.push(`[${currentStep}] ${label}`);
+    if (bucket) bucket.failed += 1;
   }
+}
+
+/**
+ * Withdraw the most recent failure, for probes whose failing IS the result.
+ *
+ * The layout self-test deliberately breaks the page to prove the geometry
+ * harness can detect an overlap. Its failure was already removed from the
+ * failure list; without removing it from the step tally too, the report shows a
+ * permanent phantom failure against layout geometry and a reader stops trusting
+ * the column.
+ */
+function unfail() {
+  failures.pop();
+  const bucket = currentBucket();
+  if (bucket) bucket.failed -= 1;
+}
+
+/**
+ * A check that did not run.
+ *
+ * Several assertions sit behind an `if` — the camera checks only run if a marker
+ * was picked, the occlusion pick only if a back-facing marker exists. When the
+ * guard is false those checks silently vanish and the suite still prints "all
+ * checks passed", which is the stale-bundle failure in miniature: a green result
+ * that covers less than it claims. Recording them means a skip is visible in the
+ * report, and a skip exits non-zero.
+ */
+function skipped(label, why) {
+  console.log(`  SKIP ${label} — ${why}`);
+  const bucket = currentBucket();
+  if (bucket) bucket.skipped.push(`${label} (${why})`);
 }
 
 /**
@@ -167,13 +221,15 @@ async function assertLayout(page, containerSelector, childSelector, label) {
  * approximation. Prose may ellipsize visibly; values may not.
  */
 async function assertTextFits(page, selector, label, options = {}) {
-  const clipped = await page.evaluate(
+  const result = await page.evaluate(
     ([sel, allowEllipsis]) => {
       const out = [];
+      let examined = 0;
       for (const el of document.querySelectorAll(sel)) {
         if (el.getClientRects().length === 0) continue;
         const text = (el.textContent ?? '').trim();
         if (text.length === 0) continue;
+        examined += 1;
         const style = getComputedStyle(el);
         // A visible ellipsis is permitted on prose only, and the caller says so.
         const ellipsized = style.textOverflow === 'ellipsis';
@@ -182,23 +238,37 @@ async function assertTextFits(page, selector, label, options = {}) {
           out.push({ cls: String(el.className).slice(0, 40), text: text.slice(0, 48), scroll: el.scrollWidth, client: el.clientWidth });
         }
       }
-      return out;
+      return { clipped: out, examined };
     },
     [selector, options.allowEllipsis === true],
   );
-  check(`${label}: text not clipped`, clipped.length === 0, JSON.stringify(clipped.slice(0, 3)));
+  // TESTING.md rule 10, applied to the selector rather than to the data: a
+  // selector matching nothing produced an empty offender list, which scored
+  // identically to "everything fits". Every rule-9 check in this suite would
+  // have gone on passing through a renamed class.
+  check(`${label}: matched something to measure`, result.examined > 0,
+    `selector ${selector} matched no visible non-empty element`);
+  check(`${label}: text not clipped`, result.clipped.length === 0, JSON.stringify(result.clipped.slice(0, 3)));
 }
 
 /** SVG text has no scrollWidth; measure the rendered advance instead. */
 async function assertSvgTextFits(page, selector, maxPx, label) {
-  const overflowing = await page.evaluate(
-    ([sel, budget]) =>
-      [...document.querySelectorAll(sel)]
-        .filter((el) => el.getComputedTextLength && el.getComputedTextLength() > budget)
-        .map((el) => ({ text: el.textContent, width: Math.round(el.getComputedTextLength()) })),
+  const result = await page.evaluate(
+    ([sel, budget]) => {
+      const nodes = [...document.querySelectorAll(sel)].filter((el) => el.getComputedTextLength);
+      return {
+        examined: nodes.length,
+        overflowing: nodes
+          .filter((el) => el.getComputedTextLength() > budget)
+          .map((el) => ({ text: el.textContent, width: Math.round(el.getComputedTextLength()) })),
+      };
+    },
     [selector, maxPx],
   );
-  check(`${label}: SVG text within ${maxPx}px`, overflowing.length === 0, JSON.stringify(overflowing.slice(0, 3)));
+  check(`${label}: matched something to measure`, result.examined > 0,
+    `selector ${selector} matched no measurable SVG text`);
+  check(`${label}: SVG text within ${maxPx}px`, result.overflowing.length === 0,
+    JSON.stringify(result.overflowing.slice(0, 3)));
 }
 
 const BREAKPOINTS = [
@@ -237,6 +307,7 @@ await mkdir(SHOTS, { recursive: true });
 await page.goto(BASE, { waitUntil: 'networkidle' });
 await page.waitForTimeout(2500);
 
+step('1 — globe, selection, relations');
 console.log('\nstep 1 render checks');
 
 // Globe actually drew something, rather than failing silently to a black box.
@@ -316,6 +387,7 @@ check('weight slider changes the classification', before.join() !== after.join()
 
 await page.screenshot({ path: `${SHOTS}/03-weights-inverted.png` });
 
+step('2 — confidence badges, provenance inspector');
 // ---- step 2: confidence badges and the provenance inspector ----
 //
 // Per docs/TESTING.md rule 1, these assert on behaviour a broken component
@@ -393,6 +465,7 @@ await page.screenshot({ path: `${SHOTS}/07-derived-provenance.png` });
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 
+step('3 — dossier header, leader resolution');
 // ---- step 3: dossier header and leader resolution ----
 
 async function selectCountry(name) {
@@ -485,6 +558,7 @@ check('Escape closes the leader sheet without clearing the selection',
   !(await page.locator('.sheet-body').isVisible().catch(() => false)) &&
     (await page.locator('#mode').textContent())?.trim() === 'Relations mode');
 
+step('4 — government tab');
 // ---- step 4: government tab ----
 
 await selectCountry('United Kingdom');
@@ -555,6 +629,7 @@ check('an unbuilt tab names the step that fills it', /step 11/.test(await page.l
 await page.keyboard.press('1');
 await page.waitForTimeout(300);
 
+step('5 — economy tab');
 // ---- step 5: economy tab ----
 
 async function openEconomy(country) {
@@ -626,6 +701,7 @@ await openEconomy('United States');
 check('a log toggle does not follow the user to another country',
   /linear scale/.test(await page.locator('.econ').innerText()));
 
+step('6 — news tab');
 // ---- step 6: news tab ----
 
 async function openNews(country) {
@@ -697,6 +773,7 @@ check('filters are described as a convenience, not a classification',
 await page.locator('[data-topic=""]').click();
 await page.waitForTimeout(300);
 
+step('7 — globe event layers');
 // ---- step 7: globe layers ----
 //
 // A globe check must prove a rendered point is REAL. pointsData having a length
@@ -777,6 +854,11 @@ check('positive control: the camera starts away from the target',
   cameraBefore !== null && targetCoords !== null &&
     (Math.abs(cameraBefore.lat - targetCoords.lat) > 5 || Math.abs(cameraBefore.lng - targetCoords.lng) > 5),
   `camera ${JSON.stringify(cameraBefore)} target ${JSON.stringify(targetCoords)}`);
+if (!picked.id || !cameraBefore) {
+  skipped('clicking a marker moved the camera at all', 'no marker was picked to click');
+  skipped("the camera landed on that event's coordinates", 'no marker was picked to click');
+  skipped('positive control: the marker is hovered before the click', 'no marker was picked to click');
+}
 if (picked.id && cameraBefore) {
   // Hover must actually register before the click: globe.gl resolves the
   // clicked object from its hover state, and under software rendering the
@@ -866,6 +948,7 @@ check('a point on the far side of the globe fails the occlusion test', occlusion
 // MARKER is actually unpickable, with a front-facing pick as positive control.
 const backId = await page.evaluate(() => window.__worldpulse.backFacingClusterId());
 check('positive control: a back-facing marker exists to test', backId !== null);
+if (!backId) skipped('a marker behind the globe cannot be picked', 'no back-facing marker existed to test');
 if (backId) {
   const backPick = await pickEvent(backId, { focus: false });
   check('a marker behind the globe cannot be picked', backPick.id === null,
@@ -953,6 +1036,7 @@ check('a magnitude the source never published reads "no data", not a number',
   /no data/.test(noMagLabel ?? '') && !/fact-value">[\d.]/.test(noMagLabel ?? ''),
   (noMagLabel ?? '').slice(0, 200));
 
+step('cross-cutting — text fidelity (rule 9)');
 // ---- text fidelity (TESTING.md rule 9), retroactive ----
 
 await selectCountry('Germany');
@@ -984,6 +1068,14 @@ await page.locator('[data-tab="government"]').click();
 await page.waitForTimeout(400);
 await assertTextFits(page, '.party-legend .party-name', 'party names');
 await assertTextFits(page, '.party-legend .party-seats', 'party seat counts');
+
+// The timeline fixture is mapped to the USA, not the UK. Asserted here against
+// the UK, this matched nothing and passed — the Tuvalu bug again, in a check
+// written after the rule that forbids it. The helper enforces the control now;
+// the selector is aimed at the country that actually has the data.
+await selectCountry('United States');
+await page.locator('[data-tab="government"]').click();
+await page.waitForTimeout(400);
 await assertTextFits(page, '.term .term-dates', 'timeline dates');
 
 await selectCountry('Germany');
@@ -998,6 +1090,7 @@ await selectCountry('United Kingdom');
 await assertTextFits(page, '.dossier-vitals .fact-value', 'header vitals');
 await assertTextFits(page, '.portrait-vitals .fact-value', 'portrait vitals');
 
+step('cross-cutting — layout geometry (rule 8)');
 // ---- layout geometry at every breakpoint (TESTING.md rule 8) ----
 //
 // Applied retroactively to the dossier header, whose dual-portrait case
@@ -1074,7 +1167,7 @@ const caughtOverlap = await (async () => {
   const before = failures.length;
   await assertLayout(page, '.dossier', ':scope > *', 'self-test (expected to fail)');
   const detected = failures.length > before;
-  if (detected) failures.pop(); // the failure was the point
+  if (detected) unfail(); // the failure was the point
   return detected;
 })();
 check('the layout harness detects an overlap it is shown', caughtOverlap,
@@ -1086,6 +1179,29 @@ await assertLayout(page, '.dossier', ':scope > *', 'header recovers after self-t
 
 await browser.close();
 
+// Per-step table. Printed every run, including green ones: a step whose count
+// silently drops to zero looks exactly like a step that passed, which is the
+// same failure mode as the deploy gate hiding sources it no longer covers.
+const nameWidth = Math.max(...steps.map((entry) => entry.name.length));
+console.log('\nper-step results');
+console.log(`  ${'step'.padEnd(nameWidth)}  assert  pass  fail  skipped`);
+for (const entry of steps) {
+  const total = entry.ok + entry.failed;
+  console.log(
+    `  ${entry.name.padEnd(nameWidth)}  ${String(total).padStart(6)}  ${String(entry.ok).padStart(4)}  ` +
+      `${String(entry.failed).padStart(4)}  ${entry.skipped.length === 0 ? '-' : entry.skipped.length}`,
+  );
+}
+const allSkipped = steps.flatMap((entry) => entry.skipped.map((label) => `[${entry.name}] ${label}`));
+if (allSkipped.length > 0) {
+  console.log('\nchecks that did NOT run:');
+  for (const label of allSkipped) console.log(`  - ${label}`);
+}
+const total = steps.reduce((sum, entry) => sum + entry.ok + entry.failed, 0);
+console.log(`\n  ${total} assertions across ${steps.length} steps, ${allSkipped.length} skipped`);
+
 console.log(`\n${failures.length === 0 ? 'all checks passed' : `${failures.length} FAILED: ${failures.join(', ')}`}`);
 console.log(`screenshots in ${SHOTS}/`);
-process.exit(failures.length === 0 ? 0 : 1);
+// A skipped check is not a pass. Exiting green with assertions that never ran
+// is precisely the class of lie this audit exists to remove.
+process.exit(failures.length === 0 && allSkipped.length === 0 ? 0 : 1);

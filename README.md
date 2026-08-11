@@ -58,6 +58,8 @@ npm install
 npm run dev          # http://localhost:5173
 npm run build        # typecheck + production build
 npm test             # unit, contract and static-analysis tests
+npm run verify       # browser assertions against a freshly built bundle
+npm run mutate       # proves the browser suite can fail, one mutation per step
 npm run probe        # CORS + reachability verdicts for every source
 npm run check:deploy # blocks a deploy while any source is unverified
 PROBE_LIVE=1 npm test   # same contract assertions, against live sources
@@ -69,13 +71,22 @@ key-gated panel degrades to "key not configured" rather than erroring.
 ### Verifying a build in a browser
 
 ```bash
-npm run build && npx vite preview --port 4173 &
-node scripts/verify-render.mjs
+npx vite preview --port 4173 &
+npm run verify       # builds first, then asserts against that build
+npm run mutate       # breaks one feature per step, requires the suite to notice
 ```
 
-Asserts the globe actually drew polygons, the default selection lands on the USA,
-ctrl-click opens compare, and the weight sliders recolour. Screenshots land in
-`artifacts/`. On machines where Chromium is installed out of band, set
+`verify` asserts rendered behaviour — the globe drew polygons, markers are pickable
+and resolve to the event aimed at, values are badged, nothing overlaps or clips — and
+prints a per-step table every run. It **refuses to start against a bundle older than
+its sources**: it previously drove whatever was already serving the port, which meant a
+green result could be produced without executing the code under test.
+
+`mutate` exists because a suite that has never been observed failing proves nothing. It
+breaks one real behaviour per step, rebuilds, and requires the assertion that names that
+behaviour to fail. A surviving mutation is a check that cannot see its subject.
+
+Screenshots land in `artifacts/`. Where Chromium is installed out of band, set
 `PLAYWRIGHT_CHROMIUM_PATH`.
 
 ---

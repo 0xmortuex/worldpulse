@@ -310,13 +310,73 @@ visible rather than silent.
 Re-running until green is not an option available here. A check that is re-run until it
 passes has stopped being evidence.
 
+## 16. "Nothing matched" is not "nothing wrong"
+
+`assertTextFits` collected the elements whose text overflowed and passed when that list
+was empty. A selector matching *no elements* produced an empty list too, so it scored
+identically to "everything fits". `assertLayout` had a guard for this; the two text
+helpers did not, which put every rule-9 assertion one class rename away from passing
+vacuously.
+
+It was not hypothetical. `timeline dates` asserted `.term .term-dates` against the United
+Kingdom, and the leadership-timeline fixture is mapped to the United States — the
+selector had matched nothing since the check was written. This is the Tuvalu bug (rule
+10) in a check written *after* rule 10 existed, because the rule was being applied by
+hand at each call site instead of by the helper.
+
+Both helpers now assert they examined something before asserting what they examined was
+fine. Any helper whose pass condition is "the problem list is empty" needs the same pair.
+
+## 17. A skipped check is not a pass
+
+Several browser assertions sit behind a guard — the camera checks only run if a marker
+was picked, the occlusion pick only if a back-facing marker exists. When the guard was
+false those checks silently did not run, and the suite still printed "all checks passed"
+over a smaller suite than the reader thinks they are reading.
+
+Skips are now recorded, printed, and exit non-zero. Same principle as showing all 34
+sources in the deploy gate every run: **invisible passes are how a suite quietly stops
+covering things**, and a check that did not run is not evidence of anything.
+
+The per-step table exists for the same reason. It prints every run, green or not, so a
+step whose assertion count silently drops to zero cannot look like a step that passed.
+
+## The harness's own failure modes
+
+Every class below produces a green result without testing the thing it names. Four were
+found the hard way; the audit that followed looked for more.
+
+| Class | How it passes without testing anything | Status |
+| --- | --- | --- |
+| Vacuous absence check | Asserting a thing is absent where the subject never existed (Tuvalu) | Rule 10; positive controls required |
+| Type-system laundering | A string-returning wrapper carries a number past a type-driven rule | Rule 14; the two copies are consolidated — registry check in progress |
+| Stale bundle | The runner drives a build older than the code under test | Rule 13; freshness guard, `verify` builds first |
+| Empty selector | "No offenders found" and "nothing to look at" are the same value | Rule 16; helpers assert they examined something |
+| Skipped check | A guarded assertion silently does not run | Rule 17; skips recorded and exit non-zero |
+| Unproven check | A check that has never been observed failing | `npm run mutate`; one mutation per step |
+
+Checked and currently clean, recorded so the next audit does not re-derive them:
+
+- **Un-awaited conditions.** A `Promise` is truthy, so `check('x', page.locator(…).count())`
+  without `await` passes unconditionally. Scanned: no occurrences.
+- **Discarded `waitFor` results.** A timeout that is ignored lets the next assertion run
+  against a page that never reached the expected state. Both call sites consume the
+  result.
+
+Known and *not* fixed, stated so it is not mistaken for covered: **33 assertions match a
+regex against a whole-panel `innerText` blob**. A pattern like `/650/` would pass on any
+occurrence anywhere in the panel, not only in the seat count it means. Mutation testing
+constrains this — a mutation that survives shows the assertion cannot see its subject —
+but the scoping is still weaker than it reads.
+
 ## Running
 
 ```bash
-npm test              # unit: relations engine, geometry
+npm test              # unit: relations engine, geometry, static rules
 npm run verify        # builds, then runs browser assertions (needs a preview server)
+npm run mutate        # breaks one feature per step, requires the suite to notice
 npm run probe         # source reachability and CORS posture
 ```
 
-`npm run verify` needs Chromium. Where it is installed out of band, set
-`PLAYWRIGHT_CHROMIUM_PATH` to the binary.
+`npm run verify` and `npm run mutate` need Chromium. Where it is installed out of band,
+set `PLAYWRIGHT_CHROMIUM_PATH` to the binary.
