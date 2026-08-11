@@ -27,7 +27,8 @@ export function mountRail(root: HTMLElement, store: Store): void {
   // Appended rather than assigned: the rail also hosts #gallery, and assigning
   // innerHTML here would delete it.
   const host = document.createElement('div');
-  root.prepend(host);
+  // Inserted before the gallery but after the layer rail, which mounts first.
+  root.appendChild(host);
   host.innerHTML = `
     <section class="rail-section">
       <h2>Relation weights</h2>

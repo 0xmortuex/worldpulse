@@ -92,6 +92,17 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | N5 | **Unusable rows are counted with their reason, not dropped.** One malformed row must not blank a country's news, and a silently shorter list reads as less news. |
 | N6 | **Text direction comes from the headline, not the source country.** |
 
+## Globe layers
+
+| # | Decision |
+| --- | --- |
+| L1 | **Back-facing markers are not pickable.** Enforced via `pointerEventsFilter` using the camera's visible cap, not a hand-rolled world-space normal. |
+| L2 | **Coincident events cluster; the marker sits on the strongest member's real coordinate.** Never a group average. Every member is listed in the tooltip, so clustering never makes an event unreachable. |
+| L3 | **A polygon-derived position is tagged `[DERIVED]` on the marker** and states the vertex count it reduced. |
+| L4 | **Events not updated for 180 days are stale**: excluded from the default view, labelled, never deleted. |
+| L5 | **Marker minimum radius is a pointer-target floor, not an aesthetic one.** A marker too small to click cannot be checked. |
+| L6 | **Event markers render above the tallest polygon altitude.** Below it, a selected country's raised polygon intercepts the ray and every event inside it becomes visible but unopenable. |
+
 ## Classification watchlist
 
 `docs/WATCHLIST.md` lists countries expected to be hard to classify, written **before**

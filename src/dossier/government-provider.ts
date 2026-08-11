@@ -68,6 +68,16 @@ const TIMELINES: Record<string, unknown> = {
   USA: timelineFixture,
 };
 
+/** Every country this provider can serve. Used by the rule-10 reachability test. */
+export const GOVERNMENT_COUNTRIES = [
+  ...new Set([
+    ...Object.keys(CABINETS),
+    ...Object.keys(LEGISLATURES),
+    ...Object.keys(JUDICIARIES),
+    ...Object.keys(TIMELINES),
+  ]),
+];
+
 export interface GovernmentData {
   cabinet: { value: Cabinet; ctx: FetchContext } | null;
   chambers: { value: Chamber[]; ctx: FetchContext } | null;

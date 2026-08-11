@@ -1,4 +1,5 @@
 import type { Fact } from '../facts/types';
+import { markStaleness, normaliseLongitude, type GlobeEvent } from '../layers/events';
 import {
   expectArray,
   expectInRange,
@@ -104,4 +105,32 @@ export function magnitudeFact(quake: Quake, feed: QuakeFeed, ctx: FetchContext):
       : { note: 'Automatic solution, not yet reviewed by an analyst. Subject to revision.' }),
     format: (value: number) => value.toFixed(1),
   };
+}
+
+/**
+ * Quakes as globe events.
+ *
+ * Epicentres are measured coordinates, so `positionKind` is 'measured'. The
+ * OFFICIAL/ESTIMATE split follows the review status, exactly as `magnitudeFact`
+ * does — the tier is a property of the record, not of the source.
+ */
+export function toGlobeEvents(feed: QuakeFeed, now: Date): GlobeEvent[] {
+  return feed.quakes.map((quake) =>
+    markStaleness(
+      {
+        id: quake.id,
+        layer: 'usgs:earthquakes',
+        title: quake.place,
+        lat: quake.latitude,
+        lng: normaliseLongitude(quake.longitude),
+        time: quake.time,
+        magnitude: Number.isNaN(quake.magnitude) ? null : quake.magnitude,
+        positionKind: 'measured',
+        tier: quake.status === 'reviewed' ? 'OFFICIAL' : 'ESTIMATE',
+        sourceId: SOURCE_ID,
+        url: quake.url,
+      },
+      now,
+    ),
+  );
 }

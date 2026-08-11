@@ -1,6 +1,7 @@
 import Globe, { type GlobeInstance } from 'globe.gl';
 import { Color, MeshPhongMaterial } from 'three';
 import type { Country } from './countries';
+import type { EventCluster } from './layers/events';
 import { BASE_STROKE, GLOBE_COLOR } from './theme';
 
 export interface PolygonStyle {
@@ -14,6 +15,14 @@ export interface PolygonStyle {
 export interface GlobeCallbacks {
   onSelect(code: string, additive: boolean): void;
   onHover(code: string | null): void;
+  onEventClick?(cluster: EventCluster): void;
+}
+
+export interface PointStyle {
+  radius: number;
+  color: string;
+  altitude: number;
+  label: string;
 }
 
 /**
@@ -41,6 +50,12 @@ const DEFAULT_STYLE: PolygonStyle = {
 export class CountryGlobe {
   readonly #globe: ReturnType<typeof createGlobe>;
   #styles: ReadonlyMap<string, PolygonStyle> = new Map();
+  #pointStyle: (cluster: EventCluster) => PointStyle = () => ({
+    radius: 0.2,
+    color: '#f0553d',
+    altitude: 0.01,
+    label: '',
+  });
 
   constructor(container: HTMLElement, countries: readonly Country[], callbacks: GlobeCallbacks) {
     this.#globe = createGlobe(container);
@@ -63,6 +78,17 @@ export class CountryGlobe {
       })
       .onPolygonHover((polygon) => {
         callbacks.onHover(polygon ? (polygon as unknown as Country).code : null);
+      })
+      .onPointClick((point) => {
+        const cluster = point as unknown as EventCluster;
+        if (this.facesCamera(cluster.lat, cluster.lng)) callbacks.onEventClick?.(cluster);
+      })
+      // Occlusion: reject pointer events for markers on the far side of the
+      // globe, which three.js would otherwise happily raycast through the body.
+      .pointerEventsFilter((_object, data) => {
+        const cluster = data as unknown as EventCluster | undefined;
+        if (!cluster || typeof cluster.lat !== 'number' || !Array.isArray(cluster.members)) return true;
+        return this.facesCamera(cluster.lat, cluster.lng);
       });
 
     const resize = (): void => {
@@ -93,6 +119,65 @@ export class CountryGlobe {
 
   flyTo(lat: number, lng: number, ms = 1000): void {
     this.#globe.pointOfView({ lat, lng, altitude: 1.8 }, ms);
+  }
+
+  /**
+   * Screen position of a lat/lng, used by browser checks to AIM a pointer.
+   *
+   * Aiming with the renderer's own projection is not circular so long as the
+   * assertion is on what comes back: hover here, read the tooltip's event id,
+   * and require it to equal the event that was aimed at. A wrong projection
+   * yields a different id, or none.
+   */
+  screenCoords(lat: number, lng: number, altitude = 0.012): { x: number; y: number } {
+    return this.#globe.getScreenCoords(lat, lng, altitude);
+  }
+
+  /** Current camera target, for verifying a fly actually moved. */
+  pointOfView(): { lat: number; lng: number; altitude: number } {
+    return this.#globe.pointOfView();
+  }
+
+  setEvents(clusters: readonly EventCluster[], styleOf: (cluster: EventCluster) => PointStyle): void {
+    this.#pointStyle = styleOf;
+    this.#globe
+      .pointsData(clusters as unknown as object[])
+      .pointLat((d) => (d as unknown as EventCluster).lat)
+      .pointLng((d) => (d as unknown as EventCluster).lng)
+      .pointRadius((d) => this.#pointStyle(d as unknown as EventCluster).radius)
+      .pointColor((d) => this.#pointStyle(d as unknown as EventCluster).color)
+      .pointAltitude((d) => this.#pointStyle(d as unknown as EventCluster).altitude)
+      .pointLabel((d) => this.#pointStyle(d as unknown as EventCluster).label);
+  }
+
+  /**
+   * Is this lat/lng within the camera's visible cap?
+   *
+   * globe.gl raycasts point meshes without regard to the globe body, so a marker
+   * on the far side stays hit-testable through the planet. A user clicking a
+   * point they cannot see would select a different event than the one under
+   * their cursor — the globe's version of a UI element resolving to the wrong
+   * record.
+   *
+   * Derived from the camera's own lat/lng rather than from a world-space normal:
+   * three-globe's axis convention is an implementation detail, and an earlier
+   * hand-rolled normal had it inverted, which silently marked every visible
+   * marker as occluded. Spherical geometry has no such trap.
+   *
+   * For a camera `altitude` globe-radii above the surface the horizon sits where
+   * cos(angle) = 1 / (1 + altitude), which is tighter than a plain hemisphere and
+   * matches what is actually on screen.
+   */
+  facesCamera(lat: number, lng: number): boolean {
+    const view = this.#globe.pointOfView();
+    const toRad = (deg: number): number => (deg * Math.PI) / 180;
+
+    const cosAngle =
+      Math.sin(toRad(lat)) * Math.sin(toRad(view.lat)) +
+      Math.cos(toRad(lat)) * Math.cos(toRad(view.lat)) * Math.cos(toRad(lng - view.lng));
+
+    const horizon = 1 / (1 + Math.max(0, view.altitude));
+    return cosAngle > horizon;
   }
 }
 

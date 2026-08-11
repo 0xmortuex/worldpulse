@@ -1,0 +1,493 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1786104000000,
+    "url": "",
+    "title": "USGS All Earthquakes, Past Day",
+    "status": 200,
+    "api": "1.10.3",
+    "count": 12
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "spread-0",
+      "properties": {
+        "mag": 3.0,
+        "place": "event 0",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-0",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-0",
+        "ids": ",spread-0,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 3.0 - event 0"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -180,
+          -60,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-1",
+      "properties": {
+        "mag": 4.0,
+        "place": "event 1",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-1",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-1",
+        "ids": ",spread-1,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.0 - event 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -156,
+          -47,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-2",
+      "properties": {
+        "mag": 5.0,
+        "place": "event 2",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-2",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-2",
+        "ids": ",spread-2,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.0 - event 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -132,
+          -34,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-3",
+      "properties": {
+        "mag": 6.0,
+        "place": "event 3",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-3",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-3",
+        "ids": ",spread-3,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.0 - event 3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -108,
+          -21,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-4",
+      "properties": {
+        "mag": 7.0,
+        "place": "event 4",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-4",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-4",
+        "ids": ",spread-4,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 7.0 - event 4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84,
+          -8,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-5",
+      "properties": {
+        "mag": 3.0,
+        "place": "event 5",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-5",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-5",
+        "ids": ",spread-5,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 3.0 - event 5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60,
+          5,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-6",
+      "properties": {
+        "mag": 4.0,
+        "place": "event 6",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-6",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-6",
+        "ids": ",spread-6,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.0 - event 6"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -36,
+          18,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-7",
+      "properties": {
+        "mag": 5.0,
+        "place": "event 7",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-7",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-7",
+        "ids": ",spread-7,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.0 - event 7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -12,
+          31,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-8",
+      "properties": {
+        "mag": 6.0,
+        "place": "event 8",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-8",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-8",
+        "ids": ",spread-8,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.0 - event 8"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12,
+          44,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-9",
+      "properties": {
+        "mag": 7.0,
+        "place": "event 9",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-9",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-9",
+        "ids": ",spread-9,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 7.0 - event 9"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          36,
+          57,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-10",
+      "properties": {
+        "mag": 3.0,
+        "place": "event 10",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-10",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-10",
+        "ids": ",spread-10,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 3.0 - event 10"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          60,
+          70,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "spread-11",
+      "properties": {
+        "mag": 4.0,
+        "place": "event 11",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/spread-11",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "spread-11",
+        "ids": ",spread-11,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.0 - event 11"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          84,
+          83,
+          10.0
+        ]
+      }
+    }
+  ]
+}

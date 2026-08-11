@@ -1,0 +1,253 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1786104000000,
+    "url": "",
+    "title": "USGS All Earthquakes, Past Day",
+    "status": 200,
+    "api": "1.10.3",
+    "count": 6
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "edge-east",
+      "properties": {
+        "mag": 6.1,
+        "place": "just west of the antimeridian",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/edge-east",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "edge-east",
+        "ids": ",edge-east,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.1 - just west of the antimeridian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          179.94,
+          -16.2,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "edge-west",
+      "properties": {
+        "mag": 5.8,
+        "place": "just east of the antimeridian",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/edge-west",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "edge-west",
+        "ids": ",edge-west,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.8 - just east of the antimeridian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -179.96,
+          -16.4,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "edge-exact",
+      "properties": {
+        "mag": 4.9,
+        "place": "on the antimeridian",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/edge-exact",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "edge-exact",
+        "ids": ",edge-exact,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.9 - on the antimeridian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          180.0,
+          -20.0,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pole-north",
+      "properties": {
+        "mag": 4.2,
+        "place": "high Arctic",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/pole-north",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "pole-north",
+        "ids": ",pole-north,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.2 - high Arctic"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.0,
+          89.6,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pole-south",
+      "properties": {
+        "mag": 4.4,
+        "place": "Antarctic interior",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/pole-south",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "pole-south",
+        "ids": ",pole-south,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.4 - Antarctic interior"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.0,
+          -89.4,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "equator-zero",
+      "properties": {
+        "mag": 3.9,
+        "place": "null island reference",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/equator-zero",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "equator-zero",
+        "ids": ",equator-zero,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 3.9 - null island reference"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0,
+          10.0
+        ]
+      }
+    }
+  ]
+}

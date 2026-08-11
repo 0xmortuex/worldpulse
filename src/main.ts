@@ -3,6 +3,9 @@ import { countryByCode, loadCountries } from './countries';
 import { mountInspector } from './facts/inspector';
 import { mountGallery } from './dev/gallery';
 import { CountryGlobe, type PolygonStyle } from './globe';
+import { clusterEvents, radiusForMagnitude, type EventCluster, type GlobeEvent } from './layers/events';
+import { colorFor, filterEvents, loadEvents } from './layers/provider';
+import { countLayers, mountLayersRail } from './ui/layers-rail';
 import { buildFindings, loadFacts } from './relations/facts';
 import { pairKey, score } from './relations/score';
 import type { RelationResult } from './relations/types';
@@ -31,12 +34,31 @@ const store = new Store();
 
 mountInspector(document.body);
 
+/** Above every polygon altitude, so markers are never buried by a selection. */
+const EVENT_ALTITUDE = 0.03;
+
+const now = new Date();
+const allEvents: GlobeEvent[] = loadEvents(now);
+let renderedEvents: GlobeEvent[] = [];
+let renderedClusters: EventCluster[] = [];
+
 const globeContainer = must<HTMLElement>('#globe');
 const globe = new CountryGlobe(globeContainer, countries, {
   onSelect: (code, additive) => (additive ? store.toggle(code) : store.select(code)),
   onHover: (code) => store.setHovered(code),
+  onEventClick: (cluster) => {
+    // Fly to the marker's real coordinate, which is the strongest member's
+    // position — never a cluster average.
+    globe.flyTo(cluster.lat, cluster.lng, 1000);
+  },
 });
 
+mountLayersRail(
+  must<HTMLElement>('#layers'),
+  store,
+  () => countLayers(allEvents, renderedEvents, renderedClusters),
+  () => allEvents,
+);
 mountSearch(must<HTMLElement>('#search'), store, countries);
 mountRail(must<HTMLElement>('#rail'), store);
 const panelRoot = must<HTMLElement>('#panel');
@@ -109,8 +131,72 @@ store.subscribe((state) => {
   }
 
   globe.setStyles(styles);
+
+  renderedEvents = filterEvents(allEvents, { enabled: state.layers, includeStale: state.includeStale });
+  renderedClusters = clusterEvents(renderedEvents);
+  globe.setEvents(renderedClusters, (cluster) => ({
+    radius: radiusForMagnitude(cluster.representative.magnitude),
+    color: colorFor(cluster.representative.layer),
+    // Must clear the TALLEST polygon altitude (a selected country sits at
+    // 0.018). Below that, the selected country's own raised polygon intercepts
+    // the ray and every event inside it becomes unclickable — visible, and
+    // unopenable, which is the worst combination.
+    altitude: EVENT_ALTITUDE,
+    label: eventTooltip(cluster),
+  }));
+
   renderModeIndicator(state.selected.length);
 });
+
+/**
+ * Marker tooltip.
+ *
+ * Carries the event id so a browser check can pick a point and read back WHICH
+ * event it hit, rather than merely that something was hit. Every cluster member
+ * is listed, so clustering never makes an event unreachable.
+ */
+function eventTooltip(cluster: EventCluster): string {
+  const lead = cluster.representative;
+  const derived =
+    lead.positionKind === 'derived-centroid'
+      ? `<div class="evt-derived"><span class="badge badge--derived">ƒ DERIVED</span>
+         Marker is the centroid of a ${lead.perimeterVertices ?? 0}-vertex perimeter, not the
+         event's location. The real extent is an area this dot does not show.</div>`
+      : '';
+
+  const stale = lead.stale
+    ? `<div class="evt-stale">Still flagged open, but not updated for ${lead.staleDays ?? '?'} days.
+       Treat as a data-quality artifact rather than a live event.</div>`
+    : '';
+
+  const others =
+    cluster.members.length > 1
+      ? `<div class="evt-members"><strong>${cluster.members.length} events within
+         ${'25'} km.</strong> The marker sits on the strongest, at its real coordinate.
+         <ul>${cluster.members
+           .map(
+             (member) =>
+               `<li data-event-id="${member.id}">${member.magnitude === null ? '—' : `M${member.magnitude}`}
+                · ${escapeForLabel(member.title)}</li>`,
+           )
+           .join('')}</ul></div>`
+      : '';
+
+  return `<div class="evt" data-event-id="${cluster.id}">
+    <div class="evt-title">${escapeForLabel(lead.title)}</div>
+    <div class="evt-meta">${lead.magnitude === null ? 'no magnitude' : `M${lead.magnitude}`}
+      · ${escapeForLabel(lead.time.slice(0, 16).replace('T', ' '))}Z
+      · <span class="evt-tier">${lead.tier}</span></div>
+    <div class="evt-coords">${lead.lat.toFixed(3)}, ${lead.lng.toFixed(3)}</div>
+    ${derived}${stale}${others}
+  </div>`;
+}
+
+function escapeForLabel(value: string): string {
+  return value.replace(/[&<>"']/g, (char) =>
+    char === '&' ? '&amp;' : char === '<' ? '&lt;' : char === '>' ? '&gt;' : char === '"' ? '&quot;' : '&#39;',
+  );
+}
 
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement)) store.clear();
@@ -149,6 +235,123 @@ function must<T extends Element>(selector: string): T {
   if (!node) throw new Error(`missing required element: ${selector}`);
   return node;
 }
+
+/**
+ * Verification surface.
+ *
+ * Exposed so browser checks can read back WHICH event a marker resolves to, and
+ * whether the camera actually moved — rather than inferring either from the
+ * renderer's own projection, which would only prove it agrees with itself.
+ * Read-only: nothing here mutates state.
+ */
+declare global {
+  interface Window {
+    __worldpulse: {
+      pointOfView(): { lat: number; lng: number; altitude: number };
+      facesCamera(lat: number, lng: number): boolean;
+      screenCoordsOf(id: string): { x: number; y: number } | null;
+      focusCluster(id: string, offsetLat?: number, offsetLng?: number): boolean;
+      frontFacingClusterId(): string | null;
+      backFacingClusterId(): string | null;
+      eventById(id: string): { lat: number; lng: number } | null;
+      clusterFor(id: string): { id: string; memberCount: number } | null;
+      tooltipFor(id: string): string | null;
+      counts(): {
+        rendered: number;
+        clusters: number;
+        clusteredAway: number;
+        staleHidden: number;
+        byLayer: Record<string, number>;
+      };
+    };
+  }
+}
+
+/**
+ * getScreenCoords is relative to the globe container; a pointer needs page
+ * coordinates. Converting here keeps the offset in one place.
+ */
+function pageCoords(lat: number, lng: number): { x: number; y: number } {
+  const local = globe.screenCoords(lat, lng, EVENT_ALTITUDE);
+  const rect = globeContainer.getBoundingClientRect();
+  return { x: rect.left + local.x, y: rect.top + local.y };
+}
+
+function onScreen(lat: number, lng: number): boolean {
+  const { x, y } = pageCoords(lat, lng);
+  const margin = 24;
+  return (
+    x > margin && y > margin && x < window.innerWidth - margin && y < window.innerHeight - margin
+  );
+}
+
+window.__worldpulse = {
+  pointOfView: () => globe.pointOfView(),
+  facesCamera: (lat, lng) => globe.facesCamera(lat, lng),
+  /**
+   * The most central visible marker, for a browser check to aim at.
+   *
+   * "Front facing" alone is not enough: a marker can face the camera, project
+   * inside the canvas, and still sit on the limb where it is a sliver and
+   * effectively unpickable. Sorting by angular distance from the camera's
+   * sub-point aims at the marker most squarely in view.
+   */
+  frontFacingClusterId: () => {
+    const view = globe.pointOfView();
+    const toRad = (deg: number): number => (deg * Math.PI) / 180;
+    const centrality = (cluster: EventCluster): number =>
+      Math.sin(toRad(cluster.lat)) * Math.sin(toRad(view.lat)) +
+      Math.cos(toRad(cluster.lat)) * Math.cos(toRad(view.lat)) * Math.cos(toRad(cluster.lng - view.lng));
+
+    const visible = renderedClusters
+      .filter((cluster) => globe.facesCamera(cluster.lat, cluster.lng) && onScreen(cluster.lat, cluster.lng))
+      .sort((a, b) => centrality(b) - centrality(a));
+    return visible[0]?.id ?? null;
+  },
+  backFacingClusterId: () =>
+    renderedClusters.find((cluster) => !globe.facesCamera(cluster.lat, cluster.lng))?.id ?? null,
+  /**
+   * Point the camera at a cluster so a check can aim at it squarely.
+   *
+   * The offsets exist for the camera-movement check: it must start from a
+   * position that is NOT the target, or a flyTo that no-ops proves nothing.
+   */
+  focusCluster: (id, offsetLat = 0, offsetLng = 0) => {
+    const cluster = renderedClusters.find((candidate) => candidate.id === id);
+    if (!cluster) return false;
+    globe.flyTo(cluster.lat + offsetLat, cluster.lng + offsetLng, 0);
+    return true;
+  },
+  screenCoordsOf: (id) => {
+    const cluster = renderedClusters.find((candidate) => candidate.id === id);
+    return cluster ? pageCoords(cluster.lat, cluster.lng) : null;
+  },
+  eventById: (id) => {
+    const event = allEvents.find((candidate) => candidate.id === id);
+    return event ? { lat: event.lat, lng: event.lng } : null;
+  },
+  clusterFor: (id) => {
+    const cluster = renderedClusters.find((candidate) =>
+      candidate.members.some((member) => member.id === id),
+    );
+    return cluster ? { id: cluster.id, memberCount: cluster.members.length } : null;
+  },
+  tooltipFor: (id) => {
+    const cluster = renderedClusters.find((candidate) => candidate.id === id);
+    return cluster ? eventTooltip(cluster) : null;
+  },
+  counts: () => {
+    const byLayer: Record<string, number> = {};
+    for (const event of renderedEvents) byLayer[event.layer] = (byLayer[event.layer] ?? 0) + 1;
+    return {
+      rendered: renderedEvents.length,
+      clusters: renderedClusters.length,
+      clusteredAway: renderedEvents.length - renderedClusters.length,
+      staleHidden: allEvents.filter((event) => event.stale).length,
+      byLayer,
+    };
+  },
+};
 
 // Open on the default selection so the app never renders an empty first frame.
 globe.flyTo(38, -97, 0);

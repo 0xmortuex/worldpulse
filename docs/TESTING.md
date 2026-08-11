@@ -201,7 +201,54 @@ Corollaries worth stating, because they are easy to get wrong:
   poor proxy for rendered width). Prefer the measured `scrollWidth` check, and treat
   character budgets as a secondary guard on surfaces you know are Latin-only.
 
-## 10. `innerText` applies CSS, `textContent` does not
+## 10. Absence is not evidence unless you looked in the right place
+
+**Any assertion whose passing condition is an absence must be paired with a positive
+assertion proving the harness reached the intended subject.**
+
+No polyline. No sparse-coverage banner. No error state. Every one of those passes
+identically when the test is pointed at the wrong thing entirely — and passes *silently*,
+because absence is what it wanted.
+
+Where this came from: the sparse-news fixture was mapped to Tuvalu, which is absent from
+the 110m topology. The country was unselectable, `selectCountry('Tuvalu')` quietly did
+nothing, and three assertions about sparse coverage ran against the previous country and
+passed. Nothing was red. Nothing was covered.
+
+This is the third instance of the family — the bare sphere, the dual-portrait overlap,
+and now this — and the first where the test was aimed at the wrong subject rather than
+measuring the wrong property.
+
+The pairing, concretely:
+
+| Absence asserted | Positive control that must accompany it |
+| --- | --- |
+| No polyline in a chart block | the block's `data-indicator` is the one requested |
+| No sparse banner | the panel header names the country requested |
+| Layer off, no points rendered | the layer toggle reads off AND the globe rendered other layers |
+| No error state | the fact id under test is present in the DOM |
+
+**Every fixture must assert its subject is reachable through the UI path the test uses.**
+`tests/fixtures.test.ts` does this generally: every country any provider maps a fixture
+to must exist in the country list, or the fixture is unreachable and whatever it was
+meant to prove is unproven.
+
+## 11. Fix the mechanism, not the instance
+
+When a check catches a bad output, ask **"what is the set of inputs that produce this
+class of output"** — not "does this input produce it now".
+
+Where this came from: `formatAxisValue` rendered `451.53 billion` into a 46px gutter,
+where it clipped to `3 billion`. The step-5 fix made the label shorter. The step-6 check
+then caught `5.99e+3T` from the same function — `toPrecision()` flips to exponent
+notation once the mantissa exceeds its significant digits, and shortening one output had
+done nothing about that. The real fix was to scale first and fix the decimals after, so
+the formatter *cannot* emit exponent notation for any input.
+
+A fix that makes the failing case pass, without narrowing the space of inputs that can
+produce the failure, is a fix that will be re-reported later under a different value.
+
+## 12. `innerText` applies CSS, `textContent` does not
 
 Assertions against `innerText` see the *rendered* text, so anything under
 `text-transform: uppercase` comes back uppercased. Match case-insensitively, or read

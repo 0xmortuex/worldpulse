@@ -1,4 +1,7 @@
+import { LAYERS } from './layers/provider';
 import { DEFAULT_THRESHOLDS, DEFAULT_WEIGHTS } from './relations/score';
+
+const DEFAULT_LAYERS = LAYERS.filter((layer) => layer.defaultOn).map((layer) => layer.id);
 import type { Thresholds, Weights } from './relations/types';
 
 export type TabId =
@@ -17,6 +20,10 @@ export interface AppState {
   thresholds: Thresholds;
   hovered: string | null;
   tab: TabId;
+  /** Enabled globe layer ids. */
+  layers: ReadonlySet<string>;
+  /** Whether events flagged stale are rendered. Off by default. */
+  includeStale: boolean;
 }
 
 type Listener = (state: AppState) => void;
@@ -36,6 +43,8 @@ export class Store {
       thresholds: { ...DEFAULT_THRESHOLDS },
       hovered: null,
       tab: 'government',
+      layers: new Set(DEFAULT_LAYERS),
+      includeStale: false,
       ...initial,
     };
   }
@@ -86,6 +95,18 @@ export class Store {
   setTab(tab: TabId): void {
     if (this.#state.tab === tab) return;
     this.#commit({ tab });
+  }
+
+  toggleLayer(id: string): void {
+    const next = new Set(this.#state.layers);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.#commit({ layers: next });
+  }
+
+  setIncludeStale(include: boolean): void {
+    if (this.#state.includeStale === include) return;
+    this.#commit({ includeStale: include });
   }
 
   setHovered(code: string | null): void {

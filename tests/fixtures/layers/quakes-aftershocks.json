@@ -1,0 +1,293 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1786104000000,
+    "url": "",
+    "title": "USGS All Earthquakes, Past Day",
+    "status": 200,
+    "api": "1.10.3",
+    "count": 7
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "after-0",
+      "properties": {
+        "mag": 6.8,
+        "place": "aftershock 0",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-0",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-0",
+        "ids": ",after-0,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.8 - aftershock 0"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.7,
+          -33.4,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "after-1",
+      "properties": {
+        "mag": 6.4,
+        "place": "aftershock 1",
+        "time": 1786099800000,
+        "updated": 1786099800000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-1",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-1",
+        "ids": ",after-1,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.4 - aftershock 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.696,
+          -33.397,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "after-2",
+      "properties": {
+        "mag": 6.0,
+        "place": "aftershock 2",
+        "time": 1786099200000,
+        "updated": 1786099200000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-2",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-2",
+        "ids": ",after-2,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 6.0 - aftershock 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.69200000000001,
+          -33.394,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "after-3",
+      "properties": {
+        "mag": 5.6,
+        "place": "aftershock 3",
+        "time": 1786098600000,
+        "updated": 1786098600000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-3",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-3",
+        "ids": ",after-3,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.6 - aftershock 3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.688,
+          -33.391,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "after-4",
+      "properties": {
+        "mag": 5.2,
+        "place": "aftershock 4",
+        "time": 1786098000000,
+        "updated": 1786098000000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-4",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-4",
+        "ids": ",after-4,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 5.2 - aftershock 4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.684,
+          -33.388,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "after-5",
+      "properties": {
+        "mag": 4.8,
+        "place": "aftershock 5",
+        "time": 1786097400000,
+        "updated": 1786097400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-5",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-5",
+        "ids": ",after-5,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.8 - aftershock 5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.68,
+          -33.385,
+          10.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "after-6",
+      "properties": {
+        "mag": 4.4,
+        "place": "aftershock 6",
+        "time": 1786096800000,
+        "updated": 1786096800000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/after-6",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "after-6",
+        "ids": ",after-6,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 20,
+        "dmin": 1.0,
+        "rms": 0.5,
+        "gap": 90,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.4 - aftershock 6"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.676,
+          -33.382,
+          10.0
+        ]
+      }
+    }
+  ]
+}

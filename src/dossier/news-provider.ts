@@ -43,6 +43,9 @@ const TONE: Record<string, unknown> = {
   FJI: toneEmpty,
 };
 
+/** Every country this provider can serve. Used by the rule-10 reachability test. */
+export const NEWS_COUNTRIES = [...new Set([...Object.keys(ARTICLES), ...Object.keys(TONE)])];
+
 function ctxFor(iso3: string, mode: string): FetchContext {
   return {
     requestUrl:

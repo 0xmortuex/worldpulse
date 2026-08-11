@@ -3,8 +3,9 @@
 A single-page 3D globe that acts as a live intelligence dashboard for every country
 on Earth: politics, government, military, economy, news, live TV and natural events.
 
-**Current state: build step 6 of 14.** The globe, selection model, relations engine,
-confidence badge, provenance inspector, dossier header, Government, Economy and News tabs work. No live data pipeline
+**Current state: build step 7 of 14.** The globe, selection model, relations engine,
+confidence badge, provenance inspector, dossier header, Government, Economy and News tabs, and the natural-event globe
+layers work. No live data pipeline
 yet — relations run on a hand-checked seed set and the adapters run against fixtures,
 so both are provable before the ingests land.
 
@@ -277,6 +278,35 @@ news. The panel says how many were excluded and why.
 
 Direction is detected from the headline text, not the source country — GDELT indexes
 coverage of every country, so a Hebrew headline can appear under any of them.
+
+## Globe layers
+
+Markers for USGS earthquakes and NASA EONET events. Five properties are enforced
+rather than assumed:
+
+- **Occlusion.** A marker on the far side of the globe is not pickable. three.js will
+  happily raycast through the planet, and a user clicking a marker they cannot see
+  would open a different event than the one under their cursor.
+- **Coincident events cluster.** An aftershock sequence stacks a dozen epicentres
+  within a few kilometres; drawn individually only the topmost is ever reachable. The
+  cluster marker sits on the **strongest member's real coordinate**, never on a group
+  average — an averaged position is a place where nothing happened — and every member
+  is listed in the tooltip.
+- **A polygon-derived marker says so.** The centroid of a wildfire perimeter is not the
+  fire's location. Those markers are tagged `[DERIVED]` on the marker itself and state
+  how many vertices were reduced away.
+- **Staleness is computed, not trusted.** EONET marks events open until explicitly
+  closed and many never are. Anything not updated for six months is excluded from the
+  default view, labelled, and still available behind a toggle — deleting it would hide
+  real history.
+- **Marker size is bounded.** Size encodes magnitude on a bounded linear scale with a
+  published key. It is not proportional to energy, area or damage, and the minimum
+  radius is a *pointer-target* floor: a marker too small to click is a marker the user
+  cannot check.
+
+Antimeridian and polar coordinates are handled explicitly — two events 10km apart across
+the dateline must not render a world apart, and a perimeter crossing 180° must not
+produce a centroid in the Gulf of Guinea.
 
 ## Provenance and verification
 

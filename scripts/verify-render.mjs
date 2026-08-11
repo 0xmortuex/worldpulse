@@ -11,6 +11,16 @@ import { mkdir } from 'node:fs/promises';
 const BASE = process.argv[2] ?? 'http://localhost:4173';
 const SHOTS = 'artifacts';
 
+/** Poll until a condition holds, so timing-sensitive checks are not flaky. */
+async function waitFor(page, fn, timeoutMs = 6000) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    if (await page.evaluate(fn)) return true;
+    if (Date.now() > deadline) return false;
+    await page.waitForTimeout(150);
+  }
+}
+
 const failures = [];
 function check(label, condition, detail = '') {
   if (condition) console.log(`  ok   ${label}`);
@@ -380,9 +390,10 @@ check('the placeholder carries no image element',
 // Every external host is blocked here, so every Commons URL fails — which makes
 // this environment an unusually good test of the degradation path.
 await selectCountry('United States');
-await page.waitForTimeout(600);
+// Polled rather than timed: the image has to 403 and the error handler has to
+// run, and a fixed wait makes this flaky under load.
 check('a portrait whose image fails to load degrades to initials',
-  await page.evaluate(() => {
+  await waitFor(page, () => {
     const placeholder = document.querySelector('.dossier .portrait-frame--placeholder');
     if (!placeholder) return false;
     const img = document.querySelector('.dossier .portrait-img');
@@ -623,6 +634,211 @@ check('filters are described as a convenience, not a classification',
   /not a classification/i.test(await page.locator('.news').innerText()));
 await page.locator('[data-topic=""]').click();
 await page.waitForTimeout(300);
+
+// ---- step 7: globe layers ----
+//
+// A globe check must prove a rendered point is REAL. pointsData having a length
+// proves nothing, so every assertion here goes through picking and reads back
+// which event was hit.
+
+await page.setViewportSize({ width: 1600, height: 950 });
+await selectCountry('United States');
+await page.waitForTimeout(600);
+
+check('layer toggles render with counts', (await page.locator('.layer-toggle').count()) === 4);
+
+/**
+ * Pick a marker by brute-force hover across the globe and read back the event id
+ * from the tooltip.
+ *
+ * Deriving screen coordinates from the renderer's own projection would be
+ * circular — it would prove the projection agrees with itself. Sweeping the
+ * canvas and reading the id back verifies the point is genuinely hit-testable
+ * and resolves to a specific event.
+ */
+/**
+ * Aim at a known event and read back which event the renderer says is there.
+ *
+ * The aim uses the renderer's projection; the ASSERTION is the id that comes
+ * back. If the projection were wrong, this returns a different id or null —
+ * which is exactly what the check is for. A blind sweep would be
+ * non-circular too, but 500+ raycasts kill the software rasteriser.
+ */
+async function pickEvent(eventId, { focus = true } = {}) {
+  // Centre the camera on the target first. A marker near the limb is a sliver a
+  // few pixels wide; aiming at it tests the rasteriser's luck, not the app. The
+  // assertion is unchanged — aim, then require THAT event's id back.
+  //
+  // focus:false for the occlusion check, where centring the camera on the
+  // back-facing marker would bring it into view and defeat the point.
+  if (focus) {
+    await page.evaluate((id) => window.__worldpulse.focusCluster(id), eventId);
+    await page.waitForTimeout(500);
+  }
+  await page.mouse.move(10, 10);
+  await page.waitForTimeout(150);
+  const target = await page.evaluate((id) => window.__worldpulse.screenCoordsOf(id), eventId);
+  if (!target) return { aimed: false, id: null };
+  await page.mouse.move(target.x, target.y);
+  // Polled, not timed: under software rendering globe.gl's raycast can take
+  // many frames, and a fixed wait made this intermittently return null even
+  // though the marker was perfectly pickable.
+  await waitFor(page, () => document.querySelector('.evt') !== null, 5000);
+  const id = await page.evaluate(() => document.querySelector('.evt')?.getAttribute('data-event-id') ?? null);
+  return { aimed: true, id, x: target.x, y: target.y };
+}
+
+// Aim at a specific front-facing event and require THAT event back.
+await page.evaluate(() => window.__worldpulse.pointOfView());
+const frontEvent = await page.evaluate(() => {
+  const counts = window.__worldpulse.counts();
+  void counts;
+  // Pick any cluster currently facing the camera, so the aim is not occluded.
+  return window.__worldpulse.frontFacingClusterId();
+});
+check('at least one marker faces the camera to aim at', frontEvent !== null);
+
+const picked = frontEvent ? await pickEvent(frontEvent) : { aimed: false, id: null };
+check('a rendered marker is pickable', picked.aimed && picked.id !== null, JSON.stringify(picked));
+check('the pick resolves to the event that was aimed at, not a neighbour',
+  picked.id === frontEvent, `aimed ${frontEvent} got ${picked.id}`);
+await page.screenshot({ path: `${SHOTS}/23-globe-layers.png` });
+
+// Camera: flying to an event must actually move the camera, from somewhere else.
+// Start the camera OFF the target, or a flyTo that no-ops would pass.
+await page.evaluate((id) => window.__worldpulse.focusCluster(id, 14, 14), picked.id ?? '');
+await page.waitForTimeout(600);
+const cameraBefore = await page.evaluate(() => window.__worldpulse?.pointOfView?.() ?? null);
+check('the app exposes camera state for verification', cameraBefore !== null);
+const targetCoords = await page.evaluate((id) => window.__worldpulse.eventById(id), picked.id ?? '');
+check('positive control: the camera starts away from the target',
+  cameraBefore !== null && targetCoords !== null &&
+    (Math.abs(cameraBefore.lat - targetCoords.lat) > 5 || Math.abs(cameraBefore.lng - targetCoords.lng) > 5),
+  `camera ${JSON.stringify(cameraBefore)} target ${JSON.stringify(targetCoords)}`);
+if (picked.id && cameraBefore) {
+  // Hover must actually register before the click: globe.gl resolves the
+  // clicked object from its hover state, and under software rendering the
+  // raycast can take several frames. Waiting on the tooltip rather than a fixed
+  // delay is what makes this deterministic.
+  // Park the pointer off the marker first, then re-pick. Moving to coordinates
+  // the pointer already occupies dispatches no pointermove, so globe.gl never
+  // re-runs its raycast and the click lands with no hovered object.
+  await page.mouse.move(10, 10);
+  await page.waitForTimeout(250);
+  const repick = await pickEvent(picked.id, { focus: false });
+  check('positive control: the marker is hovered before the click', repick.id === picked.id,
+    `re-pick got ${repick.id}`);
+
+  await page.mouse.down();
+  await page.waitForTimeout(60);
+  await page.mouse.up();
+
+  const target = await page.evaluate((id) => {
+    const found = window.__worldpulse.eventById(id);
+    window.__wpTargetLat = found?.lat ?? NaN;
+    window.__wpTargetLng = found?.lng ?? NaN;
+    return found;
+  }, picked.id);
+  const arrived = await waitFor(
+    page,
+    // eslint-disable-next-line no-undef
+    () => {
+      const pov = window.__worldpulse.pointOfView();
+      return Math.abs(pov.lat - window.__wpTargetLat) < 1.5 && Math.abs(pov.lng - window.__wpTargetLng) < 1.5;
+    },
+    5000,
+  );
+  const after = await page.evaluate(() => window.__worldpulse.pointOfView());
+
+  check('clicking a marker moved the camera at all',
+    Math.abs(after.lat - cameraBefore.lat) > 0.5 || Math.abs(after.lng - cameraBefore.lng) > 0.5,
+    `before ${JSON.stringify(cameraBefore)} after ${JSON.stringify(after)}`);
+  check('the camera landed on that event\'s coordinates', arrived,
+    `camera ${JSON.stringify(after)} target ${JSON.stringify(target)}`);
+}
+
+// Occlusion: a marker on the far side must not be pickable.
+const occlusion = await page.evaluate(() => {
+  const api = window.__worldpulse;
+  const pov = api.pointOfView();
+  const antipodeLat = -pov.lat;
+  const antipodeLng = pov.lng > 0 ? pov.lng - 180 : pov.lng + 180;
+  return {
+    front: api.facesCamera(pov.lat, pov.lng),
+    back: api.facesCamera(antipodeLat, antipodeLng),
+  };
+});
+check('a point facing the camera passes the occlusion test', occlusion.front === true);
+check('a point on the far side of the globe fails the occlusion test', occlusion.back === false,
+  'back-face points would let a user click a marker they cannot see');
+
+// The geometric test above is necessary but not sufficient: prove a back-facing
+// MARKER is actually unpickable, with a front-facing pick as positive control.
+const backId = await page.evaluate(() => window.__worldpulse.backFacingClusterId());
+check('positive control: a back-facing marker exists to test', backId !== null);
+if (backId) {
+  const backPick = await pickEvent(backId, { focus: false });
+  check('a marker behind the globe cannot be picked', backPick.id === null,
+    `picked ${backPick.id} through the planet`);
+}
+
+// Count fidelity, with the rule-10 positive control on every absence.
+const countsBefore = await page.evaluate(() => window.__worldpulse.counts());
+check('rendered marker count equals the filtered event count',
+  countsBefore.clusters + countsBefore.clusteredAway === countsBefore.rendered,
+  JSON.stringify(countsBefore));
+check('stale events are excluded by default', countsBefore.staleHidden > 0, JSON.stringify(countsBefore));
+
+// Toggle one layer off and assert the delta, not merely "fewer".
+const quakeTotal = await page.evaluate(() => window.__worldpulse.counts().byLayer['usgs:earthquakes'] ?? 0);
+await page.locator('[data-layer="usgs:earthquakes"]').click();
+await page.waitForTimeout(500);
+const countsAfter = await page.evaluate(() => window.__worldpulse.counts());
+check('toggling a layer off removes exactly that layer\'s events',
+  countsAfter.rendered === countsBefore.rendered - quakeTotal,
+  `${countsBefore.rendered} - ${quakeTotal} != ${countsAfter.rendered}`);
+// Rule 10: the absence claim needs a positive control that the toggle happened
+// AND the globe still rendered something.
+check('positive control: the toggle actually flipped',
+  (await page.locator('[data-layer="usgs:earthquakes"]').getAttribute('aria-pressed')) === 'false');
+check('positive control: other layers still render markers', countsAfter.clusters > 0,
+  'an empty globe would make the previous assertion vacuous');
+const remainingId = await page.evaluate(() => window.__worldpulse.frontFacingClusterId());
+const stillPickable = remainingId ? await pickEvent(remainingId) : { aimed: false, id: null };
+check('positive control: a remaining marker is still pickable', stillPickable.id !== null, JSON.stringify(stillPickable));
+check('no earthquake marker survives the toggle', /^EONET_/.test(remainingId ?? ''), String(remainingId));
+
+await page.locator('[data-layer="usgs:earthquakes"]').click();
+await page.waitForTimeout(500);
+check('re-enabling the layer restores the exact count',
+  (await page.evaluate(() => window.__worldpulse.counts().rendered)) === countsBefore.rendered);
+
+// Stale toggle, with its own positive control.
+await page.locator('[data-stale-toggle]').click();
+await page.waitForTimeout(500);
+const withStale = await page.evaluate(() => window.__worldpulse.counts());
+check('including stale events adds exactly the hidden ones',
+  withStale.rendered === countsBefore.rendered + countsBefore.staleHidden,
+  `${countsBefore.rendered} + ${countsBefore.staleHidden} != ${withStale.rendered}`);
+check('positive control: the stale toggle flipped',
+  (await page.locator('[data-stale-toggle]').getAttribute('aria-pressed')) === 'true');
+await page.locator('[data-stale-toggle]').click();
+await page.waitForTimeout(400);
+
+// Clustering: an aftershock sequence must remain reachable.
+const clusterInfo = await page.evaluate(() => window.__worldpulse.clusterFor('after-0'));
+check('an aftershock sequence renders as one marker', clusterInfo !== null && clusterInfo.memberCount === 7,
+  JSON.stringify(clusterInfo));
+check('the cluster marker sits on the strongest member, not an average',
+  clusterInfo !== null && clusterInfo.id === 'after-0', JSON.stringify(clusterInfo));
+
+// Derived centroid must say so on the marker.
+const centroidLabel = await page.evaluate(() => window.__worldpulse.tooltipFor('EONET_2'));
+check('a polygon-derived marker is labelled DERIVED on the marker itself',
+  /badge--derived/.test(centroidLabel ?? '') && /centroid of a 5-vertex perimeter/.test(centroidLabel ?? ''),
+  (centroidLabel ?? '').slice(0, 120));
+check('the derived marker says it is not the event location',
+  /not the\s+event's location/.test(centroidLabel ?? ''));
 
 // ---- text fidelity (TESTING.md rule 9), retroactive ----
 
