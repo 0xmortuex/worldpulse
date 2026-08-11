@@ -157,7 +157,14 @@ let cleaningUp = false;
 async function teardown() {
   if (cleaningUp) return;
   cleaningUp = true;
-  if (preview && preview.exitCode === null) preview.kill('SIGKILL');
+  if (preview && preview.exitCode === null) {
+    preview.kill('SIGKILL');
+    // Wait for the socket to actually close. Returning before the port is free
+    // makes the next run's preflight see a live server and refuse to start.
+    for (let attempt = 0; attempt < 20 && preview.exitCode === null; attempt += 1) {
+      await new Promise((done) => setTimeout(done, 100));
+    }
+  }
   if (worktree) {
     try {
       await run('git', ['worktree', 'remove', '--force', worktree], { cwd: ROOT });
@@ -230,16 +237,40 @@ async function verify(cwd) {
   }
 }
 
+/**
+ * Serve the worktree's build.
+ *
+ * Spawned as the vite binary directly rather than through `npx`. Via npx the
+ * thing this process can kill is the wrapper, and the actual server is its
+ * grandchild — teardown killed the wrapper, the server kept running, and it held
+ * the port after its worktree had been deleted. The next run then found a live
+ * socket serving a directory that no longer existed and gave up. One process,
+ * one kill.
+ *
+ * `--strictPort` so a taken port is an error rather than vite quietly serving
+ * somewhere else, which is how the stale server stayed invisible.
+ */
 async function startPreview(cwd) {
-  const child = spawn('npx', ['vite', 'preview', '--port', String(PORT)], {
-    cwd,
-    stdio: 'ignore',
-    detached: false,
-  });
-  preview = child;
+  try {
+    const response = await fetch(`http://localhost:${PORT}/`);
+    throw new Error(
+      `something is already serving port ${PORT} (HTTP ${response.status}). ` +
+        'Refusing to start: the run could verify a build that is not the one it just made.',
+    );
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('something is already serving')) throw error;
+    // Connection refused is the expected case — the port is free.
+  }
+
+  preview = spawn(
+    process.execPath,
+    [join(cwd, 'node_modules/vite/bin/vite.js'), 'preview', '--port', String(PORT), '--strictPort'],
+    { cwd, stdio: 'ignore' },
+  );
 
   const deadline = Date.now() + 30_000;
   for (;;) {
+    if (preview.exitCode !== null) throw new Error(`preview server exited immediately (code ${preview.exitCode})`);
     try {
       const response = await fetch(`http://localhost:${PORT}/`);
       if (response.ok) return;
