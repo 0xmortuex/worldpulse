@@ -1,7 +1,7 @@
 import type { Country } from '../countries';
 import { factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
-import { INPUT_LABELS } from '../relations/score';
+import { INPUT_LABELS, signedWeight } from '../relations/score';
 import { scoreFact } from '../relations/provenance';
 import type { RelationResult } from '../relations/types';
 import { TIER_LABELS } from '../theme';
@@ -16,10 +16,6 @@ export function escapeHtml(value: string): string {
       default: return '&#39;';
     }
   });
-}
-
-function signed(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
 }
 
 /**
@@ -59,7 +55,7 @@ export function relationPopover(
         <div class="pop-row${staleClass}">
           <div class="pop-row-main">
             <span class="pop-kind">${escapeHtml(INPUT_LABELS[input.kind])}</span>
-            <span class="pop-weight">${signed(input.weight)}</span>
+            <span class="pop-weight">${signedWeight(input.weight)}</span>
           </div>
           <div class="pop-detail">${escapeHtml(input.label)}</div>
           <div class="pop-meta">
@@ -72,7 +68,7 @@ export function relationPopover(
     })
     .join('');
 
-  const arithmetic = result.inputs.map((input) => signed(input.weight)).join(' ');
+  const arithmetic = result.inputs.map((input) => signedWeight(input.weight)).join(' ');
   const stalePercent = notAFact(
     Math.round(result.staleWeightShare * 100),
     'proportion of the evidence weight that is stale — a property of the calculation shown above, not a value from any source',

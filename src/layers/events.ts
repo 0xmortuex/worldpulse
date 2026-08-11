@@ -1,4 +1,4 @@
-import type { Tier } from '../facts/types';
+import type { Fact, Tier } from '../facts/types';
 
 /**
  * A point rendered on the globe.
@@ -18,8 +18,25 @@ export interface GlobeEvent {
   lng: number;
   /** ISO timestamp of the event, or of its most recent geometry. */
   time: string;
-  /** Earthquake magnitude, or null for layers with no magnitude. */
+  /**
+   * Earthquake magnitude, or null for layers with no magnitude.
+   *
+   * Present for sizing, sorting and clustering, which are geometry and have no
+   * business unpacking a Fact. It is NOT what the tooltip renders — see
+   * `magnitudeFact`. Both are built from the same field in one place so they
+   * cannot disagree.
+   */
   magnitude: number | null;
+  /**
+   * The same magnitude with its provenance, for rendering.
+   *
+   * A bare number in a tooltip is a fact with its badge stripped off: an
+   * unreviewed automatic solution and an analyst-reviewed one print identically,
+   * and nothing says which source or which revision it came from. Layers with no
+   * magnitude concept (every EONET category) leave this undefined, which is
+   * different from a quake whose magnitude is genuinely null.
+   */
+  magnitudeFact?: Fact<number>;
   positionKind: PositionKind;
   /** Vertices behind a derived centroid, so the tooltip can say how coarse it is. */
   perimeterVertices?: number;

@@ -281,7 +281,7 @@ coverage of every country, so a Hebrew headline can appear under any of them.
 
 ## Globe layers
 
-Markers for USGS earthquakes and NASA EONET events. Five properties are enforced
+Markers for USGS earthquakes and NASA EONET events. Six properties are enforced
 rather than assumed:
 
 - **Occlusion.** A marker on the far side of the globe is not pickable. three.js will
@@ -303,6 +303,12 @@ rather than assumed:
   published key. It is not proportional to energy, area or damage, and the minimum
   radius is a *pointer-target* floor: a marker too small to click is a marker the user
   cannot check.
+- **The magnitude in a tooltip is badged, not printed.** It is a USGS measurement, so it
+  carries its tier and its provenance like any other fact: an unreviewed automatic
+  solution renders `[ESTIMATE]` with its revision caveat, never identically to an
+  analyst-reviewed `[OFFICIAL]` one. A quake published before a magnitude was computed
+  reads *no data*; an EONET event carries no magnitude fact at all, because EONET does
+  not measure one and claiming "no data" would invent a missing value.
 
 Antimeridian and polar coordinates are handled explicitly — two events 10km apart across
 the dateline must not render a world apart, and a perimeter crossing 180° must not

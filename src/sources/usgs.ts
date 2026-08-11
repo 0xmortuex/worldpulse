@@ -113,8 +113,13 @@ export function magnitudeFact(quake: Quake, feed: QuakeFeed, ctx: FetchContext):
  * Epicentres are measured coordinates, so `positionKind` is 'measured'. The
  * OFFICIAL/ESTIMATE split follows the review status, exactly as `magnitudeFact`
  * does — the tier is a property of the record, not of the source.
+ *
+ * The event carries the magnitude BOTH as a bare number (for sizing and
+ * clustering, which are geometry) and as the Fact the tooltip renders. Building
+ * both here, from the same field, is what stops the rendered value from drifting
+ * away from the one the marker was sized by.
  */
-export function toGlobeEvents(feed: QuakeFeed, now: Date): GlobeEvent[] {
+export function toGlobeEvents(feed: QuakeFeed, now: Date, ctx: FetchContext): GlobeEvent[] {
   return feed.quakes.map((quake) =>
     markStaleness(
       {
@@ -125,6 +130,7 @@ export function toGlobeEvents(feed: QuakeFeed, now: Date): GlobeEvent[] {
         lng: normaliseLongitude(quake.longitude),
         time: quake.time,
         magnitude: Number.isNaN(quake.magnitude) ? null : quake.magnitude,
+        magnitudeFact: magnitudeFact(quake, feed, ctx),
         positionKind: 'measured',
         tier: quake.status === 'reviewed' ? 'OFFICIAL' : 'ESTIMATE',
         sourceId: SOURCE_ID,

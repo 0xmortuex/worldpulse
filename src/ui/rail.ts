@@ -1,4 +1,4 @@
-import { INPUT_LABELS } from '../relations/score';
+import { INPUT_LABELS, signedWeight } from '../relations/score';
 import type { InputKind, Tier, Weights } from '../relations/types';
 import type { Store } from '../state';
 import { SELECTION_COLOR, TIER_COLORS, TIER_COLORS_LOW_CONFIDENCE, TIER_DESCRIPTIONS, TIER_LABELS } from '../theme';
@@ -93,7 +93,7 @@ export function mountRail(root: HTMLElement, store: Store): void {
       const input = host.querySelector<HTMLInputElement>(`input[name="${kind}"]`);
       if (input && Number(input.value) !== value) input.value = String(value);
       const readout = host.querySelector<HTMLElement>(`[data-readout="${kind}"]`);
-      if (readout) readout.textContent = value > 0 ? `+${value}` : String(value);
+      if (readout) readout.textContent = signedWeight(value);
     }
   });
 }

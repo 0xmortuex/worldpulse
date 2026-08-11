@@ -1,3 +1,4 @@
+import { notAFact } from '../facts/discipline';
 import type { Finding, InputKind, RelationResult, ScoredInput, Thresholds, Tier, Weights } from './types';
 
 /**
@@ -44,6 +45,24 @@ export const INPUT_LABELS: Record<InputKind, string> = {
   territorialDispute: 'Territorial dispute',
   recalledAmbassador: 'Recalled ambassador',
 };
+
+/**
+ * A relation weight, signed, for display.
+ *
+ * Weights come from the sliders — they are this app's editable opinion about
+ * what counts, not a measurement of anything — so they render through
+ * `notAFact` rather than as badged facts. It lives here, in one place, because
+ * two copies of this formatter existed and both were quietly laundering a number
+ * into a string on the way to the DOM: the discipline rule sees a `string` and
+ * waves it through, so an unsanctioned wrapper is a hole in the rule.
+ */
+export function signedWeight(value: number): string {
+  const text = notAFact(
+    value,
+    'relation weight set by the user with a slider — this app\'s editable opinion about what counts, not data from any source',
+  );
+  return value > 0 ? `+${text}` : text;
+}
 
 /** Order-independent key for a country pair. */
 export function pairKey(a: string, b: string): string {

@@ -102,6 +102,8 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | L4 | **Events not updated for 180 days are stale**: excluded from the default view, labelled, never deleted. |
 | L5 | **Marker minimum radius is a pointer-target floor, not an aesthetic one.** A marker too small to click cannot be checked. |
 | L6 | **Event markers render above the tallest polygon altitude.** Below it, a selected country's raised polygon intercepts the ray and every event inside it becomes visible but unopenable. |
+| L7 | **A magnitude in a marker tooltip is a badged fact, not a printed number.** The event carries the magnitude twice: a bare number for sizing, sorting and clustering, which are geometry, and the `Fact` the tooltip renders. Both are built from the same field in `toGlobeEvents` so they cannot disagree. An unreviewed automatic solution must never be presentable as an analyst-reviewed one, and a tooltip is not an exemption from the badge. |
+| L8 | **A layer with no magnitude concept carries no magnitude fact at all.** Distinct from a quake whose magnitude is genuinely null: EONET does not measure magnitude, so rendering "no data" for one would invent a missing value rather than report an absent one. |
 
 ## Classification watchlist
 

@@ -6,10 +6,72 @@
  * Usage: node scripts/verify-render.mjs [baseUrl]
  */
 import { chromium } from 'playwright';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readdir, stat } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 
 const BASE = process.argv[2] ?? 'http://localhost:4173';
 const SHOTS = 'artifacts';
+
+/**
+ * Refuse to verify a bundle older than the source it claims to verify.
+ *
+ * The harness talks to whatever is already serving :4173, and a preview server
+ * started hours ago happily serves a stale `dist/` forever. Every check below
+ * then passes against code that is not the code in the working tree — which is
+ * indistinguishable from having verified the change, and is how a rendering
+ * regression ships green. This is the harness's own version of TESTING.md rule 1:
+ * the checks must be about the thing that actually ran.
+ */
+async function newestMtime(dir, skip = new Set()) {
+  let newest = 0;
+  const walk = async (path) => {
+    let entries;
+    try {
+      entries = await readdir(path, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (skip.has(entry.name)) continue;
+      const full = join(path, entry.name);
+      if (entry.isDirectory()) await walk(full);
+      else newest = Math.max(newest, (await stat(full)).mtimeMs);
+    }
+  };
+  await walk(dir);
+  return newest;
+}
+
+async function assertBundleIsCurrent() {
+  const root = resolve(import.meta.dirname, '..');
+  let builtAt;
+  try {
+    builtAt = (await stat(join(root, 'dist/index.html'))).mtimeMs;
+  } catch {
+    console.error('no dist/ to verify — run `npm run build` first');
+    process.exit(1);
+  }
+
+  const sources = Math.max(
+    await newestMtime(join(root, 'src')),
+    await newestMtime(join(root, 'data')),
+    await newestMtime(join(root, 'tests/fixtures')),
+    (await stat(join(root, 'index.html'))).mtimeMs,
+  );
+
+  if (sources > builtAt) {
+    console.error(
+      'STALE BUNDLE: dist/ is older than the sources it was built from.\n' +
+        `  built  ${new Date(builtAt).toISOString()}\n` +
+        `  source ${new Date(sources).toISOString()}\n` +
+        'Every check would run against code that is not in the working tree. ' +
+        'Rebuild (`npm run build`) and restart the preview server.',
+    );
+    process.exit(1);
+  }
+}
+
+if (/localhost|127\.0\.0\.1/.test(BASE)) await assertBundleIsCurrent();
 
 /** Poll until a condition holds, so timing-sensitive checks are not flaky. */
 async function waitFor(page, fn, timeoutMs = 6000) {
@@ -723,38 +785,66 @@ if (picked.id && cameraBefore) {
   // Park the pointer off the marker first, then re-pick. Moving to coordinates
   // the pointer already occupies dispatches no pointermove, so globe.gl never
   // re-runs its raycast and the click lands with no hovered object.
-  await page.mouse.move(10, 10);
-  await page.waitForTimeout(250);
-  const repick = await pickEvent(picked.id, { focus: false });
-  check('positive control: the marker is hovered before the click', repick.id === picked.id,
-    `re-pick got ${repick.id}`);
-
-  await page.mouse.down();
-  await page.waitForTimeout(60);
-  await page.mouse.up();
-
   const target = await page.evaluate((id) => {
     const found = window.__worldpulse.eventById(id);
     window.__wpTargetLat = found?.lat ?? NaN;
     window.__wpTargetLng = found?.lng ?? NaN;
     return found;
   }, picked.id);
-  const arrived = await waitFor(
-    page,
-    // eslint-disable-next-line no-undef
-    () => {
-      const pov = window.__worldpulse.pointOfView();
-      return Math.abs(pov.lat - window.__wpTargetLat) < 1.5 && Math.abs(pov.lng - window.__wpTargetLng) < 1.5;
-    },
-    5000,
-  );
+
+  /**
+   * Hover, click, and wait for the camera — retried, because the RACE is
+   * flaky, not the behaviour.
+   *
+   * globe.gl resolves a click against the object its own raycast last hovered.
+   * Under swiftshader that raycast lands some indeterminate number of frames
+   * after the pointer moves, so a click occasionally arrives with no hovered
+   * object and is simply dropped. One attempt fails roughly one run in three.
+   *
+   * Retrying does NOT weaken the assertion: each attempt still has to hover the
+   * SAME event and the camera still has to land on that event's real
+   * coordinates. What the retry removes is a frame-timing coin flip, and a check
+   * that fails a third of the time for reasons unrelated to the app is a check
+   * everyone learns to re-run rather than read.
+   */
+  let repick = { id: null };
+  let arrived = false;
+  let attempts = 0;
+  while (attempts < 3 && !arrived) {
+    attempts += 1;
+    // Park the pointer off the marker first, then re-pick. Moving to coordinates
+    // the pointer already occupies dispatches no pointermove, so globe.gl never
+    // re-runs its raycast and the click lands with no hovered object.
+    await page.mouse.move(10, 10);
+    await page.waitForTimeout(250);
+    repick = await pickEvent(picked.id, { focus: false });
+    if (repick.id !== picked.id) continue;
+
+    await page.mouse.down();
+    await page.waitForTimeout(60);
+    await page.mouse.up();
+
+    arrived = await waitFor(
+      page,
+      // eslint-disable-next-line no-undef
+      () => {
+        const pov = window.__worldpulse.pointOfView();
+        return Math.abs(pov.lat - window.__wpTargetLat) < 1.5 && Math.abs(pov.lng - window.__wpTargetLng) < 1.5;
+      },
+      5000,
+    );
+  }
+
+  check('positive control: the marker is hovered before the click', repick.id === picked.id,
+    `re-pick got ${repick.id}`);
+
   const after = await page.evaluate(() => window.__worldpulse.pointOfView());
 
   check('clicking a marker moved the camera at all',
     Math.abs(after.lat - cameraBefore.lat) > 0.5 || Math.abs(after.lng - cameraBefore.lng) > 0.5,
-    `before ${JSON.stringify(cameraBefore)} after ${JSON.stringify(after)}`);
+    `before ${JSON.stringify(cameraBefore)} after ${JSON.stringify(after)} in ${attempts} attempt(s)`);
   check('the camera landed on that event\'s coordinates', arrived,
-    `camera ${JSON.stringify(after)} target ${JSON.stringify(target)}`);
+    `camera ${JSON.stringify(after)} target ${JSON.stringify(target)} in ${attempts} attempt(s)`);
 }
 
 // Occlusion: a marker on the far side must not be pickable.
@@ -839,6 +929,29 @@ check('a polygon-derived marker is labelled DERIVED on the marker itself',
   (centroidLabel ?? '').slice(0, 120));
 check('the derived marker says it is not the event location',
   /not the\s+event's location/.test(centroidLabel ?? ''));
+
+// The magnitude in a tooltip is a USGS measurement, so it must carry its tier
+// rather than print as a bare number. An unreviewed automatic solution reading
+// identically to an analyst-reviewed one is exactly the confident-wrong-number
+// failure the badge exists to prevent.
+const reviewedLabel = await page.evaluate(() => window.__worldpulse.tooltipFor('spread-0'));
+const automaticLabel = await page.evaluate(() => window.__worldpulse.tooltipFor('prov-automatic'));
+const noMagLabel = await page.evaluate(() => window.__worldpulse.tooltipFor('prov-nomag'));
+
+check('positive control: all three magnitude cases render a tooltip',
+  reviewedLabel !== null && automaticLabel !== null && noMagLabel !== null,
+  `reviewed ${reviewedLabel !== null}, automatic ${automaticLabel !== null}, none ${noMagLabel !== null}`);
+check('a reviewed magnitude is badged OFFICIAL on the marker',
+  /badge--official/.test(reviewedLabel ?? ''), (reviewedLabel ?? '').slice(0, 160));
+check('an unreviewed automatic magnitude is badged ESTIMATE, not OFFICIAL',
+  /badge--estimate/.test(automaticLabel ?? '') && !/badge--official/.test(automaticLabel ?? ''),
+  (automaticLabel ?? '').slice(0, 160));
+check('the unreviewed magnitude still shows its value and its revision caveat',
+  /4\.4/.test(automaticLabel ?? '') && /subject to revision/i.test(automaticLabel ?? ''),
+  (automaticLabel ?? '').slice(0, 200));
+check('a magnitude the source never published reads "no data", not a number',
+  /no data/.test(noMagLabel ?? '') && !/fact-value">[\d.]/.test(noMagLabel ?? ''),
+  (noMagLabel ?? '').slice(0, 200));
 
 // ---- text fidelity (TESTING.md rule 9), retroactive ----
 

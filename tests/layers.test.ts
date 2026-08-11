@@ -4,6 +4,8 @@ import { resolve as resolvePath } from 'node:path';
 import { describe, it } from 'node:test';
 import { parse as parseQuakes, toGlobeEvents } from '../src/sources/usgs';
 import { parseEvents as parseEonet } from '../src/sources/eonet';
+import { factState } from '../src/facts/types';
+import { loadEvents } from '../src/layers/provider';
 import {
   CLUSTER_RADIUS_KM,
   clusterEvents,
@@ -22,8 +24,16 @@ function fixture(name: string): unknown {
   return JSON.parse(readFileSync(resolvePath(import.meta.dirname, 'fixtures/layers', `${name}.json`), 'utf8'));
 }
 
+const CTX = {
+  requestUrl: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
+  httpStatus: 200,
+  fetchedAt: '1970-01-01T00:00:00.000Z',
+  cache: 'miss',
+  fromFixture: true,
+} as const;
+
 function quakeEvents(name: string) {
-  return toGlobeEvents(parseQuakes(fixture(name)), NOW);
+  return toGlobeEvents(parseQuakes(fixture(name)), NOW, CTX);
 }
 
 describe('hard case — antimeridian and poles', () => {
@@ -204,10 +214,69 @@ describe('magnitude scaling', () => {
   });
 });
 
+describe('magnitude provenance', () => {
+  it('gives every quake event a magnitude fact that agrees with the number it was sized by', () => {
+    for (const event of quakeEvents('quakes-spread')) {
+      assert.ok(event.magnitudeFact, `${event.id} has no magnitude fact`);
+      assert.equal(
+        event.magnitudeFact.value,
+        event.magnitude,
+        `${event.id} renders a different magnitude than it is drawn at`,
+      );
+    }
+  });
+
+  it('carries a traceable provenance, not merely a tier', () => {
+    const [event] = quakeEvents('quakes-spread');
+    assert.ok(event?.magnitudeFact);
+    assert.equal(factState(event.magnitudeFact), 'ok', 'a BROKEN fact would render as untraceable');
+    const provenance = event.magnitudeFact.provenance;
+    assert.equal(provenance?.kind, 'fetch');
+    assert.ok(provenance.kind === 'fetch' && provenance.extractedBy.includes(event.id));
+  });
+
+  it('does not let an unreviewed solution claim OFFICIAL', () => {
+    const events = quakeEvents('quakes-provisional');
+    const automatic = events.find((event) => event.id === 'prov-automatic');
+    assert.ok(automatic?.magnitudeFact);
+    assert.equal(automatic.magnitudeFact.tier, 'ESTIMATE');
+    assert.equal(automatic.tier, 'ESTIMATE', 'the event tier and its magnitude tier must not disagree');
+    assert.match(automatic.magnitudeFact.note ?? '', /not yet reviewed/i);
+  });
+
+  it('renders a missing magnitude as no data, with its provenance intact', () => {
+    const events = quakeEvents('quakes-provisional');
+    const missing = events.find((event) => event.id === 'prov-nomag');
+    assert.ok(missing?.magnitudeFact);
+    assert.equal(missing.magnitude, null);
+    assert.equal(missing.magnitudeFact.value, null);
+    // 'nodata', not 'broken': the source was asked and had nothing, which is a
+    // different statement from a value we cannot trace.
+    assert.equal(factState(missing.magnitudeFact), 'nodata');
+  });
+
+  it('positive control: the provisional fixture reaches the running globe', () => {
+    // Rule 10. The two branches above are only worth testing if the app renders
+    // them; an unreachable fixture would make every assertion here vacuous.
+    const ids = loadEvents(NOW).map((event) => event.id);
+    assert.ok(ids.includes('prov-automatic'), 'automatic solution is not on the globe');
+    assert.ok(ids.includes('prov-nomag'), 'magnitude-less event is not on the globe');
+  });
+
+  it('leaves layers with no magnitude concept without a fact at all', () => {
+    // Distinct from a quake whose magnitude is null: EONET does not measure
+    // magnitude, so claiming "no data" for one would invent a missing value.
+    for (const event of parseEonet(fixture('eonet-mixed') as { events: unknown[] }, NOW)) {
+      assert.equal(event.magnitudeFact, undefined, `${event.id} carries a magnitude fact it cannot have`);
+      assert.equal(event.magnitude, null);
+    }
+  });
+});
+
 describe('count fidelity', () => {
   it('maps every parsed quake to exactly one event', () => {
     const feed = parseQuakes(fixture('quakes-spread'));
-    assert.equal(toGlobeEvents(feed, NOW).length, feed.quakes.length);
+    assert.equal(toGlobeEvents(feed, NOW, CTX).length, feed.quakes.length);
   });
 
   it('maps every EONET event, including the stale one', () => {

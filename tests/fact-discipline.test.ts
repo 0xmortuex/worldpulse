@@ -56,6 +56,62 @@ function looksLikeMarkup(text: string): boolean {
   return /<\/?[a-zA-Z][\w-]*/.test(text);
 }
 
+/**
+ * A template nested inside a markup template's `${...}` is DOM-bound too.
+ *
+ * The first version of this rule only looked at templates whose OWN text
+ * contained a tag, so one level of nesting defeated it entirely:
+ *
+ *   `<div>${m === null ? 'none' : `M${m}`}</div>`
+ *
+ * The outer span's type is `string`, and the inner template has no tag in it, so
+ * a raw USGS magnitude reached the DOM with nothing flagged. The wrapper is not
+ * where the number stops being a fact, so markup-boundness is inherited rather
+ * than re-derived at each level.
+ */
+type MarkupBound = boolean;
+
+/**
+ * The traversal itself, shared with the positive control below.
+ *
+ * Deliberately one function rather than two similar ones: the planted-violation
+ * test only proves the rule can fail if it walks the SAME code the real scan
+ * walks. A copy would keep passing while the real traversal quietly stopped
+ * matching anything.
+ */
+function scan(
+  sourceFile: ts.SourceFile,
+  onCandidate: (node: ts.Node, expression: ts.Expression) => void,
+): void {
+  const visit = (node: ts.Node, bound: MarkupBound): void => {
+    let inherited = bound;
+
+    // `${...}` inside a template literal that contains markup — or inside one
+    // that is itself interpolated into such a template.
+    if (ts.isTemplateExpression(node)) {
+      inherited = bound || looksLikeMarkup(node.getText());
+      if (inherited) {
+        for (const span of node.templateSpans) onCandidate(node, span.expression);
+      }
+    }
+
+    // Direct assignment to a DOM sink.
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      ts.isPropertyAccessExpression(node.left) &&
+      ['innerHTML', 'textContent', 'outerHTML', 'innerText'].includes(node.left.name.text)
+    ) {
+      onCandidate(node, node.right);
+      inherited = true;
+    }
+
+    ts.forEachChild(node, (child) => visit(child, inherited));
+  };
+
+  visit(sourceFile, false);
+}
+
 function collectViolations(): Violation[] {
   const configPath = resolve(ROOT, 'tsconfig.json');
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -87,26 +143,7 @@ function collectViolations(): Violation[] {
       });
     };
 
-    const visit = (node: ts.Node): void => {
-      // `${...}` inside a template literal that contains markup.
-      if (ts.isTemplateExpression(node) && looksLikeMarkup(node.getText())) {
-        for (const span of node.templateSpans) report(node, span.expression);
-      }
-
-      // Direct assignment to a DOM sink.
-      if (
-        ts.isBinaryExpression(node) &&
-        node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-        ts.isPropertyAccessExpression(node.left) &&
-        ['innerHTML', 'textContent', 'outerHTML', 'innerText'].includes(node.left.name.text)
-      ) {
-        report(node, node.right);
-      }
-
-      ts.forEachChild(node, visit);
-    };
-
-    visit(sourceFile);
+    scan(sourceFile, report);
   }
 
   return violations;
@@ -145,9 +182,14 @@ describe('fact discipline', () => {
     assert.match(discipline, /export function notAFact\([^)]*\): string/s);
   });
 
-  it('catches a planted violation', () => {
+  it('catches a planted violation, including one template deep', () => {
     // Proves the rule can fail. Without this, a rule that silently matched
     // nothing would look identical to a clean codebase.
+    //
+    // The nested case is here because the rule genuinely did NOT catch it: a
+    // number wrapped in an inner template escaped a scan that only looked at
+    // templates containing a tag. Planting both means the nesting fix is itself
+    // covered, rather than trusted.
     const configPath = resolve(ROOT, 'tsconfig.json');
     const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, ROOT);
@@ -155,7 +197,13 @@ describe('fact discipline', () => {
     const planted = resolve(ROOT, 'src/__planted__.ts');
     const host = ts.createCompilerHost(parsed.options);
     const originalGetSourceFile = host.getSourceFile.bind(host);
-    const source = 'const n: number = 42;\nexport const html = `<span>${n}</span>`;\n';
+    const source =
+      'const n: number = 42;\n' +
+      'const m: number | null = 7;\n' +
+      'export const html = `<span>${n}</span>`;\n' +
+      // The wrapping template has no tag of its own, and the outer span's type
+      // is `string` — the exact shape that used to slip through.
+      'export const nested = `<div>${m === null ? "none" : `M${m}`}</div>`;\n';
     host.getSourceFile = (fileName, languageVersion, onError, shouldCreate) =>
       fileName === planted
         ? ts.createSourceFile(fileName, source, languageVersion, true)
@@ -168,17 +216,15 @@ describe('fact discipline', () => {
     const sourceFile = program.getSourceFile(planted);
     assert.ok(sourceFile);
 
-    let found = 0;
-    const visit = (node: ts.Node): void => {
-      if (ts.isTemplateExpression(node) && looksLikeMarkup(node.getText())) {
-        for (const span of node.templateSpans) {
-          if (isNumberLike(checker.getTypeAtLocation(span.expression), checker)) found += 1;
-        }
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(sourceFile);
+    const found: string[] = [];
+    scan(sourceFile, (_node, expression) => {
+      if (isNumberLike(checker.getTypeAtLocation(expression), checker)) found.push(expression.getText());
+    });
 
-    assert.equal(found, 1, 'the rule failed to flag a plainly numeric interpolation');
+    assert.deepEqual(
+      found.sort(),
+      ['m', 'n'],
+      'the rule failed to flag a planted numeric interpolation (`n` direct, `m` nested one template deep)',
+    );
   });
 });

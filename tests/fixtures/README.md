@@ -40,6 +40,10 @@ cannot be mistaken for real records:
   one reviewed and one automatic event, and one with `felt`/`cdi` populated and one
   with nulls, because both shapes occur.
 - `gdelt-doc.json` — `.test` domains, which are reserved and cannot resolve.
+- `layers/quakes-provisional.json` — an `automatic` solution and one with `"mag": null`,
+  which USGS does publish for very recent events. Both exist so the marker tooltip's
+  ESTIMATE and "no data" branches render in the running app rather than only in tests:
+  an unreviewed automatic magnitude must not be presentable as a reviewed one.
 
 ## Adding one
 

@@ -1,9 +1,11 @@
 import quakesSpread from '../../tests/fixtures/layers/quakes-spread.json';
 import quakesEdges from '../../tests/fixtures/layers/quakes-edges.json';
 import quakesAftershocks from '../../tests/fixtures/layers/quakes-aftershocks.json';
+import quakesProvisional from '../../tests/fixtures/layers/quakes-provisional.json';
 import eonetMixed from '../../tests/fixtures/layers/eonet-mixed.json';
 import { parse as parseQuakes, toGlobeEvents } from '../sources/usgs';
 import { parseEvents as parseEonet } from '../sources/eonet';
+import type { FetchContext } from '../sources/adapter';
 import type { GlobeEvent } from './events';
 
 /**
@@ -34,10 +36,39 @@ export const LAYERS: readonly LayerDefinition[] = [
 
 const LAYER_IDS = new Set(LAYERS.map((layer) => layer.id));
 
+/**
+ * Each fixture stands in for its own request, so each gets its own context.
+ * Sharing one would make the inspector claim four different sets of events came
+ * off a single response.
+ *
+ * The scenario name stays in the URL rather than being dressed up as a real feed
+ * path. These bodies were written by hand; a URL that looks fetchable would
+ * invite someone to fetch it and find different data, and `fromFixture` is a
+ * warning in the inspector, not a licence to fabricate a plausible request.
+ */
+function fixtureContext(scenario: string): FetchContext {
+  return {
+    requestUrl: `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson <scenario fixture: ${scenario}>`,
+    httpStatus: 200,
+    fetchedAt: '1970-01-01T00:00:00.000Z',
+    cache: 'miss',
+    fromFixture: true,
+  };
+}
+
 export function loadEvents(now: Date): GlobeEvent[] {
-  const quakes = [quakesSpread, quakesEdges, quakesAftershocks].flatMap((raw) =>
-    toGlobeEvents(parseQuakes(raw), now),
-  );
+  const quakes = (
+    [
+      [quakesSpread, 'quakes-spread'],
+      [quakesEdges, 'quakes-edges'],
+      [quakesAftershocks, 'quakes-aftershocks'],
+      // Carries the unreviewed and the magnitude-less records. Without them the
+      // tooltip's ESTIMATE and "no data" branches exist only in tests, and a
+      // branch that never renders in the running app is a branch nobody has
+      // actually looked at.
+      [quakesProvisional, 'quakes-provisional'],
+    ] as const
+  ).flatMap(([raw, scenario]) => toGlobeEvents(parseQuakes(raw), now, fixtureContext(scenario)));
   const natural = parseEonet(eonetMixed, now);
 
   // An event whose category has no registered layer would be silently

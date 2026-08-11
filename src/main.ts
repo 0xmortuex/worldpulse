@@ -3,7 +3,15 @@ import { countryByCode, loadCountries } from './countries';
 import { mountInspector } from './facts/inspector';
 import { mountGallery } from './dev/gallery';
 import { CountryGlobe, type PolygonStyle } from './globe';
-import { clusterEvents, radiusForMagnitude, type EventCluster, type GlobeEvent } from './layers/events';
+import { factHtml } from './facts/badge';
+import { notAFact } from './facts/discipline';
+import {
+  clusterEvents,
+  CLUSTER_RADIUS_KM,
+  radiusForMagnitude,
+  type EventCluster,
+  type GlobeEvent,
+} from './layers/events';
 import { colorFor, filterEvents, loadEvents } from './layers/provider';
 import { countLayers, mountLayersRail } from './ui/layers-rail';
 import { buildFindings, loadFacts } from './relations/facts';
@@ -160,23 +168,35 @@ function eventTooltip(cluster: EventCluster): string {
   const derived =
     lead.positionKind === 'derived-centroid'
       ? `<div class="evt-derived"><span class="badge badge--derived">ƒ DERIVED</span>
-         Marker is the centroid of a ${lead.perimeterVertices ?? 0}-vertex perimeter, not the
+         Marker is the centroid of a ${notAFact(
+           lead.perimeterVertices ?? 0,
+           "provenance metadata: how many vertices the discarded perimeter had, shown so the reader can judge how coarse this dot is. It describes the marker's position rather than being a measurement of the event",
+         )}-vertex perimeter, not the
          event's location. The real extent is an area this dot does not show.</div>`
       : '';
 
   const stale = lead.stale
-    ? `<div class="evt-stale">Still flagged open, but not updated for ${lead.staleDays ?? '?'} days.
+    ? `<div class="evt-stale">Still flagged open, but not updated for ${notAFact(
+        lead.staleDays ?? '?',
+        'age of the record, counted from the event timestamp already shown above — describes how current the fact is rather than being one',
+      )} days.
        Treat as a data-quality artifact rather than a live event.</div>`
     : '';
 
   const others =
     cluster.members.length > 1
-      ? `<div class="evt-members"><strong>${cluster.members.length} events within
-         ${'25'} km.</strong> The marker sits on the strongest, at its real coordinate.
+      ? `<div class="evt-members"><strong>${notAFact(
+          cluster.members.length,
+          'count of markers merged into this cluster, every one of which is listed below with its own badge',
+        )} events within
+         ${notAFact(
+           CLUSTER_RADIUS_KM,
+           "this app's clustering radius — a rendering threshold chosen here, not a property of the events",
+         )} km.</strong> The marker sits on the strongest, at its real coordinate.
          <ul>${cluster.members
            .map(
              (member) =>
-               `<li data-event-id="${member.id}">${member.magnitude === null ? '—' : `M${member.magnitude}`}
+               `<li data-event-id="${member.id}">${magnitudeHtml(member, true)}
                 · ${escapeForLabel(member.title)}</li>`,
            )
            .join('')}</ul></div>`
@@ -184,12 +204,33 @@ function eventTooltip(cluster: EventCluster): string {
 
   return `<div class="evt" data-event-id="${cluster.id}">
     <div class="evt-title">${escapeForLabel(lead.title)}</div>
-    <div class="evt-meta">${lead.magnitude === null ? 'no magnitude' : `M${lead.magnitude}`}
-      · ${escapeForLabel(lead.time.slice(0, 16).replace('T', ' '))}Z
-      · <span class="evt-tier">${lead.tier}</span></div>
+    <div class="evt-meta">${magnitudeHtml(lead, false)}
+      · ${escapeForLabel(lead.time.slice(0, 16).replace('T', ' '))}Z</div>
     <div class="evt-coords">${lead.lat.toFixed(3)}, ${lead.lng.toFixed(3)}</div>
     ${derived}${stale}${others}
   </div>`;
+}
+
+/**
+ * The magnitude, badged.
+ *
+ * It used to render as `M${event.magnitude}` — a USGS measurement with its
+ * confidence stripped off, so an unreviewed automatic solution and an
+ * analyst-reviewed one printed identically. The badge is the whole point of the
+ * app; a tooltip is not an exemption from it.
+ *
+ * Layers with no magnitude concept (every EONET category) have no fact at all,
+ * which is a different statement from a quake whose magnitude is null — that one
+ * renders "no data" with its provenance intact.
+ */
+function magnitudeHtml(event: GlobeEvent, compact: boolean): string {
+  if (!event.magnitudeFact) {
+    return `<span class="evt-nomag">no magnitude</span> · <span class="evt-tier">${escapeForLabel(event.tier)}</span>`;
+  }
+  // No "M" label: the fact's unit is the magnitude type USGS actually used
+  // (mww, mb, ml), which says more than a generic M and is the notation
+  // seismologists write.
+  return factHtml(event.magnitudeFact, { compact, hideAsOf: true });
 }
 
 function escapeForLabel(value: string): string {
@@ -209,7 +250,10 @@ function renderModeIndicator(count: number): void {
       ? 'No selection'
       : count === 1
         ? 'Relations mode'
-        : `Compare mode · ${count} countries`;
+        : `Compare mode · ${notAFact(
+            count,
+            'number of countries the user has selected — UI state, not data about the world',
+          )} countries`;
   node.dataset['mode'] = count === 1 ? 'relations' : count > 1 ? 'compare' : 'none';
 }
 

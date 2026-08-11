@@ -1,0 +1,93 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1786104000000,
+    "url": "",
+    "title": "USGS All Earthquakes, Past Day",
+    "status": 200,
+    "api": "1.10.3",
+    "count": 2
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "prov-automatic",
+      "properties": {
+        "mag": 4.4,
+        "place": "provisional automatic solution",
+        "time": 1786100400000,
+        "updated": 1786100400000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/prov-automatic",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "ffx",
+        "code": "prov-automatic",
+        "ids": ",prov-automatic,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 8,
+        "dmin": 1.0,
+        "rms": 0.9,
+        "gap": 180,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 4.4 - provisional automatic solution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.5,
+          -33.5,
+          30.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "prov-nomag",
+      "properties": {
+        "mag": null,
+        "place": "magnitude not yet computed",
+        "time": 1786102200000,
+        "updated": 1786102200000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/prov-nomag",
+        "detail": "",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 10,
+        "net": "ffx",
+        "code": "prov-nomag",
+        "ids": ",prov-nomag,",
+        "sources": ",ffx,",
+        "types": ",origin,",
+        "nst": 4,
+        "dmin": 2.0,
+        "rms": 1.2,
+        "gap": 240,
+        "magType": null,
+        "type": "earthquake",
+        "title": "M ? - magnitude not yet computed"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.4,
+          -34.6,
+          12.0
+        ]
+      }
+    }
+  ]
+}

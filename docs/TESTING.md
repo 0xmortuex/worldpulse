@@ -254,11 +254,67 @@ Assertions against `innerText` see the *rendered* text, so anything under
 `text-transform: uppercase` comes back uppercased. Match case-insensitively, or read
 `textContent`. Three step-2 checks failed on this before the code was wrong at all.
 
+## 13. Verify the build that is actually running
+
+`npm run verify` drives whatever is serving the preview port. A preview server started
+earlier keeps serving an old `dist/` indefinitely, so every check can pass against code
+that is not the code in the working tree — and "all checks passed" then means nothing at
+all. This happened during step 7: a full green run had been produced against a bundle
+built eighteen minutes before the changes it was supposed to be verifying.
+
+The harness now refuses to start when `dist/` is older than anything under `src/`,
+`data/`, `tests/fixtures/` or `index.html`, and `npm run verify` builds first. Rule 1
+says assert rendered behaviour; this is the same rule pointed at the harness itself —
+the behaviour asserted has to be the behaviour of the code under test.
+
+## 14. A string-returning wrapper is a hole in a type-driven rule
+
+The fact-discipline rule is enforced through the type checker: an expression reaching
+DOM-bound markup must not be number-typed, and the two sanctioned helpers both return
+`string`. That makes *any* function returning a string a laundering path — the rule
+cannot tell `notAFact(n, reason)` from a local `signed(n)` that quietly does
+`String(value)`.
+
+Two such helpers existed. Both rendered slider weights, which genuinely are not facts,
+so nothing was mis-labelled — but the rule was not what was keeping it that way.
+
+Corollary, and the reason this is a convention rather than a one-off fix: when a rule is
+enforced through a type, every conversion to that type is part of the rule's surface. A
+new formatter that returns `string` needs to route through the sanctioned helper, or the
+rule stops covering the values that pass through it.
+
+The same defect had a second form: the rule only inspected templates whose own text
+contained a tag, so one level of nesting defeated it —
+
+```ts
+`<div>${magnitude === null ? 'no magnitude' : `M${magnitude}`}</div>`
+```
+
+The outer span is `string`-typed and the inner template has no tag in it, so a USGS
+magnitude reached the DOM unbadged with nothing flagged. Markup-boundness is now
+inherited by nested templates, and the planted-violation control plants both shapes.
+
+## 15. A flaky check is a check nobody reads
+
+The marker-click check failed about one run in three: globe.gl resolves a click against
+whatever its own raycast last hovered, and under swiftshader that raycast lands an
+indeterminate number of frames after the pointer moves, so the click is sometimes
+dropped entirely.
+
+The fix is to retry the *race*, never to relax the *assertion*. Each attempt still has
+to hover the same event, and the camera still has to land on that event's real
+coordinates; only the frame-timing coin flip is retried, and the attempt count is
+reported in the failure detail so a check that starts needing all three attempts is
+visible rather than silent.
+
+Re-running until green is not an option available here. A check that is re-run until it
+passes has stopped being evidence.
+
 ## Running
 
 ```bash
 npm test              # unit: relations engine, geometry
-npm run verify        # browser assertions against the built app (needs a preview server)
+npm run verify        # builds, then runs browser assertions (needs a preview server)
 npm run probe         # source reachability and CORS posture
 ```
 
