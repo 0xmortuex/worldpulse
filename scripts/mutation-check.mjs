@@ -219,9 +219,17 @@ async function makeWorktree() {
   await run('git', ['worktree', 'add', '--detach', path, 'HEAD'], { cwd: ROOT });
   worktree = path;
 
-  // Symlinked rather than installed: a fresh npm install per run would dominate
-  // the runtime, and the dependency tree is exactly the one under test.
-  symlinkSync(join(ROOT, 'node_modules'), join(path, 'node_modules'), 'dir');
+  // Linked rather than installed: a fresh npm install per run would dominate the
+  // runtime, and the dependency tree is exactly the one under test.
+  //
+  // A junction on Windows, where creating a directory SYMLINK needs elevation or
+  // developer mode — the harness died with EPERM before running a single
+  // mutation. Junctions are directory-only and need neither.
+  symlinkSync(
+    join(ROOT, 'node_modules'),
+    join(path, 'node_modules'),
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
   return path;
 }
 
