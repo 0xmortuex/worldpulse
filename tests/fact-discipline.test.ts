@@ -194,7 +194,12 @@ describe('fact discipline', () => {
     const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, ROOT);
 
-    const planted = resolve(ROOT, 'src/__planted__.ts');
+    // Forward slashes, always. TypeScript normalises every `fileName` it hands
+    // to a compiler host, so on Windows a backslash path never matches the
+    // `fileName === planted` comparisons below: the host silently falls through
+    // to the real filesystem, the planted file is never created, and the check
+    // that proves this rule can fail is itself the thing that fails.
+    const planted = `${resolve(ROOT, 'src/__planted__.ts').replace(/\\/g, '/')}`;
     const host = ts.createCompilerHost(parsed.options);
     const originalGetSourceFile = host.getSourceFile.bind(host);
     const source =

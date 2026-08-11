@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "probe": "NODE_USE_ENV_PROXY=1 node scripts/probe-sources.mjs",
-    "test": "tsx --test 'tests/*.test.ts'",
+    "test": "node scripts/run-tests.mjs",
     "attribution": "node scripts/gen-attribution.mjs",
     "verify": "npm run build && node scripts/verify-render.mjs",
     "check:deploy": "node scripts/check-deploy-gate.mjs",
