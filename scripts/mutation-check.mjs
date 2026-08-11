@@ -336,8 +336,30 @@ try {
       const real = failedLabels.filter((label) => !label.startsWith('self-test'));
       const matched = real.filter((label) => mutation.expect.test(label));
 
-      const verdict = exit === 0 ? 'SURVIVED' : matched.length > 0 ? 'CAUGHT' : 'CAUGHT-ELSEWHERE';
-      results.push({ ...mutation, verdict, detail: (matched[0] ?? real[0] ?? 'no failing check').slice(0, 90) });
+      // A non-zero exit with nothing parsed is not a catch. The suite stopped
+      // for a reason this parser cannot see — an early abort, or a skipped
+      // check, both of which mean the assertion under test never rendered a
+      // verdict. Calling that CAUGHT would be the same overstatement as calling
+      // a build failure a catch.
+      const verdict =
+        exit === 0
+          ? 'SURVIVED'
+          : real.length === 0
+            ? 'UNPARSED'
+            : matched.length > 0
+              ? 'CAUGHT'
+              : 'CAUGHT-ELSEWHERE';
+
+      let detail = (matched[0] ?? real[0] ?? `exit ${exit}, no failing check parsed`).slice(0, 90);
+      if (verdict !== 'CAUGHT') {
+        // Keep the evidence. Diagnosing a surprising verdict by re-running the
+        // whole suite is how a surprising verdict gets waved through instead.
+        const dump = join(tmpdir(), `mutation-${verdict.toLowerCase()}-${mutation.file.replace(/\W+/g, '-')}.log`);
+        await writeFile(dump, out);
+        detail += ` [output: ${dump}]`;
+      }
+
+      results.push({ ...mutation, verdict, detail });
       console.log(`  ${verdict}: ${real.length} check(s) failed${matched.length > 0 ? `, incl. "${matched[0]}"` : ''}`);
     } finally {
       await writeFile(path, original);
@@ -355,14 +377,14 @@ console.log(`  ${'step'.padEnd(width)}  verdict`);
 for (const entry of results) console.log(`  ${entry.step.padEnd(width)}  ${entry.verdict} — ${entry.detail}`);
 
 const inconclusive = results.filter((entry) =>
-  ['SURVIVED', 'STALE', 'BUILD-FAILED', 'TIMEOUT'].includes(entry.verdict),
+  ['SURVIVED', 'STALE', 'BUILD-FAILED', 'TIMEOUT', 'UNPARSED'].includes(entry.verdict),
 );
 console.log(
   `\n${results.length} mutation(s): ` +
     `${results.filter((e) => e.verdict === 'CAUGHT').length} caught by the named assertion, ` +
     `${results.filter((e) => e.verdict === 'CAUGHT-ELSEWHERE').length} caught elsewhere, ` +
     `${results.filter((e) => e.verdict === 'SURVIVED').length} SURVIVED, ` +
-    `${results.filter((e) => ['STALE', 'BUILD-FAILED', 'TIMEOUT'].includes(e.verdict)).length} inconclusive`,
+    `${results.filter((e) => ['STALE', 'BUILD-FAILED', 'TIMEOUT', 'UNPARSED'].includes(e.verdict)).length} inconclusive`,
 );
 if (inconclusive.length > 0) {
   console.log('\nNot proof that the suite can see these behaviours:');
