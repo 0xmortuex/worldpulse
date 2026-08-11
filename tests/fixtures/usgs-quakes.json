@@ -1,0 +1,80 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1786104000000,
+    "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
+    "title": "USGS All Earthquakes, Past Day",
+    "status": 200,
+    "api": "1.10.3",
+    "count": 2
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 4.6,
+        "place": "185 km SSW of open ocean reference point",
+        "time": 1786100400000,
+        "updated": 1786101000000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ffx0000001",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ffx0000001.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 326,
+        "net": "ffx",
+        "code": "0000001",
+        "ids": ",ffx0000001,",
+        "sources": ",ffx,",
+        "types": ",origin,phase-data,",
+        "nst": 47,
+        "dmin": 2.14,
+        "rms": 0.82,
+        "gap": 98,
+        "magType": "mb",
+        "type": "earthquake",
+        "title": "M 4.6 - 185 km SSW of open ocean reference point"
+      },
+      "geometry": { "type": "Point", "coordinates": [-129.4412, -22.8317, 10.5] },
+      "id": "ffx0000001"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 1.9,
+        "place": "12 km NE of open ocean reference point",
+        "time": 1786098000000,
+        "updated": 1786098600000,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ffx0000002",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ffx0000002.geojson",
+        "felt": 3,
+        "cdi": 2.2,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 56,
+        "net": "ffx",
+        "code": "0000002",
+        "ids": ",ffx0000002,",
+        "sources": ",ffx,",
+        "types": ",origin,phase-data,",
+        "nst": 12,
+        "dmin": 0.04,
+        "rms": 0.13,
+        "gap": 142,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 1.9 - 12 km NE of open ocean reference point"
+      },
+      "geometry": { "type": "Point", "coordinates": [-118.8232, 37.6045, 3.2] },
+      "id": "ffx0000002"
+    }
+  ],
+  "bbox": [-129.4412, -22.8317, 3.2, -118.8232, 37.6045, 10.5]
+}

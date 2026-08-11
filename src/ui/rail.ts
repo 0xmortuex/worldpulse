@@ -24,7 +24,11 @@ const NEGATIVE_KINDS: InputKind[] = [
 const TIER_ORDER: Tier[] = ['ally', 'adversary', 'strained', 'neutral', 'nodata'];
 
 export function mountRail(root: HTMLElement, store: Store): void {
-  root.innerHTML = `
+  // Appended rather than assigned: the rail also hosts #gallery, and assigning
+  // innerHTML here would delete it.
+  const host = document.createElement('div');
+  root.prepend(host);
+  host.innerHTML = `
     <section class="rail-section">
       <h2>Relation weights</h2>
       <p class="rail-help">Who counts as an ally is contested. These are this app's
@@ -73,21 +77,21 @@ export function mountRail(root: HTMLElement, store: Store): void {
       </ul>
     </section>`;
 
-  root.querySelectorAll<HTMLInputElement>('input[type=range]').forEach((input) => {
+  host.querySelectorAll<HTMLInputElement>('input[type=range]').forEach((input) => {
     input.addEventListener('input', () => {
       store.setWeight(input.name as keyof Weights, Number(input.value));
     });
   });
 
-  root.querySelector<HTMLButtonElement>('.rail-reset')?.addEventListener('click', () => {
+  host.querySelector<HTMLButtonElement>('.rail-reset')?.addEventListener('click', () => {
     store.resetWeights();
   });
 
   store.subscribe((state) => {
     for (const [kind, value] of Object.entries(state.weights)) {
-      const input = root.querySelector<HTMLInputElement>(`input[name="${kind}"]`);
+      const input = host.querySelector<HTMLInputElement>(`input[name="${kind}"]`);
       if (input && Number(input.value) !== value) input.value = String(value);
-      const readout = root.querySelector<HTMLElement>(`[data-readout="${kind}"]`);
+      const readout = host.querySelector<HTMLElement>(`[data-readout="${kind}"]`);
       if (readout) readout.textContent = value > 0 ? `+${value}` : String(value);
     }
   });

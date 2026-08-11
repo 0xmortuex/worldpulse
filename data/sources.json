@@ -21,7 +21,8 @@
       "ttlMs": null,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "worldbank",
@@ -36,7 +37,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "worldbank-milex",
@@ -52,7 +54,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "notes": "Used in place of a direct SIPRI ingest: SIPRI publishes no API and restricts redistribution, but the World Bank redistributes the same series under CC BY 4.0. Indicators: MS.MIL.XPND.CD, MS.MIL.XPND.GD.ZS, MS.MIL.TOTL.P1."
+      "notes": "Used in place of a direct SIPRI ingest: SIPRI publishes no API and restricts redistribution, but the World Bank redistributes the same series under CC BY 4.0. Indicators: MS.MIL.XPND.CD, MS.MIL.XPND.GD.ZS, MS.MIL.TOTL.P1.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "usgs-quakes",
@@ -67,7 +70,8 @@
       "ttlMs": 300000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "nasa-eonet",
@@ -82,7 +86,8 @@
       "ttlMs": 3600000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "wikidata-sparql",
@@ -99,7 +104,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "requiresCustomUserAgent": true,
-      "notes": "Requires a descriptive User-Agent. Browsers cannot set User-Agent, so this needs the Worker regardless of CORS posture."
+      "notes": "Requires a descriptive User-Agent. Browsers cannot set User-Agent, so this needs the Worker regardless of CORS posture.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "wikipedia-rest",
@@ -114,7 +120,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "wikimedia-commons",
@@ -129,7 +136,8 @@
       "ttlMs": 604800000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "gdelt-doc",
@@ -144,7 +152,8 @@
       "ttlMs": 900000,
       "tier": "DERIVED",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "ucdp-ged",
@@ -160,7 +169,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "notes": "Annual release. NOT a live feed; the layer header must state the version and coverage end date. UCDP Candidate (monthly, preliminary) is a separate source and must be tagged ESTIMATE and never mixed into the same view without visual distinction."
+      "notes": "Annual release. NOT a live feed; the layer header must state the version and coverage end date. UCDP Candidate (monthly, preliminary) is a separate source and must be tagged ESTIMATE and never mixed into the same view without visual distinction.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "ucdp-candidate",
@@ -176,7 +186,8 @@
       "tier": "ESTIMATE",
       "keyRequired": false,
       "keyEnv": null,
-      "notes": "Preliminary and subject to revision. Must render visually distinct from GED."
+      "notes": "Preliminary and subject to revision. Must render visually distinct from GED.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "iptv-org-channels",
@@ -192,7 +203,8 @@
       "tier": "DERIVED",
       "keyRequired": false,
       "keyEnv": null,
-      "notes": "Never proxy or re-host video. Link to upstream HLS only. Health-check before display."
+      "notes": "Never proxy or re-host video. Link to upstream HLS only. Health-check before display.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "iptv-org-streams",
@@ -207,7 +219,8 @@
       "ttlMs": 86400000,
       "tier": "DERIVED",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "frankfurter",
@@ -223,7 +236,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "notes": "~30 currencies, weekdays only. Exotic currencies and weekends fall back or show no data."
+      "notes": "~30 currencies, weekdays only. Exotic currencies and weekends fall back or show no data.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "exchangerate-host",
@@ -239,7 +253,8 @@
       "tier": "ESTIMATE",
       "keyRequired": true,
       "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
-      "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode."
+      "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "comtrade",
@@ -255,7 +270,8 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "COMTRADE_KEY",
-      "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor."
+      "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "congress-gov",
@@ -271,7 +287,8 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "CONGRESS_GOV_KEY",
-      "legislatureTier": 1
+      "legislatureTier": 1,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "uk-commons-votes",
@@ -287,7 +304,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "legislatureTier": 1
+      "legislatureTier": 1,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "howtheyvote-data",
@@ -304,7 +322,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "notes": "Stable path. The live howtheyvote.eu API is self-described as experimental with no availability guarantee; use it only as a freshness layer."
+      "notes": "Stable path. The live howtheyvote.eu API is self-described as experimental with no availability guarantee; use it only as a freshness layer.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "openparliament-ca",
@@ -322,7 +341,8 @@
       "keyEnv": null,
       "legislatureTier": 1,
       "requiresCustomUserAgent": true,
-      "notes": "Requests should carry a contact User-Agent per site guidance."
+      "notes": "Requests should carry a contact User-Agent per site guidance.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "camara-br",
@@ -339,7 +359,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "notes": "Câmara only. Senado Federal is a separate API."
+      "notes": "Câmara only. Senado Federal is a separate API.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "abgeordnetenwatch",
@@ -356,7 +377,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "notes": "Named votes (namentliche Abstimmungen) only. Tab must be labelled named-votes-only so absent routine votes do not read as inactivity."
+      "notes": "Named votes (namentliche Abstimmungen) only. Tab must be labelled named-votes-only so absent routine votes do not read as inactivity.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "nosdeputes",
@@ -373,7 +395,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "notes": "ODbL share-alike is viral into derived datasets. Per decision 3: keep in its own store, never merge into a general-purpose derived table."
+      "notes": "ODbL share-alike is viral into derived datasets. Per decision 3: keep in its own store, never merge into a general-purpose derived table.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "tweedekamer",
@@ -389,7 +412,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "legislatureTier": 1
+      "legislatureTier": 1,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "riksdagen",
@@ -405,7 +429,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "legislatureTier": 1
+      "legislatureTier": 1,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "theyvoteforyou",
@@ -421,7 +446,8 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "THEYVOTEFORYOU_KEY",
-      "legislatureTier": 1
+      "legislatureTier": 1,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "epanstwo-pl",
@@ -438,7 +464,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 2,
-      "notes": "Per decision 10: verify live during step 9. ePaństwo has wound down services. Stays Tier 2 until a probe shows it responding."
+      "notes": "Per decision 10: verify live during step 9. ePaństwo has wound down services. Stays Tier 2 until a probe shows it responding.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "ofac-sdn",
@@ -453,7 +480,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "eu-sanctions",
@@ -468,7 +496,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "opensanctions",
@@ -484,7 +513,8 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "OPENSANCTIONS_KEY",
-      "notes": "Non-commercial only. Optional enrichment on top of OFAC and EU primary lists, isolated behind its own adapter."
+      "notes": "Non-commercial only. Optional enrichment on top of OFAC and EU primary lists, isolated behind its own adapter.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "state-dept-advisories",
@@ -499,7 +529,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "fcdo-advisories",
@@ -514,7 +545,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "smartraveller",
@@ -529,7 +561,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": false,
-      "keyEnv": null
+      "keyEnv": null,
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "eia",
@@ -544,7 +577,8 @@
       "ttlMs": 86400000,
       "tier": "OFFICIAL",
       "keyRequired": true,
-      "keyEnv": "EIA_KEY"
+      "keyEnv": "EIA_KEY",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "globalfirepower",
@@ -562,7 +596,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "excluded": true,
-      "notes": "Per decision 2: excluded. No API, no licence grant, proprietary compiled estimates. Named in the Military tab's no-data card as a reason equipment inventories are unavailable."
+      "notes": "Per decision 2: excluded. No API, no licence grant, proprietary compiled estimates. Named in the Military tab's no-data card as a reason equipment inventories are unavailable.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "iiss-military-balance",
@@ -580,7 +615,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "excluded": true,
-      "notes": "Per decision 2: excluded. Named in the Military tab's no-data card."
+      "notes": "Per decision 2: excluded. Named in the Military tab's no-data card.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "acled",
@@ -598,7 +634,8 @@
       "keyRequired": true,
       "keyEnv": null,
       "excluded": true,
-      "notes": "Excluded per Phase 0 section 1.1. UCDP GED is the conflict source."
+      "notes": "Excluded per Phase 0 section 1.1. UCDP GED is the conflict source.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "sipri-direct",
@@ -616,7 +653,8 @@
       "keyRequired": false,
       "keyEnv": null,
       "excluded": true,
-      "notes": "No API. Reached indirectly via worldbank-milex. Link-out only. Arms-transfer arcs dropped per decision 4."
+      "notes": "No API. Reached indirectly via worldbank-milex. Link-out only. Arms-transfer arcs dropped per decision 4.",
+      "verifiedAgainst": "documentation"
     },
     {
       "id": "un-register-arms",
@@ -634,7 +672,12 @@
       "keyRequired": false,
       "keyEnv": null,
       "excluded": true,
-      "notes": "Excluded per decision 4. Self-reported and sparse; drawn as arcs, a missing report reads as 'no transfers', which is a confident falsehood. Replaced by a coverage note in the Military tab."
+      "notes": "Excluded per decision 4. Self-reported and sparse; drawn as arcs, a missing report reads as 'no transfers', which is a confident falsehood. Replaced by a coverage note in the Military tab.",
+      "verifiedAgainst": "documentation"
     }
-  ]
+  ],
+  "verifiedAgainstValues": {
+    "documentation": "Endpoint contract taken from vendor documentation. NOT confirmed against a live response. Nothing ships to a real deployment while any source it depends on is still \"documentation\".",
+    "live": "Confirmed against a live response captured by npm run probe, with the observed shape recorded in a fixture."
+  }
 }

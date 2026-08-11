@@ -1,0 +1,13 @@
+{
+  "head": { "vars": ["item", "itemLabel", "capital", "capitalLabel"] },
+  "results": {
+    "bindings": [
+      {
+        "item": { "type": "uri", "value": "http://www.wikidata.org/entity/Q142" },
+        "itemLabel": { "xml:lang": "en", "type": "literal", "value": "France" },
+        "capital": { "type": "uri", "value": "http://www.wikidata.org/entity/Q90" },
+        "capitalLabel": { "xml:lang": "en", "type": "literal", "value": "Paris" }
+      }
+    ]
+  }
+}

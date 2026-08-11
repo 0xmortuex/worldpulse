@@ -1,5 +1,7 @@
 import './styles.css';
 import { countryByCode, loadCountries } from './countries';
+import { mountInspector } from './facts/inspector';
+import { mountGallery } from './dev/gallery';
 import { CountryGlobe, type PolygonStyle } from './globe';
 import { buildFindings, loadFacts } from './relations/facts';
 import { pairKey, score } from './relations/score';
@@ -22,6 +24,8 @@ const currentYear = new Date().getFullYear();
 
 const store = new Store();
 
+mountInspector(document.body);
+
 const globeContainer = must<HTMLElement>('#globe');
 const globe = new CountryGlobe(globeContainer, countries, {
   onSelect: (code, additive) => (additive ? store.toggle(code) : store.select(code)),
@@ -30,7 +34,13 @@ const globe = new CountryGlobe(globeContainer, countries, {
 
 mountSearch(must<HTMLElement>('#search'), store, countries);
 mountRail(must<HTMLElement>('#rail'), store);
-mountPanel(must<HTMLElement>('#panel'), store, { byCode, findings, currentYear });
+mountPanel(must<HTMLElement>('#panel'), store, {
+  byCode,
+  findings,
+  currentYear,
+  compiledAt: facts.compiledAt,
+});
+mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
 
 store.subscribe((state) => {
@@ -61,7 +71,7 @@ store.subscribe((state) => {
       );
       const palette = result.lowConfidence ? TIER_COLORS_LOW_CONFIDENCE : TIER_COLORS;
       cap = palette[result.tier];
-      label = relationPopover(country, subject, result);
+      label = relationPopover(country, subject, result, facts.compiledAt);
     } else if (!subject) {
       cap = TIER_COLORS.neutral;
     }

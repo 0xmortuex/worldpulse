@@ -1,5 +1,8 @@
 import type { Country } from '../countries';
+import { factHtml } from '../facts/badge';
+import { notAFact } from '../facts/discipline';
 import { INPUT_LABELS } from '../relations/score';
+import { scoreFact } from '../relations/provenance';
 import type { RelationResult } from '../relations/types';
 import { TIER_LABELS } from '../theme';
 
@@ -25,7 +28,12 @@ function signed(value: number): string {
  * authoritative — a country's colour should never be something the user has to
  * take on trust.
  */
-export function relationPopover(country: Country, subject: Country, result: RelationResult): string {
+export function relationPopover(
+  country: Country,
+  subject: Country,
+  result: RelationResult,
+  compiledAt: string,
+): string {
   const header = `
     <div class="pop-head">
       <div class="pop-title">${escapeHtml(country.name)}</div>
@@ -43,7 +51,9 @@ export function relationPopover(country: Country, subject: Country, result: Rela
   const rows = result.inputs
     .map((input) => {
       const staleClass = input.stale ? ' pop-row--stale' : '';
-      const age = input.stale ? `<span class="pop-age">${input.ageYears}y old</span>` : '';
+      const age = input.stale
+        ? `<span class="pop-age">${notAFact(input.ageYears, 'age of the evidence, derived from the coverage year already shown on this row — describes the fact rather than being one')}y old</span>`
+        : '';
       const note = input.note ? `<div class="pop-caveat">${escapeHtml(input.note)}</div>` : '';
       return `
         <div class="pop-row${staleClass}">
@@ -54,7 +64,7 @@ export function relationPopover(country: Country, subject: Country, result: Rela
           <div class="pop-detail">${escapeHtml(input.label)}</div>
           <div class="pop-meta">
             <span>${escapeHtml(input.source)}</span>
-            <span class="pop-coverage">through ${input.coverageEnd}</span>
+            <span class="pop-coverage">through ${notAFact(input.coverageEnd, 'provenance metadata: the year this input stops being authoritative, shown so the reader can judge the evidence')}</span>
             ${age}
           </div>
           ${note}
@@ -63,19 +73,23 @@ export function relationPopover(country: Country, subject: Country, result: Rela
     .join('');
 
   const arithmetic = result.inputs.map((input) => signed(input.weight)).join(' ');
+  const stalePercent = notAFact(
+    Math.round(result.staleWeightShare * 100),
+    'proportion of the evidence weight that is stale — a property of the calculation shown above, not a value from any source',
+  );
 
   const confidence = result.lowConfidence
-    ? `<div class="pop-lowconf">LOW CONFIDENCE — ${Math.round(result.staleWeightShare * 100)}% of the
+    ? `<div class="pop-lowconf">LOW CONFIDENCE — ${stalePercent}% of the
        evidence weight comes from datasets more than five years old. Treat
        "${escapeHtml(TIER_LABELS[result.tier].toLowerCase())}" as provisional.</div>`
     : '';
 
   return `<div class="pop">${header}
     <div class="pop-rows">${rows}</div>
-    <div class="pop-sum">${escapeHtml(arithmetic)} = <strong>${result.score}</strong>
+    <div class="pop-sum">${escapeHtml(arithmetic)} =
+      ${factHtml(scoreFact(result, compiledAt), { hideAsOf: true })}
       → <span class="pop-verdict pop-verdict--${result.tier}">${escapeHtml(TIER_LABELS[result.tier].toUpperCase())}</span></div>
     ${confidence}
-    <div class="pop-tier-badge">[DERIVED] — computed by this app from the inputs above, not reported by any source.</div>
   </div>`;
 }
 

@@ -91,6 +91,21 @@ path, not the data path, and its name should say so.
 
 ---
 
+## 6. A rule that has never failed is not a rule
+
+`tests/fact-discipline.test.ts` carries a `catches a planted violation` case that
+feeds the analyser a deliberately non-compliant file and asserts it is flagged. A
+static rule that silently matches nothing looks exactly like a clean codebase.
+
+The same applies to the browser checks: when one is added, break the thing it watches
+once and confirm it goes red before committing it.
+
+## 7. `innerText` applies CSS, `textContent` does not
+
+Assertions against `innerText` see the *rendered* text, so anything under
+`text-transform: uppercase` comes back uppercased. Match case-insensitively, or read
+`textContent`. Three step-2 checks failed on this before the code was wrong at all.
+
 ## Running
 
 ```bash

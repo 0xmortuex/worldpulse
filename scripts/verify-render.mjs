@@ -120,6 +120,81 @@ check('weight slider changes the classification', before.join() !== after.join()
 
 await page.screenshot({ path: `${SHOTS}/03-weights-inverted.png` });
 
+// ---- step 2: confidence badges and the provenance inspector ----
+//
+// Per docs/TESTING.md rule 1, these assert on behaviour a broken component
+// could not fake: the inspector must actually surface the request URL and raw
+// body for the clicked fact.
+
+await page.locator('.rail-reset').click();
+await page.waitForTimeout(400);
+
+const tiers = await page.locator('.gallery .badge').allTextContents();
+check('gallery renders every badge state', tiers.length >= 6, tiers.join(' | '));
+check('an untraceable value renders as broken', tiers.some((t) => t.includes('UNTRACEABLE')));
+check('a key-gated source renders as unconfigured', tiers.some((t) => t.includes('KEY NOT SET')));
+check(
+  'OFFICIAL, ESTIMATE and DERIVED are all present and distinct',
+  ['OFFICIAL', 'ESTIMATE', 'DERIVED'].every((tier) => tiers.some((t) => t.includes(tier))),
+);
+
+// Tier styling must differ, not just the text — the spec requires ESTIMATE and
+// DERIVED to be unmistakable for OFFICIAL at a glance.
+const styles = await page.evaluate(() =>
+  ['official', 'estimate', 'derived', 'broken'].map((tier) => {
+    const el = document.querySelector(`.badge--${tier}`);
+    if (!el) return null;
+    const s = getComputedStyle(el);
+    return `${s.color}|${s.borderStyle}|${s.backgroundColor}`;
+  }),
+);
+check('each tier is visually distinct', new Set(styles.filter(Boolean)).size === styles.filter(Boolean).length, styles.join(' // '));
+
+// Open the inspector on the World Bank fixture badge.
+await page.locator('.gallery .badge--official').first().click();
+await page.waitForTimeout(400);
+const inspectorVisible = await page.locator('.inspector-body').isVisible();
+check('clicking a badge opens the provenance inspector', inspectorVisible);
+
+const inspectorText = await page.locator('.inspector-body').innerText();
+check('inspector shows the request URL', inspectorText.includes('api.worldbank.org'), '');
+check('inspector shows the fetch timestamp', /Fetched at/.test(inspectorText));
+check('inspector shows cache state', /hit|miss/i.test(inspectorText));
+check('inspector shows the licence class', /CC BY 4\.0/.test(inspectorText) && /open/i.test(inspectorText));
+check('inspector flags fixture-sourced data', /fixture/i.test(inspectorText));
+check('inspector marks the source as documentation-verified', /documentation/i.test(inspectorText));
+
+const rawShown = await page.locator('.inspector-raw pre').innerText();
+check('inspector shows the raw response body', rawShown.includes('NY.GDP.MKTP.CD'), rawShown.slice(0, 60));
+
+await page.screenshot({ path: `${SHOTS}/05-inspector.png` });
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+check('Escape closes the inspector', !(await page.locator('.inspector-body').isVisible().catch(() => false)));
+check(
+  'Escape closing the inspector does not also clear the selection',
+  (await page.locator('#mode').textContent())?.trim() === 'Relations mode',
+);
+
+// The broken state must be loud in the inspector too, not just the badge.
+await page.locator('.gallery .badge--broken').first().click();
+await page.waitForTimeout(400);
+const alarm = await page.locator('.inspector-alarm').isVisible().catch(() => false);
+check('untraceable value raises an alarm in the inspector', alarm);
+await page.screenshot({ path: `${SHOTS}/06-broken.png` });
+await page.keyboard.press('Escape');
+
+// A derived fact must expose its arithmetic and walk down to its seed inputs.
+await page.waitForTimeout(300);
+await page.locator('.relation-list .badge').first().click();
+await page.waitForTimeout(400);
+const derivedText = await page.locator('.inspector-body').innerText().catch(() => '');
+check('a derived fact shows its arithmetic', /Arithmetic/i.test(derivedText), derivedText.slice(0, 80));
+check('a derived fact lists its inputs', /Inputs \(\d+\)/i.test(derivedText));
+check('derived inputs resolve to seed citations', /Checked against/i.test(derivedText));
+await page.screenshot({ path: `${SHOTS}/07-derived-provenance.png` });
+
 await browser.close();
 
 console.log(`\n${failures.length === 0 ? 'all checks passed' : `${failures.length} FAILED: ${failures.join(', ')}`}`);

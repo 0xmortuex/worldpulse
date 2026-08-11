@@ -230,14 +230,6 @@ body {
 }
 .tag--warn { color: var(--warn); border-color: #4a3a12; }
 
-.badge {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  padding: 1px 5px;
-  border: 1px solid;
-}
-.badge--derived { color: #b57fd6; border-color: #4a2f5e; background: #1d1426; }
-
 .tier-counts {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -344,3 +336,214 @@ body {
     border-top: 1px solid var(--border);
   }
 }
+
+/* ---------- confidence badges ---------- */
+
+.fact {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.fact-label { color: var(--text-dim); }
+.fact-value { color: var(--text); font-variant-numeric: tabular-nums; }
+.fact-value--nodata { color: var(--text-faint); font-style: italic; }
+.fact-asof { color: var(--text-faint); font-size: 10px; }
+.fact-note {
+  flex-basis: 100%;
+  color: var(--warn);
+  font-size: 10px;
+}
+.fact[data-state="broken"] .fact-value {
+  color: #ff6b5b;
+  text-decoration: line-through;
+  text-decoration-color: #7a2a22;
+}
+
+/*
+ * Tiers are separated by colour, border style AND a leading glyph, so the
+ * distinction survives greyscale and colour-blindness. ESTIMATE and DERIVED
+ * must never be mistakable for OFFICIAL.
+ */
+.badge {
+  font: 600 9px/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  padding: 1px 5px;
+  background: transparent;
+  white-space: nowrap;
+}
+button.badge { cursor: pointer; }
+.badge:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+.badge--compact { padding: 1px 4px; letter-spacing: 0; }
+
+.badge--official {
+  color: #3fb950;
+  border: 1px solid #1f6f2b;
+  background: #0d1f12;
+}
+.badge--estimate {
+  color: #d99024;
+  border: 1px dashed #7a5416;
+  background: #201705;
+  font-style: italic;
+}
+.badge--derived {
+  color: #b57fd6;
+  border: 1px dotted #6b3f8a;
+  background: #1a1024;
+  font-style: italic;
+}
+.badge--unconfigured {
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  background: transparent;
+}
+.badge--broken {
+  color: #0b0f14;
+  border: 1px solid #ff6b5b;
+  background: #ff6b5b;
+  font-weight: 700;
+}
+
+/* ---------- provenance inspector ---------- */
+
+.inspector {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(3, 5, 8, 0.72);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+}
+.inspector[hidden] { display: none; }
+
+.inspector-body {
+  width: min(760px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px;
+}
+.inspector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+.inspector-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.inspector-value { font-size: 20px; color: var(--text); }
+.inspector-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+  padding: 2px 7px;
+}
+.inspector-close:hover { border-color: var(--accent); color: var(--accent); }
+
+.inspector-alarm {
+  background: #2a0d0a;
+  border: 1px solid #7a2a22;
+  color: #ff8b7d;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+.inspector-alarm strong { letter-spacing: 0.12em; display: block; margin-bottom: 4px; }
+.inspector-alarm p { margin: 0; font-size: 11px; }
+
+.inspector-warn {
+  background: #2a1f06;
+  border: 1px solid #4a3a12;
+  color: #f0d089;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.inspector-block {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+.inspector-block h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.inspector-block h4 {
+  margin: 12px 0 6px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.inspector-grid {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 5px 12px;
+  margin: 0;
+  font-size: 11px;
+}
+.inspector-grid dt { color: var(--text-faint); }
+.inspector-grid dd { margin: 0; color: var(--text); overflow-wrap: anywhere; }
+.inspector-hint { color: var(--text-faint); font-size: 10px; margin-top: 2px; }
+.inspector-url { color: #79c0ff; }
+.inspector-formula { color: var(--accent); }
+
+.licence-class, .verified, .cache {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 4px;
+  border: 1px solid var(--border);
+  margin-left: 4px;
+}
+.licence-class--open { color: #3fb950; border-color: #1f6f2b; }
+.licence-class--nc, .licence-class--share-alike { color: var(--warn); border-color: #4a3a12; }
+.licence-class--restricted { color: #ff6b5b; border-color: #7a2a22; }
+.verified--documentation { color: var(--warn); border-color: #4a3a12; }
+.verified--live { color: #3fb950; border-color: #1f6f2b; }
+.cache--hit { color: #3fb950; }
+.cache--miss { color: var(--text-dim); }
+
+.inspector-inputs { border-left: 2px solid var(--border); padding-left: 10px; }
+.inspector-inputs .inspector-block { border-top: none; margin-top: 6px; padding-top: 4px; }
+
+.inspector-raw summary { cursor: pointer; color: var(--text-dim); font-size: 11px; margin-top: 10px; }
+.inspector-raw pre {
+  max-height: 280px;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 8px;
+  font-size: 10px;
+  color: #8b949e;
+}
+
+/* ---------- component gallery ---------- */
+
+.gallery { list-style: none; margin: 0; padding: 0; }
+.gallery li { padding: 7px 0; border-bottom: 1px solid #161b22; }
+.gallery-title {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 3px;
+}
+.gallery-fact { margin-bottom: 3px; }
+.gallery-explain { color: var(--text-faint); font-size: 10px; }

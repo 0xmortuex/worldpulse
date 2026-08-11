@@ -1,0 +1,57 @@
+import type { Fact, DerivedProvenance, SeedProvenance } from '../facts/types';
+import type { RelationResult, ScoredInput } from './types';
+
+/**
+ * Bridges a relation result into a Fact, so the score is rendered by the same
+ * badge component as everything else rather than as a bare number.
+ *
+ * The score is genuinely DERIVED: no source reports it. Its provenance carries
+ * the arithmetic and the seed provenance of every input, so the inspector can
+ * walk from the number to each hand-checked citation behind it.
+ */
+
+const SEED_FILE = 'data/relations-seed.json';
+
+function seedProvenance(input: ScoredInput, compiledAt: string): SeedProvenance {
+  return {
+    kind: 'seed',
+    file: SEED_FILE,
+    source: input.source,
+    sourceUrl: input.sourceUrl,
+    coverageEnd: input.coverageEnd,
+    compiledAt,
+    ...(input.note === undefined ? {} : { note: input.note }),
+  };
+}
+
+export function scoreFact(result: RelationResult, compiledAt: string): Fact<number> {
+  const formula =
+    result.inputs.length === 0
+      ? 'no inputs'
+      : `${result.inputs.map((input) => (input.weight > 0 ? `+${input.weight}` : String(input.weight))).join(' ')} = ${result.score}`;
+
+  const provenance: DerivedProvenance = {
+    kind: 'derived',
+    computedBy: 'src/relations/score.ts',
+    formula,
+    // Deterministic given the inputs, so it is stamped with the seed's compile
+    // date rather than the wall clock — otherwise every render would look like
+    // a fresh computation with new information behind it.
+    computedAt: compiledAt,
+    inputs: result.inputs.map((input) => seedProvenance(input, compiledAt)),
+  };
+
+  return {
+    // No inputs means no classification, not a score of zero.
+    value: result.inputs.length === 0 ? null : result.score,
+    asOf: compiledAt,
+    tier: 'DERIVED',
+    provenance,
+    ...(result.lowConfidence
+      ? {
+          note: `${Math.round(result.staleWeightShare * 100)}% of the evidence weight is over five years old. Treat as provisional.`,
+        }
+      : {}),
+    format: (value: number) => (value > 0 ? `+${value}` : String(value)),
+  };
+}

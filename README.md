@@ -3,9 +3,10 @@
 A single-page 3D globe that acts as a live intelligence dashboard for every country
 on Earth: politics, government, military, economy, news, live TV and natural events.
 
-**Current state: build step 1 of 14.** The globe, selection model and relations
-engine work. No live data pipeline yet — relations run on a hand-checked seed set
-so the interaction is provable before the ingests land.
+**Current state: build step 2 of 14.** The globe, selection model, relations engine,
+confidence badge and provenance inspector work. No live data pipeline yet — relations
+run on a hand-checked seed set, and the adapters run against fixtures, so both are
+provable before the ingests land.
 
 ---
 
@@ -22,6 +23,21 @@ Every rendered fact carries a confidence tier and an "as of" date:
 If data for a country is missing, the UI says **no data**. It never shows a
 plausible-looking placeholder. A confident wrong number is worse than a blank.
 
+**The badge is the only sanctioned way to render a fact.** Every badge is clickable
+and opens the provenance inspector: request URL, raw response body, fetch timestamp,
+cache hit or miss, licence class, and whether the source has ever been confirmed
+against a live response. A value that reached the UI without a traceable request or
+computation renders as **UNTRACEABLE**, loudly — an untraceable `[OFFICIAL]` badge is
+the worst failure mode this app has, so it is made the most visible thing on screen
+rather than being allowed to pass as authoritative.
+
+`tests/fact-discipline.test.ts` enforces this statically: it fails the build when a
+numeric expression is interpolated into DOM-bound markup anywhere outside `src/facts/`.
+It uses real type information, so an intermediate variable does not evade it. The two
+compliant ways to render a number are `factHtml(fact)` and, for numbers that genuinely
+are not facts, `notAFact(value, reason)` — which requires a written reason at the call
+site.
+
 ---
 
 ## Running it
@@ -30,8 +46,10 @@ plausible-looking placeholder. A confident wrong number is worse than a blank.
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # typecheck + production build
-npm test             # relations engine and geometry tests
+npm test             # unit, contract and static-analysis tests
 npm run probe        # CORS + reachability verdicts for every source
+npm run check:deploy # blocks a deploy while any source is unverified
+PROBE_LIVE=1 npm test   # same contract assertions, against live sources
 ```
 
 No API keys are needed. Copy `.env.example` to `.env` when you have them; every
@@ -122,11 +140,41 @@ most countries read as "no data".
 
 ---
 
+## Provenance and verification
+
+Every source in `data/sources.json` carries `verifiedAgainst`:
+
+| Value | Meaning |
+| --- | --- |
+| `documentation` | Endpoint contract read from vendor docs. Never confirmed against a live response. |
+| `live` | Confirmed against a real response, with the observed shape captured in a fixture. |
+
+**Nothing ships to a real deployment while any runtime source it depends on is still
+`documentation`.** `npm run check:deploy` enforces that and names what is outstanding.
+Bundled, version-pinned sources are not gated: they cannot drift underneath us, and
+their shape is asserted against the real bytes by the test suite.
+
+Contract tests assert response *shape* and *sanity ranges*, never current values — a
+test pinned to a live figure fails whenever the world changes, which trains people to
+ignore it. The same assertions run against fixtures by default and against live sources
+under `PROBE_LIVE=1`; only the input is swapped.
+
+The fixtures in `tests/fixtures/` are **hand-authored from published documentation, not
+captured responses** — no request in this repository has ever reached these APIs. The
+inspector says so on every value derived from one.
+
 ## Architecture
 
 ```
 src/
   countries.ts          Natural Earth topology -> ISO-coded country records
+  facts/
+    types.ts            Fact and Provenance contracts; fetch/derived/seed/unconfigured
+    registry.ts         typed access to data/sources.json
+    badge.ts            the confidence badge — the only way to render a fact
+    inspector.ts        provenance inspector, recursive through derived inputs
+    discipline.ts       notAFact(), the audited escape hatch
+  sources/              per-source adapters: parse validates, toFact attaches provenance
   globe.ts              globe.gl wrapper; renders a style map, owns no opinions
   state.ts              observable store (selection, weights); URL state in step 13
   relations/
@@ -174,42 +222,46 @@ needing to know that time travel exists.
 worldpulse renders data from the following sources. Every figure in the UI carries
 its source, confidence tier and "as of" date; this list is the registry those come from.
 
-| Source | Panel | Licence | Attribution | Key |
-| --- | --- | --- | --- | --- |
-| [Natural Earth (via world-atlas)](https://www.naturalearthdata.com/) | globe | Public domain | Made with Natural Earth. | none |
-| [World Bank Indicators API v2](https://datahelpdesk.worldbank.org/knowledgebase/topics/125589) | economy | CC BY 4.0 | World Bank Open Data (CC BY 4.0). | none |
-| [World Bank MS.MIL.* (SIPRI data, redistributed)](https://data.worldbank.org/indicator/MS.MIL.XPND.CD) | military | CC BY 4.0 | Stockholm International Peace Research Institute (SIPRI), Yearbook, via World Bank Open Data (CC BY 4.0). | none |
-| [USGS Earthquake Hazards Program feed](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) | layers | US Government work, public domain | U.S. Geological Survey. | none |
-| [NASA EONET v3](https://eonet.gsfc.nasa.gov/docs/v3) | layers | US Government work, public domain | NASA Earth Observatory Natural Event Tracker (EONET). | none |
-| [Wikidata Query Service (SPARQL)](https://query.wikidata.org/) | government | CC0 1.0 | Wikidata (CC0). | none |
-| [Wikipedia REST v1 summary](https://en.wikipedia.org/api/rest_v1/) | government | CC BY-SA 4.0 **Share-alike licence** — kept in a separate store, never merged into a general derived table. | Wikipedia contributors (CC BY-SA 4.0). | none |
-| [Wikimedia Commons API (portraits, licence and credit)](https://commons.wikimedia.org/w/api.php) | header | per file, frequently CC BY / CC BY-SA **Share-alike licence** — kept in a separate store, never merged into a general derived table. | Per-image; photographer credit and licence shown on hover. | none |
-| [GDELT DOC 2.0 API](https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/) | news | Open for research and non-commercial use; see GDELT terms **Non-commercial licence** — isolated behind its own adapter. | The GDELT Project. | none |
-| [UCDP Georeferenced Event Dataset](https://ucdp.uu.se/apidocs/) | risk | CC BY 4.0 | Uppsala Conflict Data Program (UCDP), Georeferenced Event Dataset v26.1. | none |
-| [UCDP Candidate Events (preliminary, monthly)](https://ucdp.uu.se/apidocs/) | risk | CC BY 4.0 | Uppsala Conflict Data Program (UCDP), Candidate Events Dataset. | none |
-| [iptv-org channel index](https://github.com/iptv-org/api) | tv | Index is open; streams are third-party and not hosted or proxied by this project | iptv-org. | none |
-| [iptv-org stream index](https://github.com/iptv-org/api) | tv | Index is open; streams are third-party | iptv-org. | none |
-| [Frankfurter (ECB reference rates)](https://frankfurter.dev/) | economy | Open; underlying data ECB | European Central Bank reference rates via Frankfurter. | none |
-| [exchangerate.host](https://exchangerate.host/documentation) | economy | Vendor terms **No reuse licence** — link-out only, not ingested. | exchangerate.host. | `VITE_EXCHANGERATE_HOST_KEY` |
-| [UN Comtrade API](https://comtradedeveloper.un.org/) | economy | UN Comtrade terms; attribution required **No reuse licence** — link-out only, not ingested. | UN Comtrade. | `COMTRADE_KEY` |
-| [congress.gov API v3](https://api.congress.gov/) | legislature | US Government work | congress.gov. | `CONGRESS_GOV_KEY` |
-| [UK Commons Votes API](https://developer.parliament.uk/) | legislature | Open Parliament Licence | Contains Parliamentary information licensed under the Open Parliament Licence v3.0. | none |
-| [HowTheyVote weekly data dumps (GitHub)](https://github.com/HowTheyVote/data) | legislature | See repository; EP source data is open | HowTheyVote.eu. | none |
-| [openparliament.ca API](https://openparliament.ca/api/) | legislature | See site terms; attribution required | openparliament.ca. | none |
-| [Dados Abertos Câmara dos Deputados](https://dadosabertos.camara.leg.br/) | legislature | Open government data | Câmara dos Deputados, Dados Abertos. | none |
-| [abgeordnetenwatch.de API v2](https://www.abgeordnetenwatch.de/api) | legislature | ODbL / CC BY-SA depending on dataset **Share-alike licence** — kept in a separate store, never merged into a general derived table. | abgeordnetenwatch.de. | none |
-| [NosDéputés.fr API](https://github.com/regardscitoyens/nosdeputes.fr/blob/master/doc/api.md) | legislature | ODbL 1.0 **Share-alike licence** — kept in a separate store, never merged into a general derived table. | NosDéputés.fr / Regards Citoyens (ODbL). | none |
-| [Tweede Kamer OData v4](https://opendata.tweedekamer.nl/documentatie/introductie) | legislature | Open government data | Tweede Kamer der Staten-Generaal. | none |
-| [Sveriges Riksdag open data](https://www.riksdagen.se/en/follow-and-subscribe/the-riksdags-open-data/) | legislature | Free reuse, no fee | Sveriges Riksdag. | none |
-| [They Vote For You (Australia)](https://theyvoteforyou.org.au/help/data) | legislature | See site terms | They Vote For You / OpenAustralia Foundation. | `THEYVOTEFORYOU_KEY` |
-| [Fundacja ePaństwo (Poland)](https://api.sejmometr.pl/) | legislature | Unverified **No reuse licence** — link-out only, not ingested. | Fundacja ePaństwo. | none |
-| [OFAC Specially Designated Nationals list](https://ofac.treasury.gov/sanctions-list-service) | risk | US Government work, public domain | US Treasury, Office of Foreign Assets Control. | none |
-| [EU consolidated financial sanctions list](https://data.europa.eu/data/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions) | risk | Free reuse | European Union. | none |
-| [OpenSanctions](https://www.opensanctions.org/docs/api/) | risk | CC BY-NC 4.0 **Non-commercial licence** — isolated behind its own adapter. | OpenSanctions (CC BY-NC 4.0). | `OPENSANCTIONS_KEY` |
-| [US State Dept travel advisories](https://travel.state.gov/) | risk | US Government work, public domain | US Department of State. | none |
-| [UK FCDO foreign travel advice](https://www.gov.uk/foreign-travel-advice) | risk | Open Government Licence v3.0 | Contains public sector information licensed under the Open Government Licence v3.0. | none |
-| [Australian Smartraveller](https://www.smartraveller.gov.au/) | risk | CC BY 4.0 (Australian Government) | Australian Government Department of Foreign Affairs and Trade. | none |
-| [US EIA API v2](https://www.eia.gov/opendata/) | economy | US Government work, public domain | US Energy Information Administration. | `EIA_KEY` |
+**Verified:** 0 of 34 sources have been confirmed against a live response.
+The rest carry endpoint contracts read from vendor documentation only. `npm run check:deploy`
+blocks a deploy while any remain unverified.
+
+| Source | Panel | Licence | Attribution | Key | Verified |
+| --- | --- | --- | --- | --- | --- |
+| [Natural Earth (via world-atlas)](https://www.naturalearthdata.com/) | globe | Public domain | Made with Natural Earth. | none | **docs only** |
+| [World Bank Indicators API v2](https://datahelpdesk.worldbank.org/knowledgebase/topics/125589) | economy | CC BY 4.0 | World Bank Open Data (CC BY 4.0). | none | **docs only** |
+| [World Bank MS.MIL.* (SIPRI data, redistributed)](https://data.worldbank.org/indicator/MS.MIL.XPND.CD) | military | CC BY 4.0 | Stockholm International Peace Research Institute (SIPRI), Yearbook, via World Bank Open Data (CC BY 4.0). | none | **docs only** |
+| [USGS Earthquake Hazards Program feed](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) | layers | US Government work, public domain | U.S. Geological Survey. | none | **docs only** |
+| [NASA EONET v3](https://eonet.gsfc.nasa.gov/docs/v3) | layers | US Government work, public domain | NASA Earth Observatory Natural Event Tracker (EONET). | none | **docs only** |
+| [Wikidata Query Service (SPARQL)](https://query.wikidata.org/) | government | CC0 1.0 | Wikidata (CC0). | none | **docs only** |
+| [Wikipedia REST v1 summary](https://en.wikipedia.org/api/rest_v1/) | government | CC BY-SA 4.0 **Share-alike licence** — kept in a separate store, never merged into a general derived table. | Wikipedia contributors (CC BY-SA 4.0). | none | **docs only** |
+| [Wikimedia Commons API (portraits, licence and credit)](https://commons.wikimedia.org/w/api.php) | header | per file, frequently CC BY / CC BY-SA **Share-alike licence** — kept in a separate store, never merged into a general derived table. | Per-image; photographer credit and licence shown on hover. | none | **docs only** |
+| [GDELT DOC 2.0 API](https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/) | news | Open for research and non-commercial use; see GDELT terms **Non-commercial licence** — isolated behind its own adapter. | The GDELT Project. | none | **docs only** |
+| [UCDP Georeferenced Event Dataset](https://ucdp.uu.se/apidocs/) | risk | CC BY 4.0 | Uppsala Conflict Data Program (UCDP), Georeferenced Event Dataset v26.1. | none | **docs only** |
+| [UCDP Candidate Events (preliminary, monthly)](https://ucdp.uu.se/apidocs/) | risk | CC BY 4.0 | Uppsala Conflict Data Program (UCDP), Candidate Events Dataset. | none | **docs only** |
+| [iptv-org channel index](https://github.com/iptv-org/api) | tv | Index is open; streams are third-party and not hosted or proxied by this project | iptv-org. | none | **docs only** |
+| [iptv-org stream index](https://github.com/iptv-org/api) | tv | Index is open; streams are third-party | iptv-org. | none | **docs only** |
+| [Frankfurter (ECB reference rates)](https://frankfurter.dev/) | economy | Open; underlying data ECB | European Central Bank reference rates via Frankfurter. | none | **docs only** |
+| [exchangerate.host](https://exchangerate.host/documentation) | economy | Vendor terms **No reuse licence** — link-out only, not ingested. | exchangerate.host. | `VITE_EXCHANGERATE_HOST_KEY` | **docs only** |
+| [UN Comtrade API](https://comtradedeveloper.un.org/) | economy | UN Comtrade terms; attribution required **No reuse licence** — link-out only, not ingested. | UN Comtrade. | `COMTRADE_KEY` | **docs only** |
+| [congress.gov API v3](https://api.congress.gov/) | legislature | US Government work | congress.gov. | `CONGRESS_GOV_KEY` | **docs only** |
+| [UK Commons Votes API](https://developer.parliament.uk/) | legislature | Open Parliament Licence | Contains Parliamentary information licensed under the Open Parliament Licence v3.0. | none | **docs only** |
+| [HowTheyVote weekly data dumps (GitHub)](https://github.com/HowTheyVote/data) | legislature | See repository; EP source data is open | HowTheyVote.eu. | none | **docs only** |
+| [openparliament.ca API](https://openparliament.ca/api/) | legislature | See site terms; attribution required | openparliament.ca. | none | **docs only** |
+| [Dados Abertos Câmara dos Deputados](https://dadosabertos.camara.leg.br/) | legislature | Open government data | Câmara dos Deputados, Dados Abertos. | none | **docs only** |
+| [abgeordnetenwatch.de API v2](https://www.abgeordnetenwatch.de/api) | legislature | ODbL / CC BY-SA depending on dataset **Share-alike licence** — kept in a separate store, never merged into a general derived table. | abgeordnetenwatch.de. | none | **docs only** |
+| [NosDéputés.fr API](https://github.com/regardscitoyens/nosdeputes.fr/blob/master/doc/api.md) | legislature | ODbL 1.0 **Share-alike licence** — kept in a separate store, never merged into a general derived table. | NosDéputés.fr / Regards Citoyens (ODbL). | none | **docs only** |
+| [Tweede Kamer OData v4](https://opendata.tweedekamer.nl/documentatie/introductie) | legislature | Open government data | Tweede Kamer der Staten-Generaal. | none | **docs only** |
+| [Sveriges Riksdag open data](https://www.riksdagen.se/en/follow-and-subscribe/the-riksdags-open-data/) | legislature | Free reuse, no fee | Sveriges Riksdag. | none | **docs only** |
+| [They Vote For You (Australia)](https://theyvoteforyou.org.au/help/data) | legislature | See site terms | They Vote For You / OpenAustralia Foundation. | `THEYVOTEFORYOU_KEY` | **docs only** |
+| [Fundacja ePaństwo (Poland)](https://api.sejmometr.pl/) | legislature | Unverified **No reuse licence** — link-out only, not ingested. | Fundacja ePaństwo. | none | **docs only** |
+| [OFAC Specially Designated Nationals list](https://ofac.treasury.gov/sanctions-list-service) | risk | US Government work, public domain | US Treasury, Office of Foreign Assets Control. | none | **docs only** |
+| [EU consolidated financial sanctions list](https://data.europa.eu/data/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions) | risk | Free reuse | European Union. | none | **docs only** |
+| [OpenSanctions](https://www.opensanctions.org/docs/api/) | risk | CC BY-NC 4.0 **Non-commercial licence** — isolated behind its own adapter. | OpenSanctions (CC BY-NC 4.0). | `OPENSANCTIONS_KEY` | **docs only** |
+| [US State Dept travel advisories](https://travel.state.gov/) | risk | US Government work, public domain | US Department of State. | none | **docs only** |
+| [UK FCDO foreign travel advice](https://www.gov.uk/foreign-travel-advice) | risk | Open Government Licence v3.0 | Contains public sector information licensed under the Open Government Licence v3.0. | none | **docs only** |
+| [Australian Smartraveller](https://www.smartraveller.gov.au/) | risk | CC BY 4.0 (Australian Government) | Australian Government Department of Foreign Affairs and Trade. | none | **docs only** |
+| [US EIA API v2](https://www.eia.gov/opendata/) | economy | US Government work, public domain | US Energy Information Administration. | `EIA_KEY` | **docs only** |
 
 ### Considered and excluded
 

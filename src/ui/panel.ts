@@ -1,4 +1,7 @@
 import type { Country } from '../countries';
+import { factHtml } from '../facts/badge';
+import { notAFact } from '../facts/discipline';
+import { scoreFact } from '../relations/provenance';
 import { pairKey, score } from '../relations/score';
 import type { Finding, RelationResult, Tier } from '../relations/types';
 import type { AppState, Store } from '../state';
@@ -11,6 +14,8 @@ export interface PanelContext {
   byCode: ReadonlyMap<string, Country>;
   findings: ReadonlyMap<string, Finding[]>;
   currentYear: number;
+  /** Compile date of the seed fact table, stamped onto derived provenance. */
+  compiledAt: string;
 }
 
 export function mountPanel(root: HTMLElement, store: Store, context: PanelContext): void {
@@ -95,7 +100,7 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
         (tier) => `
         <div class="tier-count">
           <span class="swatch" style="background:${TIER_COLORS[tier]}"></span>
-          <span class="tier-count-n">${counts[tier]}</span>
+          <span class="tier-count-n">${notAFact(counts[tier] ?? 0, 'count of rows rendered below, each of which carries its own badge and provenance')}</span>
           <span class="tier-count-l">${escapeHtml(TIER_LABELS[tier])}</span>
         </div>`,
       ).join('')}
@@ -115,7 +120,7 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
                   <span class="swatch" style="background:${TIER_COLORS[result.tier]}"></span>
                   <span class="relation-name">${escapeHtml(other.name)}</span>
                   ${result.lowConfidence ? '<span class="tag tag--warn">low conf.</span>' : ''}
-                  <span class="relation-score">${result.score > 0 ? `+${result.score}` : result.score}</span>
+                  <span class="relation-score">${factHtml(scoreFact(result, context.compiledAt), { hideAsOf: true, compact: true })}</span>
                 </li>`;
               })
               .join('')}
@@ -156,7 +161,7 @@ function compareView(selected: readonly Country[], state: AppState, context: Pan
 
   return `
     <header class="panel-head">
-      <div class="panel-eyebrow">Compare · ${selected.length} selected</div>
+      <div class="panel-eyebrow">Compare · ${notAFact(selected.length, 'number of countries the user has selected — a UI state, not data about the world')} selected</div>
       <h2>${selected.map((country) => escapeHtml(country.name)).join(' · ')}</h2>
     </header>
 
@@ -177,7 +182,7 @@ function compareView(selected: readonly Country[], state: AppState, context: Pan
             ${values
               .map(
                 (value) =>
-                  `<td class="${value === max && max > 0 ? 'leads' : ''}">${value}</td>`,
+                  `<td class="${value === max && max > 0 ? 'leads' : ''}">${notAFact(value, 'count of classifications for this column, each individually badged in that country single view')}</td>`,
               )
               .join('')}
           </tr>`;

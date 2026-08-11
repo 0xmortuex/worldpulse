@@ -1,0 +1,24 @@
+{
+  "articles": [
+    {
+      "url": "https://example-outlet.test/politics/budget-vote",
+      "url_mobile": "",
+      "title": "Legislature passes budget after extended debate",
+      "seendate": "20260810T143000Z",
+      "socialimage": "https://example-outlet.test/img/budget.jpg",
+      "domain": "example-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://another-outlet.test/economy/inflation-figures",
+      "url_mobile": "",
+      "title": "Statistics office publishes monthly inflation figures",
+      "seendate": "20260810T091500Z",
+      "socialimage": "",
+      "domain": "another-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    }
+  ]
+}

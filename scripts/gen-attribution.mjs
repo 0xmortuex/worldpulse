@@ -33,12 +33,17 @@ const lines = [
   'worldpulse renders data from the following sources. Every figure in the UI carries',
   'its source, confidence tier and "as of" date; this list is the registry those come from.',
   '',
-  '| Source | Panel | Licence | Attribution | Key |',
-  '| --- | --- | --- | --- | --- |',
+  `**Verified:** ${active.filter((s) => s.verifiedAgainst === 'live').length} of ${active.length} sources have been confirmed against a live response.`,
+  'The rest carry endpoint contracts read from vendor documentation only. `npm run check:deploy`',
+  'blocks a deploy while any remain unverified.',
+  '',
+  '| Source | Panel | Licence | Attribution | Key | Verified |',
+  '| --- | --- | --- | --- | --- | --- |',
   ...active.map((source) => {
     const key = source.keyRequired ? `\`${source.keyEnv ?? 'required'}\`` : 'none';
     const licence = `${source.license}${CLASS_NOTE[source.licenseClass] ?? ''}`;
-    return `| [${source.name}](${source.homepage}) | ${source.panel} | ${licence} | ${source.attribution ?? '—'} | ${key} |`;
+    const verified = source.verifiedAgainst === 'live' ? 'live' : '**docs only**';
+    return `| [${source.name}](${source.homepage}) | ${source.panel} | ${licence} | ${source.attribution ?? '—'} | ${key} | ${verified} |`;
   }),
   '',
   '### Considered and excluded',
