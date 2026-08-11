@@ -235,18 +235,29 @@ async function makeWorktree() {
 
 /* ---------------------------------------------------------------- steps */
 
+// The vite binary, run by node directly. `npx` is a .cmd on Windows and
+// execFile cannot launch it without a shell — the harness reported "baseline
+// build failed" with an empty reason, which is the same mistake the preview
+// server made and the reason its detail now includes the message as well.
+const viteBin = (cwd) => join(cwd, 'node_modules/vite/bin/vite.js');
+
 async function build(cwd) {
   try {
-    await run('npx', ['vite', 'build'], { cwd, maxBuffer: 32 * 1024 * 1024, timeout: BUILD_TIMEOUT_MS });
+    await run(process.execPath, [viteBin(cwd), 'build'], {
+      cwd,
+      maxBuffer: 32 * 1024 * 1024,
+      timeout: BUILD_TIMEOUT_MS,
+    });
     return { ok: true };
   } catch (error) {
-    return { ok: false, detail: String(error.stderr ?? error.message ?? error).slice(0, 200) };
+    const detail = [error.message, error.stderr, error.stdout].filter(Boolean).join(' | ');
+    return { ok: false, detail: (detail || String(error)).slice(0, 300) };
   }
 }
 
 async function verify(cwd) {
   try {
-    const { stdout } = await run('node', ['scripts/verify-render.mjs', `http://localhost:${PORT}`], {
+    const { stdout } = await run(process.execPath, ['scripts/verify-render.mjs', `http://localhost:${PORT}`], {
       cwd,
       maxBuffer: 32 * 1024 * 1024,
       timeout: VERIFY_TIMEOUT_MS,
@@ -288,7 +299,7 @@ async function startPreview(cwd) {
 
   preview = spawn(
     process.execPath,
-    [join(cwd, 'node_modules/vite/bin/vite.js'), 'preview', '--port', String(PORT), '--strictPort'],
+    [viteBin(cwd), 'preview', '--port', String(PORT), '--strictPort'],
     { cwd, stdio: 'ignore' },
   );
 
