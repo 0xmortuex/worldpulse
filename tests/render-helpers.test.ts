@@ -214,7 +214,13 @@ describe('render-helper registry', () => {
     const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, ROOT);
 
-    const planted = resolve(ROOT, 'src/__planted-helper__.ts');
+    // Forward slashes, always. TypeScript normalises every `fileName` it hands
+    // to a compiler host, so on Windows a backslash path never matches the
+    // `fileName === planted` comparisons below: the host falls through to the
+    // real filesystem, the planted file is never created, and the check that
+    // proves this rule can fail is itself the thing that fails. Same defect as
+    // the sibling control in fact-discipline.test.ts.
+    const planted = resolve(ROOT, 'src/__planted-helper__.ts').replace(/\\/g, '/');
     const source =
       'function signed(value: number): string { return value > 0 ? `+${value}` : String(value); }\n' +
       'export const html = `<span class="weight">${signed(3)}</span>`;\n';
