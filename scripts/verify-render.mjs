@@ -240,10 +240,18 @@ async function assertLayout(page, containerSelector, childSelector, label) {
         .filter((el) => el.offsetParent !== null || el.getClientRects().length > 0)
         .map((el) => {
           const box = el.getBoundingClientRect();
+          const style = getComputedStyle(el);
           return {
             tag: el.className || el.tagName,
             x: Math.round(box.x), y: Math.round(box.y),
             w: Math.round(box.width), h: Math.round(box.height),
+            // Vertical clipping, the counterpart to rule 9's horizontal test.
+            // Only where the overflow is actually unreachable: content that
+            // spills out of a visible-overflow box is still on screen, and the
+            // overlap test below is what catches that.
+            clipsY: ['hidden', 'clip'].includes(style.overflowY),
+            scrollH: el.scrollHeight,
+            clientH: el.clientHeight,
           };
         });
       return { rootBox: { x: rootBox.x, y: rootBox.y, w: rootBox.width, h: rootBox.height }, kids };
@@ -265,6 +273,14 @@ async function assertLayout(page, containerSelector, childSelector, label) {
 
   for (const kid of kids) {
     if (kid.w <= 0 || kid.h <= 0) problems.push(`${kid.tag} collapsed to ${kid.w}x${kid.h}`);
+    // "Collapsed" was defined as exactly zero, which let a row squashed to 2px
+    // — its text clipped entirely away — pass as healthy. A mutation collapsing
+    // party-legend rows survived on precisely that margin: height:0 plus 1px
+    // padding top and bottom is not zero. What matters is not whether the box
+    // reached zero but whether its content still fits inside it.
+    if (kid.clipsY && kid.scrollH > kid.clientH + 1) {
+      problems.push(`${kid.tag} clips its content vertically (${kid.scrollH}px of content in ${kid.clientH}px)`);
+    }
     // 1px tolerance for sub-pixel rounding.
     if (kid.x < rootBox.x - 1 || kid.x + kid.w > rootBox.x + rootBox.w + 1) {
       problems.push(`${kid.tag} overflows horizontally (${kid.x}..${kid.x + kid.w} vs ${Math.round(rootBox.x)}..${Math.round(rootBox.x + rootBox.w)})`);
