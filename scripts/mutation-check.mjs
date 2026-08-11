@@ -30,7 +30,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const run = promisify(execFile);
 const ROOT = resolve(import.meta.dirname, '..');
@@ -184,6 +184,12 @@ async function teardown() {
       await rm(worktree, { recursive: true, force: true }).catch(() => {});
       await run('git', ['worktree', 'prune'], { cwd: ROOT }).catch(() => {});
     }
+    // The worktree lives in a subdirectory of the mkdtemp root, so removing it
+    // leaves the root behind — an empty directory per run, accumulating
+    // silently. Cleanup that removes the thing it named and forgets what it
+    // created around it is the same shape as killing a wrapper and leaving the
+    // server running.
+    await rm(dirname(worktree), { recursive: true, force: true }).catch(() => {});
     worktree = null;
   }
 }
