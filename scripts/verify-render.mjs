@@ -147,6 +147,82 @@ function skipped(label, why) {
 }
 
 /**
+ * Print the per-step table and exit.
+ *
+ * Printed on EVERY exit path, including a crash. This script is one long linear
+ * sequence, so an exception anywhere — a click that times out because some
+ * element now covers its target — used to kill the process with a stack trace
+ * and nothing else: no table, no failure line, no indication of how much of the
+ * suite had actually run. A run that stops after step 2 and says nothing is
+ * indistinguishable from a run that never started.
+ *
+ * On a crash the aborting step is recorded as a failure and every step after it
+ * is reported as never having run, so the output says what was and was not
+ * covered rather than leaving the reader to guess from a stack trace.
+ */
+function report(abortError) {
+  if (abortError) {
+    const bucket = currentBucket();
+    const label = `${currentStep} aborted: ${String(abortError.message ?? abortError).split('\n')[0].slice(0, 120)}`;
+    console.log(`  FAIL ${label}`);
+    failures.push(`[${currentStep}] ${label}`);
+    if (bucket) bucket.failed += 1;
+    // Steps that never started cannot have passed. Naming them is the whole
+    // point: silence about them is what made an early crash unreadable.
+    const reached = steps.findIndex((entry) => entry.name === currentStep);
+    for (const entry of ALL_STEPS.slice(reached + 1)) {
+      if (!steps.some((started) => started.name === entry)) {
+        steps.push({ name: entry, ok: 0, failed: 0, skipped: ['entire step — the run aborted before reaching it'] });
+      }
+    }
+  }
+
+  const nameWidth = Math.max(...steps.map((entry) => entry.name.length), 4);
+  console.log('\nper-step results');
+  console.log(`  ${'step'.padEnd(nameWidth)}  assert  pass  fail  skipped`);
+  for (const entry of steps) {
+    const stepTotal = entry.ok + entry.failed;
+    console.log(
+      `  ${entry.name.padEnd(nameWidth)}  ${String(stepTotal).padStart(6)}  ${String(entry.ok).padStart(4)}  ` +
+        `${String(entry.failed).padStart(4)}  ${entry.skipped.length === 0 ? '-' : entry.skipped.length}`,
+    );
+  }
+  const allSkipped = steps.flatMap((entry) => entry.skipped.map((label) => `[${entry.name}] ${label}`));
+  if (allSkipped.length > 0) {
+    console.log('\nchecks that did NOT run:');
+    for (const label of allSkipped) console.log(`  - ${label}`);
+  }
+  const total = steps.reduce((sum, entry) => sum + entry.ok + entry.failed, 0);
+  console.log(`\n  ${total} assertions across ${steps.length} steps, ${allSkipped.length} skipped`);
+
+  console.log(`\n${failures.length === 0 ? 'all checks passed' : `${failures.length} FAILED: ${failures.join(', ')}`}`);
+  console.log(`screenshots in ${SHOTS}/`);
+  // A skipped check is not a pass. Exiting green with assertions that never ran
+  // is precisely the class of lie this audit exists to remove.
+  process.exit(failures.length === 0 && allSkipped.length === 0 ? 0 : 1);
+}
+
+/** Declared up front so a crash can name the steps that never ran. */
+const ALL_STEPS = [
+  '1 — globe, selection, relations',
+  '2 — confidence badges, provenance inspector',
+  '3 — dossier header, leader resolution',
+  '4 — government tab',
+  '5 — economy tab',
+  '6 — news tab',
+  '7 — globe event layers',
+  'cross-cutting — text fidelity (rule 9)',
+  'cross-cutting — layout geometry (rule 8)',
+];
+
+for (const event of ['uncaughtException', 'unhandledRejection']) {
+  process.on(event, (error) => {
+    console.error(`\n${event}: ${String(error?.stack ?? error).slice(0, 600)}`);
+    report(error instanceof Error ? error : new Error(String(error)));
+  });
+}
+
+/**
  * TESTING.md rule 8: existing is not working.
  *
  * Presence and text assertions are blind to layout. This measures geometry:
@@ -1178,30 +1254,4 @@ await page.waitForTimeout(300);
 await assertLayout(page, '.dossier', ':scope > *', 'header recovers after self-test');
 
 await browser.close();
-
-// Per-step table. Printed every run, including green ones: a step whose count
-// silently drops to zero looks exactly like a step that passed, which is the
-// same failure mode as the deploy gate hiding sources it no longer covers.
-const nameWidth = Math.max(...steps.map((entry) => entry.name.length));
-console.log('\nper-step results');
-console.log(`  ${'step'.padEnd(nameWidth)}  assert  pass  fail  skipped`);
-for (const entry of steps) {
-  const total = entry.ok + entry.failed;
-  console.log(
-    `  ${entry.name.padEnd(nameWidth)}  ${String(total).padStart(6)}  ${String(entry.ok).padStart(4)}  ` +
-      `${String(entry.failed).padStart(4)}  ${entry.skipped.length === 0 ? '-' : entry.skipped.length}`,
-  );
-}
-const allSkipped = steps.flatMap((entry) => entry.skipped.map((label) => `[${entry.name}] ${label}`));
-if (allSkipped.length > 0) {
-  console.log('\nchecks that did NOT run:');
-  for (const label of allSkipped) console.log(`  - ${label}`);
-}
-const total = steps.reduce((sum, entry) => sum + entry.ok + entry.failed, 0);
-console.log(`\n  ${total} assertions across ${steps.length} steps, ${allSkipped.length} skipped`);
-
-console.log(`\n${failures.length === 0 ? 'all checks passed' : `${failures.length} FAILED: ${failures.join(', ')}`}`);
-console.log(`screenshots in ${SHOTS}/`);
-// A skipped check is not a pass. Exiting green with assertions that never ran
-// is precisely the class of lie this audit exists to remove.
-process.exit(failures.length === 0 && allSkipped.length === 0 ? 0 : 1);
+report();

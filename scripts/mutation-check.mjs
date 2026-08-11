@@ -116,11 +116,21 @@ const MUTATIONS = [
   },
   {
     step: 'cross-cutting — layout geometry (rule 8)',
-    what: 'the dossier portraits are laid back over the title block',
+    what: 'party legend rows collapse to zero height — present in the DOM, invisible on screen',
     file: 'src/styles.css',
-    from: '.dossier-portraits {',
-    to: '.dossier-portraits { position: absolute; top: 0; left: 0; right: 0;',
-    expect: /overlap|overflow/i,
+    // A COLLAPSE, not an overlay. The first attempt laid the dossier portraits
+    // over the title block, which made an overlapping element intercept pointer
+    // events; a badge click in step 2 then timed out and the whole suite died
+    // before the rule-8 assertions ran. The mutation was detected in the sense
+    // that everything downstream broke, which proves nothing about whether the
+    // layout checks can see a layout defect.
+    //
+    // A zero-height row intercepts nothing, so the run reaches the assertion —
+    // and "present in the DOM but invisible" is the exact failure rule 8 exists
+    // for, since every presence and text check still passes on it.
+    from: '.party-legend li { display: flex; gap: 6px; align-items: center; padding: 1px 0; }',
+    to: '.party-legend li { display: flex; gap: 6px; align-items: center; padding: 1px 0; height: 0; overflow: hidden; }',
+    expect: /party legend/i,
   },
 ];
 
