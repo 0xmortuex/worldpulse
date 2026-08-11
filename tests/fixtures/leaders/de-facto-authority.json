@@ -1,0 +1,133 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q794"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Iran"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Islamic Republic of Iran"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Tehran"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "89172767"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Iran.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q00000000"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Islamic republic"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q93298676"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Casey Fixture"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-09-15T00:00:00Z"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "President of Iran"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-07-28T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Casey%20Fixture%20portrait.jpg"
+        },
+        "authority": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q98685891"
+        },
+        "authorityLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Morgan Fixture"
+        },
+        "authorityBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1939-04-19T00:00:00Z"
+        },
+        "authorityOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Iran"
+        },
+        "authoritySince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1989-06-04T00:00:00Z"
+        },
+        "authorityImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Morgan%20Fixture%20portrait.jpg"
+        }
+      }
+    ]
+  }
+}

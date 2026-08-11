@@ -1,0 +1,77 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q30"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Example State"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Example State"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Somewhere"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "1000000"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Example%20State.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q00000000"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "presidential system"
+        }
+      }
+    ]
+  }
+}

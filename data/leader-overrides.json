@@ -1,0 +1,17 @@
+{
+  "$comment": "Reviewed overrides for countries where a de facto supreme authority sits above the formal head of state, and the Wikidata office hierarchy does not express it. Rule 1 of the leader-resolution order. Every entry needs a source citation and a review date; an override without one is rejected by the resolver rather than trusted. Keep this list SMALL — it is an admission that the general mechanism missed a case, not a place to encode opinions about who really runs a country. A political disagreement is not an override.",
+  "verifiedAgainst": "documentation",
+  "overrides": {
+    "IRN": {
+      "rule": "de-facto-authority",
+      "authorityOfficeQid": "Q1055894",
+      "expectedOfficeLabel": "Supreme Leader of Iran",
+      "reason": "The Supreme Leader outranks the President under the Iranian constitution, holding final authority over the armed forces, the judiciary and state media. Wikidata records the President as head of state, which inverts the real hierarchy.",
+      "source": "Constitution of the Islamic Republic of Iran, Articles 5, 57 and 110",
+      "sourceUrl": "https://www.iranchamber.com/government/laws/constitution_ch08.php",
+      "reviewedAt": "2026-08-11",
+      "qidVerified": false,
+      "qidNote": "authorityOfficeQid could not be confirmed from this build environment. If the office query returns no holder, the resolver falls back to the normal rules and surfaces a warning rather than showing nothing."
+    }
+  }
+}

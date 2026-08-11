@@ -1,0 +1,80 @@
+{
+  "$comment": "Maps a country's Wikidata P122 (basic form of government) onto the leader-resolution class that decides which portrait leads the dossier header. Matching is LABEL-driven, not Q-id driven, and deliberately so: Q-ids for forms of government could not be confirmed from this build environment, and a wrong Q-id would silently misclassify a country's entire header. An English label from the Wikidata label service is checkable by eye; a wrong Q-id is not. The qids array on each rule is empty pending verification when egress opens — populate it then and label matching becomes the fallback rather than the primary.",
+  "verifiedAgainst": "documentation",
+  "matching": "Rules are evaluated in array order and the first whose `contains` all appear in the lowercased label wins. Order matters: 'semi-presidential' must be tested before 'presidential', and both monarchy specialisations before bare 'monarchy'.",
+  "unmatchedBehaviour": "A label matching no rule yields the 'undetermined' class. The resolver then shows whichever of head of state / head of government exists, states plainly that the form of government could not be determined, and tags the resolution DERIVED. It never guesses a class.",
+  "rules": [
+    {
+      "class": "transitional",
+      "ruleNumber": 5,
+      "contains": ["junta"],
+      "qids": [],
+      "note": "Military junta. Leader shown with the literal title in use, never smoothed to 'President'."
+    },
+    {
+      "class": "transitional",
+      "ruleNumber": 5,
+      "contains": ["provisional"],
+      "qids": []
+    },
+    {
+      "class": "transitional",
+      "ruleNumber": 5,
+      "contains": ["transitional"],
+      "qids": []
+    },
+    {
+      "class": "transitional",
+      "ruleNumber": 5,
+      "contains": ["military", "government"],
+      "qids": []
+    },
+    {
+      "class": "executive-monarchy",
+      "ruleNumber": 4,
+      "contains": ["absolute", "monarchy"],
+      "qids": [],
+      "note": "Monarch holds real executive power and leads the header."
+    },
+    {
+      "class": "parliamentary-monarch",
+      "ruleNumber": 3,
+      "contains": ["constitutional", "monarchy"],
+      "qids": [],
+      "note": "Head of government leads; the monarch appears as a smaller secondary portrait."
+    },
+    {
+      "class": "parliamentary-monarch",
+      "ruleNumber": 3,
+      "contains": ["parliamentary", "monarchy"],
+      "qids": []
+    },
+    {
+      "class": "parliamentary-republic",
+      "ruleNumber": 3,
+      "contains": ["parliamentary", "republic"],
+      "qids": [],
+      "note": "Head of government leads; the ceremonial president appears as a smaller secondary portrait."
+    },
+    {
+      "class": "presidential",
+      "ruleNumber": 2,
+      "contains": ["semi-presidential"],
+      "qids": [],
+      "note": "The president holds executive power, so leads the header even though a prime minister also exists."
+    },
+    {
+      "class": "presidential",
+      "ruleNumber": 2,
+      "contains": ["presidential"],
+      "qids": []
+    },
+    {
+      "class": "executive-monarchy",
+      "ruleNumber": 4,
+      "contains": ["monarchy"],
+      "qids": [],
+      "note": "Bare 'monarchy' with no qualifier. Tested last so the constitutional and absolute cases match first."
+    }
+  ]
+}

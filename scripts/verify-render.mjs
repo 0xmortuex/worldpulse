@@ -31,11 +31,20 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
 
-const consoleErrors = [];
+// Uncaught exceptions are always fatal. Resource-load failures are separated
+// out because this build environment blocks all external hosts, so portrait
+// images legitimately 403 here — the app is required to degrade gracefully, and
+// that degradation is asserted directly further down rather than inferred from
+// a silent console.
+const pageErrors = [];
+const resourceErrors = [];
 page.on('console', (msg) => {
-  if (msg.type() === 'error') consoleErrors.push(msg.text());
+  if (msg.type() !== 'error') return;
+  const text = msg.text();
+  if (/Failed to load resource/i.test(text)) resourceErrors.push(text);
+  else pageErrors.push(text);
 });
-page.on('pageerror', (err) => consoleErrors.push(String(err)));
+page.on('pageerror', (err) => pageErrors.push(String(err)));
 
 await mkdir(SHOTS, { recursive: true });
 await page.goto(BASE, { waitUntil: 'networkidle' });
@@ -51,7 +60,7 @@ const canvasPixels = await page.evaluate(() => {
 });
 check('globe canvas present and sized', canvasPixels !== null && canvasPixels.width > 100, JSON.stringify(canvasPixels));
 
-check('no console errors', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
+check('no uncaught page errors', pageErrors.length === 0, pageErrors.slice(0, 3).join(' | '));
 
 const seedVisible = await page.locator('#seed-banner strong').first().isVisible();
 check('seed-data banner is visible', seedVisible);
@@ -194,6 +203,99 @@ check('a derived fact shows its arithmetic', /Arithmetic/i.test(derivedText), de
 check('a derived fact lists its inputs', /Inputs \(\d+\)/i.test(derivedText));
 check('derived inputs resolve to seed citations', /Checked against/i.test(derivedText));
 await page.screenshot({ path: `${SHOTS}/07-derived-provenance.png` });
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+
+// ---- step 3: dossier header and leader resolution ----
+
+async function selectCountry(name) {
+  await page.locator('.search-input').fill(name);
+  await page.waitForTimeout(250);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(500);
+}
+
+// Rule 2 — presidential, one portrait.
+await selectCountry('United States');
+const usHeader = await page.locator('.dossier').innerText();
+check('dossier header renders vitals', /Capital/i.test(usHeader) && /Population/i.test(usHeader));
+check('header states which resolution rule fired', /Rule 2/i.test(usHeader), usHeader.slice(0, 120));
+check('presidential renders a single portrait', (await page.locator('.dossier .portrait').count()) === 1);
+check('office title is shown verbatim', /President of the United States/.test(usHeader));
+await page.screenshot({ path: `${SHOTS}/08-dossier-presidential.png` });
+
+// Rule 3 — parliamentary, two portraits, head of government first.
+await selectCountry('United Kingdom');
+check('parliamentary renders two portraits', (await page.locator('.dossier .portrait').count()) === 2);
+const roles = await page.locator('.dossier .portrait-role').allTextContents();
+check('head of government leads a parliamentary system', /head of government/i.test(roles[0] ?? ''), roles.join(' | '));
+check('the monarch is the labelled secondary', /monarch/i.test(roles[1] ?? ''), roles.join(' | '));
+check('primary portrait frame is larger than the secondary', await page.evaluate(() => {
+  const frames = [...document.querySelectorAll('.dossier .portrait-frame')].map((f) => f.getBoundingClientRect().width);
+  return frames.length === 2 && frames[0] > frames[1];
+}), JSON.stringify(await page.evaluate(() =>
+  [...document.querySelectorAll('.dossier .portrait-frame')].map((f) => Math.round(f.getBoundingClientRect().width)))));
+await page.screenshot({ path: `${SHOTS}/09-dossier-dual-portrait.png` });
+
+// Rule 1 — de facto authority, with the override citation on screen.
+await selectCountry('Iran');
+const iranHeader = await page.locator('.dossier').innerText();
+check('de facto authority fires rule 1', /Rule 1/i.test(iranHeader), iranHeader.slice(0, 140));
+check('override citation is shown', /Reviewed override/i.test(iranHeader));
+check('the supreme authority leads, not the president', /Supreme authority/i.test((await page.locator('.dossier .portrait-role').first().innerText())));
+await page.screenshot({ path: `${SHOTS}/10-dossier-de-facto.png` });
+
+// Rule 5 — junta title is not normalised.
+await selectCountry('Mali');
+const maliHeader = await page.locator('.dossier').innerText();
+check('transitional government fires rule 5', /Rule 5/i.test(maliHeader));
+check('the literal junta title survives to the DOM', /Chairman, Transitional Military Council/.test(maliHeader));
+check('the junta title is not smoothed to President', !/\bPresident\b/.test(maliHeader), maliHeader.slice(0, 160));
+await page.screenshot({ path: `${SHOTS}/11-dossier-junta.png` });
+
+// Missing P18 — initials placeholder, and never a substitute photograph.
+await selectCountry('Canada');
+check('a leader with no P18 falls back to an initials placeholder',
+  (await page.locator('.dossier .portrait-frame--placeholder').count()) >= 1);
+check('the placeholder carries no image element',
+  (await page.locator('.dossier .portrait-img').count()) === 0);
+
+// A portrait whose image cannot load must fall back to initials, not to a
+// broken-image icon and not to a blank frame that reads as an unnamed person.
+// Every external host is blocked here, so every Commons URL fails — which makes
+// this environment an unusually good test of the degradation path.
+await selectCountry('United States');
+await page.waitForTimeout(600);
+check('a portrait whose image fails to load degrades to initials',
+  await page.evaluate(() => {
+    const placeholder = document.querySelector('.dossier .portrait-frame--placeholder');
+    if (!placeholder) return false;
+    const img = document.querySelector('.dossier .portrait-img');
+    return img === null && placeholder.textContent.trim().length > 0;
+  }));
+check('blocked portrait requests were actually observed', resourceErrors.length > 0,
+  'expected the sandbox to block commons.wikimedia.org');
+
+// A country with no dossier fixture must say so, not render an empty header.
+await selectCountry('Japan');
+check('a country with no dossier data says so', /No dossier data/i.test(await page.locator('.dossier').innerText()));
+
+// Leader detail sheet.
+await selectCountry('United States');
+await page.locator('.dossier .portrait').first().click();
+await page.waitForTimeout(400);
+const sheet = await page.locator('.sheet-body').innerText();
+check('clicking a portrait opens the leader sheet', (await page.locator('.sheet-body').isVisible()));
+check('sheet shows the biography', /synthetic person/i.test(sheet));
+check('sheet lists unbuilt sections as no data rather than hiding them',
+  /Career timeline/i.test(sheet) && /No data/i.test(sheet));
+await page.screenshot({ path: `${SHOTS}/12-leader-sheet.png` });
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+check('Escape closes the leader sheet without clearing the selection',
+  !(await page.locator('.sheet-body').isVisible().catch(() => false)) &&
+    (await page.locator('#mode').textContent())?.trim() === 'Relations mode');
 
 await browser.close();
 

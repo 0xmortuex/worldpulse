@@ -1,0 +1,105 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q912"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mali"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Republic of Mali"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Bamako"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "23293698"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Mali.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q00000000"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "military junta"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q90472945"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jordan Fixture"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1983-12-12T00:00:00Z"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Chairman, Transitional Military Council"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-05-28T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Jordan%20Fixture%20portrait.jpg"
+        }
+      }
+    ]
+  }
+}

@@ -8,6 +8,8 @@ import { pairKey, score } from './relations/score';
 import type { RelationResult } from './relations/types';
 import { Store } from './state';
 import { BASE_STROKE, SELECTION_COLOR, SELECTION_STROKE, TIER_COLORS, TIER_COLORS_LOW_CONFIDENCE } from './theme';
+import { mountDossierHeader } from './ui/header';
+import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
 import { plainPopover, relationPopover } from './ui/popover';
 import { mountRail } from './ui/rail';
@@ -34,11 +36,19 @@ const globe = new CountryGlobe(globeContainer, countries, {
 
 mountSearch(must<HTMLElement>('#search'), store, countries);
 mountRail(must<HTMLElement>('#rail'), store);
-mountPanel(must<HTMLElement>('#panel'), store, {
+const panelRoot = must<HTMLElement>('#panel');
+const openLeaderSheet = mountLeaderSheet(
+  document.body,
+  countries.map((country) => country.code),
+  (code) => byCode.get(code)?.name ?? code,
+);
+mountDossierHeader(panelRoot, openLeaderSheet);
+mountPanel(panelRoot, store, {
   byCode,
   findings,
   currentYear,
   compiledAt: facts.compiledAt,
+  today: new Date(),
 });
 mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);

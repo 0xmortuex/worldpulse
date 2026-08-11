@@ -1,0 +1,138 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q145"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "United Kingdom"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "United Kingdom of Great Britain and Northern Ireland"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "London"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "68350000"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20United%20Kingdom.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q00000000"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "constitutional monarchy"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q92111046"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Robin Fixture"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1948-11-14T00:00:00Z"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "King of the United Kingdom"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2022-09-08T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Robin%20Fixture%20portrait.jpg"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q91772264"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Sam Fixture"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1962-09-02T00:00:00Z"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the United Kingdom"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-07-05T00:00:00Z"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Labour"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Sam%20Fixture%20portrait.jpg"
+        }
+      }
+    ]
+  }
+}

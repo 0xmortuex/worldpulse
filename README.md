@@ -3,10 +3,10 @@
 A single-page 3D globe that acts as a live intelligence dashboard for every country
 on Earth: politics, government, military, economy, news, live TV and natural events.
 
-**Current state: build step 2 of 14.** The globe, selection model, relations engine,
-confidence badge and provenance inspector work. No live data pipeline yet — relations
-run on a hand-checked seed set, and the adapters run against fixtures, so both are
-provable before the ingests land.
+**Current state: build step 3 of 14.** The globe, selection model, relations engine,
+confidence badge, provenance inspector and dossier header work. No live data pipeline
+yet — relations run on a hand-checked seed set and the adapters run against fixtures,
+so both are provable before the ingests land.
 
 ---
 
@@ -37,6 +37,16 @@ It uses real type information, so an intermediate variable does not evade it. Th
 compliant ways to render a number are `factHtml(fact)` and, for numbers that genuinely
 are not facts, `notAFact(value, reason)` — which requires a written reason at the call
 site.
+
+The rule deliberately flags layout numbers too (a portrait's pixel size, a CSS styling
+hook). Carving out an exemption for style attributes would leave a hole a real fact could
+slip through, so those are wrapped with a reason like anything else.
+
+The rule runs on `typescript@5`, aliased as `ts-analyzer` and pinned exactly. The repo's
+own `typescript@7` is the native port and exposes only `version` — no `createProgram`, no
+type checker. A syntactic allowlist rule would have missed most of the violations this
+one found, so the second compiler earns its place. **TODO: drop the alias once
+typescript@7 exposes a checker API**, and delete this paragraph with it.
 
 ---
 
@@ -139,6 +149,53 @@ persistent SEED banner whenever it is in use, and coverage is deliberately parti
 most countries read as "no data".
 
 ---
+
+## Leader resolution
+
+Which portrait leads the dossier header is decided by a five-rule order, and **the rule
+that fired is always shown**. A header that displays a face without saying why that face
+was chosen is making an editorial judgement invisibly.
+
+| Rule | Condition | Header |
+| --- | --- | --- |
+| 1 | A reviewed override records a de facto authority above the formal head of state | Supreme authority leads; formal head of state as labelled secondary |
+| 2 | Presidential or semi-presidential | Head of state leads |
+| 3 | Parliamentary republic or constitutional monarchy | Head of government leads; ceremonial head of state as smaller secondary |
+| 4 | Monarch holds executive power | Monarch leads |
+| 5 | Transitional or military government | Actual leader, with the **literal title in use** |
+| 0 | Nothing matched | Says so, and shows whichever office was recorded |
+
+Two things it will not do. It will not normalise an office title — a junta leader is
+shown as "Chairman, Transitional Military Council" if that is the title in use, because
+smoothing it to "President" launders a coup into a constitutional office. And it will not
+guess when the form of government is unrecognised; that yields the undetermined class,
+which says so on the header.
+
+Classification is **label-driven**, not Q-id driven (`data/government-forms.json`).
+Q-ids for forms of government could not be confirmed from this build environment, and a
+wrong Q-id would silently misclassify a country's entire header, where a wrong English
+label is checkable by eye. Populate the `qids` arrays once egress opens.
+
+`data/leader-overrides.json` holds rule-1 corrections. Every entry needs a source
+citation and a review date; **an override without one is ignored rather than trusted**.
+Keep the list small — it is an admission that the general mechanism missed a case, not a
+place to encode opinions about who really runs a country.
+
+### Portraits
+
+Wikidata P18 → Commons thumbnail, then the Wikipedia REST summary thumbnail, then a
+neutral placeholder carrying the person's initials. **Never a photograph of a different
+person, and never a search-engine image.** A wrong face is a factual error that reads as
+authoritative and no caption fixes it.
+
+Portraits load lazily and never block the header render. A portrait whose image fails
+degrades to the initials placeholder rather than to a broken-image icon or a blank frame
+that reads as a person we could not name. Commons licence and photographer credit are
+shown on hover, and credit is assumed **required** whenever the licence cannot be read —
+failing open there would silently drop a legally required attribution.
+
+IndexedDB portrait caching is not built yet; it lands with the cache layer, alongside
+last-known-good offline mode.
 
 ## Provenance and verification
 

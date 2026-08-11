@@ -1,0 +1,31 @@
+{
+  "type": "standard",
+  "title": "Alex Fixture",
+  "displaytitle": "Alex Fixture",
+  "namespace": { "id": 0, "text": "" },
+  "titles": { "canonical": "Alex_Fixture", "normalized": "Alex Fixture", "display": "Alex Fixture" },
+  "pageid": 9000001,
+  "thumbnail": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Alex_Fixture_portrait.jpg/240px-Alex_Fixture_portrait.jpg",
+    "width": 240,
+    "height": 320
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Alex_Fixture_portrait.jpg",
+    "width": 1200,
+    "height": 1600
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1200000001",
+  "tid": "00000000-0000-0000-0000-000000000000",
+  "timestamp": "2026-08-01T12:00:00Z",
+  "description": "fixture head of state",
+  "description_source": "local",
+  "content_urls": {
+    "desktop": { "page": "https://en.wikipedia.org/wiki/Alex_Fixture" },
+    "mobile": { "page": "https://en.m.wikipedia.org/wiki/Alex_Fixture" }
+  },
+  "extract": "Alex Fixture is a synthetic person used to exercise the dossier header pipeline. This text stands in for a Wikipedia lead paragraph and asserts nothing about any real individual.",
+  "extract_html": "<p><b>Alex Fixture</b> is a synthetic person used to exercise the dossier header pipeline.</p>"
+}

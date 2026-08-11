@@ -1,0 +1,133 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q851"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Saudi Arabia"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kingdom of Saudi Arabia"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Riyadh"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "32175224"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Saudi%20Arabia.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q00000000"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "absolute monarchy"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q98129506"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taylor Fixture"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-12-31T00:00:00Z"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "King of Saudi Arabia"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2015-01-23T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Taylor%20Fixture%20portrait.jpg"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q92914145"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Drew Fixture"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1985-08-31T00:00:00Z"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Saudi Arabia"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2022-09-27T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Drew%20Fixture%20portrait.jpg"
+        }
+      }
+    ]
+  }
+}

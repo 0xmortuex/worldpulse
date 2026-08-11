@@ -35,7 +35,19 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | A4 | **The confidence badge is the only sanctioned way to render a fact.** Enforced statically by `tests/fact-discipline.test.ts` using real type information. Escape hatch is `notAFact(value, reason)`, which requires a written reason at the call site. |
 | A5 | **A value with no traceable provenance renders as UNTRACEABLE, loudly.** Brokenness outranks emptiness: an untraceable fact shouts even when it has nothing to show, rather than passing as a legitimate "no data". |
 | A6 | **`verifiedAgainst: "documentation" \| "live"` per source.** Nothing ships while any runtime source is still `documentation`; `npm run check:deploy` enforces it. Bundled version-pinned sources are not gated — they cannot drift, and their shape is asserted against the real bytes. |
+| A6a | **`verifiedAgainst` gains a third value, `bundled`.** The gate has no exceptions: every active source prints with its status on every run. `bundled` requires a registered byte-level shape assertion, checked by the gate itself, so it cannot be used to wave a source through. |
 | A7 | **Fact ids are monotonic and never reused.** An earlier per-pass reset let DOM that outlived a pass keep ids later reassigned to other facts, so a badge could open the wrong value's provenance. Showing the wrong provenance is worse than showing none. |
+
+## Dossier header
+
+| # | Decision |
+| --- | --- |
+| D1 | **The resolution rule that fired is always displayed**, tagged DERIVED. Which office leads is this app's judgement, not something any source states. |
+| D2 | **Office titles are never normalised.** A junta leader keeps the literal title in use. |
+| D3 | **Form-of-government classification is label-driven, not Q-id driven**, because Q-ids could not be verified from this environment and a wrong one misclassifies silently. Unmatched labels yield `undetermined`, never a guess. |
+| D4 | **An override without a source citation and review date is ignored.** An override is a reviewed correction, not a place to encode an opinion. |
+| D5 | **Never substitute another person's photograph.** Missing portrait yields an initials placeholder. Commons credit is assumed required when the licence cannot be read. |
+| D6 | **Leader fixtures are a permanent regression suite.** A live contradiction is a finding to investigate, not a fixture to update. People in fixtures are synthetic; the invariant is which rule fires. |
 
 ## Feature scope
 
@@ -46,7 +58,7 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | Confidence badge with provenance inspector built in | **done, step 2** |
 | Source health dashboard | after step 2 |
 | Coverage-gap choropleth | with step 12 |
-| Leader detail sheet | folded into step 3 |
+| Leader detail sheet | **done, step 3** (partial — timeline, party history, predecessor/successor and news mentions render as explicit no-data cards pending steps 4 and 6) |
 | Search by endonym / exonym / ISO code | with the top bar |
 | Last-known-good offline mode | with the IndexedDB cache layer |
 

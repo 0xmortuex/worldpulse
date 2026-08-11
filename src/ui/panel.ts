@@ -7,6 +7,7 @@ import type { Finding, RelationResult, Tier } from '../relations/types';
 import type { AppState, Store } from '../state';
 import { TIER_COLORS, TIER_LABELS } from '../theme';
 import { escapeHtml } from './popover';
+import { comparePortrait, renderDossierHeader } from './header';
 
 const TIER_ORDER: Tier[] = ['ally', 'adversary', 'strained', 'neutral', 'nodata'];
 
@@ -16,6 +17,8 @@ export interface PanelContext {
   currentYear: number;
   /** Compile date of the seed fact table, stamped onto derived provenance. */
   compiledAt: string;
+  /** Injected so the time scrub can later render the dossier as of a past date. */
+  today: Date;
 }
 
 export function mountPanel(root: HTMLElement, store: Store, context: PanelContext): void {
@@ -87,13 +90,10 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
     .sort((a, b) => Math.abs(b.score) - Math.abs(a.score) || a.other.localeCompare(b.other));
 
   return `
-    <header class="panel-head">
-      <div class="panel-eyebrow">Relations mode · single selection</div>
-      <h2>${escapeHtml(subject.name)}</h2>
-      <div class="panel-code">${escapeHtml(subject.code)}${
-        subject.codeStatus === 'user-assigned' ? ' <span class="tag tag--warn">non-ISO code</span>' : ''
-      }</div>
-    </header>
+    ${renderDossierHeader(subject, context.today)}
+    <div class="panel-eyebrow panel-eyebrow--section">Relations mode · single selection${
+      subject.codeStatus === 'user-assigned' ? ' · <span class="tag tag--warn">non-ISO code</span>' : ''
+    }</div>
 
     <div class="tier-counts">
       ${TIER_ORDER.map(
@@ -171,6 +171,9 @@ function compareView(selected: readonly Country[], state: AppState, context: Pan
     <h3 class="panel-h3">Relation profile</h3>
     <table class="compare">
       <thead>
+        <tr><th></th>${columns
+          .map((c) => `<th>${comparePortrait(c.subject, context.today)}</th>`)
+          .join('')}</tr>
         <tr><th>Tier</th>${columns.map((c) => `<th>${escapeHtml(c.subject.code)}</th>`).join('')}</tr>
       </thead>
       <tbody>

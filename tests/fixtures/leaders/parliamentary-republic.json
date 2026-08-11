@@ -1,0 +1,143 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q183"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Germany"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Federal Republic of Germany"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Berlin"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "84358845"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Germany.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q00000000"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "parliamentary republic"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q97044192"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jamie Fixture"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1956-01-05T00:00:00Z"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "President of Germany"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-03-19T00:00:00Z"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture SPD"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Jamie%20Fixture%20portrait.jpg"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q98518326"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Chris Fixture"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1955-06-26T00:00:00Z"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Chancellor of Germany"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-05-06T00:00:00Z"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture CDU"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Chris%20Fixture%20portrait.jpg"
+        }
+      }
+    ]
+  }
+}

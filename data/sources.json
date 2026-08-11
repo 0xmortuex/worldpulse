@@ -22,7 +22,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "bundled"
     },
     {
       "id": "worldbank",
@@ -677,7 +677,8 @@
     }
   ],
   "verifiedAgainstValues": {
-    "documentation": "Endpoint contract taken from vendor documentation. NOT confirmed against a live response. Nothing ships to a real deployment while any source it depends on is still \"documentation\".",
-    "live": "Confirmed against a live response captured by npm run probe, with the observed shape recorded in a fixture."
+    "documentation": "Endpoint contract taken from vendor documentation. NOT confirmed against a live response. Blocks deployment.",
+    "live": "Confirmed against a live response captured by npm run probe, with the observed shape recorded in a fixture.",
+    "bundled": "Not fetched at runtime. Shipped from a version-pinned package and asserted byte-level against the real data by the test suite. Passes the gate, and is listed by name in every gate run rather than being skipped."
   }
 }

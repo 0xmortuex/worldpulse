@@ -100,7 +100,35 @@ static rule that silently matches nothing looks exactly like a clean codebase.
 The same applies to the browser checks: when one is added, break the thing it watches
 once and confirm it goes red before committing it.
 
-## 7. `innerText` applies CSS, `textContent` does not
+## 7. Wrong provenance is worse than absent provenance
+
+Any identifier that maps a UI element to a data record needs a **no-reuse
+assertion**. Not "is it unique right now" — "can this id ever refer to a different
+record than it did when it was rendered".
+
+Where this came from: confidence-badge ids were reset each render pass. Any DOM that
+outlived a pass — the component gallery — kept ids that were later reassigned to
+different facts. Clicking such a badge opened *another value's* provenance. The
+inspector looked healthy; it was confidently describing the wrong number.
+
+Absent provenance is loud and self-correcting: the badge renders UNTRACEABLE and
+someone fixes it. Wrong provenance is silent and self-justifying — it makes a bad
+value look audited. Prefer failing closed: a stale id must resolve to nothing.
+
+This failure class will recur wherever an id bridges the DOM and a record:
+
+| Surface | The id | The risk |
+| --- | --- | --- |
+| Global event feed | event row -> event record | clicking flies the camera to the wrong place |
+| Compare columns | column index -> country | a stat is attributed to the wrong country |
+| Choropleth | polygon -> indicator value | a country is painted with another's number |
+| Watchlist diffs | change row -> before/after pair | a diff is shown against the wrong baseline |
+
+For each: assert that rendering N records yields N distinct ids, that an id from an
+earlier render never resolves to a later record, and that an unknown id resolves to
+nothing rather than to a neighbour.
+
+## 8. `innerText` applies CSS, `textContent` does not
 
 Assertions against `innerText` see the *rendered* text, so anything under
 `text-transform: uppercase` comes back uppercased. Match case-insensitively, or read

@@ -1,0 +1,26 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "pages": {
+      "9000001": {
+        "pageid": 9000001,
+        "ns": 6,
+        "title": "File:Alex Fixture portrait.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "url": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Alex_Fixture_portrait.jpg",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Alex_Fixture_portrait.jpg",
+            "extmetadata": {
+              "LicenseShortName": { "value": "CC BY-SA 4.0", "source": "commons-desc-page" },
+              "LicenseUrl": { "value": "https://creativecommons.org/licenses/by-sa/4.0", "source": "commons-desc-page" },
+              "Artist": { "value": "<a href=\"//commons.wikimedia.org/wiki/User:Photographer\" title=\"User:Photographer\">Jo Photographer</a>", "source": "commons-desc-page" },
+              "Credit": { "value": "Own work", "source": "commons-desc-page" },
+              "UsageTerms": { "value": "Creative Commons Attribution-Share Alike 4.0", "source": "commons-desc-page" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
