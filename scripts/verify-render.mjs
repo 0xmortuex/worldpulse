@@ -73,6 +73,20 @@ async function assertBundleIsCurrent() {
 
 if (/localhost|127\.0\.0\.1/.test(BASE)) await assertBundleIsCurrent();
 
+/**
+ * Screenshots are evidence for a human, not assertions.
+ *
+ * Under software rasterisation each capture of a WebGL canvas costs seconds and
+ * there are two dozen of them. Skipping them changes no verdict — which is
+ * exactly why it is safe to skip, and exactly why a screenshot can never
+ * substitute for a check.
+ */
+const SKIP_SHOTS = process.env['WORLDPULSE_SKIP_SHOTS'] === '1';
+async function shot(page, path) {
+  if (SKIP_SHOTS) return;
+  await page.screenshot({ path });
+}
+
 /** Poll until a condition holds, so timing-sensitive checks are not flaky. */
 async function waitFor(page, fn, timeoutMs = 6000) {
   const deadline = Date.now() + timeoutMs;
@@ -372,13 +386,31 @@ const BREAKPOINTS = [
 // This environment ships Chromium out of band; PLAYWRIGHT_CHROMIUM_PATH points
 // at it so the npm package's pinned build number does not have to match.
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+/**
+ * Software rasterise by default: on a GPU-less box the globe otherwise renders
+ * as an empty canvas and every marker check passes against nothing.
+ *
+ * WORLDPULSE_HARDWARE_GL=1 opts into a real GPU, which is roughly twice as fast
+ * — but it is NOT equivalent, and that is why it is opt-in rather than
+ * automatic: under hardware GL on this machine the marker picks fail and a later
+ * click times out. Authoritative runs stay on software, where a result can be
+ * compared with every previous one.
+ */
 const browser = await chromium.launch({
   ...(executablePath ? { executablePath } : {}),
-  // Software rasterise: there is no GPU here, and without this the globe
-  // renders as an empty canvas and every check below passes vacuously.
-  args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+  args:
+    process.env['WORLDPULSE_HARDWARE_GL'] === '1'
+      ? []
+      : ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
+
+// Patience for a machine that is doing other things. Playwright's 30s default is
+// comfortable on a dedicated container and marginal on a working desktop under
+// software rasterisation, where an ordinary click timed out and aborted a run
+// that had otherwise passed. This changes no assertion — only how long the
+// harness waits before calling something stuck.
+page.setDefaultTimeout(90_000);
 
 /**
  * Portrait images are blocked by this harness, not by the environment.
@@ -448,7 +480,7 @@ const [allies, , , , nodata] = counts.map(Number);
 check('USA has allies from the seed set', allies > 20, `allies=${allies}`);
 check('most countries read as no data', nodata > 100, `nodata=${nodata}`);
 
-await page.screenshot({ path: `${SHOTS}/01-relations-usa.png` });
+await shot(page, `${SHOTS}/01-relations-usa.png`);
 
 // Hovering the globe must raise a tooltip. This is the only check that proves
 // country polygons actually rendered: a bare sphere with no polygons still
@@ -464,7 +496,7 @@ for (const [dx, dy] of [[0, 0], [-0.12, 0.05], [0.1, -0.08], [0.05, 0.15]]) {
   }
 }
 check('hovering the globe hits a country polygon', tooltipSeen);
-if (tooltipSeen) await page.screenshot({ path: `${SHOTS}/04-traceability-popover.png` });
+if (tooltipSeen) await shot(page, `${SHOTS}/04-traceability-popover.png`);
 
 // Select a second country by keyboard, which doubles as the no-pointer path.
 await page.locator('.search-input').fill('China');
@@ -479,7 +511,7 @@ check('ctrl-click adds a country and opens compare', /Compare mode · 2/.test(co
 const compareRows = await page.locator('table.compare tbody tr').count();
 check('compare table renders a row per tier', compareRows === 5, `rows=${compareRows}`);
 
-await page.screenshot({ path: `${SHOTS}/02-compare.png` });
+await shot(page, `${SHOTS}/02-compare.png`);
 
 // Back to single selection, then prove the sliders actually recolour.
 await page.locator('.search-input').fill('United States');
@@ -496,7 +528,7 @@ await page.waitForTimeout(600);
 const after = await page.locator('.tier-count-n').allTextContents();
 check('weight slider changes the classification', before.join() !== after.join(), `${before.join()} -> ${after.join()}`);
 
-await page.screenshot({ path: `${SHOTS}/03-weights-inverted.png` });
+await shot(page, `${SHOTS}/03-weights-inverted.png`);
 
 step('2 — confidence badges, provenance inspector');
 // ---- step 2: confidence badges and the provenance inspector ----
@@ -546,7 +578,7 @@ check('inspector marks the source as documentation-verified', /documentation/i.t
 const rawShown = await page.locator('.inspector-raw pre').innerText();
 check('inspector shows the raw response body', rawShown.includes('NY.GDP.MKTP.CD'), rawShown.slice(0, 60));
 
-await page.screenshot({ path: `${SHOTS}/05-inspector.png` });
+await shot(page, `${SHOTS}/05-inspector.png`);
 
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
@@ -561,7 +593,7 @@ await page.locator('.gallery .badge--broken').first().click();
 await page.waitForTimeout(400);
 const alarm = await page.locator('.inspector-alarm').isVisible().catch(() => false);
 check('untraceable value raises an alarm in the inspector', alarm);
-await page.screenshot({ path: `${SHOTS}/06-broken.png` });
+await shot(page, `${SHOTS}/06-broken.png`);
 await page.keyboard.press('Escape');
 
 // A derived fact must expose its arithmetic and walk down to its seed inputs.
@@ -572,7 +604,7 @@ const derivedText = await page.locator('.inspector-body').innerText().catch(() =
 check('a derived fact shows its arithmetic', /Arithmetic/i.test(derivedText), derivedText.slice(0, 80));
 check('a derived fact lists its inputs', /Inputs \(\d+\)/i.test(derivedText));
 check('derived inputs resolve to seed citations', /Checked against/i.test(derivedText));
-await page.screenshot({ path: `${SHOTS}/07-derived-provenance.png` });
+await shot(page, `${SHOTS}/07-derived-provenance.png`);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 
@@ -593,7 +625,7 @@ check('dossier header renders vitals', /Capital/i.test(usHeader) && /Population/
 check('header states which resolution rule fired', /Rule 2/i.test(usHeader), usHeader.slice(0, 120));
 check('presidential renders a single portrait', (await page.locator('.dossier .portrait').count()) === 1);
 check('office title is shown verbatim', /President of the United States/.test(usHeader));
-await page.screenshot({ path: `${SHOTS}/08-dossier-presidential.png` });
+await shot(page, `${SHOTS}/08-dossier-presidential.png`);
 
 // Rule 3 — parliamentary, two portraits, head of government first.
 await selectCountry('United Kingdom');
@@ -606,7 +638,7 @@ check('primary portrait frame is larger than the secondary', await page.evaluate
   return frames.length === 2 && frames[0] > frames[1];
 }), JSON.stringify(await page.evaluate(() =>
   [...document.querySelectorAll('.dossier .portrait-frame')].map((f) => Math.round(f.getBoundingClientRect().width)))));
-await page.screenshot({ path: `${SHOTS}/09-dossier-dual-portrait.png` });
+await shot(page, `${SHOTS}/09-dossier-dual-portrait.png`);
 
 // Rule 1 — de facto authority, with the override citation on screen.
 await selectCountry('Iran');
@@ -614,7 +646,7 @@ const iranHeader = await page.locator('.dossier').innerText();
 check('de facto authority fires rule 1', /Rule 1/i.test(iranHeader), iranHeader.slice(0, 140));
 check('override citation is shown', /Reviewed override/i.test(iranHeader));
 check('the supreme authority leads, not the president', /Supreme authority/i.test((await page.locator('.dossier .portrait-role').first().innerText())));
-await page.screenshot({ path: `${SHOTS}/10-dossier-de-facto.png` });
+await shot(page, `${SHOTS}/10-dossier-de-facto.png`);
 
 // Rule 5 — junta title is not normalised.
 await selectCountry('Mali');
@@ -622,7 +654,7 @@ const maliHeader = await page.locator('.dossier').innerText();
 check('transitional government fires rule 5', /Rule 5/i.test(maliHeader));
 check('the literal junta title survives to the DOM', /Chairman, Transitional Military Council/.test(maliHeader));
 check('the junta title is not smoothed to President', !/\bPresident\b/.test(maliHeader), maliHeader.slice(0, 160));
-await page.screenshot({ path: `${SHOTS}/11-dossier-junta.png` });
+await shot(page, `${SHOTS}/11-dossier-junta.png`);
 
 // Missing P18 — initials placeholder, and never a substitute photograph.
 await selectCountry('Canada');
@@ -663,7 +695,7 @@ check('clicking a portrait opens the leader sheet', (await page.locator('.sheet-
 check('sheet shows the biography', /synthetic person/i.test(sheet));
 check('sheet lists unbuilt sections as no data rather than hiding them',
   /Career timeline/i.test(sheet) && /No data/i.test(sheet));
-await page.screenshot({ path: `${SHOTS}/12-leader-sheet.png` });
+await shot(page, `${SHOTS}/12-leader-sheet.png`);
 
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
@@ -685,7 +717,7 @@ check('a missing gloss says so instead of inventing one', /No plain-English desc
 check('legislature seat totals render', /650/.test(govGbr));
 check('a complete party split draws a bar', (await page.locator('.party-bar').count()) === 1);
 check('a chamber with no party data draws no bar', /records no party composition/i.test(govGbr));
-await page.screenshot({ path: `${SHOTS}/13-government-gbr.png` });
+await shot(page, `${SHOTS}/13-government-gbr.png`);
 
 // Hard case: partial party data must NOT be drawn as a bar.
 await selectCountry('Saudi Arabia');
@@ -701,7 +733,7 @@ check('the full count is stated up front', /58 posts/.test(await page.locator('.
 await page.locator('[data-expand="cabinet"]').click();
 await page.waitForTimeout(300);
 check('expanding reveals every post', (await page.locator('.ministry:not(.ministry--hidden)').count()) === 58);
-await page.screenshot({ path: `${SHOTS}/14-government-large-cabinet.png` });
+await shot(page, `${SHOTS}/14-government-large-cabinet.png`);
 
 // Hard case: untranslated portfolios.
 await selectCountry('Iran');
@@ -715,7 +747,7 @@ await selectCountry('Mali');
 const govMli = await page.locator('.gov').innerText();
 check('a cabinet with no holders still lists its posts', (await page.locator('.ministry').count()) === 3);
 check('vacancies are counted rather than hidden', /3 of 3 positions have no current officeholder/i.test(govMli), govMli.slice(0, 200));
-await page.screenshot({ path: `${SHOTS}/15-government-no-holders.png` });
+await shot(page, `${SHOTS}/15-government-no-holders.png`);
 
 // Leadership timeline and the leader sheet's filled sections.
 await selectCountry('United States');
@@ -728,7 +760,7 @@ await page.waitForTimeout(400);
 const sheet4 = await page.locator('.sheet-body').innerText();
 check('leader sheet now shows a career timeline', /Career timeline/i.test(sheet4) && /Senator/i.test(sheet4));
 check('predecessor and successor render from qualifiers', /after Robin Fixture/i.test(sheet4) && /succeeded by Kim Fixture/i.test(sheet4));
-await page.screenshot({ path: `${SHOTS}/16-leader-sheet-history.png` });
+await shot(page, `${SHOTS}/16-leader-sheet-history.png`);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 
@@ -758,7 +790,7 @@ check('every indicator states its own latest year', (await page.locator('.econ-a
 check('the panel refuses a single panel-wide as-of', /no single "as of" for this panel/i.test(econUsa));
 check('a monetary value states its currency and basis', /US\$/.test(econUsa) && /Not adjusted for inflation/i.test(econUsa));
 check('a chart is drawn', (await page.locator('svg.chart').count()) > 0);
-await page.screenshot({ path: `${SHOTS}/17-economy-usa.png` });
+await shot(page, `${SHOTS}/17-economy-usa.png`);
 
 // Hard case: an indicator with no data must not plot a flat line at zero.
 check('an empty indicator renders a no-data card, not a zero line',
@@ -778,7 +810,7 @@ check('a mid-series gap breaks the line into two segments', gapSegments === 2, `
 check('the gap is marked on the chart', (await page.locator('.chart-gap').count()) > 0);
 check('the gap years are named and non-interpolation is stated',
   /2011–2014/.test(econGap) && /not interpolated/i.test(econGap), econGap.slice(0, 240));
-await page.screenshot({ path: `${SHOTS}/18-economy-gap.png` });
+await shot(page, `${SHOTS}/18-economy-gap.png`);
 
 // Hard case: a stale series.
 await openEconomy('Eritrea');
@@ -797,7 +829,7 @@ await page.waitForTimeout(400);
 const afterToggle = await page.locator('.econ-block[data-indicator="gdp"] polyline').getAttribute('points');
 check('the log toggle changes the plotted geometry', beforeToggle !== afterToggle);
 check('the active scale is stated after toggling', /log scale/.test(await page.locator('.econ').innerText()));
-await page.screenshot({ path: `${SHOTS}/19-economy-log.png` });
+await shot(page, `${SHOTS}/19-economy-log.png`);
 
 // Hard case: log refused where the indicator can go negative.
 await openEconomy('Venezuela');
@@ -833,7 +865,7 @@ check('tone is labelled on the chart, not in a footnote',
   /Tone of coverage, not conditions/i.test(newsUsa));
 check('tone carries a DERIVED badge beside its caption',
   (await page.locator('.tone-caption .badge--derived').count()) === 1);
-await page.screenshot({ path: `${SHOTS}/20-news-usa.png` });
+await shot(page, `${SHOTS}/20-news-usa.png`);
 
 // Hard case: sparse coverage must read as an index limitation.
 await openNews('Fiji');
@@ -842,7 +874,7 @@ check('sparse coverage says little is INDEXED, not that little is happening',
   /Little English-language coverage/i.test(newsTuv) && /limitation of the source/i.test(newsTuv), newsTuv.slice(0, 200));
 check('sparse coverage is visually flagged', (await page.locator('.news-coverage--sparse').count()) === 1);
 check('an empty tone window plots nothing', (await page.locator('.news .chart--empty').count()) === 1);
-await page.screenshot({ path: `${SHOTS}/21-news-sparse.png` });
+await shot(page, `${SHOTS}/21-news-sparse.png`);
 
 // Hard case: non-Latin and RTL.
 await openNews('Iran');
@@ -853,7 +885,7 @@ check('CJK headlines render', await page.evaluate(() =>
   [...document.querySelectorAll('.news-title')].some((el) => /[\u4E00-\u9FFF]/.test(el.textContent))));
 await assertTextFits(page, '.news-item .news-title', 'RTL and CJK headlines');
 await assertTextFits(page, '.news-item .news-outlet', 'non-Latin outlet names');
-await page.screenshot({ path: `${SHOTS}/22-news-multiscript.png` });
+await shot(page, `${SHOTS}/22-news-multiscript.png`);
 
 // Hard case: degraded rows counted, not dropped silently.
 await openNews('Mali');
@@ -954,7 +986,7 @@ const picked = frontEvent ? await pickEvent(frontEvent) : { aimed: false, id: nu
 check('a rendered marker is pickable', picked.aimed && picked.id !== null, JSON.stringify(picked));
 check('the pick resolves to the event that was aimed at, not a neighbour',
   picked.id === frontEvent, `aimed ${frontEvent} got ${picked.id}`);
-await page.screenshot({ path: `${SHOTS}/23-globe-layers.png` });
+await shot(page, `${SHOTS}/23-globe-layers.png`);
 
 // Camera: flying to an event must actually move the camera, from somewhere else.
 // Start the camera OFF the target, or a flyTo that no-ops would pass.
@@ -1259,7 +1291,7 @@ for (const breakpoint of BREAKPOINTS) {
   await assertTextFits(page, '.news-item .news-title', `${breakpoint.name} extreme headlines`);
   await assertTextFits(page, '.news-item .news-outlet', `${breakpoint.name} extreme outlets`);
 
-  await page.screenshot({ path: `${SHOTS}/layout-${breakpoint.width}.png` });
+  await shot(page, `${SHOTS}/layout-${breakpoint.width}.png`);
 }
 
 await page.setViewportSize({ width: 1600, height: 950 });
@@ -1289,6 +1321,38 @@ check('the layout harness detects an overlap it is shown', caughtOverlap,
 await injected.evaluate((node) => node.remove());
 await page.waitForTimeout(300);
 await assertLayout(page, '.dossier', ':scope > *', 'header recovers after self-test');
+
+// Second self-test: a row squashed until its content is clipped away.
+//
+// The overlap case above was the only thing this harness had ever been shown
+// failing, and that was not enough — "collapsed" was defined as exactly zero
+// height, so a row at 2px with its text clipped entirely away passed as healthy.
+// A mutation proved it by surviving. The check that replaced it now gets its own
+// proof, because every presence and text assertion passes on such a row: this
+// geometry check is the only thing between that defect and a green suite.
+await selectCountry('United Kingdom');
+await page.locator('[data-tab="government"]').click();
+await page.waitForTimeout(400);
+await assertLayout(page, '.party-legend', ':scope > li', 'party legend before the collapse self-test');
+
+const squashed = await page.addStyleTag({
+  content: '.party-legend li { height: 0 !important; overflow: hidden !important; }',
+});
+await page.waitForTimeout(300);
+
+const caughtClip = await (async () => {
+  const before = failures.length;
+  await assertLayout(page, '.party-legend', ':scope > li', 'collapse self-test (expected to fail)');
+  const detected = failures.length > before;
+  if (detected) unfail(); // the failure was the point
+  return detected;
+})();
+check('the layout harness detects a row clipped to a sliver', caughtClip,
+  'a 2px row with its text clipped away is invisible, and presence checks pass on it');
+
+await squashed.evaluate((node) => node.remove());
+await page.waitForTimeout(300);
+await assertLayout(page, '.party-legend', ':scope > li', 'party legend recovers after collapse self-test');
 
 await browser.close();
 report();
