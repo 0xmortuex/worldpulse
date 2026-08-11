@@ -1,0 +1,46 @@
+{
+  "articles": [
+    {
+      "url": "https://good-outlet.test/a1",
+      "url_mobile": "",
+      "title": "A perfectly ordinary headline",
+      "seendate": "20260810T143000Z",
+      "socialimage": "",
+      "domain": "good-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://no-timestamp.test/a2",
+      "title": "Headline with an unparseable timestamp",
+      "seendate": "2026-08-10 14:30",
+      "domain": "no-timestamp.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://no-outlet.test/a3",
+      "title": "Headline with no outlet recorded",
+      "seendate": "20260810T130000Z",
+      "domain": "",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "ftp://not-a-web-link.test/a4",
+      "title": "Headline behind a non-web link",
+      "seendate": "20260810T120000Z",
+      "domain": "not-a-web-link.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://no-title.test/a5",
+      "title": "   ",
+      "seendate": "20260810T110000Z",
+      "domain": "no-title.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    }
+  ]
+}

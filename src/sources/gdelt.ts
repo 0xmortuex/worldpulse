@@ -1,4 +1,4 @@
-import { expectArray, expectObject, expectString, ShapeError, type FetchContext } from './adapter';
+import { expectArray, expectObject, ShapeError, type FetchContext } from './adapter';
 import { fetchProvenance } from './adapter';
 import type { Fact } from '../facts/types';
 
@@ -14,8 +14,20 @@ export interface Article {
   seenAt: string;
 }
 
+export interface UnusableArticle {
+  index: number;
+  reason: string;
+}
+
 export interface ArticleList {
   articles: Article[];
+  /**
+   * Rows that could not be rendered — no outlet, no timestamp, or a URL that is
+   * not a web link. Counted rather than thrown, because one malformed row
+   * should not blank an entire country's news, and counted rather than dropped
+   * silently, because a shorter list with no explanation reads as less news.
+   */
+  unusable: UnusableArticle[];
 }
 
 /** GDELT's compact stamp: 20260810T143000Z -> 2026-08-10T14:30:00.000Z */
@@ -34,24 +46,57 @@ export function parse(raw: unknown, sourceId = SOURCE_ID): ArticleList {
 
   // A query matching nothing returns an object with no `articles` key at all,
   // which is an empty result rather than a broken response.
-  if (!('articles' in root)) return { articles: [] };
+  if (!('articles' in root)) return { articles: [], unusable: [] };
 
   const list = expectArray(sourceId, root['articles'], 'articles');
 
-  const articles = list.map((entry, index) => {
+  const articles: Article[] = [];
+  const unusable: UnusableArticle[] = [];
+
+  list.forEach((entry, index) => {
     const at = `articles[${index}]`;
     const record = expectObject(sourceId, entry, at);
-    return {
-      url: expectString(sourceId, record['url'], `${at}.url`),
-      title: expectString(sourceId, record['title'], `${at}.title`),
-      domain: expectString(sourceId, record['domain'], `${at}.domain`),
-      language: expectString(sourceId, record['language'], `${at}.language`),
-      sourceCountry: expectString(sourceId, record['sourcecountry'], `${at}.sourcecountry`),
-      seenAt: parseSeenDate(expectString(sourceId, record['seendate'], `${at}.seendate`), sourceId),
-    };
+
+    const url = typeof record['url'] === 'string' ? record['url'] : '';
+    const title = typeof record['title'] === 'string' ? record['title'].trim() : '';
+    const domain = typeof record['domain'] === 'string' ? record['domain'].trim() : '';
+    const seendate = typeof record['seendate'] === 'string' ? record['seendate'] : '';
+
+    // A headline with no link cannot be opened; one with no outlet cannot be
+    // attributed; one with no timestamp cannot be placed in the feed. Each is
+    // a reason to exclude the row, and to say so.
+    if (!/^https?:\/\//.test(url)) {
+      unusable.push({ index, reason: 'no usable web link' });
+      return;
+    }
+    if (title.length === 0) {
+      unusable.push({ index, reason: 'no headline' });
+      return;
+    }
+    if (domain.length === 0) {
+      unusable.push({ index, reason: 'no outlet recorded' });
+      return;
+    }
+
+    let seenAt: string;
+    try {
+      seenAt = parseSeenDate(seendate, sourceId);
+    } catch {
+      unusable.push({ index, reason: 'no usable timestamp' });
+      return;
+    }
+
+    articles.push({
+      url,
+      title,
+      domain,
+      language: typeof record['language'] === 'string' ? record['language'] : 'unknown',
+      sourceCountry: typeof record['sourcecountry'] === 'string' ? record['sourcecountry'] : 'unknown',
+      seenAt,
+    });
   });
 
-  return { articles };
+  return { articles, unusable };
 }
 
 /**

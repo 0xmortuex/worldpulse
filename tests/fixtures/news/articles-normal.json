@@ -1,0 +1,64 @@
+{
+  "articles": [
+    {
+      "url": "https://example-outlet.test/a1",
+      "url_mobile": "",
+      "title": "Legislature passes budget after extended debate",
+      "seendate": "20260810T143000Z",
+      "socialimage": "",
+      "domain": "example-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://another-outlet.test/a2",
+      "url_mobile": "",
+      "title": "Statistics office publishes monthly inflation figures",
+      "seendate": "20260810T091500Z",
+      "socialimage": "",
+      "domain": "another-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://third-outlet.test/a3",
+      "url_mobile": "",
+      "title": "Central bank holds policy rate steady",
+      "seendate": "20260809T210000Z",
+      "socialimage": "",
+      "domain": "third-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://fourth-outlet.test/a4",
+      "url_mobile": "",
+      "title": "Transport strike enters second week",
+      "seendate": "20260809T120000Z",
+      "socialimage": "",
+      "domain": "fourth-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://fifth-outlet.test/a5",
+      "url_mobile": "",
+      "title": "Regulator opens inquiry into energy pricing",
+      "seendate": "20260808T083000Z",
+      "socialimage": "",
+      "domain": "fifth-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://sixth-outlet.test/a6",
+      "url_mobile": "",
+      "title": "Court rules on constitutional challenge to electoral law",
+      "seendate": "20260808T060000Z",
+      "socialimage": "",
+      "domain": "sixth-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    }
+  ]
+}

@@ -3,9 +3,8 @@
 A single-page 3D globe that acts as a live intelligence dashboard for every country
 on Earth: politics, government, military, economy, news, live TV and natural events.
 
-**Current state: build step 5 of 14.** The globe, selection model, relations engine,
-confidence badge, provenance inspector, dossier header, Government tab and Economy
-tab work. No live data pipeline
+**Current state: build step 6 of 14.** The globe, selection model, relations engine,
+confidence badge, provenance inspector, dossier header, Government, Economy and News tabs work. No live data pipeline
 yet — relations run on a hand-checked seed set and the adapters run against fixtures,
 so both are provable before the ingests land.
 
@@ -251,6 +250,33 @@ silently change how the next chart reads.
 
 A late-starting series is **not** a gap. A country whose data begins in 2019 has no
 missing observations before 2019, and rendering that as a gap would imply data was lost.
+
+## News tab
+
+The framing rule for the whole panel: **GDELT indexes English-language online news that
+it crawls.** Coverage volume is a fact about the index, never about the country. Two
+articles must read as "two articles indexed", not "a quiet week here".
+
+**Tone is the single most misleading element this app could contain.** A tone line reads
+as "how bad things are in country X". It is a machine sentiment estimate of the
+English-language coverage GDELT happened to index. That caveat is rendered *on the
+chart* — in the visible caption and the accessible label — not in a footnote, because the
+footnote is what a reader skips. A day with no indexed coverage breaks the line: a quiet
+news week has no tone, and drawing one would invent a sentiment reading.
+
+**Syndication is deduplicated, and the count is shown.** Thirty identical headlines
+would misrepresent how many things happened; hiding the copies would misrepresent how
+widely one was carried. One row with "+11 more outlets" misrepresents neither. Grouping
+is on normalised case and punctuation only — anything cleverer starts merging genuinely
+different stories, and a wrongly merged pair is invisible to a reader in a way a
+duplicate row is not.
+
+**Unusable rows are counted, not dropped.** A feed row with no outlet, no timestamp or a
+non-web link cannot be rendered honestly, but silently shortening the list reads as less
+news. The panel says how many were excluded and why.
+
+Direction is detected from the headline text, not the source country — GDELT indexes
+coverage of every country, so a Hebrew headline can appear under any of them.
 
 ## Provenance and verification
 

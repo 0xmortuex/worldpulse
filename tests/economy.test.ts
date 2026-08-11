@@ -261,3 +261,18 @@ describe('chart geometry', () => {
     assert.match(svg, /aria-label="GDP, 2005 to 2025, linear scale, 1 gap\(s\) not interpolated"/);
   });
 });
+
+describe('provider country codes must exist on the globe', () => {
+  // Regression: the sparse-news fixture was mapped to Tuvalu, which is absent
+  // from the 110m topology. The country was unselectable, so the browser check
+  // that was meant to exercise sparse coverage silently re-tested the USA
+  // instead — a green assertion covering nothing.
+  it('every fixture-mapped country is present in the country list', async () => {
+    const { loadCountries } = await import('../src/countries');
+    const { ECONOMY_COUNTRIES } = await import('../src/dossier/economy-provider');
+    const codes = new Set(loadCountries().map((country) => country.code));
+    for (const code of ECONOMY_COUNTRIES) {
+      assert.ok(codes.has(code), `${code} is mapped to a fixture but is not on the globe`);
+    }
+  });
+});

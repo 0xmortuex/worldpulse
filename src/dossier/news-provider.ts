@@ -1,0 +1,73 @@
+import articlesNormal from '../../tests/fixtures/news/articles-normal.json';
+import articlesMultiscript from '../../tests/fixtures/news/articles-multiscript.json';
+import articlesSparse from '../../tests/fixtures/news/articles-sparse.json';
+import articlesDegraded from '../../tests/fixtures/news/articles-degraded.json';
+import articlesSyndicated from '../../tests/fixtures/news/articles-syndicated.json';
+import articlesExtremes from '../../tests/fixtures/news/articles-extremes.json';
+import toneNormal from '../../tests/fixtures/news/tone-normal.json';
+import toneSparse from '../../tests/fixtures/news/tone-sparse.json';
+import toneEmpty from '../../tests/fixtures/news/tone-empty.json';
+import { parse as parseArticles, type ArticleList } from '../sources/gdelt';
+import { parseToneTimeline, type ToneTimeline } from '../sources/gdelt-tone';
+import type { FetchContext } from '../sources/adapter';
+
+/**
+ * Fixture-backed news data.
+ *
+ *   USA  ordinary feed, full tone timeline
+ *   GBR  syndicated coverage of one story across twelve outlets
+ *   IRN  non-Latin and RTL headlines and outlet names
+ *   TUV  almost no indexed coverage; tone timeline mostly empty
+ *   MLI  degraded rows: no timestamp, no outlet, non-web link, empty headline
+ *   DEU  deliberately extreme string lengths, for the text-fidelity checks
+ *   XKX  tone timeline with an eight-day hole in the middle
+ */
+
+const ARTICLES: Record<string, unknown> = {
+  USA: articlesNormal,
+  GBR: articlesSyndicated,
+  IRN: articlesMultiscript,
+  FJI: articlesSparse,
+  MLI: articlesDegraded,
+  DEU: articlesExtremes,
+  XKX: articlesNormal,
+};
+
+const TONE: Record<string, unknown> = {
+  USA: toneNormal,
+  GBR: toneNormal,
+  IRN: toneNormal,
+  DEU: toneNormal,
+  MLI: toneNormal,
+  XKX: toneSparse,
+  FJI: toneEmpty,
+};
+
+function ctxFor(iso3: string, mode: string): FetchContext {
+  return {
+    requestUrl:
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=sourcecountry:${iso3}` +
+      `&mode=${mode}&format=json&timespan=30d`,
+    httpStatus: 200,
+    fetchedAt: '1970-01-01T00:00:00.000Z',
+    cache: 'miss',
+    fromFixture: true,
+  };
+}
+
+export interface NewsData {
+  articles: { value: ArticleList; ctx: FetchContext } | null;
+  tone: { value: ToneTimeline; ctx: FetchContext } | null;
+}
+
+export function loadNews(iso3: string): NewsData {
+  const rawArticles = ARTICLES[iso3];
+  const rawTone = TONE[iso3];
+
+  return {
+    articles: rawArticles
+      ? { value: parseArticles(rawArticles), ctx: ctxFor(iso3, 'artlist') }
+      : null,
+    tone: rawTone ? { value: parseToneTimeline(rawTone), ctx: ctxFor(iso3, 'timelinetone') } : null,
+  };
+}

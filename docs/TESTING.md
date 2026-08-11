@@ -159,7 +159,49 @@ Screenshots stay in the loop. They catch what geometry assertions cannot — col
 collisions, illegible contrast, a portrait that is technically inside its container and
 still wrong. The two are complementary, not alternatives.
 
-## 9. `innerText` applies CSS, `textContent` does not
+## 9. Text fidelity — geometry cannot prove readability
+
+Rule 8 proves elements do not overlap or overflow. It cannot prove the text inside them
+is intact. **"451.53 billion" clipping to "3 billion" is the worst defect class this
+project has produced: silently wrong, confidently displayed, geometrically valid.**
+
+For every numeric surface:
+
+1. **Assert `scrollWidth <= clientWidth`** on any element whose text is generated from a
+   Fact. This is the direct test for clipping and it holds regardless of formatting
+   strategy. For SVG text, compare `getComputedTextLength()` against the space allowed.
+2. **Assert a character budget** for text in a fixed-width gutter or fixed-height row.
+   Note that a budget written for Latin text is wrong for others — see below.
+3. **Assert the rendered string equals the expected formatted value.** A check that only
+   asserts "some text is present" passes happily on a truncated number.
+4. **Fixture at least one deliberately extreme value per numeric surface** — the longest
+   plausible string. A 15-digit GDP, a hyperinflation percentage, a long country name in
+   a compare column, a twelve-digit population. Extremes are where formatting fails and
+   they do not occur by chance in hand-written fixtures.
+
+### 9b. Compaction is allowed; truncation is not
+
+A compacted value is **lossless in intent**: `452B` tells you the same thing as
+`451,530,000,000` at lower precision, and a reader knows precision was traded for space.
+A truncated value is a **different number**: `3 billion` from `451.53 billion` is not an
+approximation, it is wrong.
+
+If a value cannot be shown at full precision in the space available, either the space is
+wrong or the value needs a tooltip carrying the exact figure. **Never let the display
+silently choose a different number.**
+
+Corollaries worth stating, because they are easy to get wrong:
+
+- `text-overflow: ellipsis` is acceptable for prose (a headline, an outlet name) where
+  the truncation is *visible* as an ellipsis. It is never acceptable for a numeric value.
+- CSS that clips without an ellipsis is never acceptable for either — the reader cannot
+  tell anything was removed.
+- A character budget calibrated on Latin text will be wrong for CJK (wider glyphs),
+  Arabic and Devanagari (different advance widths, and shaping that makes `.length` a
+  poor proxy for rendered width). Prefer the measured `scrollWidth` check, and treat
+  character budgets as a secondary guard on surfaces you know are Latin-only.
+
+## 10. `innerText` applies CSS, `textContent` does not
 
 Assertions against `innerText` see the *rendered* text, so anything under
 `text-transform: uppercase` comes back uppercased. Match case-insensitively, or read

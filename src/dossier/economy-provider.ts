@@ -21,7 +21,7 @@ import type { FetchContext } from '../sources/adapter';
  *   ZWE  redenomination: five orders of magnitude, log scale useful
  *   VEN  hyperinflation, but log unavailable because inflation can go negative
  *   SOM  an indicator with no data at all
- *   TUV  a single lone observation
+ *   FJI  a single lone observation
  */
 
 const GDP_BY_COUNTRY: Record<string, unknown> = {
@@ -31,7 +31,7 @@ const GDP_BY_COUNTRY: Record<string, unknown> = {
   XKX: gdpMidgap,
   ERI: gdpStale,
   ZWE: gdpRedenominated,
-  TUV: gdpSinglePoint,
+  FJI: gdpSinglePoint,
 };
 
 const INFLATION_BY_COUNTRY: Record<string, unknown> = {

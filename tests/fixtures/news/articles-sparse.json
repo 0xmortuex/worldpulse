@@ -1,0 +1,24 @@
+{
+  "articles": [
+    {
+      "url": "https://small-outlet.test/a1",
+      "url_mobile": "",
+      "title": "Fisheries agreement signed with neighbouring state",
+      "seendate": "20260807T090000Z",
+      "socialimage": "",
+      "domain": "small-outlet.test",
+      "language": "English",
+      "sourcecountry": "Fiji"
+    },
+    {
+      "url": "https://wire-service.test/a2",
+      "url_mobile": "",
+      "title": "Pacific island nation reports coral bleaching survey results",
+      "seendate": "20260805T140000Z",
+      "socialimage": "",
+      "domain": "wire-service.test",
+      "language": "English",
+      "sourcecountry": "Fiji"
+    }
+  ]
+}

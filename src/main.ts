@@ -10,6 +10,7 @@ import { Store } from './state';
 import { BASE_STROKE, SELECTION_COLOR, SELECTION_STROKE, TIER_COLORS, TIER_COLORS_LOW_CONFIDENCE } from './theme';
 import { mountEconomyTab } from './ui/economy';
 import { mountGovernmentTab } from './ui/government';
+import { mountNewsTab } from './ui/news';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
@@ -49,6 +50,7 @@ mountGovernmentTab(panelRoot);
 // Re-render through the store so the economy toggle takes the same path as
 // every other state change rather than mutating the DOM behind the panel.
 mountEconomyTab(panelRoot, () => store.refresh());
+mountNewsTab(panelRoot, () => store.refresh());
 mountPanel(panelRoot, store, {
   byCode,
   findings,

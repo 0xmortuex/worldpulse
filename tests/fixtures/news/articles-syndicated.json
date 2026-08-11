@@ -1,0 +1,144 @@
+{
+  "articles": [
+    {
+      "url": "https://syndicate0.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260810T100000Z",
+      "socialimage": "",
+      "domain": "syndicate0.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate1.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260811T110000Z",
+      "socialimage": "",
+      "domain": "syndicate1.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate2.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260810T120000Z",
+      "socialimage": "",
+      "domain": "syndicate2.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate3.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260811T130000Z",
+      "socialimage": "",
+      "domain": "syndicate3.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate4.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260810T140000Z",
+      "socialimage": "",
+      "domain": "syndicate4.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate5.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260811T150000Z",
+      "socialimage": "",
+      "domain": "syndicate5.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate6.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260810T160000Z",
+      "socialimage": "",
+      "domain": "syndicate6.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate7.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260811T170000Z",
+      "socialimage": "",
+      "domain": "syndicate7.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate8.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260810T180000Z",
+      "socialimage": "",
+      "domain": "syndicate8.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate9.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260811T190000Z",
+      "socialimage": "",
+      "domain": "syndicate9.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate10.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260810T200000Z",
+      "socialimage": "",
+      "domain": "syndicate10.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://syndicate11.test/story",
+      "url_mobile": "",
+      "title": "Central bank raises benchmark rate by half a point",
+      "seendate": "20260811T210000Z",
+      "socialimage": "",
+      "domain": "syndicate11.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://unique-outlet.test/x",
+      "url_mobile": "",
+      "title": "Unrelated story about a harbour redevelopment",
+      "seendate": "20260810T020000Z",
+      "socialimage": "",
+      "domain": "unique-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://punct-only.test/y",
+      "url_mobile": "",
+      "title": "!!! ???",
+      "seendate": "20260810T010000Z",
+      "socialimage": "",
+      "domain": "punct-only.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    }
+  ]
+}

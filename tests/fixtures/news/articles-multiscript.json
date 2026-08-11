@@ -1,0 +1,64 @@
+{
+  "articles": [
+    {
+      "url": "https://arabic-outlet.test/a1",
+      "url_mobile": "",
+      "title": "الحكومة تعلن عن حزمة إصلاحات اقتصادية جديدة تشمل قطاعات الطاقة والنقل",
+      "seendate": "20260810T143000Z",
+      "socialimage": "",
+      "domain": "الشرق-اليومية.test",
+      "language": "Arabic",
+      "sourcecountry": "Egypt"
+    },
+    {
+      "url": "https://hebrew-outlet.test/a2",
+      "url_mobile": "",
+      "title": "הכנסת אישרה את התקציב לאחר דיון ממושך בוועדת הכספים",
+      "seendate": "20260810T120000Z",
+      "socialimage": "",
+      "domain": "עיתון-הבוקר.test",
+      "language": "Hebrew",
+      "sourcecountry": "Israel"
+    },
+    {
+      "url": "https://persian-outlet.test/a3",
+      "url_mobile": "",
+      "title": "مجلس بودجه سالانه را پس از بحث طولانی تصویب کرد",
+      "seendate": "20260810T100000Z",
+      "socialimage": "",
+      "domain": "روزنامه-صبح.test",
+      "language": "Persian",
+      "sourcecountry": "Iran"
+    },
+    {
+      "url": "https://chinese-outlet.test/a4",
+      "url_mobile": "",
+      "title": "国务院公布新一轮经济改革措施涉及能源与交通运输领域",
+      "seendate": "20260810T080000Z",
+      "socialimage": "",
+      "domain": "环球新闻网.test",
+      "language": "Chinese",
+      "sourcecountry": "China"
+    },
+    {
+      "url": "https://hindi-outlet.test/a5",
+      "url_mobile": "",
+      "title": "संसद ने लंबी बहस के बाद वार्षिक बजट को मंजूरी दी",
+      "seendate": "20260810T060000Z",
+      "socialimage": "",
+      "domain": "समाचार-पत्रिका.test",
+      "language": "Hindi",
+      "sourcecountry": "India"
+    },
+    {
+      "url": "https://mixed-outlet.test/a6",
+      "url_mobile": "",
+      "title": "Mixed script headline: 新闻 and العربية together in one line",
+      "seendate": "20260810T040000Z",
+      "socialimage": "",
+      "domain": "mixed-outlet.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    }
+  ]
+}

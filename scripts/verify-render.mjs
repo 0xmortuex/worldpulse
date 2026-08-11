@@ -84,6 +84,51 @@ async function assertLayout(page, containerSelector, childSelector, label) {
   check(`${label}: no overlap or overflow`, problems.length === 0, problems.slice(0, 3).join('; '));
 }
 
+/**
+ * TESTING.md rule 9: geometry cannot prove readability.
+ *
+ * scrollWidth > clientWidth means the text does not fit its box — the direct
+ * test for clipping, independent of formatting strategy. SVG text is measured
+ * with getComputedTextLength() instead, since scrollWidth does not apply.
+ *
+ * Rule 9b: a value clipped without an ellipsis is a DIFFERENT NUMBER, not an
+ * approximation. Prose may ellipsize visibly; values may not.
+ */
+async function assertTextFits(page, selector, label, options = {}) {
+  const clipped = await page.evaluate(
+    ([sel, allowEllipsis]) => {
+      const out = [];
+      for (const el of document.querySelectorAll(sel)) {
+        if (el.getClientRects().length === 0) continue;
+        const text = (el.textContent ?? '').trim();
+        if (text.length === 0) continue;
+        const style = getComputedStyle(el);
+        // A visible ellipsis is permitted on prose only, and the caller says so.
+        const ellipsized = style.textOverflow === 'ellipsis';
+        if (allowEllipsis && ellipsized) continue;
+        if (el.scrollWidth > el.clientWidth + 1) {
+          out.push({ cls: String(el.className).slice(0, 40), text: text.slice(0, 48), scroll: el.scrollWidth, client: el.clientWidth });
+        }
+      }
+      return out;
+    },
+    [selector, options.allowEllipsis === true],
+  );
+  check(`${label}: text not clipped`, clipped.length === 0, JSON.stringify(clipped.slice(0, 3)));
+}
+
+/** SVG text has no scrollWidth; measure the rendered advance instead. */
+async function assertSvgTextFits(page, selector, maxPx, label) {
+  const overflowing = await page.evaluate(
+    ([sel, budget]) =>
+      [...document.querySelectorAll(sel)]
+        .filter((el) => el.getComputedTextLength && el.getComputedTextLength() > budget)
+        .map((el) => ({ text: el.textContent, width: Math.round(el.getComputedTextLength()) })),
+    [selector, maxPx],
+  );
+  check(`${label}: SVG text within ${maxPx}px`, overflowing.length === 0, JSON.stringify(overflowing.slice(0, 3)));
+}
+
 const BREAKPOINTS = [
   { width: 360, height: 780, name: '360px' },
   { width: 900, height: 800, name: '900px' },
@@ -428,10 +473,12 @@ await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 
 // Tab switching by keyboard, and unbuilt tabs naming their step.
-await page.keyboard.press('5');
+// Key 6 is Live TV, which is still unbuilt. Retarget this whenever the tab it
+// points at gets built, or it silently stops testing the pending-tab path.
+await page.keyboard.press('6');
 await page.waitForTimeout(300);
-check('number keys switch dossier tabs', (await page.locator('.tab--active').innerText()).trim() === 'News');
-check('an unbuilt tab names the step that fills it', /step 6/.test(await page.locator('.gov').innerText()));
+check('number keys switch dossier tabs', (await page.locator('.tab--active').innerText()).trim() === 'Live TV');
+check('an unbuilt tab names the step that fills it', /step 11/.test(await page.locator('.gov').innerText()));
 await page.keyboard.press('1');
 await page.waitForTimeout(300);
 
@@ -506,6 +553,122 @@ await openEconomy('United States');
 check('a log toggle does not follow the user to another country',
   /linear scale/.test(await page.locator('.econ').innerText()));
 
+// ---- step 6: news tab ----
+
+async function openNews(country) {
+  await selectCountry(country);
+  await page.locator('[data-tab="news"]').click();
+  await page.waitForTimeout(400);
+}
+
+await openNews('United States');
+check('news tab renders articles', (await page.locator('.news-item').count()) > 0);
+const newsUsa = await page.locator('.news').innerText();
+check('coverage volume is framed as a property of the index',
+  /indexes English-language online news that it crawls/i.test(newsUsa));
+check('the tone chart renders', (await page.locator('svg.tone-chart').count()) === 1);
+check('tone is labelled on the chart, not in a footnote',
+  /Tone of coverage, not conditions/i.test(newsUsa));
+check('tone carries a DERIVED badge beside its caption',
+  (await page.locator('.tone-caption .badge--derived').count()) === 1);
+await page.screenshot({ path: `${SHOTS}/20-news-usa.png` });
+
+// Hard case: sparse coverage must read as an index limitation.
+await openNews('Fiji');
+const newsTuv = await page.locator('.news').innerText();
+check('sparse coverage says little is INDEXED, not that little is happening',
+  /Little English-language coverage/i.test(newsTuv) && /limitation of the source/i.test(newsTuv), newsTuv.slice(0, 200));
+check('sparse coverage is visually flagged', (await page.locator('.news-coverage--sparse').count()) === 1);
+check('an empty tone window plots nothing', (await page.locator('.news .chart--empty').count()) === 1);
+await page.screenshot({ path: `${SHOTS}/21-news-sparse.png` });
+
+// Hard case: non-Latin and RTL.
+await openNews('Iran');
+check('RTL headlines get dir=rtl', (await page.locator('.news-title[dir="rtl"]').count()) >= 3);
+check('non-Latin outlet names render', await page.evaluate(() =>
+  [...document.querySelectorAll('.news-outlet')].some((el) => /[\u0600-\u06FF]/.test(el.textContent))));
+check('CJK headlines render', await page.evaluate(() =>
+  [...document.querySelectorAll('.news-title')].some((el) => /[\u4E00-\u9FFF]/.test(el.textContent))));
+await assertTextFits(page, '.news-item .news-title', 'RTL and CJK headlines');
+await assertTextFits(page, '.news-item .news-outlet', 'non-Latin outlet names');
+await page.screenshot({ path: `${SHOTS}/22-news-multiscript.png` });
+
+// Hard case: degraded rows counted, not dropped silently.
+await openNews('Mali');
+const newsMli = await page.locator('.news').innerText();
+check('unusable feed rows are counted and explained',
+  /4 item\(s\) in the feed could not be shown/.test(newsMli), newsMli.slice(0, 240));
+check('the reasons are named', /no usable web link|no usable timestamp/.test(newsMli));
+
+// Hard case: syndication is deduplicated AND counted.
+await openNews('United Kingdom');
+const newsGbr = await page.locator('.news').innerText();
+check('syndicated copies collapse to one row', (await page.locator('.news-item').count()) === 3);
+check('the outlet count is shown rather than the copies hidden',
+  /\+11 more outlets/.test(newsGbr), newsGbr.slice(0, 200));
+
+// Hard case: a tone timeline with a hole in the middle.
+await openNews('Kosovo');
+check('a tone gap breaks the line',
+  (await page.locator('.tone-chart polyline').count()) === 2);
+check('the missing days are stated',
+  /8 day\(s\) had no indexed coverage/.test(await page.locator('.news').innerText()));
+
+// Topic filters.
+await openNews('United States');
+await page.locator('[data-topic="economy"]').click();
+await page.waitForTimeout(300);
+check('a topic filter narrows the list', (await page.locator('.news-item').count()) < 6);
+check('filters are described as a convenience, not a classification',
+  /not a classification/i.test(await page.locator('.news').innerText()));
+await page.locator('[data-topic=""]').click();
+await page.waitForTimeout(300);
+
+// ---- text fidelity (TESTING.md rule 9), retroactive ----
+
+await selectCountry('Germany');
+await page.locator('[data-tab="economy"]').click();
+await page.waitForTimeout(400);
+await assertTextFits(page, '.econ-block .fact-value', 'economy values');
+await assertTextFits(page, '.econ-block .econ-name', 'economy indicator names');
+await assertTextFits(page, '.econ-block .econ-asof', 'economy as-of labels');
+await assertSvgTextFits(page, '.econ-block .chart-axis', 42, 'economy axis labels');
+
+// The extreme-value fixture: the longest plausible strings on this surface.
+await selectCountry('Zimbabwe');
+await page.locator('[data-tab="economy"]').click();
+await page.waitForTimeout(400);
+await assertTextFits(page, '.econ-block .fact-value', 'economy values at extreme magnitude');
+await assertSvgTextFits(page, '.econ-block .chart-axis', 42, 'economy axis labels at extreme magnitude');
+const zweAxis = await page.locator('.econ-block[data-indicator="gdp"] .chart-axis').allTextContents();
+check('axis labels are compacted, not truncated', zweAxis.every((t) => /^-?[\d.]+[kMBTP]?$|^\d{4}$/.test(t.trim())), zweAxis.join(' | '));
+
+await selectCountry('Germany');
+await page.locator('[data-tab="government"]').click();
+await page.waitForTimeout(400);
+await assertTextFits(page, '.ministry:not(.ministry--hidden) .ministry-label', 'ministry labels');
+await assertTextFits(page, '.ministry:not(.ministry--hidden) .ministry-holder', 'ministry holders');
+await assertTextFits(page, '.gov-count', 'cabinet count');
+
+await selectCountry('United Kingdom');
+await page.locator('[data-tab="government"]').click();
+await page.waitForTimeout(400);
+await assertTextFits(page, '.party-legend .party-name', 'party names');
+await assertTextFits(page, '.party-legend .party-seats', 'party seat counts');
+await assertTextFits(page, '.term .term-dates', 'timeline dates');
+
+await selectCountry('Germany');
+await page.locator('[data-tab="news"]').click();
+await page.waitForTimeout(400);
+await assertTextFits(page, '.news-item .news-title', 'extreme-length headlines');
+await assertTextFits(page, '.news-item .news-outlet', 'extreme-length outlet names');
+await assertSvgTextFits(page, '.tone-chart .chart-axis', 60, 'tone axis labels');
+
+// Header vitals, which carry population and dates.
+await selectCountry('United Kingdom');
+await assertTextFits(page, '.dossier-vitals .fact-value', 'header vitals');
+await assertTextFits(page, '.portrait-vitals .fact-value', 'portrait vitals');
+
 // ---- layout geometry at every breakpoint (TESTING.md rule 8) ----
 //
 // Applied retroactively to the dossier header, whose dual-portrait case
@@ -547,6 +710,19 @@ for (const breakpoint of BREAKPOINTS) {
   await openEconomy('Zimbabwe');
   await assertLayout(page, '.econ', ':scope > .econ-block', `${breakpoint.name} economy blocks`);
   await assertLayout(page, '.econ-block[data-indicator="gdp"]', ':scope > *', `${breakpoint.name} indicator internals`);
+  await assertTextFits(page, '.econ-block .fact-value', `${breakpoint.name} economy values`);
+  await assertSvgTextFits(page, '.econ-block .chart-axis', 42, `${breakpoint.name} economy axis`);
+
+  // News at every breakpoint: the multiscript feed is where a Latin-calibrated
+  // layout fails, and 360px is where nobody screenshots.
+  await openNews('Iran');
+  await assertLayout(page, '.news-list', ':scope > .news-item', `${breakpoint.name} news rows`);
+  await assertTextFits(page, '.news-item .news-title', `${breakpoint.name} RTL headlines`);
+  await assertTextFits(page, '.news-item .news-outlet', `${breakpoint.name} RTL outlets`);
+
+  await openNews('Germany');
+  await assertTextFits(page, '.news-item .news-title', `${breakpoint.name} extreme headlines`);
+  await assertTextFits(page, '.news-item .news-outlet', `${breakpoint.name} extreme outlets`);
 
   await page.screenshot({ path: `${SHOTS}/layout-${breakpoint.width}.png` });
 }

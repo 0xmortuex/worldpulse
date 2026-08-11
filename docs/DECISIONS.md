@@ -32,6 +32,8 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | A1 | **Worker proxy only where a probe proves it is needed.** Probes send `Origin` and record `Access-Control-Allow-Origin` per source, yielding client-fetch / Worker-required / key-gated / inconclusive. |
 | A2 | **4xx/5xx yields `INCONCLUSIVE`, never `WORKER-REQUIRED`.** A rate-limit 403 is not evidence of CORS posture. |
 | A3 | **No visual layer counts as verified without asserting on rendered behaviour**, not the container's existence. See `TESTING.md`. |
+| A9 | **Text fidelity is asserted separately from geometry** (`scrollWidth <= clientWidth`, SVG advance width, expected formatted strings, and a deliberately extreme fixture per numeric surface). Compaction is allowed; truncation is not — a clipped value is a different number, not an approximation. |
+| A10 | **Every fixture-mapped country must exist in the country list**, asserted by test. Regression: the sparse-news fixture pointed at Tuvalu, absent from the 110m topology, so its browser check silently re-tested the USA. |
 | A8 | **Layout is asserted geometrically at 360px, 900px and desktop** — no overlap, no overflow, no collapsed elements. Presence and text assertions are blind to layout; the dual-portrait overlap shipped past a fully green suite. The harness carries a self-test that recreates that bug and confirms it is caught. |
 | A4 | **The confidence badge is the only sanctioned way to render a fact.** Enforced statically by `tests/fact-discipline.test.ts` using real type information. Escape hatch is `notAFact(value, reason)`, which requires a written reason at the call site. |
 | A5 | **A value with no traceable provenance renders as UNTRACEABLE, loudly.** Brokenness outranks emptiness: an untraceable fact shouts even when it has nothing to show, rather than passing as a legitimate "no data". |
@@ -78,6 +80,17 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | E4 | **A late-starting series is not a gap.** Leading and trailing nulls are trimmed before gap detection. |
 | E5 | **An indicator with no fixture is listed as "not fetched", not omitted.** An indicator missing from the panel is indistinguishable from one that does not exist. |
 | E6 | **Axis labels are compact-formatted.** Regression: "451.53 billion" overflowed its gutter and clipped to "3 billion" — a different number, not merely ugly. Covered by a test asserting a character budget. |
+
+## News tab
+
+| # | Decision |
+| --- | --- |
+| N1 | **Coverage volume is a property of the index, never the country.** Sparse coverage says "little English-language coverage is indexed", with the source limitation stated. |
+| N2 | **Tone is labelled on the chart itself**, in both the visible caption and the accessible label — never a footnote. It is a machine sentiment estimate of indexed English-language coverage, not a measure of conditions. |
+| N3 | **A day with no indexed coverage breaks the tone line.** Zero is a real tone value; absence is not. |
+| N4 | **The feed deduplicates syndicated copies and shows the outlet count.** Grouping is conservative — case and punctuation only. |
+| N5 | **Unusable rows are counted with their reason, not dropped.** One malformed row must not blank a country's news, and a silently shorter list reads as less news. |
+| N6 | **Text direction comes from the headline, not the source country.** |
 
 ## Classification watchlist
 

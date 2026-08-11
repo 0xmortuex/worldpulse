@@ -225,14 +225,33 @@ export function latestValueFact(series: Series, ctx: FetchContext, raw: Indicato
  * merely ugly — it reads as a completely different number.
  */
 export function formatAxisValue(value: number, spec: IndicatorSpec): string {
-  if (spec.basis === 'ratio') return value.toFixed(value >= 100 ? 0 : 1);
+  if (spec.basis === 'ratio') return value.toFixed(Math.abs(value) >= 100 ? 0 : 1);
+
   const abs = Math.abs(value);
   const sign = value < 0 ? '-' : '';
-  if (abs >= 1e12) return `${sign}${(abs / 1e12).toPrecision(3)}T`;
-  if (abs >= 1e9) return `${sign}${(abs / 1e9).toPrecision(3)}B`;
-  if (abs >= 1e6) return `${sign}${(abs / 1e6).toPrecision(3)}M`;
-  if (abs >= 1e3) return `${sign}${(abs / 1e3).toPrecision(3)}k`;
-  return `${sign}${abs.toPrecision(3)}`;
+
+  // Scale first, then fix the decimals. toPrecision() flips to exponent
+  // notation once the mantissa exceeds its significant digits, which produced
+  // "5.99e+3T" — unreadable in a chart gutter, and precisely the kind of
+  // display that makes a reader guess at a number.
+  const tiers: Array<[number, string]> = [
+    [1e15, 'P'],
+    [1e12, 'T'],
+    [1e9, 'B'],
+    [1e6, 'M'],
+    [1e3, 'k'],
+  ];
+
+  for (const [threshold, suffix] of tiers) {
+    if (abs >= threshold) {
+      const mantissa = abs / threshold;
+      const decimals = mantissa >= 100 ? 0 : mantissa >= 10 ? 1 : 2;
+      return `${sign}${mantissa.toFixed(decimals)}${suffix}`;
+    }
+  }
+
+  const decimals = abs >= 100 ? 0 : abs >= 10 ? 1 : 2;
+  return `${sign}${abs.toFixed(decimals)}`;
 }
 
 export function formatValue(value: number, spec: IndicatorSpec): string {

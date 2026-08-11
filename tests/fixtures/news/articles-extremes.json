@@ -1,0 +1,24 @@
+{
+  "articles": [
+    {
+      "url": "https://very-long-domain-name-for-a-regional-newspaper-group.test/a1",
+      "url_mobile": "",
+      "title": "A deliberately extremely long headline that runs well beyond any reasonable column width in order to prove that the feed row neither clips the text without an ellipsis nor overflows its container at the narrowest supported breakpoint",
+      "seendate": "20260810T143000Z",
+      "socialimage": "",
+      "domain": "very-long-domain-name-for-a-regional-newspaper-group.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://cjk-long.test/a2",
+      "url_mobile": "",
+      "title": "国务院新闻办公室今日就当前经济形势与宏观政策取向有关情况举行新闻发布会并回答记者提问涉及能源交通金融监管等多个领域",
+      "seendate": "20260810T120000Z",
+      "socialimage": "",
+      "domain": "中华人民共和国国务院新闻办公室网.test",
+      "language": "Chinese",
+      "sourcecountry": "China"
+    }
+  ]
+}
