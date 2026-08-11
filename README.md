@@ -3,8 +3,9 @@
 A single-page 3D globe that acts as a live intelligence dashboard for every country
 on Earth: politics, government, military, economy, news, live TV and natural events.
 
-**Current state: build step 4 of 14.** The globe, selection model, relations engine,
-confidence badge, provenance inspector, dossier header and Government tab work. No live data pipeline
+**Current state: build step 5 of 14.** The globe, selection model, relations engine,
+confidence badge, provenance inspector, dossier header, Government tab and Economy
+tab work. No live data pipeline
 yet — relations run on a hand-checked seed set and the adapters run against fixtures,
 so both are provable before the ingests land.
 
@@ -224,6 +225,32 @@ Q-ids referenced by hand-written SPARQL live in `data/wikidata-entities.json`, a
 unverified, so verification at egress is one pass over one file. Queries are written so
 a wrong Q-id yields **missing rows rather than wrong rows** — an empty cabinet is
 honest, another country's ministries would not be.
+
+## Economy tab
+
+Three absences are kept distinct, because collapsing any of them produces a confident
+falsehood:
+
+| Absence | Wrong rendering | What it does |
+| --- | --- | --- |
+| No data for the indicator | A flat line at zero | No-data card. A zero line says the indicator *measured* zero. |
+| A gap mid-series | A line bridging the gap | The line breaks; the gap is hatched and named; nothing is interpolated. |
+| A stale latest value | One panel-wide "as of" | Each indicator states its own latest year and age. Series update on different cadences. |
+
+**Every monetary value carries a currency and a current/constant basis**, enforced in
+`data/indicators.json` rather than at the call site — so a missing unit is a build-time
+gap, not a rendering omission. "GDP: 29,184,890,000,000" is unusable and "GDP grew 8%"
+is meaningless without knowing whether the series is nominal or real.
+
+A **log/linear toggle** is offered per indicator where the series is strictly positive
+and spans two or more orders of magnitude — the redenomination and hyperinflation case,
+where a linear axis flattens everything below the peak. The active scale is always
+stated. Log is refused, with the reason, for any indicator that can go negative.
+Scale choices reset on country change: carrying a toggle across countries would
+silently change how the next chart reads.
+
+A late-starting series is **not** a gap. A country whose data begins in 2019 has no
+missing observations before 2019, and rendering that as a gap would imply data was lost.
 
 ## Provenance and verification
 

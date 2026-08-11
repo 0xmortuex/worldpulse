@@ -54,12 +54,30 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 
 | # | Decision |
 | --- | --- |
-| G1 | **Ministry glosses come from Wikidata's own description or not at all.** A guessed remit reads as fact. |
+| G1 | **Ministry glosses come from Wikidata's own `schema:description`, verbatim, or an explicit no-description marker. This app never authors them.** *Spec amendment:* the original wording — "a plain-English line on what that ministry actually does" — was reviewed and replaced with "the ministry's description, sourced, or an explicit no-description marker." Recorded here so it is not re-litigated: an authored line explaining what a ministry *actually* does is plausible, unfalsifiable and quietly political. "The Ministry of Public Security handles domestic policing" is one editorial choice away from characterising a secret police force as a police force. Where a ministry has no description, **that gap is the honest output.** |
 | G2 | **A party-composition bar is drawn only when party seats account for the whole chamber.** Partial data gets a sentence stating the shortfall, never a bar. |
 | G3 | **Untranslated portfolios keep their Q-id and are flagged.** Dropping shrinks the cabinet silently; translating invents. |
 | G4 | **"No ministries recorded" and "ministries with no officeholders" are distinct states** and render differently. |
 | G5 | **Q-ids used in SPARQL live in one registry, all unverified.** Queries degrade to missing rows rather than wrong rows when an id is wrong. |
 | G6 | **Deferred scope renders as a no-data card naming the step that fills it** — the pattern approved in step 3, applied throughout. |
+
+## Overrides
+
+| # | Decision |
+| --- | --- |
+| O1 | **A rule-1 override requires a constitutional or statutory citation, not a consensus.** Where a constitution names a party's leading role explicitly, cite that article. Where it does not, **the override is not made** and the header resolves by the ordinary rules. Being formally correct and visibly incomplete beats being informally right and unciteable. |
+| O2 | **The sixth rule (collective leadership) is not built until live data confirms its shape**, and rules 1–5 are not bent around it. The evidence required to justify it is written down in `WATCHLIST.md` *before* the data is seen — a rule designed after seeing the data tends to be a rule shaped to fit the data. |
+
+## Economy tab
+
+| # | Decision |
+| --- | --- |
+| E1 | **No data, a mid-series gap, and a stale value are three distinct states** and render differently. A null is never plotted as zero; a gap is never bridged; staleness is stated per indicator, never panel-wide. |
+| E2 | **Unit and basis live in the indicator registry, not at the call site.** A monetary value without a currency and a current/constant designation is not a fact. |
+| E3 | **Log scale is offered only where the series is strictly positive and spans ≥2 orders of magnitude.** The active scale is always stated; log is refused with a reason for indicators that can go negative. Scale choice resets on country change. |
+| E4 | **A late-starting series is not a gap.** Leading and trailing nulls are trimmed before gap detection. |
+| E5 | **An indicator with no fixture is listed as "not fetched", not omitted.** An indicator missing from the panel is indistinguishable from one that does not exist. |
+| E6 | **Axis labels are compact-formatted.** Regression: "451.53 billion" overflowed its gutter and clipped to "3 billion" — a different number, not merely ugly. Covered by a test asserting a character budget. |
 
 ## Classification watchlist
 

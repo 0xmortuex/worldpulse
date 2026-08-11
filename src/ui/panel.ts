@@ -9,6 +9,7 @@ import { TIER_COLORS, TIER_LABELS } from '../theme';
 import { escapeHtml } from './popover';
 import { comparePortrait, renderDossierHeader } from './header';
 import { renderGovernmentTab } from './government';
+import { renderEconomyTab, resetEconomyScales } from './economy';
 import type { TabId } from '../state';
 
 const TIER_ORDER: Tier[] = ['ally', 'adversary', 'strained', 'neutral', 'nodata'];
@@ -27,7 +28,7 @@ const TABS: Array<{ id: TabId; label: string; step: string | null }> = [
   { id: 'government', label: 'Government', step: null },
   { id: 'legislature', label: 'Legislature', step: 'step 9' },
   { id: 'military', label: 'Military', step: 'step 8' },
-  { id: 'economy', label: 'Economy', step: 'step 5' },
+  { id: 'economy', label: 'Economy', step: null },
   { id: 'news', label: 'News', step: 'step 6' },
   { id: 'tv', label: 'Live TV', step: 'step 11' },
   { id: 'risk', label: 'Risk', step: 'step 10' },
@@ -56,7 +57,15 @@ export function mountPanel(root: HTMLElement, store: Store, context: PanelContex
     if (tab) store.setTab(tab.id);
   });
 
+  let lastSubject: string | undefined;
   store.subscribe((state) => {
+    // Scale choices are per indicator, not per country: carrying a log toggle
+    // across a country switch would silently change how the next chart reads.
+    const subject = state.selected.length === 1 ? state.selected[0] : undefined;
+    if (subject !== lastSubject) {
+      resetEconomyScales();
+      lastSubject = subject;
+    }
     root.innerHTML = render(state, context);
   });
 }
@@ -174,6 +183,7 @@ function tabStrip(active: TabId): string {
 
 function tabBody(subject: Country, tab: TabId, context: PanelContext): string {
   if (tab === 'government') return renderGovernmentTab(subject.code, subject.name, context.today);
+  if (tab === 'economy') return renderEconomyTab(subject.code, subject.name, context.today);
   const entry = TABS.find((candidate) => candidate.id === tab);
   return `<div class="gov"><p class="gov-pending"><strong>Not built yet.</strong>
     The ${escapeHtml(entry?.label ?? tab)} tab arrives with ${escapeHtml(entry?.step ?? 'a later step')}.

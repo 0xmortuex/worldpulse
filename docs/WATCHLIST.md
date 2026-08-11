@@ -141,3 +141,83 @@ Beyond misclassification, expect outright absence:
   read as a person named after the office — worth an explicit check
 - Countries where the head-of-state statement has **no end date on a former holder**,
   so the `FILTER NOT EXISTS pq:P582` guard returns two current holders
+
+---
+
+# What would justify a sixth rule
+
+Written **before** seeing live data, deliberately. A rule designed after reading the
+API tends to be a rule shaped to fit the API — it will classify the sample perfectly
+and generalise badly. Committing the evidence standard in advance makes the decision
+falsifiable.
+
+Rules 1–5 are **not** to be bent to accommodate these cases in the meantime.
+`undetermined` is the correct output until the evidence below is actually observed.
+
+## The distinction that matters
+
+The whole question is whether we are looking at:
+
+- **(A) a genuine collective head of state** — an office designed to be held by several
+  co-equal people simultaneously, or
+- **(B) a resolution failure** — one office, one holder, and we could not work out which
+  office leads.
+
+These look identical from a distance: both produce "more than one plausible primary
+portrait". Conflating them would let every parsing bug present itself as a
+constitutional arrangement, which is a far worse outcome than an honest `undetermined`.
+
+## Evidence required for (A), all of it
+
+1. **Multiple concurrent holders of the same office.** The `P35` or `P6` statement set
+   contains two or more entries with overlapping validity — `P580` start dates set,
+   no `P582` end date, and the intervals genuinely overlap. Two open-ended statements
+   where one is simply a stale record that nobody closed is (B), not (A), and the
+   step-3 `FILTER NOT EXISTS pq:P582` guard already assumes exactly that.
+2. **The office item itself expresses plurality.** The office reached via `P1906`/`P1313`
+   carries a seat count (`P1342` > 1), or `P2124`/an equivalent membership property, or
+   its `P31` resolves to a collective-body class rather than a personal office. An
+   office with `P1342 = 7` held by seven people is (A). An office with no seat count
+   held by two people is more likely (B).
+3. **A rotating or shared presidency is modelled, not inferred.** A distinct chair or
+   presidency office exists (Switzerland's annually rotating President of the
+   Confederation; Bosnia's rotating chair) and is queryable — rather than us noticing
+   that several people appear and deciding it must rotate.
+4. **The pattern holds across more than one country.** At least three of the candidate
+   countries below produce the same structural signature. A rule justified by one
+   country is an override, and should be written as one.
+
+If 1–3 hold for a single country only, **make it a rule-1 override with a
+constitutional citation** — Switzerland's Federal Constitution Art. 174–177, Bosnia's
+Dayton Annex 4 Art. V, San Marino's Art. 3. That is cheaper, more honest, and reversible.
+
+## Candidates and what each should show
+
+| Country | Expected structure | Signature to confirm |
+| --- | --- | --- |
+| Switzerland | Federal Council, 7 co-equal members; presidency rotates annually | 7 concurrent `P6`/`P35` holders; council office with `P1342 = 7`; separate rotating-president office |
+| Bosnia and Herzegovina | 3-member Presidency, rotating chair | 3 concurrent `P35` holders; `P1342 = 3`; chair modelled separately |
+| San Marino | 2 Captains Regent, joint, six-month terms | 2 concurrent `P35` holders; term length ≈ 6 months on `P580`/`P582` |
+| Andorra | 2 co-princes, one of them a foreign head of state | 2 concurrent `P35` holders, **not** co-equal in the same sense — one is *ex officio* another country's president. This may need its own treatment rather than the collective rule |
+
+Andorra is the case most likely to break a naive collective rule: two heads of state
+who are neither peers nor domestic. Watch it specifically.
+
+## This is a header problem before it is a resolution problem
+
+**The panel is built to hold one primary portrait and one labelled secondary.** Seven
+co-equal Federal Councillors do not fit that, and neither does a rotating chair that
+must be shown as *primus inter pares* without implying it outranks the others.
+
+Discovering this at step 13, after the compare view, time scrub and URL state all
+assume a single primary, would be expensive. So before any sixth rule is written:
+
+- Sketch the header variant first — a grid of equal portraits with no primary, plus a
+  distinct treatment for a rotating chair.
+- Check what else assumes one primary: `comparePortrait()` renders one figure per
+  compare column; the leader detail sheet is opened by a single Q-id; the time scrub
+  will want "who led on date X" and must be able to answer "these seven did".
+- Decide whether the collective case renders as one card or N cards, **before** the
+  resolution rule forces the answer.
+
+The resolution rule is the easy half. Write the header variant down first.

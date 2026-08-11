@@ -1,0 +1,348 @@
+[
+  {
+    "page": 1,
+    "pages": 1,
+    "per_page": 21,
+    "total": 21,
+    "sourceid": "2",
+    "lastupdated": "2026-07-01"
+  },
+  [
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2025",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2024",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2023",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2022",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2021",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2020",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2019",
+      "value": null,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2018",
+      "value": 43982625435,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2017",
+      "value": 43120221015,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2016",
+      "value": 42274726485,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2015",
+      "value": 41445810280,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2014",
+      "value": 40633147333,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2013",
+      "value": 39836418954,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2012",
+      "value": 39055312700,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2011",
+      "value": 38289522255,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2010",
+      "value": 37538747309,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2009",
+      "value": 36802693440,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2008",
+      "value": 36081072000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2007",
+      "value": 35373600000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2006",
+      "value": 34680000000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "NY.GDP.MKTP.CD",
+        "value": "GDP (current US$)"
+      },
+      "country": {
+        "id": "ER",
+        "value": "Eritrea"
+      },
+      "countryiso3code": "ERI",
+      "date": "2005",
+      "value": 34000000000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    }
+  ]
+]

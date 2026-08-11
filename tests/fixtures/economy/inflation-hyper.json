@@ -1,0 +1,348 @@
+[
+  {
+    "page": 1,
+    "pages": 1,
+    "per_page": 21,
+    "total": 21,
+    "sourceid": "2",
+    "lastupdated": "2026-07-01"
+  },
+  [
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2025",
+      "value": 1400,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2024",
+      "value": 3100,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2023",
+      "value": 9400,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2022",
+      "value": 32000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2021",
+      "value": 86000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2020",
+      "value": 120000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2019",
+      "value": 45000,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2018",
+      "value": 9800,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2017",
+      "value": 2100,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2016",
+      "value": 720,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2015",
+      "value": 180,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2014",
+      "value": 45,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2013",
+      "value": 32,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2012",
+      "value": 54,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2011",
+      "value": 1200,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2010",
+      "value": 4600,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2009",
+      "value": 3800,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2008",
+      "value": 410,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2007",
+      "value": 66,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2006",
+      "value": 24,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    },
+    {
+      "indicator": {
+        "id": "FP.CPI.TOTL.ZG",
+        "value": "Inflation, consumer prices (annual %)"
+      },
+      "country": {
+        "id": "VE",
+        "value": "Venezuela"
+      },
+      "countryiso3code": "VEN",
+      "date": "2005",
+      "value": 17,
+      "unit": "",
+      "obs_status": "",
+      "decimal": 0
+    }
+  ]
+]

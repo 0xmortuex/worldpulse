@@ -435,6 +435,77 @@ check('an unbuilt tab names the step that fills it', /step 6/.test(await page.lo
 await page.keyboard.press('1');
 await page.waitForTimeout(300);
 
+// ---- step 5: economy tab ----
+
+async function openEconomy(country) {
+  await selectCountry(country);
+  await page.locator('[data-tab="economy"]').click();
+  await page.waitForTimeout(400);
+}
+
+await openEconomy('United States');
+check('economy tab renders indicator blocks', (await page.locator('.econ-block').count()) > 0);
+const econUsa = await page.locator('.econ').innerText();
+check('every indicator states its own latest year', (await page.locator('.econ-asof').count()) > 1);
+check('the panel refuses a single panel-wide as-of', /no single "as of" for this panel/i.test(econUsa));
+check('a monetary value states its currency and basis', /US\$/.test(econUsa) && /Not adjusted for inflation/i.test(econUsa));
+check('a chart is drawn', (await page.locator('svg.chart').count()) > 0);
+await page.screenshot({ path: `${SHOTS}/17-economy-usa.png` });
+
+// Hard case: an indicator with no data must not plot a flat line at zero.
+check('an empty indicator renders a no-data card, not a zero line',
+  (await page.locator('.chart--empty').count()) > 0);
+check('the no-data card explains why nothing is plotted', /different claim/i.test(econUsa));
+const emptyBlockHasLine = await page.evaluate(() => {
+  const empty = document.querySelector('.chart--empty');
+  return empty?.closest('.econ-block')?.querySelector('polyline') !== null;
+});
+check('the empty indicator has no polyline anywhere in its block', emptyBlockHasLine === false);
+
+// Hard case: a gap must break the line.
+await openEconomy('Kosovo');
+const econGap = await page.locator('.econ').innerText();
+const gapSegments = await page.locator('.econ-block[data-indicator="gdp"] polyline').count();
+check('a mid-series gap breaks the line into two segments', gapSegments === 2, `segments=${gapSegments}`);
+check('the gap is marked on the chart', (await page.locator('.chart-gap').count()) > 0);
+check('the gap years are named and non-interpolation is stated',
+  /2011–2014/.test(econGap) && /not interpolated/i.test(econGap), econGap.slice(0, 240));
+await page.screenshot({ path: `${SHOTS}/18-economy-gap.png` });
+
+// Hard case: a stale series.
+await openEconomy('Eritrea');
+const econStale = await page.locator('.econ').innerText();
+check('a stale indicator states its age', /8 years old/.test(econStale), econStale.slice(0, 200));
+check('a stale indicator states its latest year', /latest 2018/.test(econStale));
+
+// Hard case: redenomination — log offered, and the toggle actually changes the plot.
+await openEconomy('Zimbabwe');
+const econZwe = await page.locator('.econ').innerText();
+check('a wide-span series suggests a log scale', /orders of magnitude/i.test(econZwe), econZwe.slice(0, 200));
+check('linear is the active scale before toggling', /linear scale/.test(econZwe));
+const beforeToggle = await page.locator('.econ-block[data-indicator="gdp"] polyline').getAttribute('points');
+await page.locator('.econ-block[data-indicator="gdp"] .econ-scale-toggle').click();
+await page.waitForTimeout(400);
+const afterToggle = await page.locator('.econ-block[data-indicator="gdp"] polyline').getAttribute('points');
+check('the log toggle changes the plotted geometry', beforeToggle !== afterToggle);
+check('the active scale is stated after toggling', /log scale/.test(await page.locator('.econ').innerText()));
+await page.screenshot({ path: `${SHOTS}/19-economy-log.png` });
+
+// Hard case: log refused where the indicator can go negative.
+await openEconomy('Venezuela');
+const econVen = await page.locator('.econ').innerText();
+check('log is refused for an indicator that can go negative', /log unavailable/i.test(econVen), econVen.slice(0, 200));
+check('no log toggle is offered where log is undefined',
+  (await page.locator('.econ-block[data-indicator="inflation"] .econ-scale-toggle').count()) === 0);
+
+// Scale choice must not leak across a country change.
+await openEconomy('Zimbabwe');
+await page.locator('.econ-block[data-indicator="gdp"] .econ-scale-toggle').click();
+await page.waitForTimeout(300);
+await openEconomy('United States');
+check('a log toggle does not follow the user to another country',
+  /linear scale/.test(await page.locator('.econ').innerText()));
+
 // ---- layout geometry at every breakpoint (TESTING.md rule 8) ----
 //
 // Applied retroactively to the dossier header, whose dual-portrait case
@@ -455,15 +526,27 @@ for (const breakpoint of BREAKPOINTS) {
   await selectCountry('Iran');
   await assertLayout(page, '.rule-block', ':scope > *', `${breakpoint.name} rule block`);
 
-  // Government tab: the densest panel in the app.
+  // Government tab: the densest panel in the app. The tab is selected
+  // explicitly — a previous section may have left another tab active, and a
+  // layout assertion against an absent container is a false pass waiting to
+  // happen.
   await selectCountry('United Kingdom');
+  await page.locator('[data-tab="government"]').click();
+  await page.waitForTimeout(300);
   await assertLayout(page, '.tabs', ':scope > .tab', `${breakpoint.name} tab strip`);
   await assertLayout(page, '.gov', ':scope > .gov-block', `${breakpoint.name} government sections`);
   await assertLayout(page, '.ministry-list', ':scope > .ministry:not(.ministry--hidden)', `${breakpoint.name} ministry rows`);
   await assertLayout(page, '.party-legend', ':scope > li', `${breakpoint.name} party legend`);
 
   await selectCountry('Germany');
+  await page.locator('[data-tab="government"]').click();
+  await page.waitForTimeout(300);
   await assertLayout(page, '.ministry-list', ':scope > .ministry:not(.ministry--hidden)', `${breakpoint.name} large cabinet rows`);
+
+  // Economy tab: charts are the first non-list layout in the app.
+  await openEconomy('Zimbabwe');
+  await assertLayout(page, '.econ', ':scope > .econ-block', `${breakpoint.name} economy blocks`);
+  await assertLayout(page, '.econ-block[data-indicator="gdp"]', ':scope > *', `${breakpoint.name} indicator internals`);
 
   await page.screenshot({ path: `${SHOTS}/layout-${breakpoint.width}.png` });
 }

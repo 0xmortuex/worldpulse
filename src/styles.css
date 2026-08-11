@@ -850,3 +850,79 @@ button.badge { cursor: pointer; }
 .term-person { flex: 1; color: var(--text); overflow-wrap: anywhere; min-width: 0; }
 .term-office { color: var(--text-faint); font-size: 10px; }
 .term-current { color: #3fb950; }
+
+/* ---------- economy tab ---------- */
+
+.econ-preamble { color: var(--text-faint); font-size: 10px; margin: 0 0 12px; }
+
+.econ-block {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #161b22;
+}
+.econ-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.econ-name { font-size: 11px; color: var(--text); }
+.econ-value { text-align: right; min-width: 0; }
+.econ-notfetched { color: var(--text-faint); font-size: 10px; font-style: italic; }
+
+.econ-meta { display: flex; gap: 8px; font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+.econ-stale { color: var(--warn); }
+.econ-basis { font-size: 10px; color: var(--text-faint); margin: 2px 0 6px; }
+.econ-caveat { color: var(--warn); font-size: 10px; margin: 5px 0 0; }
+
+.chart { display: block; width: 100%; background: #0a0e13; border: 1px solid var(--border); }
+.chart-line { fill: none; stroke: #3fb950; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.chart-dot { fill: #3fb950; }
+.chart-gap {
+  fill: url(#chart-gap-hatch);
+  stroke: #4a3a12;
+  stroke-dasharray: 2 2;
+  stroke-width: 1;
+  fill-opacity: 0.35;
+}
+.chart-axis { fill: var(--text-faint); font-size: 8px; font-family: var(--mono); }
+
+.chart--empty {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  min-height: 60px;
+  background: #0a0e13;
+  border: 1px dashed var(--border);
+  color: var(--text-faint);
+  font-size: 10px;
+}
+
+.econ-scale {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-top: 5px;
+  font-size: 10px;
+}
+.econ-scale-active { color: var(--text-dim); }
+.econ-scale-why { color: var(--text-faint); border-bottom: 1px dotted var(--text-faint); cursor: help; }
+.econ-scale-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 10px;
+  padding: 1px 5px;
+  cursor: pointer;
+}
+.econ-scale-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.econ-scale-hint { flex-basis: 100%; color: var(--warn); }
+
+/* Long provenance notes read left-aligned and full width, not squeezed under
+   the right-aligned value they annotate. */
+.econ-value { text-align: right; min-width: 0; max-width: 100%; }
+.econ-block .fact { justify-content: flex-end; }
+.econ-block .fact-note { text-align: left; flex-basis: 100%; }

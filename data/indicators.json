@@ -1,0 +1,110 @@
+{
+  "$comment": "World Bank indicators rendered by the Economy tab. Unit and basis live here rather than at the call site, because a monetary figure without a currency and a current/constant designation is not a fact \u2014 'GDP: 29,184,890,000,000' is unusable and 'GDP grew 8%' is meaningless without knowing whether the series is nominal or real. The Fact for every monetary indicator is built from this table, so a missing unit is a build-time gap rather than a rendering omission.",
+  "verifiedAgainst": "documentation",
+  "basisValues": {
+    "current-usd": "Current US dollars. Not adjusted for inflation; year-on-year changes mix real growth with price changes and exchange-rate movement.",
+    "constant-usd": "Constant US dollars at a fixed base year. Inflation-adjusted, so changes are real.",
+    "ppp": "Purchasing power parity international dollars. A modelled conversion, inherently approximate.",
+    "local-current": "Current local currency units. Not comparable across countries, and broken across a redenomination.",
+    "ratio": "A percentage or index. No currency applies.",
+    "count": "A count of people or units. No currency applies."
+  },
+  "indicators": [
+    {
+      "id": "gdp",
+      "code": "NY.GDP.MKTP.CD",
+      "name": "GDP",
+      "unit": "US$",
+      "basis": "current-usd",
+      "tier": "OFFICIAL",
+      "cadence": "annual",
+      "scaleHint": "log-useful"
+    },
+    {
+      "id": "gdp-ppp",
+      "code": "NY.GDP.MKTP.PP.CD",
+      "name": "GDP (PPP)",
+      "unit": "int$",
+      "basis": "ppp",
+      "tier": "ESTIMATE",
+      "cadence": "annual",
+      "scaleHint": "log-useful",
+      "note": "PPP conversion factors are modelled, so this is an estimate rather than a reported figure."
+    },
+    {
+      "id": "gdp-per-capita",
+      "code": "NY.GDP.PCAP.CD",
+      "name": "GDP per capita",
+      "unit": "US$",
+      "basis": "current-usd",
+      "tier": "OFFICIAL",
+      "cadence": "annual",
+      "scaleHint": "log-useful"
+    },
+    {
+      "id": "gdp-growth",
+      "code": "NY.GDP.MKTP.KD.ZG",
+      "name": "Real GDP growth",
+      "unit": "%",
+      "basis": "ratio",
+      "tier": "OFFICIAL",
+      "cadence": "annual",
+      "scaleHint": "linear-only",
+      "note": "Can be negative, so a logarithmic scale is not available for this series."
+    },
+    {
+      "id": "inflation",
+      "code": "FP.CPI.TOTL.ZG",
+      "name": "Inflation, consumer prices",
+      "unit": "%",
+      "basis": "ratio",
+      "tier": "OFFICIAL",
+      "cadence": "annual",
+      "scaleHint": "linear-only",
+      "note": "Can be negative during deflation, so a logarithmic scale is not available."
+    },
+    {
+      "id": "unemployment",
+      "code": "SL.UEM.TOTL.ZS",
+      "name": "Unemployment",
+      "unit": "% of labour force",
+      "basis": "ratio",
+      "tier": "ESTIMATE",
+      "cadence": "annual",
+      "scaleHint": "linear-only",
+      "note": "ILO modelled estimate for most countries rather than a national reported figure."
+    },
+    {
+      "id": "gini",
+      "code": "SI.POV.GINI",
+      "name": "Gini index",
+      "unit": "index",
+      "basis": "ratio",
+      "tier": "OFFICIAL",
+      "cadence": "irregular",
+      "scaleHint": "linear-only",
+      "note": "Published only in survey years, so gaps are normal and expected."
+    },
+    {
+      "id": "govt-debt",
+      "code": "GC.DOD.TOTL.GD.ZS",
+      "name": "Government debt",
+      "unit": "% of GDP",
+      "basis": "ratio",
+      "tier": "OFFICIAL",
+      "cadence": "annual",
+      "scaleHint": "linear-only"
+    },
+    {
+      "id": "military-expenditure",
+      "code": "MS.MIL.XPND.GD.ZS",
+      "name": "Military expenditure",
+      "unit": "% of GDP",
+      "basis": "ratio",
+      "tier": "OFFICIAL",
+      "cadence": "annual",
+      "scaleHint": "linear-only",
+      "sourceId": "worldbank-milex"
+    }
+  ]
+}

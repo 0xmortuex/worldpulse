@@ -72,6 +72,17 @@ export class Store {
     this.#commit({ selected: [] });
   }
 
+  /**
+   * Re-notify listeners without changing state.
+   *
+   * For view-local state that is not worth putting in the store — the economy
+   * tab's per-indicator log/linear choice — so the re-render still goes through
+   * the normal subscriber path rather than mutating the DOM behind the panel.
+   */
+  refresh(): void {
+    this.#commit({});
+  }
+
   setTab(tab: TabId): void {
     if (this.#state.tab === tab) return;
     this.#commit({ tab });

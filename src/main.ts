@@ -8,6 +8,7 @@ import { pairKey, score } from './relations/score';
 import type { RelationResult } from './relations/types';
 import { Store } from './state';
 import { BASE_STROKE, SELECTION_COLOR, SELECTION_STROKE, TIER_COLORS, TIER_COLORS_LOW_CONFIDENCE } from './theme';
+import { mountEconomyTab } from './ui/economy';
 import { mountGovernmentTab } from './ui/government';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
@@ -45,6 +46,9 @@ const openLeaderSheet = mountLeaderSheet(
 );
 mountDossierHeader(panelRoot, openLeaderSheet);
 mountGovernmentTab(panelRoot);
+// Re-render through the store so the economy toggle takes the same path as
+// every other state change rather than mutating the DOM behind the panel.
+mountEconomyTab(panelRoot, () => store.refresh());
 mountPanel(panelRoot, store, {
   byCode,
   findings,
