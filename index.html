@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>worldpulse</title>
+    <meta name="description" content="Live intelligence dashboard for every country on Earth." />
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar">
+        <div class="brand">worldpulse</div>
+        <div id="search" class="search"></div>
+        <div id="mode" class="mode"></div>
+        <div class="build-step">step 1 · globe, selection, relations</div>
+      </header>
+
+      <div id="seed-banner" class="seed-banner"></div>
+
+      <main id="stage">
+        <aside id="rail" class="rail" aria-label="Layer and weight controls"></aside>
+        <div id="globe" class="globe"></div>
+        <aside id="panel" class="panel" aria-label="Country dossier"></aside>
+      </main>
+
+      <footer id="statusbar">
+        <span>Click to select · Ctrl/Cmd-click to add · Esc to clear · / to search</span>
+        <span class="spacer"></span>
+        <span>Polygons: Natural Earth (public domain)</span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

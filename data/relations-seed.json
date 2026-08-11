@@ -1,0 +1,213 @@
+{
+  "$comment": "SEED DATA — hand-entered for build step 1 so the relations INTERACTION is provable before the live pipeline exists. This file is not a data source and must not survive into production. Step 10 replaces every array below with live ingests (Wikidata bloc membership, UCDP GED, OFAC/EU sanctions lists) and deletes this file. The UI renders a persistent SEED banner whenever these facts are in use. Every entry carries the source it was checked against and the year through which it is asserted to hold.",
+  "seed": true,
+  "compiledAt": "2026-08-11",
+  "notSeeded": [
+    "African Union, ASEAN and the Arab League are not seeded. Countries whose only plausible relation runs through them will read as 'no data', which is the correct behaviour for step 1.",
+    "Sanctions are seeded at programme level only, not designation level.",
+    "Recalled-ambassador events are not seeded; the weight exists in the engine but no facts feed it yet."
+  ],
+
+  "blocs": [
+    {
+      "id": "NATO",
+      "name": "North Atlantic Treaty Organization",
+      "kind": "defense",
+      "instrument": "North Atlantic Treaty (1949), Article 5",
+      "source": "NATO",
+      "sourceUrl": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "coverageEnd": "2026",
+      "members": ["USA", "CAN", "GBR", "FRA", "DEU", "ITA", "ESP", "POL", "TUR", "NLD", "BEL", "NOR", "DNK", "PRT", "GRC", "CZE", "HUN", "SVK", "SVN", "EST", "LVA", "LTU", "BGR", "ROU", "HRV", "ALB", "MNE", "MKD", "ISL", "LUX", "FIN", "SWE"]
+    },
+    {
+      "id": "CSTO",
+      "name": "Collective Security Treaty Organization",
+      "kind": "defense",
+      "instrument": "Collective Security Treaty (1992), Article 4",
+      "source": "CSTO",
+      "sourceUrl": "https://en.odkb-csto.org/",
+      "coverageEnd": "2026",
+      "members": ["RUS", "BLR", "ARM", "KAZ", "KGZ", "TJK"],
+      "note": "Armenia announced a freeze on its participation in 2024 without formally withdrawing. Its membership here is formal, not operative — treat any ARM classification derived from this bloc as contested."
+    },
+    {
+      "id": "FVEY",
+      "name": "Five Eyes",
+      "kind": "intel",
+      "instrument": "UKUSA Agreement (1946, progressively extended)",
+      "source": "UK National Archives / NSA declassified releases",
+      "sourceUrl": "https://www.nationalarchives.gov.uk/ukusa/",
+      "coverageEnd": "2026",
+      "members": ["USA", "GBR", "CAN", "AUS", "NZL"]
+    },
+    {
+      "id": "EU",
+      "name": "European Union",
+      "kind": "economic",
+      "instrument": "Treaty on European Union; Article 42(7) contains a mutual assistance clause",
+      "source": "European Union",
+      "sourceUrl": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "coverageEnd": "2026",
+      "members": ["AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE"]
+    },
+    {
+      "id": "GCC",
+      "name": "Gulf Cooperation Council",
+      "kind": "economic",
+      "instrument": "GCC Charter (1981); Peninsula Shield Force",
+      "source": "Gulf Cooperation Council",
+      "sourceUrl": "https://www.gcc-sg.org/en-us/",
+      "coverageEnd": "2026",
+      "members": ["SAU", "ARE", "KWT", "QAT", "BHR", "OMN"],
+      "note": "Scored as economic rather than defense: the Peninsula Shield Force exists but the Charter contains no Article 5-equivalent automatic commitment."
+    },
+    {
+      "id": "BRICS",
+      "name": "BRICS (founding five)",
+      "kind": "economic",
+      "instrument": "No treaty; summit-based grouping",
+      "source": "BRICS",
+      "sourceUrl": "https://infobrics.org/",
+      "coverageEnd": "2026",
+      "members": ["BRA", "RUS", "IND", "CHN", "ZAF"],
+      "note": "Founding five only. The 2024-onward expansion is seeded as pending because membership and participation status have moved repeatedly."
+    },
+    {
+      "id": "SCO",
+      "name": "Shanghai Cooperation Organisation",
+      "kind": "economic",
+      "instrument": "SCO Charter (2002)",
+      "source": "Shanghai Cooperation Organisation",
+      "sourceUrl": "https://eng.sectsco.org/",
+      "coverageEnd": "2026",
+      "members": ["CHN", "RUS", "KAZ", "KGZ", "TJK", "UZB", "IND", "PAK", "IRN", "BLR"],
+      "note": "Scored as economic/security cooperation, not mutual defense. The Charter contains no collective defense obligation."
+    }
+  ],
+
+  "bilateralDefenseTreaties": [
+    {
+      "a": "USA", "b": "JPN",
+      "label": "Treaty of Mutual Cooperation and Security (1960)",
+      "source": "US Department of State treaty series",
+      "sourceUrl": "https://www.state.gov/u-s-security-cooperation-with-japan/",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "USA", "b": "KOR",
+      "label": "Mutual Defense Treaty (1953)",
+      "source": "US Department of State treaty series",
+      "sourceUrl": "https://www.state.gov/u-s-security-cooperation-with-the-republic-of-korea/",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "USA", "b": "PHL",
+      "label": "Mutual Defense Treaty (1951)",
+      "source": "US Department of State treaty series",
+      "sourceUrl": "https://www.state.gov/u-s-security-cooperation-with-the-philippines/",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "USA", "b": "AUS",
+      "label": "ANZUS Treaty (1951)",
+      "source": "Australian Department of Foreign Affairs and Trade",
+      "sourceUrl": "https://www.dfat.gov.au/geo/united-states-of-america/anzus-treaty",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "AUS", "b": "NZL",
+      "label": "ANZUS Treaty (1951)",
+      "source": "Australian Department of Foreign Affairs and Trade",
+      "sourceUrl": "https://www.dfat.gov.au/geo/united-states-of-america/anzus-treaty",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "RUS", "b": "PRK",
+      "label": "Treaty on Comprehensive Strategic Partnership (2024), mutual assistance clause",
+      "source": "Signed text as published by both governments",
+      "sourceUrl": "https://kremlin.ru/events/president/news/74234",
+      "coverageEnd": "2026"
+    }
+  ],
+
+  "historicalAlliances": [
+    {
+      "a": "USA", "b": "THA",
+      "label": "Manila Pact (1954) / Thanat-Rusk communiqué, coded as an active alliance",
+      "source": "Correlates of War, Formal Alliances v4.1",
+      "sourceUrl": "https://correlatesofwar.org/data-sets/formal-alliances/",
+      "coverageEnd": "2012",
+      "note": "CoW v4.1 coverage ends in 2012. Included deliberately to exercise the staleness path."
+    },
+    {
+      "a": "USA", "b": "PAK",
+      "label": "Bilateral security agreements coded as an active alliance",
+      "source": "Correlates of War, Formal Alliances v4.1",
+      "sourceUrl": "https://correlatesofwar.org/data-sets/formal-alliances/",
+      "coverageEnd": "2012",
+      "note": "CoW v4.1 coverage ends in 2012."
+    }
+  ],
+
+  "activeConflicts": [
+    {
+      "a": "RUS", "b": "UKR",
+      "label": "State-based armed conflict, ongoing since 2014",
+      "source": "Seed entry pending UCDP GED ingest in step 10",
+      "sourceUrl": "https://ucdp.uu.se/country/369",
+      "coverageEnd": "2026"
+    }
+  ],
+
+  "severedRelations": [
+    {
+      "a": "USA", "b": "IRN",
+      "label": "Diplomatic relations severed 1980; interests represented by Switzerland",
+      "source": "US Department of State country relations fact sheet",
+      "sourceUrl": "https://www.state.gov/u-s-relations-with-iran/",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "USA", "b": "PRK",
+      "label": "No diplomatic relations established; protecting power is Sweden",
+      "source": "US Department of State country relations fact sheet",
+      "sourceUrl": "https://www.state.gov/u-s-relations-with-north-korea/",
+      "coverageEnd": "2026"
+    },
+    {
+      "a": "USA", "b": "SYR",
+      "label": "Embassy operations suspended 2012",
+      "source": "US Department of State country relations fact sheet",
+      "sourceUrl": "https://www.state.gov/u-s-relations-with-syria/",
+      "coverageEnd": "2026",
+      "note": "Syria's governing authority changed in December 2024 and this status is under active review. Flagged as contested pending live ingest."
+    },
+    {
+      "a": "ISR", "b": "IRN",
+      "label": "No diplomatic relations",
+      "source": "Seed entry pending Wikidata P530 ingest in step 10",
+      "sourceUrl": "https://www.wikidata.org/wiki/Property:P530",
+      "coverageEnd": "2026"
+    }
+  ],
+
+  "sanctions": [
+    { "from": "USA", "to": "RUS", "label": "Comprehensive Russia-related sanctions programmes", "source": "OFAC sanctions programmes", "sourceUrl": "https://ofac.treasury.gov/sanctions-programs-and-country-information", "coverageEnd": "2026" },
+    { "from": "USA", "to": "IRN", "label": "Iran sanctions programme", "source": "OFAC sanctions programmes", "sourceUrl": "https://ofac.treasury.gov/sanctions-programs-and-country-information", "coverageEnd": "2026" },
+    { "from": "USA", "to": "PRK", "label": "North Korea sanctions programme", "source": "OFAC sanctions programmes", "sourceUrl": "https://ofac.treasury.gov/sanctions-programs-and-country-information", "coverageEnd": "2026" },
+    { "from": "USA", "to": "BLR", "label": "Belarus sanctions programme", "source": "OFAC sanctions programmes", "sourceUrl": "https://ofac.treasury.gov/sanctions-programs-and-country-information", "coverageEnd": "2026" },
+    { "from": "USA", "to": "CUB", "label": "Cuban Assets Control Regulations", "source": "OFAC sanctions programmes", "sourceUrl": "https://ofac.treasury.gov/sanctions-programs-and-country-information", "coverageEnd": "2026" },
+    { "from": "USA", "to": "VEN", "label": "Venezuela-related sanctions programme", "source": "OFAC sanctions programmes", "sourceUrl": "https://ofac.treasury.gov/sanctions-programs-and-country-information", "coverageEnd": "2026" },
+    { "from": "EU", "to": "RUS", "label": "EU restrictive measures over Ukraine", "source": "EU consolidated sanctions list", "sourceUrl": "https://www.sanctionsmap.eu/", "coverageEnd": "2026" },
+    { "from": "EU", "to": "BLR", "label": "EU restrictive measures", "source": "EU consolidated sanctions list", "sourceUrl": "https://www.sanctionsmap.eu/", "coverageEnd": "2026" },
+    { "from": "RUS", "to": "EU", "label": "Counter-sanctions and import bans", "source": "Seed entry pending live ingest in step 10", "sourceUrl": "https://www.sanctionsmap.eu/", "coverageEnd": "2026" }
+  ],
+
+  "territorialDisputes": [
+    { "a": "CHN", "b": "IND", "label": "Line of Actual Control", "source": "Seed entry pending live ingest in step 10", "sourceUrl": "https://www.cfr.org/global-conflict-tracker", "coverageEnd": "2026" },
+    { "a": "IND", "b": "PAK", "label": "Kashmir", "source": "Seed entry pending live ingest in step 10", "sourceUrl": "https://www.cfr.org/global-conflict-tracker", "coverageEnd": "2026" },
+    { "a": "RUS", "b": "JPN", "label": "Southern Kurils / Northern Territories", "source": "Seed entry pending live ingest in step 10", "sourceUrl": "https://www.mofa.go.jp/region/europe/russia/territory/", "coverageEnd": "2026" },
+    { "a": "CHN", "b": "JPN", "label": "Senkaku / Diaoyu Islands", "source": "Seed entry pending live ingest in step 10", "sourceUrl": "https://www.mofa.go.jp/region/asia-paci/senkaku/", "coverageEnd": "2026" },
+    { "a": "CHN", "b": "PHL", "label": "South China Sea maritime claims", "source": "Seed entry pending live ingest in step 10", "sourceUrl": "https://pca-cpa.org/en/cases/7/", "coverageEnd": "2026" }
+  ]
+}
