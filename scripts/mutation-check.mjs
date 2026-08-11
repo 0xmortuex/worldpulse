@@ -7,22 +7,38 @@
  * doing this ad hoc for two checks; this does it systematically, one mutation
  * per step, targeting that step's most load-bearing assertion.
  *
- * For each mutation: apply a small edit to real source, rebuild, run the suite,
- * and require the NAMED assertion to fail. Restore afterwards, always — the
- * restore runs in a finally so an interrupted run cannot leave the tree dirty.
+ * MUTATIONS NEVER TOUCH THE PRIMARY CHECKOUT. An earlier version edited real
+ * source in place and restored it in a `finally`, which is fine right up until
+ * the process does not get to run its `finally` — a crash, a timeout, a SIGKILL
+ * — and then broken source is left sitting in the working tree with nothing to
+ * put it back. That is not theoretical: killing this script mid-run left a
+ * mutated `src/ui/government.ts` behind, which is what prompted this rewrite.
  *
- * A mutation that leaves the suite green is the finding. It means the check
- * cannot see the behaviour it claims to cover.
+ * So each run builds a detached git worktree from HEAD, mutates THAT, serves it
+ * on its own port, and removes it on every exit path including signals. The
+ * primary checkout is asserted clean before and after; the whole point is that
+ * an interrupted run costs a temp directory and nothing else.
+ *
+ * Because the worktree is built from HEAD, this measures the committed tree.
+ * Uncommitted work is not under test — which is why a dirty checkout is an
+ * error rather than something to paper over.
  *
  * Usage: node scripts/mutation-check.mjs [--only <step-substring>]
  */
-import { execFile } from 'node:child_process';
-import { readFile, writeFile } from 'node:fs/promises';
+import { execFile, spawn } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { existsSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 
 const run = promisify(execFile);
 const ROOT = resolve(import.meta.dirname, '..');
+
+/** A hung run is already a failure signal; it does not need to be waited out. */
+const BUILD_TIMEOUT_MS = 180_000;
+const VERIFY_TIMEOUT_MS = 480_000;
+const PORT = 4273;
 
 /**
  * Each mutation names the step it covers, the edit, and the assertion whose
@@ -54,8 +70,8 @@ const MUTATIONS = [
     step: '3 — dossier header, leader resolution',
     what: 'the de-facto-authority branch reports the wrong resolution rule',
     file: 'src/dossier/resolve.ts',
-    from: 'ruleNumber: 1,',
-    to: 'ruleNumber: 9,',
+    from: "ruleLabel: 'Rule 1 — de facto authority above the formal head of state',",
+    to: "ruleLabel: 'Rule 7 — de facto authority above the formal head of state',",
     expect: /rule/i,
   },
   {
@@ -108,103 +124,217 @@ const MUTATIONS = [
   },
 ];
 
-const only = process.argv.includes('--only')
-  ? process.argv[process.argv.indexOf('--only') + 1]
-  : null;
+const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 
-async function verify() {
+/* ------------------------------------------------------- primary checkout */
+
+async function trackedDirt() {
+  const { stdout } = await run('git', ['status', '--porcelain', '--untracked-files=no'], { cwd: ROOT });
+  return stdout.trim();
+}
+
+async function requireCleanCheckout(when) {
+  const dirt = await trackedDirt();
+  if (dirt.length === 0) return;
+  console.error(
+    `PRIMARY CHECKOUT NOT CLEAN ${when}:\n${dirt}\n\n` +
+      (when === 'before starting'
+        ? 'Mutations run against HEAD in a throwaway worktree, so uncommitted work is not\n' +
+          'under test. Commit or stash first — a run that silently measured something other\n' +
+          'than what it reported is the failure this whole harness exists to remove.'
+        : 'The worktree was supposed to absorb every write. Something leaked into the real\n' +
+          'checkout — treat the results above as suspect and inspect the diff.'),
+  );
+  process.exit(1);
+}
+
+/* ------------------------------------------------------------- worktree */
+
+let worktree = null;
+let preview = null;
+let cleaningUp = false;
+
+async function teardown() {
+  if (cleaningUp) return;
+  cleaningUp = true;
+  if (preview && preview.exitCode === null) preview.kill('SIGKILL');
+  if (worktree) {
+    try {
+      await run('git', ['worktree', 'remove', '--force', worktree], { cwd: ROOT });
+    } catch {
+      // The directory may already be gone; prune the registration either way so
+      // a killed run does not leave a stale worktree entry behind.
+      await rm(worktree, { recursive: true, force: true }).catch(() => {});
+      await run('git', ['worktree', 'prune'], { cwd: ROOT }).catch(() => {});
+    }
+    worktree = null;
+  }
+}
+
+// Every exit path. A signal-killed run must still take its worktree with it —
+// that is the entire reason this harness stopped editing the primary checkout.
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+  process.on(signal, () => {
+    teardown().finally(() => process.exit(130));
+  });
+}
+process.on('uncaughtException', (error) => {
+  console.error(error);
+  teardown().finally(() => process.exit(1));
+});
+process.on('exit', () => {
+  // Best-effort synchronous backstop: async cleanup cannot run here, but the
+  // handlers above cover every path that gets a chance to be asynchronous.
+  if (worktree && existsSync(worktree)) {
+    console.error(`\nworktree may remain at ${worktree} — run: git worktree prune`);
+  }
+});
+
+async function makeWorktree() {
+  const dir = await mkdtemp(join(tmpdir(), 'worldpulse-mutate-'));
+  const path = join(dir, 'tree');
+  await run('git', ['worktree', 'add', '--detach', path, 'HEAD'], { cwd: ROOT });
+  worktree = path;
+
+  // Symlinked rather than installed: a fresh npm install per run would dominate
+  // the runtime, and the dependency tree is exactly the one under test.
+  symlinkSync(join(ROOT, 'node_modules'), join(path, 'node_modules'), 'dir');
+  return path;
+}
+
+/* ---------------------------------------------------------------- steps */
+
+async function build(cwd) {
   try {
-    const { stdout } = await run('node', ['scripts/verify-render.mjs'], {
-      cwd: ROOT,
-      maxBuffer: 32 * 1024 * 1024,
-      env: process.env,
-    });
-    return { exit: 0, out: stdout };
+    await run('npx', ['vite', 'build'], { cwd, maxBuffer: 32 * 1024 * 1024, timeout: BUILD_TIMEOUT_MS });
+    return { ok: true };
   } catch (error) {
-    return { exit: error.code ?? 1, out: `${error.stdout ?? ''}${error.stderr ?? ''}` };
+    return { ok: false, detail: String(error.stderr ?? error.message ?? error).slice(0, 200) };
   }
 }
 
-async function build() {
+async function verify(cwd) {
   try {
-    await run('npx', ['vite', 'build'], { cwd: ROOT, maxBuffer: 32 * 1024 * 1024, env: process.env });
-    return true;
-  } catch {
-    return false;
+    const { stdout } = await run('node', ['scripts/verify-render.mjs', `http://localhost:${PORT}`], {
+      cwd,
+      maxBuffer: 32 * 1024 * 1024,
+      timeout: VERIFY_TIMEOUT_MS,
+    });
+    return { exit: 0, out: stdout, timedOut: false };
+  } catch (error) {
+    return {
+      exit: error.code ?? 1,
+      out: `${error.stdout ?? ''}${error.stderr ?? ''}`,
+      timedOut: error.killed === true || error.signal === 'SIGTERM',
+    };
   }
 }
+
+async function startPreview(cwd) {
+  const child = spawn('npx', ['vite', 'preview', '--port', String(PORT)], {
+    cwd,
+    stdio: 'ignore',
+    detached: false,
+  });
+  preview = child;
+
+  const deadline = Date.now() + 30_000;
+  for (;;) {
+    try {
+      const response = await fetch(`http://localhost:${PORT}/`);
+      if (response.ok) return;
+    } catch {
+      // not up yet
+    }
+    if (Date.now() > deadline) throw new Error(`preview server never came up on ${PORT}`);
+    await new Promise((done) => setTimeout(done, 500));
+  }
+}
+
+/* ------------------------------------------------------------------ run */
 
 const results = [];
 
-for (const mutation of MUTATIONS) {
-  if (only && !mutation.step.includes(only)) continue;
+try {
+  await requireCleanCheckout('before starting');
+  const tree = await makeWorktree();
+  console.log(`worktree: ${tree}\n`);
 
-  const path = resolve(ROOT, mutation.file);
-  const original = await readFile(path, 'utf8');
+  const first = await build(tree);
+  if (!first.ok) throw new Error(`baseline build failed in the worktree: ${first.detail}`);
+  await startPreview(tree);
 
-  if (!original.includes(mutation.from)) {
-    results.push({ ...mutation, verdict: 'STALE', detail: `anchor not found: ${mutation.from}` });
-    console.log(`\n✗ ${mutation.step}\n  anchor not found in ${mutation.file}: ${mutation.from}`);
-    continue;
-  }
+  for (const mutation of MUTATIONS) {
+    if (only && !mutation.step.includes(only)) continue;
 
-  console.log(`\n▸ ${mutation.step}\n  mutating: ${mutation.what}`);
+    const path = join(tree, mutation.file);
+    const original = await readFile(path, 'utf8');
 
-  try {
-    // Replace the first occurrence only: a blanket replace can mutate more than
-    // the one behaviour under test, and then a failure proves nothing specific.
-    await writeFile(path, original.replace(mutation.from, mutation.to));
-
-    const built = await build();
-    if (!built) {
-      // A mutation that does not compile still proves something, but only that
-      // the compiler noticed — not that the browser check did. Say so plainly
-      // rather than scoring it as a pass.
-      results.push({
-        ...mutation,
-        verdict: mutation.buildMustFail ? 'COMPILE-GUARDED' : 'INCONCLUSIVE',
-        detail: 'mutation does not compile; the browser assertion was never exercised',
-      });
-      console.log('  build failed — the type checker catches this before the browser can');
+    if (!original.includes(mutation.from)) {
+      results.push({ ...mutation, verdict: 'STALE', detail: `anchor not found: ${mutation.from.slice(0, 60)}` });
+      console.log(`\n✗ ${mutation.step}\n  anchor not found in ${mutation.file}`);
       continue;
     }
 
-    const { exit, out } = await verify();
-    const failedLabels = [...out.matchAll(/^ {2}FAIL (.+?)(?: \{|$)/gm)].map((match) => match[1].trim());
-    // The layout self-test always "fails" by design; it is not evidence.
-    const real = failedLabels.filter((label) => !label.startsWith('self-test'));
-    const matched = real.filter((label) => mutation.expect.test(label));
+    console.log(`\n▸ ${mutation.step}\n  mutating: ${mutation.what}`);
 
-    const verdict = exit === 0 ? 'SURVIVED' : matched.length > 0 ? 'CAUGHT' : 'CAUGHT-ELSEWHERE';
-    results.push({ ...mutation, verdict, detail: (matched[0] ?? real[0] ?? 'no failing check').slice(0, 90) });
-    console.log(
-      `  ${verdict}: ${real.length} check(s) failed` +
-        (matched.length > 0 ? `, incl. "${matched[0]}"` : ''),
-    );
-  } finally {
-    await writeFile(path, original);
+    try {
+      // First occurrence only: a blanket replace can change more than the one
+      // behaviour under test, and then a failure proves nothing specific.
+      await writeFile(path, original.replace(mutation.from, mutation.to));
+
+      const built = await build(tree);
+      if (!built.ok) {
+        // A mutation that does not build proves the compiler noticed, not that
+        // the browser assertion can see the behaviour. Those are different
+        // claims and scoring them the same would overstate the suite.
+        results.push({ ...mutation, verdict: 'BUILD-FAILED', detail: built.detail });
+        console.log('  BUILD-FAILED — the assertion was never exercised');
+        continue;
+      }
+
+      const { exit, out, timedOut } = await verify(tree);
+      if (timedOut) {
+        results.push({ ...mutation, verdict: 'TIMEOUT', detail: `no verdict within ${VERIFY_TIMEOUT_MS / 1000}s` });
+        console.log('  TIMEOUT — a hang is a failure signal, not a pass');
+        continue;
+      }
+
+      const failedLabels = [...out.matchAll(/^ {2}FAIL (.+?)(?: \{|$)/gm)].map((match) => match[1].trim());
+      // The layout self-test always "fails" by design; it is not evidence.
+      const real = failedLabels.filter((label) => !label.startsWith('self-test'));
+      const matched = real.filter((label) => mutation.expect.test(label));
+
+      const verdict = exit === 0 ? 'SURVIVED' : matched.length > 0 ? 'CAUGHT' : 'CAUGHT-ELSEWHERE';
+      results.push({ ...mutation, verdict, detail: (matched[0] ?? real[0] ?? 'no failing check').slice(0, 90) });
+      console.log(`  ${verdict}: ${real.length} check(s) failed${matched.length > 0 ? `, incl. "${matched[0]}"` : ''}`);
+    } finally {
+      await writeFile(path, original);
+    }
   }
+} finally {
+  await teardown();
 }
 
-// Rebuild from the restored tree so the working copy is not left serving a
-// mutant. Leaving a mutated dist/ behind would be its own stale-bundle bug.
-await build();
+await requireCleanCheckout('after finishing');
 
 console.log('\nmutation results');
 const width = Math.max(...results.map((entry) => entry.step.length), 4);
 console.log(`  ${'step'.padEnd(width)}  verdict`);
 for (const entry of results) console.log(`  ${entry.step.padEnd(width)}  ${entry.verdict} — ${entry.detail}`);
 
-const survived = results.filter((entry) => entry.verdict === 'SURVIVED');
-const inconclusive = results.filter((entry) => entry.verdict === 'INCONCLUSIVE' || entry.verdict === 'STALE');
+const inconclusive = results.filter((entry) =>
+  ['SURVIVED', 'STALE', 'BUILD-FAILED', 'TIMEOUT'].includes(entry.verdict),
+);
 console.log(
   `\n${results.length} mutation(s): ` +
-    `${results.filter((e) => e.verdict.startsWith('CAUGHT')).length} caught, ` +
-    `${results.filter((e) => e.verdict === 'COMPILE-GUARDED').length} compile-guarded, ` +
-    `${inconclusive.length} inconclusive, ${survived.length} SURVIVED`,
+    `${results.filter((e) => e.verdict === 'CAUGHT').length} caught by the named assertion, ` +
+    `${results.filter((e) => e.verdict === 'CAUGHT-ELSEWHERE').length} caught elsewhere, ` +
+    `${results.filter((e) => e.verdict === 'SURVIVED').length} SURVIVED, ` +
+    `${results.filter((e) => ['STALE', 'BUILD-FAILED', 'TIMEOUT'].includes(e.verdict)).length} inconclusive`,
 );
-if (survived.length > 0) {
-  console.log('\nA surviving mutation is a check that cannot see what it claims to cover:');
-  for (const entry of survived) console.log(`  - ${entry.step}: ${entry.what}`);
+if (inconclusive.length > 0) {
+  console.log('\nNot proof that the suite can see these behaviours:');
+  for (const entry of inconclusive) console.log(`  - [${entry.verdict}] ${entry.step}: ${entry.what}`);
 }
-process.exit(survived.length === 0 && inconclusive.length === 0 ? 0 : 1);
+process.exit(inconclusive.length === 0 ? 0 : 1);
