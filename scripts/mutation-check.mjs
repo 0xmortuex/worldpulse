@@ -35,9 +35,21 @@ import { dirname, join, resolve } from 'node:path';
 const run = promisify(execFile);
 const ROOT = resolve(import.meta.dirname, '..');
 
-/** A hung run is already a failure signal; it does not need to be waited out. */
-const BUILD_TIMEOUT_MS = 180_000;
-const VERIFY_TIMEOUT_MS = 480_000;
+/**
+ * A hung run is already a failure signal; it does not need to be waited out.
+ *
+ * But the limit has to clear a HEALTHY run by a wide margin, or it reports
+ * TIMEOUT for a suite that is merely slow — a false failure, which misleads in
+ * exactly the way a false pass does. 480s was calibrated on a Linux box where a
+ * full verify took about five minutes; on a software-rendered Windows machine a
+ * healthy run exceeds ten, and the layout mutation was reported as hung when it
+ * was working correctly.
+ *
+ * So: generous by default, overridable, and still bounded — the point is to
+ * catch a run that will never finish, not to race the machine.
+ */
+const BUILD_TIMEOUT_MS = Number(process.env['MUTATE_BUILD_TIMEOUT_MS'] ?? 300_000);
+const VERIFY_TIMEOUT_MS = Number(process.env['MUTATE_VERIFY_TIMEOUT_MS'] ?? 1_800_000);
 const PORT = 4273;
 
 /**
