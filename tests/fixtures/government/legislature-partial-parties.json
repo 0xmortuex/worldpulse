@@ -1,0 +1,76 @@
+{
+  "head": {
+    "vars": [
+      "chamber",
+      "chamberLabel",
+      "seats",
+      "party",
+      "partyLabel",
+      "partySeats"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7101"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "National Assembly"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "400"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9605785"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Alpha"
+        },
+        "partySeats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "100"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7101"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "National Assembly"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "400"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q958804"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Beta"
+        },
+        "partySeats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "50"
+        }
+      }
+    ]
+  }
+}

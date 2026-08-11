@@ -1,0 +1,60 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "positionDescription",
+      "holder",
+      "holderLabel",
+      "holderImage",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q6001"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Foreign Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for foreign relations"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q6002"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Finance"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for the budget"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q6003"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Defence"
+        }
+      }
+    ]
+  }
+}

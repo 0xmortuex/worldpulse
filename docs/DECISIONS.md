@@ -32,6 +32,7 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | A1 | **Worker proxy only where a probe proves it is needed.** Probes send `Origin` and record `Access-Control-Allow-Origin` per source, yielding client-fetch / Worker-required / key-gated / inconclusive. |
 | A2 | **4xx/5xx yields `INCONCLUSIVE`, never `WORKER-REQUIRED`.** A rate-limit 403 is not evidence of CORS posture. |
 | A3 | **No visual layer counts as verified without asserting on rendered behaviour**, not the container's existence. See `TESTING.md`. |
+| A8 | **Layout is asserted geometrically at 360px, 900px and desktop** — no overlap, no overflow, no collapsed elements. Presence and text assertions are blind to layout; the dual-portrait overlap shipped past a fully green suite. The harness carries a self-test that recreates that bug and confirms it is caught. |
 | A4 | **The confidence badge is the only sanctioned way to render a fact.** Enforced statically by `tests/fact-discipline.test.ts` using real type information. Escape hatch is `notAFact(value, reason)`, which requires a written reason at the call site. |
 | A5 | **A value with no traceable provenance renders as UNTRACEABLE, loudly.** Brokenness outranks emptiness: an untraceable fact shouts even when it has nothing to show, rather than passing as a legitimate "no data". |
 | A6 | **`verifiedAgainst: "documentation" \| "live"` per source.** Nothing ships while any runtime source is still `documentation`; `npm run check:deploy` enforces it. Bundled version-pinned sources are not gated — they cannot drift, and their shape is asserted against the real bytes. |
@@ -48,6 +49,24 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | D4 | **An override without a source citation and review date is ignored.** An override is a reviewed correction, not a place to encode an opinion. |
 | D5 | **Never substitute another person's photograph.** Missing portrait yields an initials placeholder. Commons credit is assumed required when the licence cannot be read. |
 | D6 | **Leader fixtures are a permanent regression suite.** A live contradiction is a finding to investigate, not a fixture to update. People in fixtures are synthetic; the invariant is which rule fires. |
+
+## Government tab
+
+| # | Decision |
+| --- | --- |
+| G1 | **Ministry glosses come from Wikidata's own description or not at all.** A guessed remit reads as fact. |
+| G2 | **A party-composition bar is drawn only when party seats account for the whole chamber.** Partial data gets a sentence stating the shortfall, never a bar. |
+| G3 | **Untranslated portfolios keep their Q-id and are flagged.** Dropping shrinks the cabinet silently; translating invents. |
+| G4 | **"No ministries recorded" and "ministries with no officeholders" are distinct states** and render differently. |
+| G5 | **Q-ids used in SPARQL live in one registry, all unverified.** Queries degrade to missing rows rather than wrong rows when an id is wrong. |
+| G6 | **Deferred scope renders as a no-data card naming the step that fills it** — the pattern approved in step 3, applied throughout. |
+
+## Classification watchlist
+
+`docs/WATCHLIST.md` lists countries expected to be hard to classify, written **before**
+seeing live data so the predictions are falsifiable. At egress: populate the `qids`
+arrays, key on Q-id as primary with the label as an independent second signal, and
+**output `undetermined` and log a finding when the two disagree** — neither wins silently.
 
 ## Feature scope
 

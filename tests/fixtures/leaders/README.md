@@ -12,16 +12,23 @@ worth a human look. Silently re-recording the fixture destroys the only signal.
 
 Update one only after establishing which of those it is, and say so in the commit.
 
-## The people are synthetic on purpose
+## The people are synthetic on purpose — do not "fix" them
 
-Every person here is named `<Given> Fixture`. Hand-typing a real officeholder would be
-asserting a political fact this app has not verified, and it would go stale the moment
-an election happened.
+Every person here is named `<Given> Fixture`. This is not laziness and it is not a
+placeholder waiting to be filled in.
 
-The invariant under test is **which rule fires and what shape the header takes** — not
-who holds office. That invariant is exactly what should be compared against live data:
-"Iran still resolves to rule 1" is meaningful; "the Supreme Leader is still X" is a
-question for the live pipeline, not for a checked-in file.
+> **The invariant under test is which rule fires and what shape the header takes — not
+> who holds office.**
+
+Read that again before editing any name in this directory. Hand-typing a real
+officeholder would assert a political fact this app has not verified, and it would go
+stale the moment an election happened — turning a green test suite into a quietly wrong
+one.
+
+The synthetic names are also what makes these fixtures comparable to live data. "Iran
+still resolves to rule 1" is a meaningful regression check. "The Supreme Leader is still
+X" is a question for the live pipeline, and a checked-in file is the worst possible place
+to answer it.
 
 Office titles, form-of-government labels and country Q-ids **are** real, because those
 are structural and the resolver keys off them.

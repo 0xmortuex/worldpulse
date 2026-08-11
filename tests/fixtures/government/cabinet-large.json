@@ -1,0 +1,1727 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "positionDescription",
+      "holder",
+      "holderLabel",
+      "holderImage",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4000"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Foreign Affairs"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4001"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Finance"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for finance"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87831960"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister1 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister1%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4002"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Defence"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for defence"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87252843"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister2 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister2%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4003"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Health"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86218766"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister3 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister3%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4004"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Justice"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for justice"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87353060"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister4 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister4%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4005"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Education"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for education"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q8458596"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister5 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister5%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4006"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Interior"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q83089626"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister6 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister6%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4007"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Agriculture"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for agriculture"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4008"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Transport"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for transport"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88903887"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister8 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister8%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4009"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Energy"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87461519"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister9 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister9%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4010"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Environment"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for environment"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q83670278"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister10 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister10%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4011"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Labour"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for labour"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q85802774"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister11 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister11%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4012"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Industry"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86901164"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister12 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister12%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4013"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Trade"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for trade"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86144593"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister13 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister13%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4014"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Culture"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for culture"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4015"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Sport"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86022633"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister15 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister15%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4016"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Tourism"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for tourism"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q81804387"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister16 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister16%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4017"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Housing"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for housing"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86916073"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister17 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister17%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4018"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Science"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87554821"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister18 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister18%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4019"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Technology"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for technology"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82144227"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister19 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister19%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4020"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Water Resources"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for water resources"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88717903"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister20 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister20%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4021"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Mines"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4022"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Forestry"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for forestry"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84299719"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister22 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister22%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4023"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Fisheries"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for fisheries"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82061215"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister23 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister23%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4024"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Livestock"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87321545"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister24 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister24%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4025"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Youth"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for youth"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88699266"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister25 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister25%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4026"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Women's Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for women's affairs"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88850764"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister26 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister26%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4027"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Social Welfare"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84147316"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister27 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister27%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4028"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Pensions"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for pensions"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4029"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Veterans"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for veterans"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84195238"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister29 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister29%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4030"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Public Works"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q81384282"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister30 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister30%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4031"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Urban Development"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for urban development"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87325944"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister31 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister31%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4032"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Rural Development"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for rural development"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q85970658"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister32 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister32%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4033"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Telecommunications"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87600103"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister33 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister33%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4034"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Post"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for post"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82686627"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister34 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister34%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4035"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Civil Aviation"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for civil aviation"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4036"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Railways"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84551646"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister36 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister36%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4037"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Shipping"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for shipping"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84619640"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister37 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister37%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4038"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Highways"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for highways"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88796523"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister38 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister38%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4039"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Ports"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82413044"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister39 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister39%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4040"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Petroleum"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for petroleum"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87428679"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister40 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister40%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4041"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Coal"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for coal"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87377909"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister41 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister41%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4042"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Steel"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4043"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Textiles"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for textiles"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88585002"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister43 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister43%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4044"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Chemicals"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for chemicals"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88643578"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister44 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister44%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4045"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Food Processing"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q83023530"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister45 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister45%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4046"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Consumer Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for consumer affairs"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86379627"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister46 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister46%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4047"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Statistics"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for statistics"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88522528"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister47 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister47%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4048"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Planning"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q83752663"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister48 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister48%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4049"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Personnel"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for personnel"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4050"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Parliamentary Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for parliamentary affairs"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q83561272"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister50 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister50%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4051"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Law"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84887173"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister51 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister51%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4052"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Corporate Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for corporate affairs"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82851171"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister52 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister52%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4053"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of External Trade"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for external trade"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q85484628"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister53 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister53%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4054"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Northern Region"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88284211"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister54 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister54%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4055"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Southern Region"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for southern region"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q81882009"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister55 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister55%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4056"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Diaspora"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for diaspora"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4057"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Heritage"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q8197512"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister57 Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Minister57%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "head": {
+    "vars": [
+      "court",
+      "courtLabel",
+      "seats",
+      "justice",
+      "justiceLabel",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "court": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q8001"
+        },
+        "courtLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Court"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "9"
+        },
+        "justice": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q8100"
+        },
+        "justiceLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Justice Fixture"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-09-29T00:00:00Z"
+        }
+      }
+    ]
+  }
+}

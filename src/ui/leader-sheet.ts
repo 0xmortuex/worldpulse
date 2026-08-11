@@ -1,6 +1,8 @@
 import { escapeHtml, factHtml } from '../facts/badge';
 import type { Fact } from '../facts/types';
 import { loadBio, loadDossier } from '../dossier/provider';
+import { loadPersonHistory } from '../dossier/government-provider';
+import type { HeldPosition } from '../sources/wikidata-government';
 import { resolveLeader, type ResolvedPortrait } from '../dossier/resolve';
 import { ageFact } from '../sources/wikidata-dossier';
 
@@ -145,11 +147,53 @@ export function renderLeaderSheet(
       ${bio ? `<a class="sheet-link" href="${escapeHtml(bio.url)}" target="_blank" rel="noreferrer noopener">Read on Wikipedia</a>` : ''}
     </section>
 
-    ${pending('Career timeline', 'the Government tab in step 4')}
-    ${pending('Party history', 'the Government tab in step 4')}
-    ${pending('Predecessor and successor', 'the Government tab in step 4')}
+    ${historySection(person.name)}
+    ${pending('Party history', 'the extended party-membership query in a later step')}
     ${pending('Recent news mentions', 'the News tab in step 6')}
   </div>`;
+}
+
+function historySection(personName: string): string {
+  const history = loadPersonHistory(personName);
+  if (!history || history.value.length === 0) {
+    return `<section class="sheet-block">
+      <h3>Career timeline</h3>
+      <p class="sheet-pending"><strong>No data.</strong> Wikidata records no
+      position history (P39) for this person.</p>
+    </section>`;
+  }
+
+  const rows = history.value.map(positionRow).join('');
+
+  return `<section class="sheet-block">
+    <h3>Career timeline</h3>
+    <ul class="term-list">${rows}</ul>
+    <p class="sheet-pending">Predecessor and successor come from the P1365 and P1366
+    qualifiers on each position statement, so they are absent wherever Wikidata has
+    not recorded them.</p>
+  </section>`;
+}
+
+function positionRow(position: HeldPosition): string {
+  const dates =
+    position.start === null
+      ? '<span class="portrait-missing">dates not recorded</span>'
+      : `${escapeHtml(position.start.slice(0, 10))} → ${
+          position.end ? escapeHtml(position.end.slice(0, 10)) : '<span class="term-current">present</span>'
+        }`;
+
+  const succession = [
+    position.replaces ? `after ${escapeHtml(position.replaces)}` : '',
+    position.replacedBy ? `succeeded by ${escapeHtml(position.replacedBy)}` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  return `<li class="term${position.start === null ? ' term--undated' : ''}">
+    <span class="term-dates">${dates}</span>
+    <span class="term-person">${escapeHtml(position.label)}</span>
+    ${succession ? `<span class="term-office">${succession}</span>` : ''}
+  </li>`;
 }
 
 export function mountLeaderSheet(

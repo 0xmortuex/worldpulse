@@ -745,3 +745,108 @@ button.badge { cursor: pointer; }
 .sheet-pending { color: var(--text-faint); font-size: 11px; margin: 0; }
 .sheet-pending strong { color: var(--warn); }
 .sheet-link { display: inline-block; margin-top: 6px; color: #79c0ff; font-size: 11px; }
+
+/* ---------- dossier tabs ---------- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 10px 0 12px;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.tab:hover { color: var(--text-dim); }
+.tab--active {
+  color: var(--accent);
+  border-color: var(--border);
+  background: var(--panel-2);
+}
+.tab--pending { font-style: italic; }
+.tab:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+/* ---------- government tab ---------- */
+
+.gov-block { margin-bottom: 18px; }
+.gov-block h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 7px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.gov-count { color: var(--text-faint); letter-spacing: 0; text-transform: none; }
+.gov-pending { color: var(--text-faint); font-size: 11px; margin: 0; }
+.gov-pending strong { color: var(--warn); }
+.gov-caveat { color: var(--warn); font-size: 10px; margin: 5px 0 0; }
+.gov-note { color: var(--text-faint); font-size: 10px; margin-top: 4px; }
+.gov-row { display: flex; gap: 8px; align-items: baseline; font-size: 11px; margin-bottom: 3px; }
+.gov-key { color: var(--text-faint); min-width: 92px; }
+
+.ministry-list { list-style: none; margin: 0; padding: 0; }
+.ministry { padding: 5px 0; border-bottom: 1px solid #161b22; }
+.ministry--hidden { display: none; }
+.ministry-head { display: flex; gap: 8px; justify-content: space-between; align-items: baseline; }
+.ministry-label { font-size: 11px; color: var(--text); overflow-wrap: anywhere; }
+.ministry-label--untranslated { color: var(--warn); font-family: var(--mono); }
+.ministry-holder { flex: none; }
+.ministry-gloss { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+.ministry-gloss--missing { color: #6b5a3a; font-style: italic; }
+
+.gov-toggle {
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.gov-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.chamber { margin-bottom: 12px; }
+.chamber-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: 11px; }
+.chamber-name { color: var(--text); }
+
+.party-bar {
+  display: flex;
+  height: 12px;
+  margin: 6px 0 5px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.party-seg { display: block; height: 100%; }
+.party-seg--0 { background: #d94f4f; }
+.party-seg--1 { background: #2f81f7; }
+.party-seg--2 { background: #d99024; }
+.party-seg--3 { background: #3fb950; }
+.party-seg--4 { background: #b57fd6; }
+.party-seg--5 { background: #7d8590; }
+
+.party-legend { list-style: none; margin: 0; padding: 0; font-size: 10px; }
+.party-legend li { display: flex; gap: 6px; align-items: center; padding: 1px 0; }
+.party-swatch { width: 8px; height: 8px; flex: none; display: inline-block; }
+.party-name { flex: 1; color: var(--text-dim); overflow-wrap: anywhere; }
+.party-seats { color: var(--text); font-variant-numeric: tabular-nums; }
+
+.term-list { list-style: none; margin: 0; padding: 0; font-size: 11px; }
+.term { display: flex; gap: 8px; padding: 3px 0; border-bottom: 1px solid #161b22; flex-wrap: wrap; }
+.term--undated { opacity: 0.7; }
+.term-dates { color: var(--text-faint); font-variant-numeric: tabular-nums; flex: none; }
+.term-person { flex: 1; color: var(--text); overflow-wrap: anywhere; min-width: 0; }
+.term-office { color: var(--text-faint); font-size: 10px; }
+.term-current { color: #3fb950; }

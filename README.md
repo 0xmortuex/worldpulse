@@ -3,8 +3,8 @@
 A single-page 3D globe that acts as a live intelligence dashboard for every country
 on Earth: politics, government, military, economy, news, live TV and natural events.
 
-**Current state: build step 3 of 14.** The globe, selection model, relations engine,
-confidence badge, provenance inspector and dossier header work. No live data pipeline
+**Current state: build step 4 of 14.** The globe, selection model, relations engine,
+confidence badge, provenance inspector, dossier header and Government tab work. No live data pipeline
 yet — relations run on a hand-checked seed set and the adapters run against fixtures,
 so both are provable before the ingests land.
 
@@ -196,6 +196,34 @@ failing open there would silently drop a legally required attribution.
 
 IndexedDB portrait caching is not built yet; it lands with the cache layer, alongside
 last-known-good offline mode.
+
+## Government tab
+
+Cabinet, legislature, judiciary and a 25-year leadership timeline, all from Wikidata.
+Three refusals carry most of the weight:
+
+- **A ministry's "plain-English line" is Wikidata's own description**, never written
+  here. Where there is none, the row says so. A guessed remit reads as fact.
+- **A party breakdown bar is drawn only when the parties account for the whole
+  chamber.** 150 recorded seats in a 400-seat chamber, rendered as a stacked bar, reads
+  as a complete picture of a legislature — a confident falsehood in the most trusted
+  format there is. Partial data gets a sentence saying how much is missing.
+- **A portfolio with no English label keeps its Q-id** and is flagged, rather than being
+  translated or dropped. Dropping silently shrinks the cabinet; translating invents.
+
+An empty cabinet and a cabinet whose posts have no recorded officeholders are different
+states and render differently. The first means Wikidata records no ministries at all;
+the second means the posts exist and nobody is recorded in them.
+
+Sections that cannot be built yet — term limits, next scheduled election — render as
+explicit no-data cards naming the step that will fill them. A missing section that was
+promised is invisible; a card that says "no data, arriving in step N" is a commitment
+you can hold this build to.
+
+Q-ids referenced by hand-written SPARQL live in `data/wikidata-entities.json`, all
+unverified, so verification at egress is one pass over one file. Queries are written so
+a wrong Q-id yields **missing rows rather than wrong rows** — an empty cabinet is
+honest, another country's ministries would not be.
 
 ## Provenance and verification
 

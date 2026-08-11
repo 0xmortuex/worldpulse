@@ -8,6 +8,8 @@ import type { AppState, Store } from '../state';
 import { TIER_COLORS, TIER_LABELS } from '../theme';
 import { escapeHtml } from './popover';
 import { comparePortrait, renderDossierHeader } from './header';
+import { renderGovernmentTab } from './government';
+import type { TabId } from '../state';
 
 const TIER_ORDER: Tier[] = ['ally', 'adversary', 'strained', 'neutral', 'nodata'];
 
@@ -21,12 +23,37 @@ export interface PanelContext {
   today: Date;
 }
 
+const TABS: Array<{ id: TabId; label: string; step: string | null }> = [
+  { id: 'government', label: 'Government', step: null },
+  { id: 'legislature', label: 'Legislature', step: 'step 9' },
+  { id: 'military', label: 'Military', step: 'step 8' },
+  { id: 'economy', label: 'Economy', step: 'step 5' },
+  { id: 'news', label: 'News', step: 'step 6' },
+  { id: 'tv', label: 'Live TV', step: 'step 11' },
+  { id: 'risk', label: 'Risk', step: 'step 10' },
+];
+
 export function mountPanel(root: HTMLElement, store: Store, context: PanelContext): void {
   root.addEventListener('click', (event) => {
+    const tab = (event.target as HTMLElement).closest<HTMLElement>('[data-tab]');
+    if (tab) {
+      const id = tab.dataset['tab'];
+      if (id) store.setTab(id as TabId);
+      return;
+    }
     const target = (event.target as HTMLElement).closest<HTMLElement>('[data-select]');
     if (!target) return;
     const code = target.dataset['select'];
     if (code) store.select(code);
+  });
+
+  // Number keys jump between dossier tabs, per the spec's keyboard map.
+  document.addEventListener('keydown', (event) => {
+    if (event.target instanceof HTMLInputElement) return;
+    const index = Number.parseInt(event.key, 10);
+    if (!Number.isInteger(index) || index < 1 || index > TABS.length) return;
+    const tab = TABS[index - 1];
+    if (tab) store.setTab(tab.id);
   });
 
   store.subscribe((state) => {
@@ -89,8 +116,14 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
     .filter((result) => result.tier !== 'nodata' && (result.tier !== 'neutral' || result.lowConfidence))
     .sort((a, b) => Math.abs(b.score) - Math.abs(a.score) || a.other.localeCompare(b.other));
 
+  // Header, then tabs, then the tab body, then relations. The header is the
+  // country's identity and belongs directly above the tabs; the relations block
+  // is a separate view of the same country and reads better after them.
   return `
     ${renderDossierHeader(subject, context.today)}
+    ${tabStrip(state.tab)}
+    ${tabBody(subject, state.tab, context)}
+
     <div class="panel-eyebrow panel-eyebrow--section">Relations mode · single selection${
       subject.codeStatus === 'user-assigned' ? ' · <span class="tag tag--warn">non-ISO code</span>' : ''
     }</div>
@@ -126,6 +159,25 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
               .join('')}
           </ul>`
     }`;
+}
+
+function tabStrip(active: TabId): string {
+  return `<nav class="tabs" role="tablist" aria-label="Dossier sections">
+    ${TABS.map(
+      (tab) => `<button type="button" role="tab" data-tab="${tab.id}"
+        aria-selected="${tab.id === active}"
+        class="tab${tab.id === active ? ' tab--active' : ''}${tab.step ? ' tab--pending' : ''}"
+        >${escapeHtml(tab.label)}</button>`,
+    ).join('')}
+  </nav>`;
+}
+
+function tabBody(subject: Country, tab: TabId, context: PanelContext): string {
+  if (tab === 'government') return renderGovernmentTab(subject.code, subject.name, context.today);
+  const entry = TABS.find((candidate) => candidate.id === tab);
+  return `<div class="gov"><p class="gov-pending"><strong>Not built yet.</strong>
+    The ${escapeHtml(entry?.label ?? tab)} tab arrives with ${escapeHtml(entry?.step ?? 'a later step')}.
+    It is listed in the tab strip rather than hidden so the scope stays visible.</p></div>`;
 }
 
 function compareView(selected: readonly Country[], state: AppState, context: PanelContext): string {

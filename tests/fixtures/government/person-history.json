@@ -1,0 +1,84 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "start",
+      "end",
+      "replaces",
+      "replacesLabel",
+      "replacedBy",
+      "replacedByLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3101"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "President of the United States"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        },
+        "replaces": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9001"
+        },
+        "replacesLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Robin Fixture"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3102"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Senator"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2011-01-03T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-03T00:00:00Z"
+        },
+        "replacedBy": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9002"
+        },
+        "replacedByLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kim Fixture"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3103"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Governor"
+        }
+      }
+    ]
+  }
+}

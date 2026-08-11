@@ -1,0 +1,118 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "positionDescription",
+      "holder",
+      "holderLabel",
+      "holderImage",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q5001"
+        },
+        "positionLabel": {
+          "type": "literal",
+          "value": "Q5001"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82384252"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Sasha Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Sasha%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q5002"
+        },
+        "positionLabel": {
+          "type": "literal",
+          "value": "Q5002"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q5003"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ministerio de Hacienda"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q87757972"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Noa Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Noa%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q5004"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Foreign Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for foreign relations"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q88462524"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ariel Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Ariel%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      }
+    ]
+  }
+}

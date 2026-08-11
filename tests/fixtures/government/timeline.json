@@ -1,0 +1,150 @@
+{
+  "head": {
+    "vars": [
+      "office",
+      "person",
+      "personLabel",
+      "start",
+      "end"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9537060"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Alex Fixture"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q981925"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Robin Fixture"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-01-20T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9407419"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Sam Fixture"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2009-01-20T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-01-20T00:00:00Z"
+        }
+      },
+      {
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9626153"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Casey Fixture"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2001-01-20T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2009-01-20T00:00:00Z"
+        }
+      },
+      {
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9205693"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jordan Fixture"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1993-01-20T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2001-01-20T00:00:00Z"
+        }
+      },
+      {
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9111111"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Undated Fixture"
+        }
+      }
+    ]
+  }
+}

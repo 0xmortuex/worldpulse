@@ -1,0 +1,182 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "positionDescription",
+      "holder",
+      "holderLabel",
+      "holderImage",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3001"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Foreign Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for foreign relations and diplomacy"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q86207964"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Dana Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Dana%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3002"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Finance"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for the budget, taxation and public spending"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q84171672"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kim Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Kim%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3003"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Defence"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for the armed forces and national defence"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q85254288"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Lee Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Lee%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3004"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Health"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister responsible for public health services"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q83394280"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ash Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Ash%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3005"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Justice"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q82879604"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Rowan Fixture"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Rowan%20Fixture%20portrait.jpg"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-01-20T00:00:00Z"
+        }
+      }
+    ]
+  }
+}

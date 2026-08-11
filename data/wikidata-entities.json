@@ -1,0 +1,46 @@
+{
+  "$comment": "Wikidata Q-ids referenced by hand-written SPARQL. NONE of these could be confirmed from this build environment, so every one carries expectedLabel and verified:false. This file exists so that verification at egress is a single pass over one file rather than a hunt through query strings. Queries that depend on an entity are written to degrade to an empty result rather than a wrong result when the id is wrong — an empty cabinet renders as 'not recorded', which is honest, where a wrong id could silently attach another country's ministries.",
+  "verifiedAgainst": "documentation",
+  "entities": {
+    "minister": {
+      "qid": "Q83307",
+      "expectedLabel": "minister",
+      "usedBy": "cabinet query, as the superclass reached by P279* when finding ministerial positions",
+      "verified": false,
+      "fallback": "The cabinet query UNIONs this path with P208 (executive body) + P361 (part of), so a wrong id here degrades coverage rather than producing wrong rows."
+    },
+    "courtOfLastResort": {
+      "qid": "Q1513611",
+      "expectedLabel": "supreme court",
+      "usedBy": "judiciary query, as a fallback class when P209 is absent",
+      "verified": false,
+      "fallback": "P209 (highest judicial authority) is the primary path; this class is only a fallback."
+    }
+  },
+  "properties": {
+    "$comment": "Properties are far more stable than items and are used directly in the queries. Listed for review, not for lookup.",
+    "P35": "head of state",
+    "P6": "head of government",
+    "P39": "position held",
+    "P102": "member of political party",
+    "P122": "basic form of government",
+    "P194": "legislative body",
+    "P208": "executive body",
+    "P209": "highest judicial authority",
+    "P298": "ISO 3166-1 alpha-3 code",
+    "P361": "part of",
+    "P527": "has part(s)",
+    "P580": "start time (qualifier)",
+    "P582": "end time (qualifier)",
+    "P1001": "applies to jurisdiction",
+    "P1082": "population",
+    "P1308": "officeholder",
+    "P1313": "office held by head of government",
+    "P1342": "number of seats",
+    "P1365": "replaces",
+    "P1366": "replaced by",
+    "P1410": "number of representatives in an organization/legislature",
+    "P1448": "official name",
+    "P1906": "office held by head of state"
+  }
+}

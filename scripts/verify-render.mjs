@@ -20,6 +20,76 @@ function check(label, condition, detail = '') {
   }
 }
 
+/**
+ * TESTING.md rule 8: existing is not working.
+ *
+ * Presence and text assertions are blind to layout. This measures geometry:
+ * nothing overflows its container, no two siblings overlap, and nothing has
+ * collapsed to zero size — a collapsed element is invisible, not absent, so
+ * presence checks pass on it.
+ */
+async function assertLayout(page, containerSelector, childSelector, label) {
+  const report = await page.evaluate(
+    ([container, child]) => {
+      const root = document.querySelector(container);
+      if (!root) return { error: `container ${container} not found` };
+      const rootBox = root.getBoundingClientRect();
+      const kids = [...root.querySelectorAll(child)]
+        .filter((el) => el.offsetParent !== null || el.getClientRects().length > 0)
+        .map((el) => {
+          const box = el.getBoundingClientRect();
+          return {
+            tag: el.className || el.tagName,
+            x: Math.round(box.x), y: Math.round(box.y),
+            w: Math.round(box.width), h: Math.round(box.height),
+          };
+        });
+      return { rootBox: { x: rootBox.x, y: rootBox.y, w: rootBox.width, h: rootBox.height }, kids };
+    },
+    [containerSelector, childSelector],
+  );
+
+  if (report.error) {
+    check(`${label}: layout`, false, report.error);
+    return;
+  }
+  if (report.kids.length === 0) {
+    check(`${label}: layout`, false, `no visible children matched ${childSelector}`);
+    return;
+  }
+
+  const problems = [];
+  const { rootBox, kids } = report;
+
+  for (const kid of kids) {
+    if (kid.w <= 0 || kid.h <= 0) problems.push(`${kid.tag} collapsed to ${kid.w}x${kid.h}`);
+    // 1px tolerance for sub-pixel rounding.
+    if (kid.x < rootBox.x - 1 || kid.x + kid.w > rootBox.x + rootBox.w + 1) {
+      problems.push(`${kid.tag} overflows horizontally (${kid.x}..${kid.x + kid.w} vs ${Math.round(rootBox.x)}..${Math.round(rootBox.x + rootBox.w)})`);
+    }
+  }
+
+  for (let i = 0; i < kids.length; i += 1) {
+    for (let j = i + 1; j < kids.length; j += 1) {
+      const a = kids[i];
+      const b = kids[j];
+      const overlapW = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const overlapH = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      if (overlapW > 1 && overlapH > 1) {
+        problems.push(`${a.tag} overlaps ${b.tag} by ${overlapW}x${overlapH}px`);
+      }
+    }
+  }
+
+  check(`${label}: no overlap or overflow`, problems.length === 0, problems.slice(0, 3).join('; '));
+}
+
+const BREAKPOINTS = [
+  { width: 360, height: 780, name: '360px' },
+  { width: 900, height: 800, name: '900px' },
+  { width: 1600, height: 950, name: 'desktop' },
+];
+
 // This environment ships Chromium out of band; PLAYWRIGHT_CHROMIUM_PATH points
 // at it so the npm package's pinned build number does not have to match.
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
@@ -296,6 +366,135 @@ await page.waitForTimeout(300);
 check('Escape closes the leader sheet without clearing the selection',
   !(await page.locator('.sheet-body').isVisible().catch(() => false)) &&
     (await page.locator('#mode').textContent())?.trim() === 'Relations mode');
+
+// ---- step 4: government tab ----
+
+await selectCountry('United Kingdom');
+check('dossier tabs render', (await page.locator('.tabs .tab').count()) === 7);
+check('government is the default tab', (await page.locator('.tab--active').innerText()).trim() === 'Government');
+
+const govGbr = await page.locator('.gov').innerText();
+check('cabinet renders ministries', (await page.locator('.ministry').count()) > 0);
+check('a ministry gloss comes from Wikidata', /foreign relations/i.test(govGbr));
+check('a missing gloss says so instead of inventing one', /No plain-English description/i.test(govGbr));
+check('legislature seat totals render', /650/.test(govGbr));
+check('a complete party split draws a bar', (await page.locator('.party-bar').count()) === 1);
+check('a chamber with no party data draws no bar', /records no party composition/i.test(govGbr));
+await page.screenshot({ path: `${SHOTS}/13-government-gbr.png` });
+
+// Hard case: partial party data must NOT be drawn as a bar.
+await selectCountry('Saudi Arabia');
+const govSau = await page.locator('.gov').innerText();
+check('partial party data is refused, not drawn', (await page.locator('.party-bar').count()) === 0);
+check('the refusal explains itself', /seats are accounted for/i.test(govSau), govSau.slice(0, 200));
+
+// Hard case: 58-post cabinet.
+await selectCountry('Germany');
+const ministriesShown = await page.locator('.ministry:not(.ministry--hidden)').count();
+check('a large cabinet collapses rather than dumping 58 rows', ministriesShown <= 12, `shown=${ministriesShown}`);
+check('the full count is stated up front', /58 posts/.test(await page.locator('.gov').innerText()));
+await page.locator('[data-expand="cabinet"]').click();
+await page.waitForTimeout(300);
+check('expanding reveals every post', (await page.locator('.ministry:not(.ministry--hidden)').count()) === 58);
+await page.screenshot({ path: `${SHOTS}/14-government-large-cabinet.png` });
+
+// Hard case: untranslated portfolios.
+await selectCountry('Iran');
+const govIrn = await page.locator('.gov').innerText();
+check('untranslated portfolios are flagged, not translated', /no English label/i.test(govIrn));
+check('an untranslated portfolio keeps its identifier', /Q500[12]/.test(govIrn), govIrn.slice(0, 200));
+check('a non-English label is kept rather than dropped', /Ministerio de Hacienda/.test(govIrn));
+
+// Hard case: positions exist, no officeholders at all.
+await selectCountry('Mali');
+const govMli = await page.locator('.gov').innerText();
+check('a cabinet with no holders still lists its posts', (await page.locator('.ministry').count()) === 3);
+check('vacancies are counted rather than hidden', /3 of 3 positions have no current officeholder/i.test(govMli), govMli.slice(0, 200));
+await page.screenshot({ path: `${SHOTS}/15-government-no-holders.png` });
+
+// Leadership timeline and the leader sheet's filled sections.
+await selectCountry('United States');
+const govUsa = await page.locator('.gov').innerText();
+check('leadership timeline renders ended terms', /→/.test(govUsa) && /present/i.test(govUsa));
+check('an undated term is kept and labelled', /dates not recorded/i.test(govUsa));
+
+await page.locator('.dossier .portrait').first().click();
+await page.waitForTimeout(400);
+const sheet4 = await page.locator('.sheet-body').innerText();
+check('leader sheet now shows a career timeline', /Career timeline/i.test(sheet4) && /Senator/i.test(sheet4));
+check('predecessor and successor render from qualifiers', /after Robin Fixture/i.test(sheet4) && /succeeded by Kim Fixture/i.test(sheet4));
+await page.screenshot({ path: `${SHOTS}/16-leader-sheet-history.png` });
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+
+// Tab switching by keyboard, and unbuilt tabs naming their step.
+await page.keyboard.press('5');
+await page.waitForTimeout(300);
+check('number keys switch dossier tabs', (await page.locator('.tab--active').innerText()).trim() === 'News');
+check('an unbuilt tab names the step that fills it', /step 6/.test(await page.locator('.gov').innerText()));
+await page.keyboard.press('1');
+await page.waitForTimeout(300);
+
+// ---- layout geometry at every breakpoint (TESTING.md rule 8) ----
+//
+// Applied retroactively to the dossier header, whose dual-portrait case
+// rendered as overlapping soup with every other assertion green.
+
+for (const breakpoint of BREAKPOINTS) {
+  await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });
+  await page.waitForTimeout(400);
+
+  // Parliamentary: the densest header, two portraits plus captions.
+  await selectCountry('United Kingdom');
+  await assertLayout(page, '.dossier', ':scope > *', `${breakpoint.name} header rows`);
+  await assertLayout(page, '.dossier-main', ':scope > *', `${breakpoint.name} flag and titles`);
+  await assertLayout(page, '.dossier-portraits', ':scope > .portrait', `${breakpoint.name} dual portraits`);
+  await assertLayout(page, '.dossier-vitals', 'dd', `${breakpoint.name} vitals values`);
+
+  // Rule 1: the widest rule block, with an override citation.
+  await selectCountry('Iran');
+  await assertLayout(page, '.rule-block', ':scope > *', `${breakpoint.name} rule block`);
+
+  // Government tab: the densest panel in the app.
+  await selectCountry('United Kingdom');
+  await assertLayout(page, '.tabs', ':scope > .tab', `${breakpoint.name} tab strip`);
+  await assertLayout(page, '.gov', ':scope > .gov-block', `${breakpoint.name} government sections`);
+  await assertLayout(page, '.ministry-list', ':scope > .ministry:not(.ministry--hidden)', `${breakpoint.name} ministry rows`);
+  await assertLayout(page, '.party-legend', ':scope > li', `${breakpoint.name} party legend`);
+
+  await selectCountry('Germany');
+  await assertLayout(page, '.ministry-list', ':scope > .ministry:not(.ministry--hidden)', `${breakpoint.name} large cabinet rows`);
+
+  await page.screenshot({ path: `${SHOTS}/layout-${breakpoint.width}.png` });
+}
+
+await page.setViewportSize({ width: 1600, height: 950 });
+await selectCountry('United Kingdom');
+await page.waitForTimeout(400);
+
+// Self-test: the geometry harness must be able to fail. Recreate the exact bug
+// it was written for — the portraits laid back beside the title block, which is
+// what produced the overlapping soup — and confirm it is caught.
+const injected = await page.addStyleTag({
+  content: `.dossier { position: relative; }
+            .dossier-portraits { position: absolute; top: 0; left: 0; right: 0;
+              margin-top: 0; padding-top: 0; border-top: none; }`,
+});
+await page.waitForTimeout(300);
+
+const caughtOverlap = await (async () => {
+  const before = failures.length;
+  await assertLayout(page, '.dossier', ':scope > *', 'self-test (expected to fail)');
+  const detected = failures.length > before;
+  if (detected) failures.pop(); // the failure was the point
+  return detected;
+})();
+check('the layout harness detects an overlap it is shown', caughtOverlap,
+  'a geometry check that cannot fail is not a check');
+
+await injected.evaluate((node) => node.remove());
+await page.waitForTimeout(300);
+await assertLayout(page, '.dossier', ':scope > *', 'header recovers after self-test');
 
 await browser.close();
 

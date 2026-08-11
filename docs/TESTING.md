@@ -128,7 +128,38 @@ For each: assert that rendering N records yields N distinct ids, that an id from
 earlier render never resolves to a later record, and that an unknown id resolves to
 nothing rather than to a neighbour.
 
-## 8. `innerText` applies CSS, `textContent` does not
+## 8. Existing is not working — assert geometry, not presence
+
+**For any panel with more than one positioned element, assert that key elements' bounding
+boxes do not intersect, and that nothing overflows its container — at every responsive
+breakpoint.**
+
+Where this came from: the dossier header's dual-portrait case rendered with the title
+block and both portraits overlapping into unreadable soup. Every assertion was green. The
+rule fired correctly, the right person led, the office titles were exact — and the panel
+was broken. A human noticed it in a screenshot.
+
+This is the same failure shape as the bare-sphere polygon bug in rule 1: *the check
+proved the thing existed without proving it worked*. Presence assertions and text
+assertions are both blind to layout. A bug only a human eye catches will eventually ship
+on a step where nobody looked.
+
+Breakpoints to check: **360px** (drawer/sheet), **900px** (the rail/drawer boundary), and
+desktop. Overlap tends to appear only at the narrow end, which is also where nobody
+screenshots.
+
+`scripts/verify-render.mjs` exposes `assertLayout(page, selector, children, label)`:
+
+- every child's box lies inside the container's box (no overflow)
+- no two children's boxes intersect
+- no child has zero width or height — a collapsed element is invisible, not absent, and
+  presence checks pass on it
+
+Screenshots stay in the loop. They catch what geometry assertions cannot — colour
+collisions, illegible contrast, a portrait that is technically inside its container and
+still wrong. The two are complementary, not alternatives.
+
+## 9. `innerText` applies CSS, `textContent` does not
 
 Assertions against `innerText` see the *rendered* text, so anything under
 `text-transform: uppercase` comes back uppercased. Match case-insensitively, or read

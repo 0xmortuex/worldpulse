@@ -1,12 +1,22 @@
 import { DEFAULT_THRESHOLDS, DEFAULT_WEIGHTS } from './relations/score';
 import type { Thresholds, Weights } from './relations/types';
 
+export type TabId =
+  | 'government'
+  | 'legislature'
+  | 'military'
+  | 'economy'
+  | 'news'
+  | 'tv'
+  | 'risk';
+
 export interface AppState {
   /** Ordered so compare columns keep a stable left-to-right identity. */
   selected: string[];
   weights: Weights;
   thresholds: Thresholds;
   hovered: string | null;
+  tab: TabId;
 }
 
 type Listener = (state: AppState) => void;
@@ -25,6 +35,7 @@ export class Store {
       weights: { ...DEFAULT_WEIGHTS },
       thresholds: { ...DEFAULT_THRESHOLDS },
       hovered: null,
+      tab: 'government',
       ...initial,
     };
   }
@@ -59,6 +70,11 @@ export class Store {
 
   clear(): void {
     this.#commit({ selected: [] });
+  }
+
+  setTab(tab: TabId): void {
+    if (this.#state.tab === tab) return;
+    this.#commit({ tab });
   }
 
   setHovered(code: string | null): void {

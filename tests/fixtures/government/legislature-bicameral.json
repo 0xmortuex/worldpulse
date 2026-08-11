@@ -1,0 +1,152 @@
+{
+  "head": {
+    "vars": [
+      "chamber",
+      "chamberLabel",
+      "seats",
+      "party",
+      "partyLabel",
+      "partySeats"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7001"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Commons"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "650"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9885895"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Labour"
+        },
+        "partySeats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "411"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7001"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Commons"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "650"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q911195"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Conservative"
+        },
+        "partySeats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "121"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7001"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Commons"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "650"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9447407"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Liberal"
+        },
+        "partySeats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "72"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7001"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Commons"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "650"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9628569"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fixture Independent"
+        },
+        "partySeats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "46"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7002"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Lords"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "805"
+        }
+      }
+    ]
+  }
+}
