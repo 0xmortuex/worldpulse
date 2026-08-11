@@ -1,5 +1,7 @@
-import { expectArray, expectObject, expectString, ShapeError } from './adapter';
+import { expectArray, expectObject, expectString, fetchProvenance, ShapeError, type FetchContext } from './adapter';
+import type { Fact } from '../facts/types';
 import {
+  formatPosition,
   markStaleness,
   normaliseLongitude,
   ringCentroid,
@@ -47,7 +49,49 @@ function readRing(sourceId: string, coordinates: unknown, at: string): Coordinat
   return ring.map((vertex, index) => readPoint(sourceId, vertex, `${at}[0][${index}]`));
 }
 
-export function parseEvents(raw: unknown, now: Date, sourceId = SOURCE_ID): GlobeEvent[] {
+/**
+ * Where the marker sits, and how that position came to exist.
+ *
+ * A reported Point carries the fetch directly. A centroid does NOT: it is a
+ * value this app manufactured by averaging a polygon's vertices, so its
+ * provenance is a derivation whose formula names the reduction and whose input
+ * is the fetch the shape came from. Someone walking the inspector has to be able
+ * to see that a point was made out of a shape — pointing at the fetch alone
+ * would present our arithmetic as NASA's report.
+ */
+function positionFact(
+  lat: number,
+  lng: number,
+  kind: PositionKind,
+  vertices: number | undefined,
+  date: string,
+  raw: unknown,
+  ctx: FetchContext,
+  at: string,
+): Fact<string> {
+  const fetched = fetchProvenance(SOURCE_ID, ctx, raw, `${at}.geometry[last].coordinates`);
+  const value = formatPosition(lat, lng);
+
+  if (kind === 'measured') {
+    return { value, asOf: date, tier: 'OFFICIAL', provenance: fetched };
+  }
+
+  return {
+    value,
+    asOf: date,
+    tier: 'DERIVED',
+    provenance: {
+      kind: 'derived',
+      computedBy: 'src/layers/events.ts ringCentroid',
+      formula: `centroid of a ${vertices ?? 0}-vertex polygon perimeter — the mean of its vertices`,
+      computedAt: ctx.fetchedAt,
+      inputs: [fetched],
+    },
+    note: 'Manufactured from a shape. The event covers an area; this point is only its centre.',
+  };
+}
+
+export function parseEvents(raw: unknown, now: Date, ctx: FetchContext, sourceId = SOURCE_ID): GlobeEvent[] {
   const root = expectObject(sourceId, raw, 'root');
   const events = expectArray(sourceId, root['events'], 'events');
   const out: GlobeEvent[] = [];
@@ -103,6 +147,7 @@ export function parseEvents(raw: unknown, now: Date, sourceId = SOURCE_ID): Glob
           lng,
           time: date,
           magnitude: null,
+          positionFact: positionFact(lat, lng, positionKind, perimeterVertices, date, raw, ctx, at),
           positionKind,
           ...(perimeterVertices === undefined ? {} : { perimeterVertices }),
           // A derived centroid is this app's inference, not NASA's report.

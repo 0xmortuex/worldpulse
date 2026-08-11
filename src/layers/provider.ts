@@ -69,7 +69,13 @@ export function loadEvents(now: Date): GlobeEvent[] {
       [quakesProvisional, 'quakes-provisional'],
     ] as const
   ).flatMap(([raw, scenario]) => toGlobeEvents(parseQuakes(raw), now, fixtureContext(scenario)));
-  const natural = parseEonet(eonetMixed, now);
+  const natural = parseEonet(eonetMixed, now, {
+    requestUrl: 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all <scenario fixture: eonet-mixed>',
+    httpStatus: 200,
+    fetchedAt: '1970-01-01T00:00:00.000Z',
+    cache: 'miss',
+    fromFixture: true,
+  });
 
   // An event whose category has no registered layer would be silently
   // unrenderable, which is indistinguishable from an event that does not exist.

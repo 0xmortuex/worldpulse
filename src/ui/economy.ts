@@ -89,7 +89,12 @@ function indicatorBlock(id: string, loaded: LoadedSeries | null): string {
       <span class="econ-asof">${
         series.latestYear === null
           ? '<span class="portrait-missing">no observations</span>'
-          : `latest ${escapeHtml(String(series.latestYear))}`
+          : `latest ${escapeHtml(
+              n(
+                series.latestYear,
+                'the year of the most recent observation — the as-of stamp for the badged value beside it, not a measurement in its own right',
+              ),
+            )}`
       }</span>
       ${
         series.staleByYears !== null && series.staleByYears >= 2

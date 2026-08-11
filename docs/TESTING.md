@@ -341,6 +341,39 @@ covering things**, and a check that did not run is not evidence of anything.
 The per-step table exists for the same reason. It prints every run, green or not, so a
 step whose assertion count silently drops to zero cannot look like a step that passed.
 
+## 18. A verdict is never stronger than its evidence
+
+The mutation harness reports `CAUGHT` only when the assertion that *names* a behaviour
+fails. Everything else is a different claim and gets its own verdict:
+
+- `CAUGHT-ELSEWHERE` — something noticed, but not the check under test
+- `BUILD-FAILED` — the compiler noticed, so the assertion never ran
+- `TIMEOUT` — a hang is a failure signal, not a pass
+- `UNPARSED` — non-zero exit with no failing check parsed, meaning the suite stopped
+  before rendering a verdict at all
+
+The last one was earned. A mutation that laid the dossier portraits over the title block
+made an overlapping element intercept pointer events; a click back in step 2 timed out,
+the script died on a `TimeoutError`, and the run was scored as "caught" — by nothing. The
+layout assertions it was aimed at had never executed.
+
+That also exposed a structural weakness worth stating on its own: **this suite is one
+linear sequence, so an exception anywhere blinds every assertion after it.** The report
+now prints on `uncaughtException` and `unhandledRejection` too, recording the aborting
+step and naming every step that never ran.
+
+## 19. Ask whether content fits its box, not whether the box reached zero
+
+`assertLayout` flagged a child only at exactly zero width or height. A mutation forcing
+party-legend rows to `height: 0` left them **2px** tall — the row keeps 1px of padding
+top and bottom — with their text clipped entirely away, and the check passed. Measured,
+not assumed: 16.5px before, 2px after.
+
+"Collapsed" was the wrong question. A child whose overflow is unreachable (`hidden` or
+`clip`) and whose `scrollHeight` exceeds its `clientHeight` is now a failure — the
+vertical counterpart to rule 9's horizontal `scrollWidth` test. It catches the whole
+family of squashed rows rather than the single value zero.
+
 ## The harness's own failure modes
 
 Every class below produces a green result without testing the thing it names. Four were
@@ -349,7 +382,7 @@ found the hard way; the audit that followed looked for more.
 | Class | How it passes without testing anything | Status |
 | --- | --- | --- |
 | Vacuous absence check | Asserting a thing is absent where the subject never existed (Tuvalu) | Rule 10; positive controls required |
-| Type-system laundering | A string-returning wrapper carries a number past a type-driven rule | Rule 14; the two copies are consolidated — registry check in progress |
+| Type-system laundering | A string-returning wrapper carries a number past a type-driven rule | Rule 14; enforced by `tests/render-helpers.test.ts` |
 | Stale bundle | The runner drives a build older than the code under test | Rule 13; freshness guard, `verify` builds first |
 | Empty selector | "No offenders found" and "nothing to look at" are the same value | Rule 16; helpers assert they examined something |
 | Skipped check | A guarded assertion silently does not run | Rule 17; skips recorded and exit non-zero |

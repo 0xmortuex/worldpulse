@@ -1,6 +1,6 @@
 import { notAFact } from '../facts/discipline';
 import { escapeHtml } from '../facts/badge';
-import { formatAxisValue, type Series, type SeriesPoint } from './series';
+import { formatAxisValue, type IndicatorSpec, type Series, type SeriesPoint } from './series';
 
 /**
  * Line chart for a windowed indicator series.
@@ -38,6 +38,35 @@ function coord(value: number): string {
 
 function dimension(value: number): string {
   return notAFact(value, 'SVG canvas dimension in pixels — a layout constant, not data about the world');
+}
+
+/**
+ * A year on the axis, or in a gap marker.
+ *
+ * The year comes from the series, so it is data — but it labels the window
+ * rather than reporting an observation, and every plotted value carries its own
+ * badge in the block above. Same treatment as the coverage-end year in the
+ * relations popover.
+ */
+function axisYear(year: number): string {
+  return notAFact(
+    year,
+    'axis extent: which years this plot covers, describing the window rather than reporting a value read from it',
+  );
+}
+
+/**
+ * An axis scale bound.
+ *
+ * The extremes of the plotted series, formatted for the gutter. A property of
+ * the plot, not a figure any source reports in this form — the observations
+ * themselves are badged beside the chart.
+ */
+function axisBound(value: number, spec: IndicatorSpec): string {
+  return notAFact(
+    formatAxisValue(value, spec),
+    'axis scale bound describing the plotted range; every observation behind it is rendered with its own confidence badge above this chart',
+  );
 }
 
 interface Projection {
@@ -139,7 +168,7 @@ export function renderChart(series: Series, options: ChartOptions): string {
       const x2 = projection.x(gap.toYear + 0.5);
       return `<rect class="chart-gap" x="${coord(x1)}" y="${coord(PAD.top)}"
         width="${coord(Math.max(2, x2 - x1))}" height="${coord(options.height - PAD.top - PAD.bottom)}"
-        ><title>No data ${escapeHtml(String(gap.fromYear))}–${escapeHtml(String(gap.toYear))}. Not interpolated.</title></rect>`;
+        ><title>No data ${escapeHtml(axisYear(gap.fromYear))}–${escapeHtml(axisYear(gap.toYear))}. Not interpolated.</title></rect>`;
     })
     .join('');
 
@@ -148,13 +177,13 @@ export function renderChart(series: Series, options: ChartOptions): string {
 
   const axis =
     `<text class="chart-axis" x="${coord(PAD.left)}" y="${coord(options.height - 5)}" text-anchor="start"` +
-    `>${escapeHtml(String(firstYear))}</text>` +
+    `>${escapeHtml(axisYear(firstYear))}</text>` +
     `<text class="chart-axis" x="${coord(options.width - PAD.right)}" y="${coord(options.height - 5)}" text-anchor="end"` +
-    `>${escapeHtml(String(lastYear))}</text>` +
+    `>${escapeHtml(axisYear(lastYear))}</text>` +
     `<text class="chart-axis" x="${coord(PAD.left - 4)}" y="${coord(PAD.top + 4)}" text-anchor="end"` +
-    `>${escapeHtml(formatAxisValue(projection.max, series.spec))}</text>` +
+    `>${escapeHtml(axisBound(projection.max, series.spec))}</text>` +
     `<text class="chart-axis" x="${coord(PAD.left - 4)}" y="${coord(options.height - PAD.bottom)}" text-anchor="end"` +
-    `>${escapeHtml(formatAxisValue(projection.min, series.spec))}</text>`;
+    `>${escapeHtml(axisBound(projection.min, series.spec))}</text>`;
 
   const label =
     `${series.spec.name}, ${firstYear} to ${lastYear}, ${options.scale} scale` +

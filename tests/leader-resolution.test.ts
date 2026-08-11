@@ -321,3 +321,51 @@ describe('SPARQL query construction', () => {
     assert.throws(() => buildCountryQuery('" } INJECTED {'));
   });
 });
+
+/**
+ * The rule number and the rule label are two representations of the same
+ * decision, and nothing tied them together.
+ *
+ * A mutation that changed `ruleNumber` from 1 to 9 survived the entire browser
+ * suite: the rendered text comes from `ruleLabel`, while `ruleNumber` only feeds
+ * a `data-rule` styling hook, so the two could disagree with no test noticing. A
+ * header reading "Rule 1" while its own data attribute says 9 is incoherent, and
+ * whichever a future reader trusts, one of them is lying.
+ */
+describe('rule number and rule label agree', () => {
+  const CASES: Array<[string, string]> = [
+    ['de-facto-authority', 'IRN'],
+    ['presidential', 'USA'],
+    ['parliamentary-republic', 'DEU'],
+    ['parliamentary-monarch', 'GBR'],
+    ['executive-monarchy', 'SAU'],
+    ['transitional', 'MLI'],
+    ['no-leader', 'XXA'],
+    ['degraded-vitals', 'XXB'],
+  ];
+
+  it('labels every numbered rule with its own number', () => {
+    for (const [name, iso3] of CASES) {
+      const result = resolveFixture(name, iso3);
+      if (result.ruleNumber > 0) {
+        assert.ok(
+          result.ruleLabel.startsWith(`Rule ${result.ruleNumber} `),
+          `${name}: ruleNumber ${result.ruleNumber} but label "${result.ruleLabel}"`,
+        );
+      } else {
+        // Rule 0 is "no rule fired", and its labels are prose. A label reading
+        // "Rule 0" would invent a rule that does not exist.
+        assert.ok(
+          !result.ruleLabel.startsWith('Rule '),
+          `${name}: ruleNumber 0 must not claim to be a numbered rule, got "${result.ruleLabel}"`,
+        );
+      }
+    }
+  });
+
+  it('positive control: the fixtures exercise every rule number', () => {
+    // Rule 10. The invariant above would hold vacuously over a single branch.
+    const observed = new Set(CASES.map(([name, iso3]) => resolveFixture(name, iso3).ruleNumber));
+    assert.deepEqual([...observed].sort(), [0, 1, 2, 3, 4, 5]);
+  });
+});

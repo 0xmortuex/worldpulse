@@ -116,7 +116,7 @@ describe('hard case — coincident events', () => {
 
 describe('hard case — EONET polygon geometries', () => {
   it('marks a polygon-derived position as DERIVED, not measured', () => {
-    const events = parseEonet(fixture('eonet-mixed'), NOW);
+    const events = parseEonet(fixture('eonet-mixed'), NOW, CTX);
     const fire = events.find((event) => event.id === 'EONET_2');
     assert.ok(fire);
     assert.equal(fire.positionKind, 'derived-centroid');
@@ -125,7 +125,7 @@ describe('hard case — EONET polygon geometries', () => {
   });
 
   it('leaves a point geometry measured and OFFICIAL', () => {
-    const volcano = parseEonet(fixture('eonet-mixed'), NOW).find((event) => event.id === 'EONET_1');
+    const volcano = parseEonet(fixture('eonet-mixed'), NOW, CTX).find((event) => event.id === 'EONET_1');
     assert.ok(volcano);
     assert.equal(volcano.positionKind, 'measured');
     assert.equal(volcano.tier, 'OFFICIAL');
@@ -145,14 +145,14 @@ describe('hard case — EONET polygon geometries', () => {
 
   it('does not put an antimeridian-crossing centroid on the far side of the planet', () => {
     // Averaging 179.6 and -179.7 naively gives ~0 — the Gulf of Guinea.
-    const fire = parseEonet(fixture('eonet-mixed'), NOW).find((event) => event.id === 'EONET_5');
+    const fire = parseEonet(fixture('eonet-mixed'), NOW, CTX).find((event) => event.id === 'EONET_5');
     assert.ok(fire);
     assert.ok(Math.abs(fire.lng) > 179, `centroid landed at lng ${fire.lng}`);
     assert.ok(fire.lat > -17.1 && fire.lat < -16.5);
   });
 
   it('follows an event to its most recent geometry', () => {
-    const storm = parseEonet(fixture('eonet-mixed'), NOW).find((event) => event.id === 'EONET_3');
+    const storm = parseEonet(fixture('eonet-mixed'), NOW, CTX).find((event) => event.id === 'EONET_3');
     assert.ok(storm);
     assert.equal(storm.lng, -52);
     assert.equal(storm.time, '2026-08-08T00:00:00Z');
@@ -161,7 +161,7 @@ describe('hard case — EONET polygon geometries', () => {
 
 describe('hard case — stale open events', () => {
   it('flags an event open since 2019 rather than treating it as live', () => {
-    const events = parseEonet(fixture('eonet-mixed'), NOW);
+    const events = parseEonet(fixture('eonet-mixed'), NOW, CTX);
     const old = events.find((event) => event.id === 'EONET_4');
     assert.ok(old);
     assert.equal(old.stale, true);
@@ -169,14 +169,14 @@ describe('hard case — stale open events', () => {
   });
 
   it('does not flag a recent open event', () => {
-    const recent = parseEonet(fixture('eonet-mixed'), NOW).find((event) => event.id === 'EONET_2');
+    const recent = parseEonet(fixture('eonet-mixed'), NOW, CTX).find((event) => event.id === 'EONET_2');
     assert.equal(recent?.stale, false);
   });
 
   it('keeps stale events in the data rather than deleting them', () => {
     // Deleting would hide real history. The policy is exclusion from the default
     // active view plus a label, not removal.
-    const events = parseEonet(fixture('eonet-mixed'), NOW);
+    const events = parseEonet(fixture('eonet-mixed'), NOW, CTX);
     assert.equal(events.length, 5);
     assert.equal(events.filter((event) => event.stale).length, 1);
   });
@@ -266,9 +266,56 @@ describe('magnitude provenance', () => {
   it('leaves layers with no magnitude concept without a fact at all', () => {
     // Distinct from a quake whose magnitude is null: EONET does not measure
     // magnitude, so claiming "no data" for one would invent a missing value.
-    for (const event of parseEonet(fixture('eonet-mixed') as { events: unknown[] }, NOW)) {
+    for (const event of parseEonet(fixture('eonet-mixed') as { events: unknown[] }, NOW, CTX)) {
       assert.equal(event.magnitudeFact, undefined, `${event.id} carries a magnitude fact it cannot have`);
       assert.equal(event.magnitude, null);
+    }
+  });
+});
+
+describe('position provenance', () => {
+  it('badges a measured epicentre with the fetch it came from', () => {
+    const [event] = quakeEvents('quakes-spread');
+    assert.ok(event);
+    assert.equal(event.positionFact.tier, 'OFFICIAL');
+    assert.equal(event.positionFact.provenance?.kind, 'fetch');
+    assert.equal(factState(event.positionFact), 'ok');
+    assert.equal(event.positionFact.value, `${event.lat.toFixed(3)}, ${event.lng.toFixed(3)}`);
+  });
+
+  it('does not let an unreviewed epicentre claim OFFICIAL', () => {
+    const automatic = quakeEvents('quakes-provisional').find((event) => event.id === 'prov-automatic');
+    assert.equal(automatic?.positionFact.tier, 'ESTIMATE');
+  });
+
+  it('records a centroid as a derivation, not as a reported location', () => {
+    const fire = parseEonet(fixture('eonet-mixed'), NOW, CTX).find((event) => event.id === 'EONET_2');
+    assert.ok(fire);
+    assert.equal(fire.positionFact.tier, 'DERIVED');
+    const provenance = fire.positionFact.provenance;
+    assert.equal(provenance?.kind, 'derived');
+    assert.ok(provenance.kind === 'derived');
+    // The reduction has to be named. Pointing at the fetch alone would present
+    // this app's arithmetic as something NASA reported.
+    assert.match(provenance.formula, /centroid of a 5-vertex polygon perimeter/);
+    assert.equal(provenance.inputs.length, 1);
+    assert.equal(provenance.inputs[0]?.kind, 'fetch');
+  });
+
+  it('keeps a reported EONET point measured rather than derived', () => {
+    // Positive control: without it, "derived" could simply be what every EONET
+    // position says, which would make the assertion above meaningless.
+    const volcano = parseEonet(fixture('eonet-mixed'), NOW, CTX).find((event) => event.id === 'EONET_1');
+    assert.equal(volcano?.positionFact.tier, 'OFFICIAL');
+    assert.equal(volcano?.positionFact.provenance?.kind, 'fetch');
+  });
+
+  it('formats both kinds of position identically', () => {
+    // The difference between a measurement and a manufactured centroid belongs
+    // in the badge and the provenance. Rendering one to more decimal places
+    // would encode confidence in the precision instead.
+    for (const event of loadEvents(NOW)) {
+      assert.match(event.positionFact.value ?? '', /^-?\d+\.\d{3}, -?\d+\.\d{3}$/, `${event.id}: ${event.positionFact.value}`);
     }
   });
 });
@@ -281,6 +328,6 @@ describe('count fidelity', () => {
 
   it('maps every EONET event, including the stale one', () => {
     const raw = fixture('eonet-mixed') as { events: unknown[] };
-    assert.equal(parseEonet(raw, NOW).length, raw.events.length);
+    assert.equal(parseEonet(raw, NOW, CTX).length, raw.events.length);
   });
 });

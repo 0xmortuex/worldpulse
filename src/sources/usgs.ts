@@ -1,5 +1,5 @@
 import type { Fact } from '../facts/types';
-import { markStaleness, normaliseLongitude, type GlobeEvent } from '../layers/events';
+import { formatPosition, markStaleness, normaliseLongitude, type GlobeEvent } from '../layers/events';
 import {
   expectArray,
   expectInRange,
@@ -108,6 +108,22 @@ export function magnitudeFact(quake: Quake, feed: QuakeFeed, ctx: FetchContext):
 }
 
 /**
+ * The epicentre, badged.
+ *
+ * Measured, so it carries the fetch provenance directly. The tier follows review
+ * status for the same reason the magnitude's does: an automatic solution's
+ * location is revised along with its magnitude.
+ */
+export function epicentreFact(quake: Quake, feed: QuakeFeed, ctx: FetchContext): Fact<string> {
+  return {
+    value: formatPosition(quake.latitude, normaliseLongitude(quake.longitude)),
+    asOf: quake.time,
+    tier: quake.status === 'reviewed' ? 'OFFICIAL' : 'ESTIMATE',
+    provenance: fetchProvenance(SOURCE_ID, ctx, feed, `features[id=${quake.id}].geometry.coordinates`),
+  };
+}
+
+/**
  * Quakes as globe events.
  *
  * Epicentres are measured coordinates, so `positionKind` is 'measured'. The
@@ -131,6 +147,7 @@ export function toGlobeEvents(feed: QuakeFeed, now: Date, ctx: FetchContext): Gl
         time: quake.time,
         magnitude: Number.isNaN(quake.magnitude) ? null : quake.magnitude,
         magnitudeFact: magnitudeFact(quake, feed, ctx),
+        positionFact: epicentreFact(quake, feed, ctx),
         positionKind: 'measured',
         tier: quake.status === 'reviewed' ? 'OFFICIAL' : 'ESTIMATE',
         sourceId: SOURCE_ID,

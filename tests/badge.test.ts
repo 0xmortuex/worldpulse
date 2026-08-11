@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { factHtml, getRegisteredFact } from '../src/facts/badge';
-import { factState, type Fact } from '../src/facts/types';
+import { factState, type Fact, type Provenance } from '../src/facts/types';
 
 function traceable(value: number | null): Fact<number> {
   return {
@@ -27,6 +27,78 @@ function idOf(html: string): string {
   assert.ok(match, 'rendered badge carries no data-fact id');
   return match[1] as string;
 }
+
+/** A seed input, citable or not. */
+function seed(sourceUrl: string): Provenance {
+  return {
+    kind: 'seed',
+    file: 'data/relations-seed.json',
+    source: 'Hand-checked',
+    sourceUrl,
+    coverageEnd: 2024,
+    compiledAt: '2026-01-01',
+  };
+}
+
+function derivedFrom(inputs: Provenance[]): Fact<number> {
+  return {
+    value: 5,
+    asOf: '2026',
+    tier: 'DERIVED',
+    provenance: {
+      kind: 'derived',
+      computedBy: 'src/relations/score.ts',
+      formula: '+3 +2 = 5',
+      computedAt: '2026-01-01',
+      inputs,
+    },
+  };
+}
+
+/**
+ * Propagation. A derivation is only as trustworthy as what it was computed
+ * from, and inputs used to be ignored entirely — so a seed with no citation
+ * rendered BROKEN on its own and vanished into a confident DERIVED value the
+ * moment it became an input.
+ */
+describe('provenance propagation', () => {
+  it('P1: a derivation with an untraceable input is broken', () => {
+    assert.equal(factState(derivedFrom([seed('https://example.org/treaty'), seed('')])), 'broken');
+  });
+
+  it('positive control: the same derivation with citable inputs is ok', () => {
+    // Without this the P1 assertion could pass because derivations are simply
+    // always broken, which would prove nothing about propagation.
+    assert.equal(factState(derivedFrom([seed('https://example.org/treaty'), seed('https://example.org/pact')])), 'ok');
+  });
+
+  it('P2: a derivation with an unconfigured input is unconfigured', () => {
+    const unconfigured: Provenance = { kind: 'unconfigured', sourceId: 'acled', keyEnv: 'ACLED_KEY' };
+    assert.equal(factState(derivedFrom([seed('https://example.org/treaty'), unconfigured])), 'unconfigured');
+  });
+
+  it('broken outranks unconfigured when inputs disagree', () => {
+    const unconfigured: Provenance = { kind: 'unconfigured', sourceId: 'acled', keyEnv: 'ACLED_KEY' };
+    assert.equal(factState(derivedFrom([unconfigured, seed('')])), 'broken', 'the loudest input must win');
+  });
+
+  it('follows a broken input nested two derivations deep', () => {
+    const inner: Provenance = {
+      kind: 'derived',
+      computedBy: 'src/relations/score.ts',
+      formula: 'inner',
+      computedAt: '2026-01-01',
+      inputs: [seed('')],
+    };
+    assert.equal(factState(derivedFrom([inner])), 'broken', 'propagation must not stop at the first level');
+  });
+
+  it('reports broken rather than nodata when a derivation is both', () => {
+    const fact = derivedFrom([seed('')]);
+    fact.value = null;
+    assert.equal(factState(fact), 'broken', 'an untraceable empty value must shout, not read "no data"');
+  });
+});
 
 describe('fact state', () => {
   it('treats a missing provenance as broken, not as no data', () => {

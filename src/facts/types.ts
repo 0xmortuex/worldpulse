@@ -113,13 +113,48 @@ export type FactState = 'ok' | 'nodata' | 'broken' | 'unconfigured';
 export function factState(fact: AnyFact): FactState {
   const provenance = fact.provenance;
   if (provenance === null) return 'broken';
+
+  const traced = provenanceState(provenance);
+  if (traced !== 'ok') return traced;
+
+  if (fact.value === null) return 'nodata';
+  return 'ok';
+}
+
+/**
+ * How traceable a provenance is, following derivations down to their inputs.
+ *
+ * PROPAGATION RULES (docs/DECISIONS.md, "Provenance propagation"):
+ *
+ *   P1  Untraceability propagates unconditionally. A derivation with any broken
+ *       input is broken. This is not a coverage question — a number resting on
+ *       a value nobody can check is a value nobody can check, and rendering it
+ *       as a confident DERIVED figure is the worst failure this app has.
+ *   P2  Unconfigured propagates. If an input's source needs a key that is not
+ *       set, the pipeline never ran and there is nothing to be confident about.
+ *
+ * Inputs used to be ignored entirely, so a seed with no citation rendered
+ * BROKEN on its own but vanished into a confident derived value when used as an
+ * input — the relation score has exactly that shape.
+ *
+ * P3 (missing data propagates through required inputs) is NOT implemented here
+ * and cannot be: `DerivedProvenance.inputs` holds provenances, not facts, and
+ * "no data" is a property of a value. Recorded as an open modelling gap rather
+ * than silently approximated.
+ */
+function provenanceState(provenance: Provenance): FactState {
   if (provenance.kind === 'unconfigured') return 'unconfigured';
-  if (provenance.kind === 'fetch' && !isTraceable(provenance)) return 'broken';
-  if (provenance.kind === 'seed' && provenance.sourceUrl.length === 0) return 'broken';
+  if (provenance.kind === 'fetch') return isTraceable(provenance) ? 'ok' : 'broken';
+  if (provenance.kind === 'seed') return provenance.sourceUrl.length === 0 ? 'broken' : 'ok';
+
   // A derivation with no recorded inputs cannot be audited, which is exactly
   // the failure the inspector exists to catch.
-  if (provenance.kind === 'derived' && provenance.inputs.length === 0) return 'broken';
-  if (fact.value === null) return 'nodata';
+  if (provenance.inputs.length === 0) return 'broken';
+
+  // Loudest wins: broken over unconfigured over ok.
+  const states = provenance.inputs.map(provenanceState);
+  if (states.includes('broken')) return 'broken';
+  if (states.includes('unconfigured')) return 'unconfigured';
   return 'ok';
 }
 

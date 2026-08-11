@@ -37,6 +37,16 @@ export interface GlobeEvent {
    * different from a quake whose magnitude is genuinely null.
    */
   magnitudeFact?: Fact<number>;
+  /**
+   * Where the marker sits, with its provenance.
+   *
+   * A coordinate printed as `lat.toFixed(3), lng.toFixed(3)` is a measured value
+   * from a source with its confidence stripped off — and a method call has no
+   * name for the discipline rule to catch, so it slipped past a rule written to
+   * stop exactly this. A USGS epicentre and a centroid this app manufactured
+   * from a polygon are not the same kind of claim and must not print alike.
+   */
+  positionFact: Fact<string>;
   positionKind: PositionKind;
   /** Vertices behind a derived centroid, so the tooltip can say how coarse it is. */
   perimeterVertices?: number;
@@ -96,6 +106,18 @@ export function ringCentroid(ring: ReadonlyArray<readonly [number, number]>): { 
   const latMean = ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length;
 
   return { lat: latMean, lng: normaliseLongitude(lngMean) };
+}
+
+/**
+ * The rendered form of a position.
+ *
+ * Three decimal places is about 100m, which is finer than any of these sources
+ * claims and coarse enough not to imply a survey. It lives here so the epicentre
+ * and the manufactured centroid are formatted identically — the difference
+ * between them belongs in the badge and the provenance, not in the precision.
+ */
+export function formatPosition(lat: number, lng: number): string {
+  return `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
 }
 
 /** Fold any longitude back into [-180, 180). */

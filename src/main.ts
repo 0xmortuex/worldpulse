@@ -206,7 +206,7 @@ function eventTooltip(cluster: EventCluster): string {
     <div class="evt-title">${escapeForLabel(lead.title)}</div>
     <div class="evt-meta">${magnitudeHtml(lead, false)}
       · ${escapeForLabel(lead.time.slice(0, 16).replace('T', ' '))}Z</div>
-    <div class="evt-coords">${lead.lat.toFixed(3)}, ${lead.lng.toFixed(3)}</div>
+    <div class="evt-coords">${factHtml(lead.positionFact, { compact: true, hideAsOf: true })}</div>
     ${derived}${stale}${others}
   </div>`;
 }

@@ -114,7 +114,35 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | V3 | **The runner refuses a bundle older than its sources**, and `npm run verify` builds first. Every prior green run was produced by a runner that could pass without executing the code under test. |
 | V4 | **Every helper whose pass condition is "the problem list is empty" must first assert it examined something.** Applied to `assertTextFits` and `assertSvgTextFits`; `assertLayout` already had it. |
 | V5 | **One mutation per step, run as a suite** (`npm run mutate`). A mutation that survives is a check that cannot see the behaviour it names. Ad-hoc self-tests proved two checks could fail; this proves one per step. |
-| V6 | **String-returning helpers reaching markup are enumerated and must be justified.** The fact-discipline rule is enforced through types, so any `string`-returning function is a bypass. Sanctioned (`factHtml`, `notAFact`) or registered with a written justification — nothing else. |
+| V6 | **Number-to-string conversions reaching markup are enumerated and must be justified.** The fact-discipline rule is enforced through types, so any `string`-returning function is a bypass. The laundering signature is specific — a call in a render path that takes a number and yields a string — so the registry stays small enough to be read. Sanctioned (`factHtml`, `notAFact`) or registered with a justification, and a registered helper must genuinely route through a sanctioned one. |
+| V7 | **A verdict is never stronger than its evidence.** `BUILD-FAILED`, `TIMEOUT` and `UNPARSED` are distinct from `CAUGHT`: a compiler noticing, a hang, and a run that aborted before the assertion executed are three different claims, and none of them is "the check can see this". |
+| V8 | **Rule 8 asks whether content fits its box, not whether the box reached zero.** A row squashed to 2px with its text clipped away is invisible; defining "collapsed" as exactly zero let it pass. |
+
+## Provenance propagation
+
+A derived value is only as trustworthy as what it was computed from. Inputs used to be
+ignored entirely, so a seed with no citation rendered **BROKEN** on its own and vanished
+into a confident DERIVED value the moment it became an input — `scoreFact` has exactly
+that shape, so a relation score built on an uncitable seed looked identical to one built
+on a cited one.
+
+| # | Rule |
+| --- | --- |
+| P1 | **Untraceability propagates unconditionally.** Any broken input makes the derivation broken. Not a coverage question: a number resting on a value nobody can check is a value nobody can check. |
+| P2 | **Unconfigured propagates.** If an input's source needs a key that is not set, the pipeline never ran and there is nothing to be confident about. |
+| P3 | **Missing data propagates through REQUIRED inputs only.** A derivation declares which inputs it needs and which merely contribute; a shortfall among contributing inputs renders as a caveat, never silently absorbed. |
+| P4 | **A derived fact is always tier DERIVED** and inherits the loudest caveat among its inputs. It can never present as more authoritative than what produced it. |
+
+Precedence when inputs disagree: **broken > unconfigured > nodata > ok**, and brokenness
+is checked before emptiness so a derivation that is both still shouts.
+
+**P3 is not implemented, and this is a modelling gap rather than an oversight.**
+`DerivedProvenance.inputs` is `Provenance[]`, not `Fact[]`. A provenance records how a
+value was obtained; "no data" is a property of the *value*, which it does not carry — so
+a derivation cannot currently see that an input came back empty. Closing it means
+`inputs: AnyFact[]`, or recording each input's state beside its provenance, which changes
+the shape every adapter emits. It lands with the first derivation that genuinely needs
+it; the step-12 choropleth will force the issue.
 
 ## Classification watchlist
 
