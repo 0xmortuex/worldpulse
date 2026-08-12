@@ -176,8 +176,14 @@ describe('hard case — stale open events', () => {
   it('keeps stale events in the data rather than deleting them', () => {
     // Deleting would hide real history. The policy is exclusion from the default
     // active view plus a label, not removal.
-    const events = parseEonet(fixture('eonet-mixed'), NOW, CTX);
-    assert.equal(events.length, 5);
+    //
+    // Asserted against the fixture's own length rather than a literal: the
+    // count was hardcoded to 5 and broke when the fixture legitimately gained a
+    // measured wildfire. A test named after an invariant should not fail because
+    // its input grew — rule 2. What matters is that NONE are dropped.
+    const raw = fixture('eonet-mixed') as { events: unknown[] };
+    const events = parseEonet(raw, NOW, CTX);
+    assert.equal(events.length, raw.events.length, 'every event survives parsing, stale included');
     assert.equal(events.filter((event) => event.stale).length, 1);
   });
 });
