@@ -12,9 +12,15 @@
  *
  *   CLIENT-FETCH     ACAO permits our origin. No proxy needed.
  *   WORKER-REQUIRED  Reachable, but the browser cannot read the response:
- *                    no/foreign ACAO, or a header the browser is forbidden to
- *                    set (User-Agent), or a secret key that must not ship to
- *                    the client.
+ *                    no ACAO, or an ACAO naming a different origin, or a secret
+ *                    key that must not ship to the client.
+ *
+ *                    NOT "the host wants a descriptive User-Agent". That was the
+ *                    old rule and it had the situation backwards: a browser
+ *                    cannot set the header but never needs to, because it sends
+ *                    its own real UA, which is what those policies ask for. The
+ *                    client that fails them is an anonymous script — which is
+ *                    what this probe was until it started identifying itself.
  *   KEY-GATED        Needs a key before the question can even be asked. The
  *                    probe runs unauthenticated on purpose, to record the
  *                    failure mode the app must degrade to.
@@ -40,6 +46,26 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = process.env.PROBE_ORIGIN ?? 'https://worldpulse.pages.dev';
 const TIMEOUT_MS = Number(process.env.PROBE_TIMEOUT_MS ?? 20_000);
 const CONCURRENCY = Number(process.env.PROBE_CONCURRENCY ?? 4);
+
+/**
+ * Identify the probe. Wikimedia's User-Agent policy rejects clients that do not,
+ * and being an anonymous script hammering free public infrastructure is rude
+ * regardless of whether anyone enforces it.
+ *
+ * This is also a correctness fix, not just manners. Node's fetch sends a default
+ * UA that `query.wikidata.org` answers 403 to, which the probe then recorded as
+ * that source's posture. Measured directly:
+ *
+ *   no UA            403   ACAO: *
+ *   descriptive UA   200   ACAO: *
+ *   browser-like UA  200   ACAO: *
+ *
+ * A browser always sends a real User-Agent, so the situation the probe was
+ * reporting is one no browser is ever in.
+ */
+const PROBE_UA =
+  process.env.PROBE_USER_AGENT ??
+  'worldpulse/0.0 (https://github.com/0xmortuex/worldpulse) source-reachability-probe';
 
 const VERDICT = {
   CLIENT: 'CLIENT-FETCH',
@@ -87,6 +113,37 @@ async function timedFetch(url, init) {
   }
 }
 
+/**
+ * Read at most MAX_BODY_BYTES, then cancel.
+ *
+ * This used to be `res.arrayBuffer()`, which pulls the whole response. That was
+ * harmless while every probe target was a small JSON reply and became wrong the
+ * moment `ucdp-ged` was pointed at a 39MB bulk zip: a reachability probe that
+ * downloads the dataset is a probe nobody will run often, and the rate rule now
+ * says run it seldom and targeted. Headers — which is all the verdict is drawn
+ * from — arrive before any of the body.
+ */
+const MAX_BODY_BYTES = 64 * 1024;
+
+async function readCapped(res) {
+  if (!res.body) return { bytes: 0, truncated: false };
+  const reader = res.body.getReader();
+  let bytes = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) return { bytes, truncated: false };
+      bytes += value.byteLength;
+      if (bytes >= MAX_BODY_BYTES) {
+        await reader.cancel();
+        return { bytes, truncated: true };
+      }
+    }
+  } catch {
+    return { bytes, truncated: false };
+  }
+}
+
 async function probeOne(source) {
   const result = {
     id: source.id,
@@ -108,6 +165,7 @@ async function probeOne(source) {
     method: 'OPTIONS',
     headers: {
       Origin: ORIGIN,
+      'User-Agent': PROBE_UA,
       'Access-Control-Request-Method': 'GET',
       'Access-Control-Request-Headers': 'content-type',
     },
@@ -117,7 +175,10 @@ async function probeOne(source) {
     : { status: pre.res.status, ms: pre.ms, cors: pickCorsHeaders(pre.res.headers) };
 
   // 2. The real request, carrying Origin exactly as a browser would.
-  const got = await timedFetch(source.probeUrl, { method: 'GET', headers: { Origin: ORIGIN } });
+  const got = await timedFetch(source.probeUrl, {
+    method: 'GET',
+    headers: { Origin: ORIGIN, 'User-Agent': PROBE_UA },
+  });
 
   if (got.error) {
     result.get = { error: String(got.error?.cause?.message ?? got.error?.message ?? got.error), ms: got.ms };
@@ -128,13 +189,15 @@ async function probeOne(source) {
 
   const { res } = got;
   const cors = pickCorsHeaders(res.headers);
-  const body = await res.arrayBuffer().catch(() => new ArrayBuffer(0));
+  const read = await readCapped(res);
 
   result.get = {
     status: res.status,
     ms: got.ms,
     contentType: res.headers.get('content-type'),
-    bytes: body.byteLength,
+    bytes: read.bytes,
+    truncated: read.truncated,
+    contentLength: res.headers.get('content-length'),
     cors,
     cacheControl: res.headers.get('cache-control'),
   };
@@ -175,9 +238,28 @@ async function probeOne(source) {
       `Upstream returned HTTP ${res.status}; an error response is not evidence about the ` +
       `success path (ACAO observed on it: ${acao ?? 'none'}). ` +
       'Re-probe with a request that succeeds.';
-  } else if (source.requiresCustomUserAgent) {
+  } else if (source.requiresCustomUserAgent && !allowed) {
+    /**
+     * The flag means "this host rejects anonymous scripts", NOT "this host
+     * needs a proxy", and it no longer decides the verdict on its own.
+     *
+     * It used to read `else if (source.requiresCustomUserAgent)` with the
+     * reason "requires a descriptive User-Agent, which browsers are forbidden
+     * to set" — which has the situation backwards. A browser cannot set the
+     * header, but it does not need to: it sends its own real UA, and that is
+     * exactly what these policies ask for. The client that fails such a policy
+     * is an anonymous script, which is what this probe used to be.
+     *
+     * Measured: with a descriptive UA, query.wikidata.org answers 200 with
+     * ACAO `*`, and api.openparliament.ca answers 200 with ACAO `*` with or
+     * without one. Both were scored WORKER-REQUIRED on the old rule. If ACAO
+     * does permit our origin, the browser can read it and no proxy is needed;
+     * only a genuinely unreadable response should reach this branch now.
+     */
     result.verdict = VERDICT.WORKER;
-    result.reason = `Requires a descriptive User-Agent, which browsers are forbidden to set. ACAO observed: ${acao ?? 'none'}.`;
+    result.reason =
+      `Host requires an identifying User-Agent and its ACAO does not permit our origin ` +
+      `(observed: ${acao ?? 'none'}).`;
   } else if (allowed) {
     result.verdict = VERDICT.CLIENT;
     result.reason = `ACAO: ${acao}`;
@@ -208,16 +290,20 @@ async function mapLimit(items, limit, fn) {
   return results;
 }
 
-function markdownTable(results) {
+function markdownTable(results, refreshed) {
   const rows = results.map((r) => {
     const acao = r.get?.cors?.['access-control-allow-origin'] ?? '—';
     const status = r.get?.status ?? 'ERR';
     const ms = r.get?.ms ?? r.preflight?.ms ?? '—';
-    return `| \`${r.id}\` | ${r.panel} | ${status} | \`${acao}\` | **${r.verdict}** | ${ms}ms |`;
+    // When did THIS row's verdict come from? A merged table without per-row
+    // dating reads as though every row was measured together.
+    const when = r.probedAt ? r.probedAt.replace('T', ' ').slice(0, 16) : 'unknown';
+    const mark = refreshed.includes(r.id) ? '**this run**' : when;
+    return `| \`${r.id}\` | ${r.panel} | ${status} | \`${acao}\` | **${r.verdict}** | ${ms}ms | ${mark} |`;
   });
   return [
-    '| Source | Panel | HTTP | Access-Control-Allow-Origin | Verdict | Latency |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| Source | Panel | HTTP | Access-Control-Allow-Origin | Verdict | Latency | Probed |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
     ...rows,
   ].join('\n');
 }
@@ -245,15 +331,53 @@ async function main() {
   const skipped = registry.sources.filter((s) => !s.probeUrl || s.excluded);
 
   console.error(`probing ${targets.length} sources as Origin: ${ORIGIN}`);
-  const results = await mapLimit(targets, CONCURRENCY, probeOne);
+  const fresh = await mapLimit(targets, CONCURRENCY, probeOne);
+  const stamp = new Date().toISOString();
+  for (const result of fresh) result.probedAt = stamp;
+
+  /**
+   * A subset run MERGES into the previous results; it does not replace them.
+   *
+   * This file used to be rewritten with only whatever was probed, so
+   * `npm run probe -- wikidata-sparql` silently discarded the other verdicts and
+   * the published table shrank to one row. That is unusable under the rule this
+   * project now works to — no more than one full probe per host per hour, and a
+   * 429-driven INCONCLUSIVE re-run individually after a quiet interval — because
+   * that rule requires targeted re-probes and this tool could not do one without
+   * throwing the rest away.
+   *
+   * Every row therefore carries its own `probedAt`. A merged table where one row
+   * is fresh and twenty-six are from this morning is honest only if each row
+   * says which it is.
+   */
+  const previous = await readFile(resolve(ROOT, 'data/probe-results.json'), 'utf8')
+    .then((raw) => JSON.parse(raw).results ?? [])
+    .catch(() => []);
+
+  const merged = new Map(previous.map((result) => [result.id, result]));
+  for (const result of fresh) merged.set(result.id, result);
+  const results = registry.sources
+    .map((source) => merged.get(source.id))
+    .filter((result) => result !== undefined);
+
+  const refreshed = fresh.map((result) => result.id);
+  const carried = results.filter((result) => !refreshed.includes(result.id));
+  if (carried.length > 0) {
+    console.error(
+      `refreshed ${refreshed.length}, carried forward ${carried.length} from earlier runs`,
+    );
+  }
 
   const counts = summarise(results);
-  const stamp = new Date().toISOString();
 
   await mkdir(resolve(ROOT, 'docs'), { recursive: true });
   await writeFile(
     resolve(ROOT, 'data/probe-results.json'),
-    JSON.stringify({ probedAt: stamp, origin: ORIGIN, counts, results }, null, 2) + '\n',
+    JSON.stringify(
+      { probedAt: stamp, origin: ORIGIN, refreshedThisRun: refreshed, counts, results },
+      null,
+      2,
+    ) + '\n',
   );
 
   const doc = `# CORS and reachability verdicts
@@ -267,7 +391,7 @@ network or policy failure.
 
 Summary: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(' · ')}
 
-${markdownTable(results)}
+${markdownTable(results, refreshed)}
 
 ## Reasoning per source
 
@@ -280,7 +404,7 @@ ${skipped.map((s) => `- \`${s.id}\` — ${s.excluded ? 'excluded' : 'no runtime 
 
   await writeFile(resolve(ROOT, 'docs/CORS-VERDICT.md'), doc);
 
-  console.log(markdownTable(results));
+  console.log(markdownTable(results, refreshed));
   console.log('\n' + Object.entries(counts).map(([k, v]) => `${k}: ${v}`).join('  '));
   console.log('\nwrote data/probe-results.json and docs/CORS-VERDICT.md');
 }

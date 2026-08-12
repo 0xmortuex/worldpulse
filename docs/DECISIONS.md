@@ -172,6 +172,37 @@ layers.
 
 ---
 
+## Known user-facing risk — marker clicks on low-frame-rate devices
+
+**This is a product risk, not a harness note.** It is recorded here rather than only in
+`TESTING.md` because the honest statement of it is a claim about users, not about tests.
+
+**Symptom.** Clicking an event marker does nothing. No camera move, no detail, no error —
+the globe appears to ignore the click.
+
+**Mechanism, located by instrumentation and not inferred.** The DOM click reaches the
+canvas every time. globe.gl's `onPointClick` does not fire. Our `facesCamera` occlusion
+filter is not the cause and never rejected a front-facing marker: it computed `true` in
+all 12 instrumented trials, and `true` inside the handler on the trials where the handler
+ran. The loss is inside globe.gl's own raycast, between delivery and resolution.
+
+**What can and cannot be claimed.** No code in this repository drops the click. That is
+*not* the same as "the app is fine". The mechanism is a raycast failing to resolve at a
+low frame rate, and a slow device is a low frame rate. The accurate statement is:
+
+> We have never tested this on a device slow enough to reproduce it in the field, and our
+> only slow environment reproduces it in about 90% of single attempts.
+
+| # | Decision |
+| --- | --- |
+| L9 | **Marker clicks may not resolve on low-frame-rate devices. Known, located in globe.gl's raycast, unfixed.** Not to be described as a test-environment quirk: the same mechanism is available to a user on slow hardware. |
+| L10 | **The keyboard/list equivalent for globe interaction is load-bearing, not an accessibility nicety.** It is the mitigation for L9 as well as the accessibility requirement. **Every event reachable by clicking a marker must be reachable from the event feed and the country list**, and that equivalence is asserted, not assumed. Build it with the feed. |
+| L11 | **Cheap defence, noted and not built:** resolve a click from the last hovered point rather than requiring a fresh raycast on the click frame, if globe.gl's API permits. Deferred — a fix without a mechanism for *why* the raycast resolves on some frames and not others would be another unvalidated guess, and this investigation has already produced two. |
+
+Mitigation is the strategy here, not repair. A defect in a dependency that we cannot
+explain is one we should route around rather than paper over, and the route already
+exists in the spec.
+
 ## Phase 0 correction — UCDP is no longer a keyless API
 
 Recorded against decisions 1, 5 and 7. Measured 2026-08-12, first session with egress.

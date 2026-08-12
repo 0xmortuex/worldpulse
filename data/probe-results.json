@@ -1,12 +1,15 @@
 {
-  "probedAt": "2026-08-12T14:13:09.840Z",
+  "probedAt": "2026-08-12T15:23:50.035Z",
   "origin": "https://worldpulse.pages.dev",
+  "refreshedThisRun": [
+    "smartraveller"
+  ],
   "counts": {
-    "CLIENT-FETCH": 16,
-    "INCONCLUSIVE": 4,
-    "WORKER-REQUIRED": 4,
+    "CLIENT-FETCH": 18,
+    "WORKER-REQUIRED": 5,
     "UNREACHABLE": 3,
-    "KEY-GATED": 6
+    "KEY-GATED": 6,
+    "INCONCLUSIVE": 1
   },
   "results": [
     {
@@ -139,22 +142,29 @@
       "keyEnv": null,
       "licenseClass": "open",
       "preflight": {
-        "status": 403,
-        "ms": 727,
+        "status": 200,
+        "ms": 668,
         "cors": {
-          "access-control-allow-origin": "*"
+          "access-control-allow-origin": "*",
+          "access-control-allow-headers": "accept, content-type, content-length, user-agent, api-user-agent"
         }
       },
       "get": {
-        "status": 429,
-        "ms": 543,
-        "contentType": "text/html; charset=utf-8",
-        "bytes": 1966,
-        "cors": {},
-        "cacheControl": null
+        "status": 200,
+        "ms": 830,
+        "contentType": "application/sparql-results+json;charset=utf-8",
+        "bytes": 196,
+        "truncated": false,
+        "contentLength": "146",
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-headers": "accept, content-type, content-length, user-agent, api-user-agent"
+        },
+        "cacheControl": "public, max-age=300"
       },
-      "verdict": "INCONCLUSIVE",
-      "reason": "Upstream returned HTTP 429; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-12T15:16:17.798Z"
     },
     {
       "id": "wikipedia-rest",
@@ -223,63 +233,73 @@
       "keyEnv": null,
       "licenseClass": "nc",
       "preflight": {
-        "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
-        "ms": 10691
+        "status": 200,
+        "ms": 15197,
+        "cors": {
+          "access-control-allow-origin": "*"
+        }
       },
       "get": {
         "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
-        "ms": 10487
+        "ms": 11119
       },
       "verdict": "UNREACHABLE",
-      "reason": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)"
+      "reason": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
+      "probedAt": "2026-08-12T15:17:03.020Z"
     },
     {
       "id": "ucdp-ged",
       "name": "UCDP Georeferenced Event Dataset",
       "panel": "risk",
-      "url": "https://ucdpapi.pcr.uu.se/api/gedevents/26.1?pagesize=5&page=0",
+      "url": "https://ucdp.uu.se/downloads/ged/ged261-csv.zip",
       "keyRequired": false,
       "keyEnv": null,
       "licenseClass": "open",
       "preflight": {
-        "status": 405,
-        "ms": 1111,
+        "status": 404,
+        "ms": 1260,
         "cors": {}
       },
       "get": {
-        "status": 401,
-        "ms": 159,
-        "contentType": "text/plain; charset=utf-8",
-        "bytes": 65,
+        "status": 200,
+        "ms": 1225,
+        "contentType": "application/x-zip-compressed",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "39122522",
         "cors": {},
         "cacheControl": null
       },
-      "verdict": "INCONCLUSIVE",
-      "reason": "Upstream returned HTTP 401; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-12T15:19:36.796Z"
     },
     {
       "id": "ucdp-candidate",
       "name": "UCDP Candidate Events (preliminary, monthly)",
       "panel": "risk",
-      "url": "https://ucdpapi.pcr.uu.se/api/gedevents/26.0.1?pagesize=5&page=0",
+      "url": "https://ucdp.uu.se/downloads/candidateged/GEDEvent_v25_01_25_12.csv",
       "keyRequired": false,
       "keyEnv": null,
       "licenseClass": "open",
       "preflight": {
-        "status": 405,
-        "ms": 995,
+        "status": 404,
+        "ms": 1129,
         "cors": {}
       },
       "get": {
-        "status": 401,
-        "ms": 1172,
-        "contentType": "text/plain; charset=utf-8",
-        "bytes": 65,
+        "status": 200,
+        "ms": 1631,
+        "contentType": "text/csv",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": null,
         "cors": {},
         "cacheControl": null
       },
-      "verdict": "INCONCLUSIVE",
-      "reason": "Upstream returned HTTP 401; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-12T15:20:56.223Z"
     },
     {
       "id": "iptv-org-channels",
@@ -484,19 +504,22 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 358,
+        "ms": 344,
         "cors": {}
       },
       "get": {
         "status": 403,
-        "ms": 324,
+        "ms": 346,
         "contentType": "application/json; charset=utf-8",
         "bytes": 378,
+        "truncated": false,
+        "contentLength": "378",
         "cors": {},
         "cacheControl": null
       },
       "verdict": "INCONCLUSIVE",
-      "reason": "Upstream returned HTTP 403; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+      "reason": "Upstream returned HTTP 403; an error response is not evidence about the success path (ACAO observed on it: none). Re-probe with a request that succeeds.",
+      "probedAt": "2026-08-12T15:18:18.960Z"
     },
     {
       "id": "openparliament-ca",
@@ -508,21 +531,24 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 594,
+        "ms": 908,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 696,
+        "ms": 668,
         "contentType": "application/json",
         "bytes": 1140,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": null
       },
-      "verdict": "WORKER-REQUIRED",
-      "reason": "Requires a descriptive User-Agent, which browsers are forbidden to set. ACAO observed: *."
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-12T15:16:17.798Z"
     },
     {
       "id": "camara-br",
@@ -703,14 +729,15 @@
       "licenseClass": "restricted",
       "preflight": {
         "error": "Request was cancelled.",
-        "ms": 191
+        "ms": 638
       },
       "get": {
         "error": "Request was cancelled.",
-        "ms": 301
+        "ms": 447
       },
       "verdict": "UNREACHABLE",
-      "reason": "Request was cancelled."
+      "reason": "Request was cancelled.",
+      "probedAt": "2026-08-12T15:22:13.450Z"
     },
     {
       "id": "ofac-sdn",
@@ -864,15 +891,16 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1118,
+        "ms": 1245,
         "cors": {}
       },
       "get": {
         "error": "The operation was aborted due to timeout",
-        "ms": 20009
+        "ms": 20007
       },
       "verdict": "UNREACHABLE",
-      "reason": "The operation was aborted due to timeout"
+      "reason": "The operation was aborted due to timeout",
+      "probedAt": "2026-08-12T15:23:50.035Z"
     },
     {
       "id": "eia",
