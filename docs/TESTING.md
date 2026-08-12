@@ -833,3 +833,47 @@ answer is no", the two states are conflated and one of them is wrong.
 `INCONCLUSIVE`, `UNAVAILABLE`, `undetermined` — and choose the default polarity so that
 absence degrades toward the ordinary path rather than toward a confident refusal
 (rule 29).
+
+## 31. Test a common cause before classifying errors individually
+
+**When a batch of errors shares a plausible common cause, resolve one instance and re-run
+before describing any of them. A raw list is honest; a raw list wearing confident labels
+is not.**
+
+Where this came from: bringing `tests/` under the type checker surfaced 160 errors, which
+were reported as five groups — including **77 classified as genuine test weakness** and
+**5 called a latent bug**. Both were wrong. `@types/node` was missing, so
+`node:assert/strict` did not resolve; once it did, `assert.ok()`'s `asserts value`
+signature narrowed the types and **all 82 vanished**. The tests had been narrowing
+correctly the whole time; the checker could not see it.
+
+Resolving the one root error and re-running would have collapsed 82 rows to zero *before*
+any of them were described as defects. The cost of not doing so was a report that sent
+attention at code that was already correct.
+
+**The count was accurate and the classification was not, which is the more useful half to
+get right.**
+
+### This does not argue for pre-filtering
+
+It argues that **enumeration and classification are separate steps**. Enumerate
+everything, unfiltered — that is how the shipped-but-unvalidated sources, the unexercised
+`eonet:floods` layer and the fifteen multi-holder countries were all found, and
+pre-filtering to what looks suspicious would have missed each one. Then, before attaching
+a label to any row, ask what the rows have in common and eliminate it.
+
+A list presented as *"160 errors, cause not yet investigated"* would have been completely
+honest. The same list presented as *"77 genuine test defects"* was not, and the difference
+is a step that costs one re-run.
+
+### Corollary — a second tsconfig is a second view of the codebase
+
+The same change produced two errors in `src/countries.ts` that were not defects either:
+the new test config did not include `src`, so `src/types/modules.d.ts` never loaded, the
+`world-atlas` topology import lost its ambient declaration, and `feature()` resolved to
+the wrong `topojson` overload.
+
+**Two configs that disagree about which ambient declarations are in scope will report
+errors about code neither config's owner has touched.** Any project config that narrows
+`include` or `types` needs the ambient declarations its files depend on, or it invents
+errors in code that compiles cleanly under the other view.
