@@ -20,9 +20,11 @@ rules look worse than they are.
 | Bosnia and Herzegovina | `undetermined`; 3-member presidency | `republic` | none → `undetermined` | **CONFIRMED** |
 | Andorra | `undetermined`; two co-princes, one a foreign head of state | `parliamentary coprincipality` | none → `undetermined` | **CONFIRMED** |
 | China | `undetermined`; rule-1 override candidate | `people's republic` | none → `undetermined` | **CONFIRMED** |
-| Saudi Arabia | rule 4 — king is also prime minister | — | — | not measured, HTTP 502 |
+| Saudi Arabia | rule 4 — king is also prime minister | `monarchy` | **4** | **CONFIRMED** |
 
-**Five of five predictions held.** Every country expected to be hard was hard, in the way
+**Six of six predictions held.** Saudi Arabia's 502 was transient; re-run, it returns
+`monarchy`, rule 4 fires, and the same person holds both offices — `Salman bin Abdulaziz
+Al Saud` as King *and* as Prime Minister, exactly as predicted. Every country expected to be hard was hard, in the way
 it was expected to be hard, and the label-driven classifier returned `undetermined` rather
 than guessing in every case where the arrangement does not fit rules 1–5.
 
@@ -130,3 +132,61 @@ Every figure above comes from `buildCountryQueryUrl()`, the app's own query buil
 rather than a hand-written approximation of it. That matters here more than usual: three
 of six fixtures in this project were found recording requests the app does not make, and a
 WATCHLIST check run against a simplified query would have proven nothing about the app.
+
+
+---
+
+# Enumeration — the set was not closed
+
+Three countries were examined because WATCHLIST named them. Enumerating the whole of live
+Wikidata instead of assuming that set was complete found considerably more.
+
+## Non-person heads of state — 2 countries
+
+| ISO | Country | `P35` resolves to | `P31` class |
+| --- | --- | --- | --- |
+| CHE | Switzerland | Swiss Federal Council | cabinet / collective head of state |
+| HTI | **Haiti** | Transitional Presidential Council | provisional government / political institution |
+
+**Haiti was also predicted** — WATCHLIST lists it under transitional governments as
+*"Transitional council rather than a single head of government"*. Two for two on this
+class, and both are live wrong-value defects today.
+
+## Multiple concurrent `P35` holders — **15 countries**, not 3
+
+| Holders | Countries |
+| --- | --- |
+| 6 | San Marino |
+| 3 | Bosnia and Herzegovina |
+| 2 | Madagascar, Malawi, Bulgaria, Hungary, Libya, Niger, Albania, Andorra, Sint Maarten, Australia, Samoa, Central African Republic, Falkland Islands |
+
+**This is the most consequential finding of the survey, and WATCHLIST predicted the
+mechanism exactly:**
+
+> *Countries where the head-of-state statement has **no end date on a former holder**, so
+> the `FILTER NOT EXISTS pq:P582` guard returns two current holders.*
+
+Australia, Bulgaria, Hungary and Albania are not collective heads of state. They are
+almost certainly **stale statements nobody closed** — the guard the app depends on is
+insufficient, and it is insufficient for **fifteen countries**, not the three that looked
+interesting. San Marino returning **six** Captains Regent where the constitution provides
+two is the clearest case: three unclosed pairs.
+
+### What this does to the sixth-rule question
+
+It strengthens the refutation considerably. The multi-holder signature is **dominated by
+data-quality artifacts**, not by collective arrangements. WATCHLIST framed the whole
+question as distinguishing:
+
+> **(A) a genuine collective head of state** … from **(B) a resolution failure**
+
+The live distribution says (B) outnumbers (A) by roughly four to one. A sixth rule keyed on
+"more than one concurrent holder" would have promoted twelve stale records into
+constitutional arrangements.
+
+## Cross-country officeholders
+
+Andorra remains the only confirmed case in the sample: Emmanuel Macron appears as a head
+of state of Andorra by virtue of being President of France. Detecting this needs a
+different query — a holder whose office is tied to another country — and is not covered by
+the two surveys above. **The set is not closed and should not be assumed to be.**

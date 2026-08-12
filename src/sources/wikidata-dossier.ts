@@ -36,7 +36,7 @@ export function buildCountryQuery(iso3: string, optionalAuthorityOffice?: string
 
   return `SELECT ?country ?countryLabel ?officialName ?capitalLabel ?population ?flag
        ?form ?formLabel
-       ?hos ?hosLabel ?hosImage ?hosBirth ?hosPartyLabel ?hosOfficeLabel ?hosSince
+       ?hos ?hosLabel ?hosImage ?hosBirth ?hosPartyLabel ?hosOfficeLabel ?hosSince ?hosIsHuman
        ?hog ?hogLabel ?hogImage ?hogBirth ?hogPartyLabel ?hogOfficeLabel ?hogSince
        ?authority ?authorityLabel ?authorityImage ?authorityBirth ?authorityPartyLabel ?authorityOfficeLabel
 WHERE {
@@ -54,6 +54,12 @@ WHERE {
     OPTIONAL { ?hosStatement pq:P580 ?hosSince . }
     OPTIONAL { ?hos wdt:P18 ?hosImage . }
     OPTIONAL { ?hos wdt:P569 ?hosBirth . }
+    # Is the holder a PERSON? Switzerland's P35 resolves to the Swiss Federal
+    # Council itself and Haiti's to the Transitional Presidential Council, and
+    # the parser cannot tell a body's name from a person's. Without this the
+    # header renders an institution in a portrait frame, which is a wrong value
+    # rather than a missing one.
+    BIND(EXISTS { ?hos wdt:P31 wd:Q5 } AS ?hosIsHuman)
     OPTIONAL { ?hos wdt:P102 ?hosParty . }
     OPTIONAL { ?country wdt:P1906 ?hosOffice . }
   }

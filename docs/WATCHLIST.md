@@ -144,6 +144,39 @@ Beyond misclassification, expect outright absence:
 
 ---
 
+# CLOSED — the sixth rule is refuted (2026-08-12)
+
+**Verdict: not justified. Do not write it.** Full evidence in `WATCHLIST-RESULTS.md`.
+
+The standard below required, as criterion 4, that the same structural signature hold
+across at least three countries. Live data produced **three different signatures** from
+the three candidates:
+
+| Country | Signature |
+| --- | --- |
+| Switzerland | one "holder" that is a body, not a person |
+| Andorra | two holders on two *different* offices, one of them a foreign head of state |
+| Bosnia | two holders on *one* office |
+
+And a survey of all countries found **15 with multiple concurrent holders**, of which most
+— Australia, Bulgaria, Hungary, Albania among them — are stale statements with no end
+date rather than collective arrangements. A rule keyed on "more than one holder" would
+have promoted about twelve data-quality artifacts into constitutional arrangements.
+
+**Why this is recorded as reasoning and not just a verdict:** a standard written *after*
+seeing this data would have been very tempting to bend. Three countries that look alike
+from a distance — each producing "more than one plausible primary portrait" — invite a
+single rule, and the resemblance is real at the level of appearance. It is the *mechanism*
+that differs, and only a pre-committed criterion made that difference decisive rather than
+negotiable. The next person tempted to define a rule after reading data should read this
+paragraph first.
+
+Each of the three proceeds instead as a **rule-1 override with a constitutional
+citation**, per the fallback below. The citation requirement holds without exception: if a
+case cannot be cited, it does not get an override.
+
+---
+
 # What would justify a sixth rule
 
 Written **before** seeing live data, deliberately. A rule designed after reading the
