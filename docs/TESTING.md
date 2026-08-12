@@ -359,9 +359,50 @@ Recorded so the next session does not re-derive them:
   reappear, so a fresh hover is observed rather than assumed, **does not fix the click**:
   4/20 versus 2/20 on a clean box, which is no improvement worth claiming.
 
-So the vacuous guard and the dropped click are two defects, not one. The guard is
-understood and its fix is known; **the click is not yet explained**, and no further fix
-should be written until it is.
+So the vacuous guard and the dropped click are two defects, not one.
+
+### Where the click is lost — instrumented, three questions in order
+
+Reframed deliberately: a click that lands on a correctly-hovered, correctly-identified
+marker and does nothing is what a user would call *"the globe ignores my clicks"*. That
+would be a step-7 defect in shipped behaviour, not a test curiosity, so it was worth
+asking which it is before fixing anything.
+
+Measured over 12 trials with a capture-phase listener on the canvas, a temporary counter
+inside `onPointClick`, and `facesCamera` recomputed independently at the instant of the
+click:
+
+| Question | Answer |
+| --- | --- |
+| 1. Does the DOM click reach the canvas? | **Yes — every trial, failures included.** One `click` event on the canvas, every time. |
+| 2. Does globe.gl's `onPointClick` fire? | **No, on every failure.** It fired on exactly the trials that passed (2 of 12) and never on the 10 that failed. |
+| 3. Is `facesCamera` rejecting the point? | **No.** `true` in all 12 trials — 17° from the camera centre against a 69° horizon — and `true` inside the handler on the trials where it ran. |
+
+**Verdict: harness, not app.** The failure sits entirely between "the browser delivered a
+click to the canvas" and "globe.gl resolved it to a point" — inside the library's own
+raycast, with our filter exonerated. `facesCamera` never rejected a front-facing marker;
+the occlusion filter behind decision L1 is not implicated.
+
+One caveat, stated rather than buried: this rules out an app defect *on this
+configuration*. It does not prove a user on a genuinely slow device would not hit the same
+dropped click, because the mechanism is globe.gl failing to resolve a click at a low frame
+rate and a slow device is a low frame rate. What can be said is that no code in this
+repository is dropping it.
+
+Two instrumentation traps worth recording, since both nearly produced a false finding:
+
+- **Reading the counter immediately after `mouseup` measured impatience, not behaviour.**
+  At 1.7fps globe.gl can dispatch a frame or more later; the first run showed `0` on every
+  trial *including the ones that passed*, which is self-evidently wrong. Re-reading after
+  the arrival window produced a result that agrees with itself.
+- **Rule 13 applies to diagnostics too.** The temporary counter was confirmed present in
+  the bundle the preview server actually returned before any conclusion was drawn from it.
+  A counter that reads zero because it was never shipped looks exactly like a callback
+  that never fires.
+
+**The click is still not fixed, only located.** No further fix should be written until
+there is a mechanism that explains why globe.gl resolves the click on some frames and not
+others.
 
 Re-running until green is not an option available here. A check that is re-run until it
 passes has stopped being evidence.
