@@ -449,10 +449,22 @@ Checked and currently clean, recorded so the next audit does not re-derive them:
 - **Un-awaited conditions.** A `Promise` is truthy, so `check('x', page.locator(…).count())`
   without `await` passes unconditionally. Scanned: no occurrences.
 - **Discarded `waitFor` results.** A timeout that is ignored lets the next assertion run
-  against a page that never reached the expected state. Both call sites consume the
-  result.
+  against a page that never reached the expected state. **Three call sites**
+  (`verify-render.mjs:674`, `:970`, `:1054`); all three consume the result.
 
-Known and *not* fixed, stated so it is not mistaken for covered: **33 assertions match a
+  This row previously read "Both call sites consume the result" and was **false when
+  written or false soon after**. There were three, and `:970` — `pickEvent`'s wait for
+  the marker tooltip, inside the flakiest check in the suite — discarded its result, so a
+  tooltip that never appeared scored the same as one naming the wrong event. A doc row
+  asserting a class is clean, while an instance of that class sits in the check least
+  able to afford it, is worse than no row: it is a reason not to look. Repaired, and the
+  count is now stated so the next drift is visible.
+
+  **Any row in this section claiming a class is clean must name the call sites it
+  checked.** "Both call sites" was unfalsifiable at a glance; three cited line numbers
+  are checkable in seconds, and go stale loudly rather than quietly.
+
+Known and *not* fixed, stated so it is not mistaken for covered: **32 assertions match a
 regex against a whole-panel `innerText` blob**. A pattern like `/650/` would pass on any
 occurrence anywhere in the panel, not only in the seat count it means. Mutation testing
 constrains this — a mutation that survives shows the assertion cannot see its subject —

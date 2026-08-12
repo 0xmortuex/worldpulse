@@ -172,6 +172,61 @@ layers.
 
 ---
 
+## Phase 0 correction — UCDP is no longer a keyless API
+
+Recorded against decisions 1, 5 and 7. Measured 2026-08-12, first session with egress.
+
+**The UCDP REST API now requires a token on every endpoint.**
+
+```
+GET https://ucdpapi.pcr.uu.se/api/gedevents/26.1 -> 401
+API token required. Add header: x-ucdp-access-token: <your-token>
+```
+
+Not a version pin and not one endpoint: `gedevents` 24.1 and 26.1,
+`ucdpprioconflict`, `battledeaths`, `nonstate` and `onesided` all answer 401. Phase 0
+§1.2 recorded "Fully RESTful JSON … No key", which was true when read from documentation
+and is false against the live service.
+
+**This premise was load-bearing twice**, which is why it is recorded here rather than
+fixed quietly: decision 1 excluded ACLED partly because UCDP was the clean alternative,
+and decision 5 promises the app runs end to end with zero keys.
+
+### A keyless path exists, and it is the better one
+
+| Path | Status | Evidence |
+| --- | --- | --- |
+| REST API, all endpoints | **keyed** | 401, token required |
+| Bulk CSV, `ucdp.uu.se/downloads/ged/ged261-csv.zip` | **keyless** | 200, `application/x-zip-compressed`, 39,122,522 bytes, `PK\x03\x04` |
+| Candidate monthly CSV | **keyless** | 200 |
+
+Licence unchanged and confirmed on the downloads page itself: *"All datasets are free of
+charge and licensed under CC BY 4.0 — you are free to use and redistribute them provided
+you cite the relevant publications listed with each dataset."*
+
+| # | Decision |
+| --- | --- |
+| 1a | **UCDP is reached through the bulk CSV downloads, not the API.** GED is released annually; a live API buys nothing a version-pinned download does not, and it would cost the zero-key property. No UCDP key is introduced. `sources.json` probes the download path. |
+| 5a | **Decision 5 stands.** The zero-key property is preserved by 1a, not by luck — it would have been broken by adopting the keyed API. |
+
+**Open, and deliberately not decided here:** at 39MB the GED zip is not a per-visitor
+browser fetch. It wants either version-pinning as a bundled dataset — which under A6a
+requires a registered byte-level shape assertion before the gate will pass it — or a
+Worker-side extract with the client fetching a filtered slice. That is an architecture
+decision, not a source-registry edit, and it is recorded rather than made.
+
+### ACLED's exclusion, re-examined rather than assumed
+
+Decision 1 excluded ACLED *and* named UCDP as the sole conflict source, so it is fair to
+ask whether the exclusion rested on UCDP being clean. **It did not, and it still holds.**
+The objections in Phase 0 §1.1 are properties of ACLED's own terms: registration and an
+access key are required, commercial use is prohibited without a corporate licence with no
+exemptions, and external publication must be "transformative" — which rendering events on
+a map is not. None of those turn on what UCDP does. UCDP becoming keyed would have made
+ACLED *equally* keyed, not more permissive.
+
+Stated because it was asked for explicitly, not because the answer was in doubt.
+
 ## Blocked
 
 **Egress.** The environment's network policy does not permit any of the 33 data hosts;

@@ -20,6 +20,19 @@ session reports have been wrong twice. This is the check on that.
 The gap is narrower than two false reports might suggest — but three of the four
 discrepancies sit in the harness's own guards, which is the worst place for them.
 
+### Repair status
+
+All five are now closed. The findings below are left as written — an audit that is
+rewritten once it is acted on stops being a record of what was found.
+
+| # | Finding | Closed by |
+| --- | --- | --- |
+| 1 | Rule 15 first-attempt assertion absent | `f723c12` — landed, observed failing |
+| 2 | Discarded `waitFor` at `:970` | consumed as `settled`; the TESTING.md row now cites all three call sites |
+| 3 | `VerifiedAgainst` missing `bundled`, cast at the boundary | type carries all three values; `as unknown as Registry` replaced by a validating parse that throws on an unknown value |
+| 4 | Probe guard reaching conclusive branches on error paths | guard is now `!res.ok`, unconditional on ACAO |
+| 5 | Stale count, 33 vs 32 | corrected |
+
 ---
 
 ## Discrepancies

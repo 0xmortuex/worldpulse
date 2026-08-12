@@ -967,9 +967,14 @@ async function pickEvent(eventId, { focus = true } = {}) {
   // Polled, not timed: under software rendering globe.gl's raycast can take
   // many frames, and a fixed wait made this intermittently return null even
   // though the marker was perfectly pickable.
-  await waitFor(page, () => document.querySelector('.evt') !== null, 5000);
+  // The result is consumed, not discarded. TESTING.md recorded "discarded
+  // waitFor results" as a checked-and-clean class while this call site — in the
+  // flakiest check in the suite — threw its result away, so a tooltip that
+  // never appeared was indistinguishable from one that appeared with the wrong
+  // id. Callers can now tell those apart.
+  const settled = await waitFor(page, () => document.querySelector('.evt') !== null, 5000);
   const id = await page.evaluate(() => document.querySelector('.evt')?.getAttribute('data-event-id') ?? null);
-  return { aimed: true, id, x: target.x, y: target.y };
+  return { aimed: true, settled, id, x: target.x, y: target.y };
 }
 
 // Aim at a specific front-facing event and require THAT event back.
@@ -1051,7 +1056,13 @@ if (picked.id && cameraBefore) {
     await page.waitForTimeout(250);
     repick = await pickEvent(picked.id, { focus: false });
     if (repick.id !== picked.id) {
-      attemptLog.push(`hover-missed (got ${repick.id})`);
+      // `settled` distinguishes a tooltip that never appeared from one that
+      // appeared naming a different event. Both used to read as "hover-missed".
+      attemptLog.push(
+        repick.settled === false
+          ? 'hover-missed (no tooltip appeared within 5s)'
+          : `hover-missed (tooltip named ${repick.id})`,
+      );
       continue;
     }
 

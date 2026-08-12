@@ -151,14 +151,30 @@ async function probeOne(source) {
     result.reason = keyIsSecret
       ? `Key ${source.keyEnv} is server-side; routed through the Worker regardless of ACAO (observed: ${acao ?? 'none'}).`
       : `Public key ${source.keyEnv}; ACAO observed: ${acao ?? 'none'}.`;
-  } else if (!res.ok && !allowed) {
-    // An error response that also lacks ACAO tells us nothing: most servers
-    // skip CORS headers on their error paths. Calling this WORKER-REQUIRED
-    // would manufacture a proxy dependency the probe never demonstrated.
+  } else if (!res.ok) {
+    /**
+     * An error response tells us nothing about the success path, whatever
+     * headers it happens to carry.
+     *
+     * This used to read `!res.ok && !allowed`, which guarded only the case
+     * where the error ALSO lacked an ACAO — so an error carrying `*` fell
+     * through to a conclusive verdict inferred from a failed request. That is
+     * exactly the inference rule 3 was written to forbid, one condition away.
+     *
+     * It was not hypothetical. Across three runs `wikidata-sparql` scored
+     * WORKER-REQUIRED twice off a 403 that happened to carry `*`, and
+     * INCONCLUSIVE once off a 429 that did not: same source, same question,
+     * verdict decided by a header on an error path. Its true posture, measured
+     * directly, is a 200 with `ACAO: *`.
+     *
+     * A declared key requirement is checked before this and is unaffected: that
+     * is a property of the source, not something inferred from the response.
+     */
     result.verdict = VERDICT.INCONCLUSIVE;
     result.reason =
-      `Upstream returned HTTP ${res.status}; no usable ACAO on the error response. ` +
-      'CORS posture on the success path is unknown — re-probe with a request that succeeds.';
+      `Upstream returned HTTP ${res.status}; an error response is not evidence about the ` +
+      `success path (ACAO observed on it: ${acao ?? 'none'}). ` +
+      'Re-probe with a request that succeeds.';
   } else if (source.requiresCustomUserAgent) {
     result.verdict = VERDICT.WORKER;
     result.reason = `Requires a descriptive User-Agent, which browsers are forbidden to set. ACAO observed: ${acao ?? 'none'}.`;
