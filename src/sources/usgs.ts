@@ -34,6 +34,16 @@ export interface QuakeFeed {
   quakes: Quake[];
 }
 
+/**
+ * The summary feed the app reads. Exported so fixtures derive their request URL
+ * from the app's own construction rather than repeating it — a hand-written
+ * fixture URL diverged from the app's request in three of six fixtures before
+ * this was done.
+ */
+export function buildFeedUrl(window: 'all_day' | 'all_week' | 'all_month' = 'all_day'): string {
+  return `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/${window}.geojson`;
+}
+
 export function parse(raw: unknown, sourceId = SOURCE_ID): QuakeFeed {
   const root = expectObject(sourceId, raw, 'root');
   if (root['type'] !== 'FeatureCollection') {
