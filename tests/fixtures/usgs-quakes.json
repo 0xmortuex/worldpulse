@@ -1,80 +1,341 @@
 {
   "type": "FeatureCollection",
   "metadata": {
-    "generated": 1786104000000,
+    "generated": 1786550280000,
     "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
     "title": "USGS All Earthquakes, Past Day",
     "status": 200,
-    "api": "1.10.3",
-    "count": 2
+    "api": "2.7.0",
+    "count": 8
   },
   "features": [
     {
       "type": "Feature",
       "properties": {
-        "mag": 4.6,
-        "place": "185 km SSW of open ocean reference point",
-        "time": 1786100400000,
-        "updated": 1786101000000,
+        "mag": 0.52,
+        "place": "4 km WSW of Anza, CA",
+        "time": 1786550015900,
+        "updated": 1786550224891,
         "tz": null,
-        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ffx0000001",
-        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ffx0000001.geojson",
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci40671218",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ci40671218.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 4,
+        "net": "ci",
+        "code": "40671218",
+        "ids": ",ci40671218,",
+        "sources": ",ci,",
+        "types": ",nearby-cities,origin,phase-data,",
+        "nst": 28,
+        "dmin": 0.03573,
+        "rms": 0.11,
+        "gap": 48,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 0.5 - 4 km WSW of Anza, CA"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.708166666667,
+          33.5391666666667,
+          5.41
+        ]
+      },
+      "id": "ci40671218"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 1.4,
+        "place": "83 km NW of Karluk, Alaska",
+        "time": 1786549700676,
+        "updated": 1786549752840,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/aka2026pxcnad",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/aka2026pxcnad.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 30,
+        "net": "ak",
+        "code": "a2026pxcnad",
+        "ids": ",aka2026pxcnad,",
+        "sources": ",ak,",
+        "types": ",origin,phase-data,",
+        "nst": 14,
+        "dmin": 0.1,
+        "rms": 0.3,
+        "gap": 92,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 1.4 - 83 km NW of Karluk, Alaska"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -155.412,
+          58.121,
+          5
+        ]
+      },
+      "id": "aka2026pxcnad"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 0.92,
+        "place": "6 km NW of The Geysers, CA",
+        "time": 1786549406430,
+        "updated": 1786549502289,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75416877",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc75416877.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 13,
+        "net": "nc",
+        "code": "75416877",
+        "ids": ",nc75416877,",
+        "sources": ",nc,",
+        "types": ",nearby-cities,origin,phase-data,",
+        "nst": 16,
+        "dmin": 0.01155,
+        "rms": 0.01,
+        "gap": 47,
+        "magType": "md",
+        "type": "earthquake",
+        "title": "M 0.9 - 6 km NW of The Geysers, CA"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.80899810791,
+          38.8123321533203,
+          3.19000005722046
+        ]
+      },
+      "id": "nc75416877"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 0.23,
+        "place": "7 km NW of The Geysers, CA",
+        "time": 1786548246030,
+        "updated": 1786548342198,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75416867",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc75416867.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 1,
+        "net": "nc",
+        "code": "75416867",
+        "ids": ",nc75416867,",
+        "sources": ",nc,",
+        "types": ",nearby-cities,origin,phase-data,",
+        "nst": 8,
+        "dmin": 0.01584,
+        "rms": 0.01,
+        "gap": 80,
+        "magType": "md",
+        "type": "earthquake",
+        "title": "M 0.2 - 7 km NW of The Geysers, CA"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.80899810791,
+          38.8196678161621,
+          3.33999991416931
+        ]
+      },
+      "id": "nc75416867"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 3.1,
+        "place": "9 km NW of Kodiak, Alaska",
+        "time": 1786547496119,
+        "updated": 1786550043039,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/aka2026pxbhdx",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/aka2026pxbhdx.geojson",
+        "felt": 64,
+        "cdi": 3.7,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 172,
+        "net": "ak",
+        "code": "a2026pxbhdx",
+        "ids": ",aka2026pxbhdx,",
+        "sources": ",ak,",
+        "types": ",dyfi,origin,phase-data,",
+        "nst": 76,
+        "dmin": 0.7,
+        "rms": 0.8,
+        "gap": 153,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 3.1 - 9 km NW of Kodiak, Alaska"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -152.521,
+          57.841,
+          5
+        ]
+      },
+      "id": "aka2026pxbhdx"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 1.08,
+        "place": "7 km NW of The Geysers, CA",
+        "time": 1786547197300,
+        "updated": 1786547291932,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75416862",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc75416862.geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 18,
+        "net": "nc",
+        "code": "75416862",
+        "ids": ",nc75416862,",
+        "sources": ",nc,",
+        "types": ",nearby-cities,origin,phase-data,",
+        "nst": 16,
+        "dmin": 0.0182,
+        "rms": 0.02,
+        "gap": 51,
+        "magType": "md",
+        "type": "earthquake",
+        "title": "M 1.1 - 7 km NW of The Geysers, CA"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.810668945312,
+          38.8216667175293,
+          3.10999989509583
+        ]
+      },
+      "id": "nc75416862"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 1.5,
+        "place": "39 km WSW of Ackerly, Texas",
+        "time": 1786546964687,
+        "updated": 1786547827321,
+        "tz": null,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026pumwba",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/tx2026pumwba.geojson",
         "felt": null,
         "cdi": null,
         "mmi": null,
         "alert": null,
         "status": "reviewed",
         "tsunami": 0,
-        "sig": 326,
-        "net": "ffx",
-        "code": "0000001",
-        "ids": ",ffx0000001,",
-        "sources": ",ffx,",
+        "sig": 35,
+        "net": "tx",
+        "code": "2026pumwba",
+        "ids": ",tx2026pumwba,",
+        "sources": ",tx,",
         "types": ",origin,phase-data,",
-        "nst": 47,
-        "dmin": 2.14,
-        "rms": 0.82,
-        "gap": 98,
-        "magType": "mb",
+        "nst": 40,
+        "dmin": 0,
+        "rms": 0.1,
+        "gap": 52,
+        "magType": "ml",
         "type": "earthquake",
-        "title": "M 4.6 - 185 km SSW of open ocean reference point"
+        "title": "M 1.5 - 39 km WSW of Ackerly, Texas"
       },
-      "geometry": { "type": "Point", "coordinates": [-129.4412, -22.8317, 10.5] },
-      "id": "ffx0000001"
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -102.102,
+          32.392,
+          7.6904
+        ]
+      },
+      "id": "tx2026pumwba"
     },
     {
       "type": "Feature",
       "properties": {
-        "mag": 1.9,
-        "place": "12 km NE of open ocean reference point",
-        "time": 1786098000000,
-        "updated": 1786098600000,
+        "mag": 1.44,
+        "place": "17 km E of Santa Ynez, CA",
+        "time": 1786546019720,
+        "updated": 1786546226609,
         "tz": null,
-        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ffx0000002",
-        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ffx0000002.geojson",
-        "felt": 3,
-        "cdi": 2.2,
+        "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci40671170",
+        "detail": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ci40671170.geojson",
+        "felt": null,
+        "cdi": null,
         "mmi": null,
         "alert": null,
         "status": "automatic",
         "tsunami": 0,
-        "sig": 56,
-        "net": "ffx",
-        "code": "0000002",
-        "ids": ",ffx0000002,",
-        "sources": ",ffx,",
-        "types": ",origin,phase-data,",
-        "nst": 12,
-        "dmin": 0.04,
-        "rms": 0.13,
-        "gap": 142,
+        "sig": 32,
+        "net": "ci",
+        "code": "40671170",
+        "ids": ",ci40671170,",
+        "sources": ",ci,",
+        "types": ",nearby-cities,origin,phase-data,scitech-link,",
+        "nst": 32,
+        "dmin": 0.07469,
+        "rms": 0.21,
+        "gap": 41,
         "magType": "ml",
         "type": "earthquake",
-        "title": "M 1.9 - 12 km NE of open ocean reference point"
+        "title": "M 1.4 - 17 km E of Santa Ynez, CA"
       },
-      "geometry": { "type": "Point", "coordinates": [-118.8232, 37.6045, 3.2] },
-      "id": "ffx0000002"
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.899833333333,
+          34.6295,
+          1.28
+        ]
+      },
+      "id": "ci40671170"
     }
   ],
-  "bbox": [-129.4412, -22.8317, 3.2, -118.8232, 37.6045, 10.5]
+  "bbox": [
+    -179.7774,
+    -60.2445,
+    -0.99,
+    152.9875,
+    66.301,
+    526.828
+  ]
 }

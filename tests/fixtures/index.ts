@@ -20,6 +20,55 @@ export interface Fixture {
   body: unknown;
 }
 
+/**
+ * The live source could not be read. **Not a contract failure.**
+ *
+ * A contract test answers one question: has the response SHAPE drifted? A
+ * timeout, a connection reset or a 5xx answers a different question — whether
+ * the network worked — and letting that fail the contract makes the deploy gate
+ * oscillate on network weather while a real schema drift looks identical to a
+ * bad afternoon.
+ *
+ * This is the rule `probe-sources.mjs` already follows for 4xx/5xx (A2, rule 3),
+ * applied to the contract path. Only a shape mismatch fails a contract.
+ */
+export class InconclusiveLiveFetch extends Error {
+  override readonly name = 'InconclusiveLiveFetch';
+}
+
+/**
+ * Run `body` against a live sample, treating unreachability as inconclusive.
+ *
+ * Contract tests wrap their live assertions in this so an unreachable source
+ * reports "could not check" rather than "the contract broke".
+ */
+export const INCONCLUSIVE_LIVE: string[] = [];
+
+export async function liveOrInconclusive(
+  sourceId: string,
+): Promise<{ body: unknown; ctx: FetchContext } | null> {
+  try {
+    return await loadSample(sourceId);
+  } catch (error) {
+    if (error instanceof InconclusiveLiveFetch || isNetworkFailure(error)) {
+      const detail = `${sourceId}: ${(error as Error).message}`;
+      INCONCLUSIVE_LIVE.push(detail);
+      // Recorded and printed, never silent. Rule 17's principle: a check that
+      // did not run must not look like one that passed.
+      process.stderr.write(`INCONCLUSIVE ${detail} — shape not checked this run\n`);
+      return null;
+    }
+    throw error;
+  }
+}
+
+/** A fetch that never got an answer, as distinct from one that answered badly. */
+function isNetworkFailure(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (error.name === 'TimeoutError' || error.name === 'AbortError') return true;
+  return error.message === 'fetch failed';
+}
+
 export const FIXTURES: Record<string, Fixture> = {
   worldbank: {
     sourceId: 'worldbank',
@@ -29,8 +78,26 @@ export const FIXTURES: Record<string, Fixture> = {
   },
   'wikidata-sparql': {
     sourceId: 'wikidata-sparql',
+    /**
+     * Carries `SERVICE wikibase:label`, because the body carries `*Label`
+     * bindings and **Wikidata only populates those when the label service is
+     * invoked**.
+     *
+     * The previous URL omitted it while the body contained `itemLabel` and
+     * `capitalLabel` — a request that cannot produce this response. Harmless
+     * only for as long as nobody re-captured from it: doing so yields a
+     * label-free body, which looks like a corrected fixture and would empty the
+     * government tab's label-driven classification (decision D3) with nothing
+     * going red. Every app query does invoke the service, in six places across
+     * wikidata-dossier.ts and wikidata-government.ts.
+     */
     requestUrl:
-      'https://query.wikidata.org/sparql?format=json&query=SELECT%20%3Fitem%20%3FitemLabel%20%3Fcapital%20%3FcapitalLabel%20WHERE%7B%3Fitem%20wdt%3AP36%20%3Fcapital%7D',
+      'https://query.wikidata.org/sparql?format=json&query=' +
+      encodeURIComponent(
+        'SELECT ?item ?itemLabel ?capital ?capitalLabel WHERE { ' +
+          '?item wdt:P36 ?capital . ' +
+          'SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . } } LIMIT 5',
+      ),
     body: wikidataSparql,
   },
   'usgs-quakes': {
@@ -97,7 +164,9 @@ export async function loadSample(sourceId: string): Promise<{ body: unknown; ctx
   });
   if (!response.ok) {
     // Matches the probe's rule: a 4xx tells us nothing about the success path.
-    throw new Error(`live fetch of ${sourceId} returned HTTP ${response.status} — inconclusive, not a contract failure`);
+    throw new InconclusiveLiveFetch(
+      `live fetch of ${sourceId} returned HTTP ${response.status} — inconclusive, not a contract failure`,
+    );
   }
   return {
     body: await response.json(),

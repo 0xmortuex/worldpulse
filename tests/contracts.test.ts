@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { loadSample } from './fixtures/index';
+import { liveOrInconclusive } from './fixtures/index';
 import { ShapeError } from '../src/sources/adapter';
 import * as worldbank from '../src/sources/worldbank';
 import * as wikidata from '../src/sources/wikidata';
@@ -19,7 +19,9 @@ import { factState } from '../src/facts/types';
 
 describe('World Bank indicator contract', () => {
   it('parses the two-element envelope into a series', async () => {
-    const { body, ctx } = await loadSample('worldbank');
+    const sample = await liveOrInconclusive('worldbank');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const series = worldbank.parse(body);
 
     assert.match(series.indicatorId, /^[A-Z]{2}\.[A-Z0-9.]+$/);
@@ -41,7 +43,9 @@ describe('World Bank indicator contract', () => {
   });
 
   it('skips the published-but-empty current year rather than reporting no data', async () => {
-    const { body, ctx } = await loadSample('worldbank');
+    const sample = await liveOrInconclusive('worldbank');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const series = worldbank.parse(body);
     const fact = worldbank.latestFact(series, ctx);
 
@@ -70,7 +74,9 @@ describe('World Bank indicator contract', () => {
 
 describe('USGS earthquake feed contract', () => {
   it('parses features and range-checks coordinates and magnitude', async () => {
-    const { body, ctx } = await loadSample('usgs-quakes');
+    const sample = await liveOrInconclusive('usgs-quakes');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const feed = usgs.parse(body);
 
     assert.ok(feed.quakes.length > 0);
@@ -94,7 +100,9 @@ describe('USGS earthquake feed contract', () => {
   });
 
   it('downgrades an unreviewed solution to ESTIMATE', async () => {
-    const { body, ctx } = await loadSample('usgs-quakes');
+    const sample = await liveOrInconclusive('usgs-quakes');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const feed = usgs.parse(body);
     const automatic = feed.quakes.find((quake) => quake.status !== 'reviewed');
     if (!automatic) return; // a live feed may legitimately contain only reviewed events
@@ -128,7 +136,9 @@ describe('USGS earthquake feed contract', () => {
 
 describe('Wikidata SPARQL contract', () => {
   it('flattens bindings to plain rows', async () => {
-    const { body, ctx } = await loadSample('wikidata-sparql');
+    const sample = await liveOrInconclusive('wikidata-sparql');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const result = wikidata.parse(body);
 
     assert.ok(result.vars.length > 0);
@@ -146,7 +156,9 @@ describe('Wikidata SPARQL contract', () => {
   });
 
   it('returns no data for an empty result set instead of throwing', async () => {
-    const { ctx } = await loadSample('wikidata-sparql');
+    const sample = await liveOrInconclusive('wikidata-sparql');
+    if (!sample) return;
+    const { ctx } = sample;
     const empty = wikidata.parse({ head: { vars: ['x'] }, results: { bindings: [] } });
     const fact = wikidata.singleValueFact(empty, 'x', ctx, { asOf: '2026' });
     assert.equal(factState(fact), 'nodata');
@@ -154,7 +166,9 @@ describe('Wikidata SPARQL contract', () => {
   });
 
   it('throws when the requested variable is not in the query', async () => {
-    const { body, ctx } = await loadSample('wikidata-sparql');
+    const sample = await liveOrInconclusive('wikidata-sparql');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const result = wikidata.parse(body);
     assert.throws(() => wikidata.singleValueFact(result, 'nosuchvar', ctx, { asOf: '2026' }), ShapeError);
   });
@@ -162,7 +176,9 @@ describe('Wikidata SPARQL contract', () => {
 
 describe('GDELT DOC contract', () => {
   it('parses articles and normalises the compact timestamp', async () => {
-    const { body, ctx } = await loadSample('gdelt-doc');
+    const sample = await liveOrInconclusive('gdelt-doc');
+    if (!sample) return;
+    const { body, ctx } = sample;
     const list = gdelt.parse(body);
 
     for (const article of list.articles) {

@@ -38,7 +38,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "live"
     },
     {
       "id": "worldbank-milex",
@@ -71,7 +71,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "live"
     },
     {
       "id": "nasa-eonet",
