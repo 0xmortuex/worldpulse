@@ -161,11 +161,35 @@ Every prediction in this document that has met live data has held.
 | Palestine: office data split across entities | held — `P298 "PSE"` binds two items, Q219060 and Q407199 |
 | Afghanistan: titles may not map to any rule | held, and worse — the **form** does not map to one value either |
 
+## Why this document works, stated plainly
+
 Predictions written blind against documented schemas, checked against the app's own
-queries. The value is not the score; it is that the two that failed *interestingly* —
-Palestine's split entities and Afghanistan's multiple forms — were both found because the
-document said to look, and both turned out to be live parser defects rather than
-curiosities.
+queries. **The score is not the point.** Seven of seven sounds like a document that was
+merely cautious; what it actually did is more specific and more useful.
+
+**Two of the seven turned out to be live parser defects, and neither was found by testing,
+review, or the unexercised-path sweep. Both were found because this document said to
+look.**
+
+| Prediction | What looking for it found |
+| --- | --- |
+| *"Palestine: contested statehood; office data may be split across entities"* | `P298 "PSE"` binds two Wikidata items, and the query drew fields from both — one dossier assembled from two countries |
+| *"Afghanistan: office titles may not map to any rule"* | worse than predicted: the **form of government** returns three values that classify differently, so the classification was decided by SPARQL row order |
+
+Neither defect announced itself. Both produced plausible output — a dossier that rendered,
+a classification that looked ordinary — which is why nothing else caught them. A test
+suite checks what someone thought to assert; a sweep enumerates what exists. **Only a
+written-in-advance list of "these will be hard, and here is how" points attention at a
+country nobody had a reason to open.**
+
+The cost was writing predictions that could be wrong in public. That is the whole
+mechanism: a prediction made after seeing the data cannot direct attention, because the
+attention has already been spent. The sixth-rule refutation is the same property in the
+other direction — the pre-committed criteria made a tempting rule refusable, where a
+standard written afterwards would have been shaped to fit three countries that only
+*looked* alike.
+
+**Keep writing them before the data arrives, and keep recording the ones that hold.**
 
 # CLOSED — the sixth rule is refuted (2026-08-12)
 
