@@ -4,23 +4,19 @@ import articlesSparse from '../../tests/fixtures/news/articles-sparse.json';
 import articlesDegraded from '../../tests/fixtures/news/articles-degraded.json';
 import articlesSyndicated from '../../tests/fixtures/news/articles-syndicated.json';
 import articlesExtremes from '../../tests/fixtures/news/articles-extremes.json';
-import toneNormal from '../../tests/fixtures/news/tone-normal.json';
-import toneSparse from '../../tests/fixtures/news/tone-sparse.json';
-import toneEmpty from '../../tests/fixtures/news/tone-empty.json';
 import { parse as parseArticles, type ArticleList } from '../sources/gdelt';
-import { parseToneTimeline, type ToneTimeline } from '../sources/gdelt-tone';
 import type { FetchContext } from '../sources/adapter';
 
 /**
  * Fixture-backed news data.
  *
- *   USA  ordinary feed, full tone timeline
+ *   USA  ordinary feed
  *   GBR  syndicated coverage of one story across twelve outlets
  *   IRN  non-Latin and RTL headlines and outlet names
- *   TUV  almost no indexed coverage; tone timeline mostly empty
+ *   TUV  almost no indexed coverage
  *   MLI  degraded rows: no timestamp, no outlet, non-web link, empty headline
  *   DEU  deliberately extreme string lengths, for the text-fidelity checks
- *   XKX  tone timeline with an eight-day hole in the middle
+ *   XKX  sparse coverage
  */
 
 const ARTICLES: Record<string, unknown> = {
@@ -33,18 +29,8 @@ const ARTICLES: Record<string, unknown> = {
   XKX: articlesNormal,
 };
 
-const TONE: Record<string, unknown> = {
-  USA: toneNormal,
-  GBR: toneNormal,
-  IRN: toneNormal,
-  DEU: toneNormal,
-  MLI: toneNormal,
-  XKX: toneSparse,
-  FJI: toneEmpty,
-};
-
 /** Every country this provider can serve. Used by the rule-10 reachability test. */
-export const NEWS_COUNTRIES = [...new Set([...Object.keys(ARTICLES), ...Object.keys(TONE)])];
+export const NEWS_COUNTRIES = [...new Set(Object.keys(ARTICLES))];
 
 function ctxFor(iso3: string, mode: string): FetchContext {
   return {
@@ -60,17 +46,14 @@ function ctxFor(iso3: string, mode: string): FetchContext {
 
 export interface NewsData {
   articles: { value: ArticleList; ctx: FetchContext } | null;
-  tone: { value: ToneTimeline; ctx: FetchContext } | null;
 }
 
 export function loadNews(iso3: string): NewsData {
   const rawArticles = ARTICLES[iso3];
-  const rawTone = TONE[iso3];
 
   return {
     articles: rawArticles
       ? { value: parseArticles(rawArticles), ctx: ctxFor(iso3, 'artlist') }
       : null,
-    tone: rawTone ? { value: parseToneTimeline(rawTone), ctx: ctxFor(iso3, 'timelinetone') } : null,
   };
 }

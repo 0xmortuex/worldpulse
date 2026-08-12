@@ -2,15 +2,13 @@ import { escapeHtml, factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import type { Fact } from '../facts/types';
 import { loadNews } from '../dossier/news-provider';
-import { renderToneChart } from '../news/tone-chart';
 import type { Article, ArticleList } from '../sources/gdelt';
 import {
   groupSyndicated,
   isRtl,
   SPARSE_ARTICLE_THRESHOLD,
   type ArticleGroup,
-  type ToneTimeline,
-} from '../sources/gdelt-tone';
+} from '../sources/news-text';
 import type { FetchContext } from '../sources/adapter';
 
 /**
@@ -22,7 +20,6 @@ import type { FetchContext } from '../sources/adapter';
  * "a quiet week here" — that is this step's version of the empty-cabinet bug.
  */
 
-const TONE_CHART = { width: 320, height: 92 };
 
 const TOPICS: Array<{ id: string; label: string; match: RegExp }> = [
   { id: 'politics', label: 'Politics', match: /\b(parliament|legislature|election|minister|court|constitution|budget|vote)\b/i },
@@ -59,7 +56,6 @@ export function renderNewsTab(iso3: string, countryName: string): string {
 
   return `<div class="news">
     ${coverageNote(list, countryName, news.articles.ctx)}
-    ${toneSection(news.tone)}
     ${topicFilters(groups)}
     ${unusableNote(list)}
     ${
@@ -128,24 +124,6 @@ function unusableNote(list: ArticleList): string {
     'count of feed rows excluded from the list below, each for a stated structural reason',
   )} item(s) in the feed could not be shown (${escapeHtml(reasons)}). They are counted here
   rather than dropped silently, because a shorter list with no explanation reads as less news.</p>`;
-}
-
-function toneSection(tone: { value: ToneTimeline; ctx: FetchContext } | null): string {
-  if (!tone) return '';
-  const missing = tone.value.missingDays;
-  return `<section class="news-tone">
-    <h3 class="panel-h3">Media tone, 30 days</h3>
-    ${renderToneChart(tone.value, TONE_CHART)}
-    ${
-      missing > 0
-        ? `<p class="news-caveat">${n(
-            missing,
-            'count of days in the window with no indexed coverage, a property of the index rather than a measured value',
-          )} day(s) had no indexed coverage. The line breaks across them; a day with no
-           articles has no tone, and drawing one would invent a sentiment reading.</p>`
-        : ''
-    }
-  </section>`;
 }
 
 function topicFilters(groups: readonly ArticleGroup[]): string {

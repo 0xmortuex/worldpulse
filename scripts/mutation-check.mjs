@@ -103,12 +103,15 @@ const MUTATIONS = [
     expect: /gap|segment/i,
   },
   {
+    // Re-pointed when the sentiment timeline was removed with GDELT (decision
+    // 11b). V5 requires a mutation per step, so step 6 keeps one — aimed now at
+    // the syndication grouping, the news tab's other derived behaviour.
     step: '6 — news tab',
-    what: 'the derived tone loses its DERIVED badge',
-    file: 'src/news/tone-chart.ts',
-    from: '<span class="badge badge--derived">ƒ DERIVED</span>',
-    to: '<span class="badge"></span>',
-    expect: /derived|tone/i,
+    what: 'syndicated copies stop collapsing, so one story reads as many',
+    file: 'src/sources/news-text.ts',
+    from: 'export function groupSyndicated(articles: readonly Article[]): ArticleGroup[] {',
+    to: 'export function groupSyndicated(articles: readonly Article[]): ArticleGroup[] {\n  return articles.map((a) => ({ lead: a, outlets: [a.domain], copies: 1 }));',
+    expect: /syndicat|outlet/i,
   },
   {
     step: '7 — globe event layers',

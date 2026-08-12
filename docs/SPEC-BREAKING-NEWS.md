@@ -90,6 +90,28 @@ implementation detail:
 Without a stated normalisation the score is not merely undocumented, it is incoherent —
 rule 22 applied to our own derivation rather than to a source's.
 
+### Two inputs are bounded by the curated feed list
+
+**Outlet breadth and syndication volume cannot exceed what 15 curated RSS feeds carry.**
+GDELT is retired (decision 11), so the entire corpus this surface ranks is those feeds —
+NPR, VOA, BBC, Guardian, DW, France 24, Al Jazeera, ABC Australia, The Hindu, CNA, Japan
+Times, RNZ, RTÉ, Agência Brasil and Yonhap.
+
+That is a **hard ceiling on two of the five inputs**, and it is not a rounding error:
+
+- **Outlet breadth** maxes out at 15 no matter how widely a story is actually covered. A
+  story in 400 outlets worldwide and a story in all 15 of ours score identically.
+- **Syndication volume** counts copies *within those feeds only*. A wire story republished
+  by 200 papers we do not read contributes nothing.
+- The corpus is **English-language and skewed toward large public broadcasters**, so
+  coverage of the countries those outlets cover least is systematically thinner — which
+  the score reads as *less significant*, not as *less covered by us*.
+
+**This belongs on the surface, not only in this document.** The existing caveat says the
+score ranks coverage volume rather than importance; it must also say **whose** coverage,
+and that the answer is fifteen named feeds. A reader who assumes a global corpus will read
+the ceiling as a finding about the world.
+
 ### Missing inputs — an instance of the P3 class
 
 Two of the five inputs (elections, sanctions) do not exist, and a third (UCDP conflict

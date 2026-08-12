@@ -573,7 +573,11 @@ check('inspector shows the fetch timestamp', /Fetched at/.test(inspectorText));
 check('inspector shows cache state', /hit|miss/i.test(inspectorText));
 check('inspector shows the licence class', /CC BY 4\.0/.test(inspectorText) && /open/i.test(inspectorText));
 check('inspector flags fixture-sourced data', /fixture/i.test(inspectorText));
-check('inspector marks the source as documentation-verified', /documentation/i.test(inspectorText));
+// The invariant is that the inspector STATES the verification status, not that
+// the status is any particular value — worldbank went live, and an assertion
+// pinned to "documentation" broke on a legitimate change. Rule 25.
+check('inspector states the source verification status',
+  /documentation|live|bundled/i.test(inspectorText), inspectorText.slice(0, 160));
 
 const rawShown = await page.locator('.inspector-raw pre').innerText();
 check('inspector shows the raw response body', rawShown.includes('NY.GDP.MKTP.CD'), rawShown.slice(0, 60));
@@ -860,11 +864,6 @@ check('news tab renders articles', (await page.locator('.news-item').count()) > 
 const newsUsa = await page.locator('.news').innerText();
 check('coverage volume is framed as a property of the index',
   /indexes English-language online news that it crawls/i.test(newsUsa));
-check('the tone chart renders', (await page.locator('svg.tone-chart').count()) === 1);
-check('tone is labelled on the chart, not in a footnote',
-  /Tone of coverage, not conditions/i.test(newsUsa));
-check('tone carries a DERIVED badge beside its caption',
-  (await page.locator('.tone-caption .badge--derived').count()) === 1);
 await shot(page, `${SHOTS}/20-news-usa.png`);
 
 // Hard case: sparse coverage must read as an index limitation.
@@ -873,7 +872,6 @@ const newsTuv = await page.locator('.news').innerText();
 check('sparse coverage says little is INDEXED, not that little is happening',
   /Little English-language coverage/i.test(newsTuv) && /limitation of the source/i.test(newsTuv), newsTuv.slice(0, 200));
 check('sparse coverage is visually flagged', (await page.locator('.news-coverage--sparse').count()) === 1);
-check('an empty tone window plots nothing', (await page.locator('.news .chart--empty').count()) === 1);
 await shot(page, `${SHOTS}/21-news-sparse.png`);
 
 // Hard case: non-Latin and RTL.
@@ -901,13 +899,6 @@ check('syndicated copies collapse to one row', (await page.locator('.news-item')
 check('the outlet count is shown rather than the copies hidden',
   /\+11 more outlets/.test(newsGbr), newsGbr.slice(0, 200));
 
-// Hard case: a tone timeline with a hole in the middle.
-await openNews('Kosovo');
-check('a tone gap breaks the line',
-  (await page.locator('.tone-chart polyline').count()) === 2);
-check('the missing days are stated',
-  /8 day\(s\) had no indexed coverage/.test(await page.locator('.news').innerText()));
-
 // Topic filters.
 await openNews('United States');
 await page.locator('[data-topic="economy"]').click();
@@ -929,7 +920,12 @@ await page.setViewportSize({ width: 1600, height: 950 });
 await selectCountry('United States');
 await page.waitForTimeout(600);
 
-check('layer toggles render with counts', (await page.locator('.layer-toggle').count()) === 4);
+// Tracks LAYERS in src/layers/provider.ts, which gained eonet:floods under
+// decision L12. Still a literal, and therefore still the rule-25 shape: it
+// encodes how many layers there are rather than the invariant that every
+// declared layer gets a toggle. Recorded as a known tension — deriving it needs
+// the harness to read LAYERS, which is a change to the app's debug API.
+check('layer toggles render with counts', (await page.locator('.layer-toggle').count()) === 5);
 
 /**
  * Pick a marker by brute-force hover across the globe and read back the event id
@@ -1268,7 +1264,6 @@ await page.locator('[data-tab="news"]').click();
 await page.waitForTimeout(400);
 await assertTextFits(page, '.news-item .news-title', 'extreme-length headlines');
 await assertTextFits(page, '.news-item .news-outlet', 'extreme-length outlet names');
-await assertSvgTextFits(page, '.tone-chart .chart-axis', 60, 'tone axis labels');
 
 // Header vitals, which carry population and dates.
 await selectCountry('United Kingdom');

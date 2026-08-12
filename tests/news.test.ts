@@ -8,10 +8,8 @@ import {
   isRtl,
   needsMeasuredWidth,
   normaliseTitle,
-  parseToneTimeline,
   SPARSE_ARTICLE_THRESHOLD,
-} from '../src/sources/gdelt-tone';
-import { renderToneChart } from '../src/news/tone-chart';
+} from '../src/sources/news-text';
 
 function fixture(name: string): unknown {
   return JSON.parse(readFileSync(resolvePath(import.meta.dirname, 'fixtures/news', `${name}.json`), 'utf8'));
@@ -121,50 +119,3 @@ describe('hard case — syndicated coverage', () => {
   });
 });
 
-describe('hard case — tone timeline gaps', () => {
-  it('keeps a day with no coverage as null, never zero', () => {
-    const timeline = parseToneTimeline(fixture('tone-sparse'));
-    assert.equal(timeline.missingDays, 8);
-    const missing = timeline.points.filter((point) => point.value === null);
-    assert.equal(missing.length, 8);
-    assert.ok(missing.every((point) => point.value !== 0));
-  });
-
-  it('breaks the line across missing days', () => {
-    const svg = renderToneChart(parseToneTimeline(fixture('tone-sparse')), { width: 320, height: 92 });
-    assert.equal((svg.match(/<polyline/g) ?? []).length, 2, 'a bridged gap would draw one line');
-    assert.match(svg, /chart-gap/);
-    assert.match(svg, /Not interpolated/);
-  });
-
-  it('draws one continuous line when no days are missing', () => {
-    const svg = renderToneChart(parseToneTimeline(fixture('tone-normal')), { width: 320, height: 92 });
-    assert.equal((svg.match(/<polyline/g) ?? []).length, 1);
-  });
-
-  it('plots nothing at all when no coverage was indexed', () => {
-    // A quiet window has no tone. A line at zero would report neutral coverage,
-    // which is a claim about coverage that does not exist.
-    const timeline = parseToneTimeline(fixture('tone-empty'));
-    assert.equal(timeline.observedDays, 0);
-    const svg = renderToneChart(timeline, { width: 320, height: 92 });
-    assert.match(svg, /chart--empty/);
-    assert.doesNotMatch(svg, /<polyline/);
-    assert.match(svg, /would report neutral sentiment/);
-  });
-});
-
-describe('tone is labelled as a measure of coverage, on the chart', () => {
-  it('states the caveat in the visible caption, not a footnote', () => {
-    const svg = renderToneChart(parseToneTimeline(fixture('tone-normal')), { width: 320, height: 92 });
-    assert.match(svg, /Tone of coverage, not conditions/);
-    assert.match(svg, /badge--derived/);
-  });
-
-  it('states the same caveat in the accessible label', () => {
-    const svg = renderToneChart(parseToneTimeline(fixture('tone-normal')), { width: 320, height: 92 });
-    const label = /aria-label="([^"]*)"/.exec(svg)?.[1] ?? '';
-    assert.match(label, /Machine sentiment estimate/);
-    assert.match(label, /Not a measure of conditions in this country/);
-  });
-});

@@ -113,9 +113,9 @@ function project(series: Series, options: ChartOptions): Projection | null {
 /**
  * Runs of consecutive observed points. Each becomes its own polyline.
  *
- * Generic over the point type so the news tone timeline, which is keyed by day
- * rather than year, gets the same never-bridge-a-gap behaviour from the same
- * code rather than a parallel implementation that could drift.
+ * Generic over the point type so a series keyed by day gets the same
+ * never-bridge-a-gap behaviour as one keyed by year, from the same code rather
+ * than a parallel implementation that could drift.
  */
 export function segmentsOf<T extends { value: number | null }>(points: readonly T[]): T[][] {
   const segments: T[][] = [];
