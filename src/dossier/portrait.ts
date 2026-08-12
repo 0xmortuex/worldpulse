@@ -114,6 +114,21 @@ function requiresCredit(licenseShortName: string | null): boolean {
  * credit is a compliance problem, not a cosmetic one — hence `creditRequired`
  * defaults to true whenever the licence cannot be read.
  */
+/**
+ * The imageinfo request the app makes for a Commons file.
+ *
+ * `origin=*` is not optional: MediaWiki emits Access-Control-Allow-Origin only
+ * when a request asks for it, so a request without it is unreadable from the
+ * browser. Exported so the fixture guard can compare against the real request
+ * rather than a remembered one.
+ */
+export function commonsImageinfoUrl(fileTitle: string): string {
+  return (
+    'https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo' +
+    `&iiprop=url%7Cextmetadata&origin=*&titles=${encodeURIComponent(fileTitle)}`
+  );
+}
+
 export function parseCommonsAttribution(raw: unknown, sourceId = 'wikimedia-commons'): PortraitAttribution {
   const root = expectObject(sourceId, raw, 'root');
   const query = expectObject(sourceId, root['query'], 'query');

@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { FIXTURES } from './fixtures/index';
 import { getSource } from '../src/facts/registry';
 import { loadCountries } from '../src/countries';
@@ -87,6 +89,86 @@ describe('fixture requests are requests the app can issue', () => {
         /SERVICE\s+wikibase:label/i,
         `${name}: body carries ${labelVars.join(', ')} but its requestUrl never invokes ` +
           'the label service, so that request cannot return this response',
+      );
+    });
+  }
+});
+
+/**
+ * A contract test must issue the request the app issues.
+ *
+ * Twice now a fixture URL has diverged from the app's real request and the test
+ * still passed: the wikidata-sparql fixture omitted `SERVICE wikibase:label`
+ * while its body carried `*Label` bindings, and the wikimedia-commons probe URL
+ * omitted `origin=*`, without which MediaWiki emits no ACAO at all. In both
+ * cases the divergence was a defect in the test, not a property of the source.
+ *
+ * Host equality (asserted above) is too weak to catch either. This compares the
+ * QUERY PARAMETERS: every parameter the app puts on a request to a host must
+ * appear on the fixture's request to that host. The app's URLs are read out of
+ * `src/` rather than maintained as a second list here, because a second list is
+ * a thing that drifts from the first.
+ */
+describe('fixture requests carry the parameters the app sends', () => {
+  const SRC = join(resolve(import.meta.dirname, '..'), 'src');
+
+  function walk(dir: string, out: string[] = []): string[] {
+    for (const entry of readdirSync(dir)) {
+      const path = join(dir, entry);
+      if (statSync(path).isDirectory()) walk(path, out);
+      else if (path.endsWith('.ts')) out.push(path);
+    }
+    return out;
+  }
+
+  /** URLs the app builds, by host, with their parameter names. */
+  const appParamsByHost = new Map<string, Set<string>>();
+  for (const file of walk(SRC)) {
+    /**
+     * Join adjacent string-literal concatenations before scanning.
+     *
+     * Without this the scanner stops at the first closing quote, so a URL
+     * assembled as `'https://host/path?a=1' + '&b=2'` contributes only `a`.
+     * That is not hypothetical — it is exactly how the Commons imageinfo URL is
+     * built, and this guard PASSED a planted removal of `origin=*` because it
+     * could not see the second fragment. A guard against vacuous passes that
+     * passes vacuously is the failure it was written to prevent.
+     */
+    const text = readFileSync(file, 'utf8').replace(/['"`]\s*\+\s*['"`]/g, '');
+    for (const match of text.matchAll(/https?:\/\/[^\s'"`)]+/g)) {
+      // Template placeholders make the URL unparseable; strip them to a token.
+      const cleaned = (match[0] as string).replace(/\$\{[^}]*\}/g, 'X');
+      let url: URL;
+      try {
+        url = new URL(cleaned);
+      } catch {
+        continue;
+      }
+      if (url.search === '') continue;
+      const names = appParamsByHost.get(url.host) ?? new Set<string>();
+      for (const name of url.searchParams.keys()) names.add(name);
+      appParamsByHost.set(url.host, names);
+    }
+  }
+
+  it('found app-constructed URLs to compare against', () => {
+    assert.ok(appParamsByHost.size > 0, 'no parameterised URLs found in src/ — this suite would pass vacuously');
+  });
+
+  for (const [name, fixture] of Object.entries(FIXTURES)) {
+    it(`${name}: sends every parameter the app sends to that host`, () => {
+      const url = new URL(fixture.requestUrl);
+      const appParams = appParamsByHost.get(url.host);
+      if (!appParams || appParams.size === 0) return;
+
+      const fixtureParams = new Set(url.searchParams.keys());
+      const missing = [...appParams].filter((param) => !fixtureParams.has(param));
+      assert.deepEqual(
+        missing,
+        [],
+        `${name}: the app sends ${missing.join(', ')} to ${url.host} and this fixture does not. ` +
+          'A contract test that omits a parameter the app sends is measuring a different request ' +
+          'than the app makes — origin=* on MediaWiki changes whether CORS headers appear at all.',
       );
     });
   }

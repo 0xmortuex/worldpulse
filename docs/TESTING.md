@@ -693,3 +693,42 @@ says *nothing was dropped* and stays true however the fixture grows. This is rul
 sibling — that one says name the test after the invariant, this one says **assert the
 invariant you named.** A correct name over an incidental assertion is worse than either
 alone, because the name is what the next reader trusts.
+
+## 26. A contract test must issue the request the app issues
+
+**Any divergence between a fixture's request URL and the request the app actually
+constructs is a defect in the test, not a property of the source.**
+
+Twice a fixture URL diverged and the test passed anyway:
+
+- `wikidata-sparql` omitted `SERVICE wikibase:label` while its body carried `*Label`
+  bindings — a request that could not have produced that response
+- `wikimedia-commons` omitted `origin=*`, without which MediaWiki emits no
+  `Access-Control-Allow-Origin` at all, so the request being measured had a different
+  CORS posture than the one the app makes
+
+Host equality is too weak to catch either. `tests/fixtures.test.ts` compares **query
+parameters**: every parameter the app sends to a host must appear on the fixture's request
+to that host, with the app's URLs read out of `src/` rather than kept as a second list
+that would drift from the first.
+
+### The guard's own first version passed vacuously
+
+Worth recording, because it is the sharpest instance of this class so far. The scanner
+matched `https?://[^\s'"`)]+`, which **stops at the first closing quote** — so a URL
+assembled as
+
+```ts
+'https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo' +
+`&iiprop=url&origin=*&titles=${encodeURIComponent(title)}`
+```
+
+contributed only `action` and `prop`. A planted removal of `origin=*` **passed**. A guard
+written against vacuous passes was itself passing vacuously, and only a planted violation
+revealed it — rule 6 earning its keep on the check that exists to enforce rule 6's
+neighbours.
+
+The scanner now joins adjacent string-literal concatenations before matching. The general
+lesson: **a static scanner's blind spots are invisible in its output**, because a pattern
+that matches nothing and a codebase with nothing to match produce identical results. Every
+such scanner needs a planted case that proves it can see the construct it claims to check.
