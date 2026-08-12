@@ -35,6 +35,27 @@ first. Both are latent rather than user-visible, because the app makes no runtim
 (`UNEXERCISED-PATHS.md` §8) — which is the only reason this is not an emergency under the
 `OPEN-QUESTIONS.md` criteria.
 
+### This is a defect in the query, not a flaky source — and it blocks step 9
+
+Reclassified deliberately. "WDQS is slow" invites retry-and-hope, which is the wrong
+treatment and would burn the step-9 legislature tab's budget on requests that cannot
+succeed. The evidence says the problem is ours:
+
+- it fails for **every** country tried, including Vatican City (one legislative body) and
+  Iceland (one chamber) — so it is not data volume at the country level
+- it fails at the **~60s mark**, which is WDQS's server-side timeout, not a network fault
+- the sibling cabinet query against the same endpoint returns in 52.6s for Iceland and is
+  fast for Tuvalu — same service, same moment, different query
+
+A query that exceeds a public endpoint's documented timeout for all inputs is a query that
+was never viable, and no amount of retry, backoff or caching makes it complete. **Step 9
+cannot be built on it**, and the design work — narrowing the OPTIONAL clauses that produce
+the cross-product, splitting the round trip per chamber, or precomputing at build time the
+way UCDP is — belongs before step 9 starts, not inside it.
+
+The same measurement puts the cabinet query on notice: 52.6s against a 60s ceiling is not a
+pass, it is the same defect one country larger.
+
 **Not acted on.** Fixing it means rewriting two SPARQL queries — narrowing the optional
 clauses, splitting the round trip, or moving the work to the Worker — which is query
 design, not queue work. It also means the legislature contract test in item 2 cannot be

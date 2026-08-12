@@ -877,3 +877,61 @@ the wrong `topojson` overload.
 errors about code neither config's owner has touched.** Any project config that narrows
 `include` or `types` needs the ambient declarations its files depend on, or it invents
 errors in code that compiles cleanly under the other view.
+
+## 32. A guard that cannot be called directly has not been tested
+
+**Every guard, gate, scanner and harness is factored so its logic is directly callable
+with a synthetic input.** Not "has a test somewhere" — *reachable*, in one call, with a
+hand-written argument, without starting a browser, a network request, or the suite it
+belongs to.
+
+This is stronger than rule 27, and it explains why rule 27 alone was not enough. Rule 27
+says every scanner ships with a permanent planted case. Planting a case requires
+*reachability*, and three separate guards did not have it:
+
+| Guard | Where its logic lived | How its bug was found |
+| --- | --- | --- |
+| URL scanner (rule 26) | inline regex in the check | planted case, only after extraction — **twice**, two different bugs |
+| Deploy gate verdict | inside the loop that used it | never; extracted and planted in queue item 3 |
+| Mutation classifier | inside the mutation runner | a misconfigured environment, by luck |
+
+Each read correctly. Each carried a comment stating its principle accurately. Each had gone
+green hundreds of times. **A host suite going green says nothing about a guard inside it**,
+because the suite exercises the guard on the inputs the suite happens to produce, and a
+guard's failure mode lives on the inputs nobody produces.
+
+The mutation classifier is the clearest case: its only exercise path was an hour-long
+browser suite, so in practice it had been run against exactly one kind of input — a healthy
+run — for its entire life. The input that broke it took thirty milliseconds to construct
+once the function could be called at all.
+
+**Testability is a property of the factoring, not an afterthought.** The shape that works,
+used now by `deploy-gate-rules.mjs`, `unexercised-check.mjs`, `mutation-verdict.mjs` and
+`chromium-path.mjs`: the caller does the I/O and passes everything in — including
+predicates like "does this file exist" — and the rule does nothing but decide. A `.d.mts`
+alongside each lets the TypeScript tests import it without `allowJs` or a cast.
+
+**Auditing for this is standing, not one-off.** A new gate, scanner or harness is not
+finished until its logic can be called with a synthetic input. `UNEXERCISED-PATHS.md` §9
+holds the current audit.
+
+### 32a. A guard testing a proxy is not testing its principle
+
+Every one of the three stated its principle correctly in a comment, and tested something
+adjacent to it:
+
+| Principle the comment stated | Proxy the code tested | Where they diverge |
+| --- | --- | --- |
+| does the app request this URL | does this string appear before the next quote | concatenated and templated URLs |
+| did any assertion run | did a `FAIL` line get parsed | the harness dies and prints its own FAIL |
+| is this source exercised | is a fixture registered | a fixture that produces no event of that kind |
+
+The proxy and the principle agree on every input anyone tries, and diverge **exactly at the
+case the guard exists for**. That is not a coincidence: the ordinary inputs are why the
+proxy looked equivalent when it was written, and the extraordinary input is the guard's
+whole reason to exist. A proxy chosen because it agrees on normal data is therefore
+*selected* to fail on the data that matters.
+
+So when writing a guard, state the principle first, then ask what input would separate it
+from the thing being measured — and if that input cannot be constructed and passed in, the
+guard is not finished (rule 32).

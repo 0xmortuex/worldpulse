@@ -207,3 +207,87 @@ Stated as a gap, not a plan:
 **None of this contradicts the contract tests.** They prove the real sources match the
 shapes the fixtures predict. They do not prove the app can consume them, because nothing
 in the app has ever tried.
+
+## 9. Guards that cannot be called directly — the rule 32 audit
+
+Standing audit. Every guard, gate, scanner and harness in the repository, scored on whether
+its decision logic can be invoked with a synthetic input.
+
+### Passing — logic is a pure function with planted cases
+
+| Guard | Module | Cases |
+| --- | --- | --- |
+| Deploy gate verdict | `scripts/deploy-gate-rules.mjs` | 13 |
+| Unexercised-path check | `scripts/unexercised-check.mjs` | in `gate-rules.test.ts` |
+| Mutation classifier | `scripts/mutation-verdict.mjs` | 8 |
+| Chromium resolution | `scripts/chromium-path.mjs` | 7 |
+| Source-scanning guards | `tests/guards.ts` | planted, incl. two regression cases |
+| Registry validator | `parseRegistry` in `src/facts/registry.ts` | planted |
+
+### FAILING — logic is unreachable except by running the thing
+
+**1. `scripts/probe-sources.mjs` — the CORS verdict ladder. Highest stakes.**
+
+The five-way classification (`CLIENT-FETCH` / `WORKER-REQUIRED` / `KEY-GATED` /
+`INCONCLUSIVE` / `UNREACHABLE`) is an `if`/`else if` chain inside `probeSource`, between two
+`await timedFetch` calls. The module exports nothing. There is no way to ask "what verdict
+does a 403 carrying `ACAO: *` produce" without making a live request to a real host.
+
+This one has the worst record in the repository. **Three separate defects have been found in
+this exact ladder, all by live re-runs:**
+
+- `!res.ok && !allowed` let an error response carrying `*` reach a conclusive verdict —
+  `wikidata-sparql` scored WORKER-REQUIRED twice and INCONCLUSIVE once off different error
+  codes, same source, same question, verdict decided by a header on a failed request
+- `requiresCustomUserAgent` decided the verdict on its own, on a premise that was backwards
+- the probe sent no User-Agent at all, so it measured a client the app is not
+
+Each was caught by re-probing and noticing an inconsistent answer — which requires network,
+an hour of rate-limited waiting, and someone to notice. Every one of them is a two-line
+synthetic input: a status, a header set, a source record.
+
+**This is a prerequisite for the fetch layer, not an aside.** `CORS-VERDICT.md` decides
+which sources the browser may call directly and which must go through the Worker, and that
+table is the fetch layer's routing input. A misclassification ships as either a broken panel
+or an unnecessary proxy hop.
+
+*Fix:* extract `verdictFor({ status, ok, corsHeaders, source })` as a pure function; the
+caller keeps the fetching. Planted cases for at least the three historical defects, which
+become permanent regression tests instead of anecdotes in a comment.
+
+**2. `scripts/extract-ucdp.mjs` — the RFC 4180 parser.**
+
+`makeCsvParser` and `slimEvent` are module-private; nothing imports them and no test
+references the file. The parser has had **two** defects, both found by cross-checking output
+against Python's `csv` module:
+
+- a line-based reader dropped 102,409 of 487,358 rows (21%) on embedded newlines
+- a `chunk[i+1]` peek read `undefined` at chunk boundaries, losing 14 records
+
+The second is the exact defect class a synthetic input reproduces trivially — feed the
+parser a quoted field split across two chunks — and that a live run hides, because 14
+records in 487,358 do not show up in any total anyone eyeballs. The read/kept/dropped
+accounting must balance, which is a good invariant, and it balanced while the parser was
+losing records, because the loss happened before counting.
+
+*Fix:* export `makeCsvParser`; planted cases for embedded newlines, escaped quotes, quotes
+spanning a chunk boundary, and a CRLF terminator.
+
+**3. `scripts/run-tests.mjs` — the "glob matched nothing" guard.**
+
+Inline, low stakes, and worth naming only because it is the guard protecting every other
+test from vacuously passing. A malformed glob reports success over zero tests.
+
+*Fix:* extract the count predicate. Small.
+
+### Neither — covered by a permanent live planted case
+
+`scripts/verify-render.mjs`'s geometry predicates run in the browser via `page.evaluate` and
+cannot be unit-called without a DOM. They are not unreachable, though: two **self-tests run
+on every single run**, deliberately breaking the page and asserting the predicate fires.
+That is rule 27 satisfied by a different mechanism.
+
+The residual gap is real and worth stating: a self-test proves the predicate *can* fail, not
+that it fires on each specific geometry it claims to detect. The rule-8 mutation covers one
+more case (rows collapsed to zero height). Neither is a substitute for calling the overlap
+arithmetic with two synthetic rectangles.

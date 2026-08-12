@@ -7,7 +7,22 @@
  */
 import { chromium } from 'playwright';
 import { mkdir, readdir, stat } from 'node:fs/promises';
+import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
+
+/**
+ * What Playwright would launch if left to itself. It throws rather than
+ * returning when no browser is registered for this platform, and that is a
+ * "cannot answer", not a path — see rule 30.
+ */
+function pinnedChromiumPath() {
+  try {
+    return chromium.executablePath();
+  } catch {
+    return null;
+  }
+}
 
 const BASE = process.argv[2] ?? 'http://localhost:4173';
 const SHOTS = 'artifacts';
@@ -385,7 +400,19 @@ const BREAKPOINTS = [
 
 // This environment ships Chromium out of band; PLAYWRIGHT_CHROMIUM_PATH points
 // at it so the npm package's pinned build number does not have to match.
-const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+//
+// Resolved rather than passed through: an unset variable here used to become a
+// launch failure inside Playwright, which this harness reported as a FAIL and
+// the mutation suite scored as a catch. Failing before the run starts, with the
+// export line to paste, is the difference between a misconfiguration and an
+// hour spent reading a green table that measured nothing.
+const { executablePath, note: chromiumNote } = resolveChromium({
+  envPath: process.env.PLAYWRIGHT_CHROMIUM_PATH,
+  pinnedPath: pinnedChromiumPath(),
+  exists: existsSync,
+  candidates: findChromiumCandidates(process.env.PLAYWRIGHT_BROWSERS_PATH, { readdirSync, existsSync }, join),
+});
+console.log(`chromium: ${chromiumNote}`);
 /**
  * Software rasterise by default: on a GPU-less box the globe otherwise renders
  * as an empty canvas and every marker check passes against nothing.

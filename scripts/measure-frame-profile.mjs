@@ -27,13 +27,31 @@
  * at an out-of-band build.
  */
 import { chromium } from 'playwright';
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
 
 const TRIALS = Number(process.argv[2] ?? 15);
 const BASE = process.argv[3] ?? 'http://localhost:4173';
 const MODES = (process.env.MODES ?? 'shipped,single,cleared').split(',');
 const HARDWARE = process.env.WORLDPULSE_HARDWARE_GL === '1';
 
-const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+// Resolved the same way verify-render.mjs resolves it, for the same reason the
+// rasteriser flags are matched below: a profile measured on a different browser
+// describes a different machine, and a profile that silently failed to start
+// describes nothing at all.
+const { executablePath } = resolveChromium({
+  envPath: process.env.PLAYWRIGHT_CHROMIUM_PATH,
+  pinnedPath: (() => {
+    try {
+      return chromium.executablePath();
+    } catch {
+      return null;
+    }
+  })(),
+  exists: existsSync,
+  candidates: findChromiumCandidates(process.env.PLAYWRIGHT_BROWSERS_PATH, { readdirSync, existsSync }, join),
+});
 const browser = await chromium.launch({
   ...(executablePath ? { executablePath } : {}),
   // Match verify-render.mjs exactly. A profile measured under a different
