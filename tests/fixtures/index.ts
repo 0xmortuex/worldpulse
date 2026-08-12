@@ -133,8 +133,15 @@ export const FIXTURES: Record<string, Fixture> = {
   },
   'gdelt-doc': {
     sourceId: 'gdelt-doc',
+    /**
+     * Carries `timespan`, which the app sends and this fixture did not — the
+     * third fixture found recording a request the app does not make, after the
+     * Wikidata label service and the Commons `origin`. Found by the parameter
+     * parity guard once its URL scanner could see concatenated fragments.
+     */
     requestUrl:
-      'https://api.gdeltproject.org/api/v2/doc/doc?query=sourcecountry%3AUS&mode=artlist&format=json&maxrecords=5',
+      'https://api.gdeltproject.org/api/v2/doc/doc?query=sourcecountry%3AUS' +
+      '&mode=artlist&format=json&timespan=30d&maxrecords=5',
     body: gdeltDoc,
   },
 };

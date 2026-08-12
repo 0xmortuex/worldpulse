@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { FIXTURES } from './fixtures/index';
+import { urlsInSource } from './guards';
 import { getSource } from '../src/facts/registry';
 import { loadCountries } from '../src/countries';
 import { ECONOMY_COUNTRIES } from '../src/dossier/economy-provider';
@@ -134,13 +135,10 @@ describe('fixture requests carry the parameters the app sends', () => {
      * could not see the second fragment. A guard against vacuous passes that
      * passes vacuously is the failure it was written to prevent.
      */
-    const text = readFileSync(file, 'utf8').replace(/['"`]\s*\+\s*['"`]/g, '');
-    for (const match of text.matchAll(/https?:\/\/[^\s'"`)]+/g)) {
-      // Template placeholders make the URL unparseable; strip them to a token.
-      const cleaned = (match[0] as string).replace(/\$\{[^}]*\}/g, 'X');
+    for (const raw of urlsInSource(readFileSync(file, 'utf8'))) {
       let url: URL;
       try {
-        url = new URL(cleaned);
+        url = new URL(raw.replace(/\$\{[^}]*\}/g, 'X'));
       } catch {
         continue;
       }

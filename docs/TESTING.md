@@ -732,3 +732,35 @@ The scanner now joins adjacent string-literal concatenations before matching. Th
 lesson: **a static scanner's blind spots are invisible in its output**, because a pattern
 that matches nothing and a codebase with nothing to match produce identical results. Every
 such scanner needs a planted case that proves it can see the construct it claims to check.
+
+## 27. Every scanner ships with a permanent planted case
+
+**A static scanner, guard or lint rule without a planted-violation test that runs in the
+suite is unverified, and its green output means nothing.**
+
+Rule 6 said a rule that has never failed is not a rule, and was applied by hand: break the
+thing, watch it go red, commit. That is not enough, because the check keeps working only
+until something changes underneath it and nothing is watching. **The planted case must be
+permanent and run every time.**
+
+The class this closes is not one anyone outruns by being careful. A pattern that matches
+nothing and a codebase with nothing to match produce **identical output**, so a scanner's
+blind spots are invisible in its own results *by construction*. Being careful cannot see
+past that; only an input known to contain a violation can.
+
+Earned twice in one sitting, on the guard written specifically to prevent vacuous passes:
+
+1. The URL scanner matched `https?://[^\s'"`)]+`, which stops at the first closing quote,
+   so a URL assembled by concatenation contributed only its first fragment. A planted
+   removal of `origin=*` **passed**.
+2. Fixed, and the permanent planted case then caught a *second* blind spot the hand-check
+   had missed: `${encodeURIComponent(x)}` contains a `)`, and the URL character class
+   stops at one, so every templated URL was truncated at its first interpolation.
+
+The second was found by the test, not by reading the regex — which is the entire argument
+for the rule. It also immediately found a real divergence in the `gdelt-doc` fixture, the
+third fixture recording a request the app does not make.
+
+Guard logic therefore lives in `tests/guards.ts` as pure functions, so each can be run
+against real input *and* against a synthetic violation. A guard embedded in the `it()`
+block that uses it cannot be pointed at a planted case without inventing a whole codebase.
