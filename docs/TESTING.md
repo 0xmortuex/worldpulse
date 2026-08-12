@@ -563,3 +563,31 @@ npm run probe         # source reachability and CORS posture
 
 `npm run verify` and `npm run mutate` need Chromium. Where it is installed out of band,
 set `PLAYWRIGHT_CHROMIUM_PATH` to the binary.
+
+## 21. A summary marker must be computed from the outcome it summarises
+
+**Any status glyph, badge, count or mark must derive from the result it claims to
+summarise — never from the input, the intent, or the claimed status.**
+
+Where this came from: the deploy gate printed its `[  ok  ]` / `[ BLOCK]` mark from
+`source.verifiedAgainst`, the value being *checked*, rather than from whether the check
+had passed. When a new rule started rejecting sources that claimed `live` without a
+fixture, the offending row printed:
+
+```
+[  ok  ] nasa-eonet   LIVE WITHOUT COVERAGE — no fixture registered …
+```
+
+Green mark, failing row. The gate still exited non-zero and the problem was still listed
+below, so nothing was *wrong* in a machine-checkable sense — which is exactly the danger.
+**Readers scan marks, not detail columns.** A glyph that does not derive from the outcome
+is a lie in the most-read position on the screen, and it is most convincing on the row
+that most needs attention.
+
+This generalises to every summary this project prints: the per-step assertion table, the
+mutation verdicts, the probe's verdict column, the extraction's kept/dropped tally. Each
+is a compression of a result, and a compression computed from anything other than the
+result can disagree with it.
+
+The fix is mechanical: compute the marker *after* the check, from what the check
+recorded. Here that meant comparing the problem count before and after the row.

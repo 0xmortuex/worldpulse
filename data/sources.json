@@ -25,6 +25,24 @@
       "verifiedAgainst": "bundled"
     },
     {
+      "id": "iso-3166-names",
+      "name": "ISO 3166-1 country names (via i18n-iso-countries)",
+      "panel": "globe",
+      "homepage": "https://github.com/michaelwittig/node-i18n-iso-countries",
+      "probeUrl": null,
+      "probeNote": "Bundled from npm at build time. No runtime fetch.",
+      "license": "MIT",
+      "licenseClass": "open",
+      "attribution": "Country names from ISO 3166-1, via i18n-iso-countries (MIT).",
+      "cadence": "static",
+      "ttlMs": null,
+      "tier": "OFFICIAL",
+      "keyRequired": false,
+      "keyEnv": null,
+      "notes": "Registered because the app SHIPS this data, not merely a library. It was invisible to the source-coverage grid and to the deploy gate until a test required every bundled dataset to name a registry source: the grid keyed on source-id strings, and nothing in src/ named this one.",
+      "verifiedAgainst": "bundled"
+    },
+    {
       "id": "worldbank",
       "name": "World Bank Indicators API v2",
       "panel": "economy",

@@ -36,6 +36,7 @@ const registry = JSON.parse(await readFile(resolve(ROOT, 'data/sources.json'), '
  */
 const BUNDLED_EVIDENCE = {
   naturalearth: 'tests/geometry.test.ts',
+  'iso-3166-names': 'tests/geometry.test.ts',
 };
 
 /**
