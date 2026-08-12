@@ -220,6 +220,45 @@ layers.
 | A1a | **`wikimedia-commons` was WORKER-REQUIRED because of our own query string.** MediaWiki emits `Access-Control-Allow-Origin` only when the request carries `origin=*`. Without it: 200, no ACAO. With it: 200, `ACAO: *` — **CLIENT-FETCH**. This is Wikidata's error in a second place, and portraits are a step-3 dependency that has already shipped, so it is corrected before anything is built on the wrong verdict. **Every MediaWiki request this app makes must carry `origin=*`**; it is a property of the API, not of one probe URL. |
 | A1b | **`gdelt-doc` gets one probe after a full day, and a fifth distinct failure is a finding, not a verdict.** It has now failed four times in four different ways: 429, 429, connection error, connect timeout. If a single probe after a day's interval fails a fifth way, that is a **Phase 0 correction about GDELT's availability**, not an inconclusive CORS result — and it matters because GDELT is the news tab's only source and **no fallback is specced for it**. Phase 0 §4 lists "per-country RSS" as the fallback for News; that is a sentence, not a design. |
 
+## Phase 0 correction — GDELT is not a usable source
+
+Recorded 2026-08-12 after **eight consecutive failures across a full session**, in four
+distinct modes, with quiet intervals between several of them:
+
+| # | Result |
+| --- | --- |
+| 1 | HTTP 429 |
+| 2 | HTTP 429 |
+| 3 | connection error |
+| 4 | connect timeout (targeted, after a gap) |
+| 5 | `fetch failed` at 10.9s (single request, not a sweep) |
+| 6 | HTTP 429 |
+| 7 | HTTP 429 |
+| 8 | HTTP 429 |
+
+**Zero successful responses.** Phase 0 §4 listed GDELT DOC 2.0 as the news source at
+~15-minute cadence; that was read from documentation and has never been observed.
+
+| # | Decision |
+| --- | --- |
+| 11 | **GDELT is held UNREACHABLE and is not a foundation for anything.** It stays in the registry with its failure history attached rather than being deleted — a removed source is a source nobody knows was tried. |
+| 11a | **Re-entry is through the same gate as everything else:** fixture, contract test, then `live`. If GDELT starts responding it becomes an *enrichment on top of* the RSS feeds, never the base layer again. |
+| 11b | **The tone timeline is removed, not approximated.** It is GDELT-only and has no fallback. Computing sentiment ourselves would mean this app authoring an editorial judgement about coverage it cannot cite — G1's rule, and N2's caveat exists precisely because the number is a machine estimate rather than a measurement. An estimate we produced ourselves would have no source at all. |
+| 11c | **The news tab's source becomes a curated per-country RSS list.** Phase 0's fallback was the sentence "per-country RSS"; this makes it a source with per-feed licensing recorded. |
+
+### The finding about the news tab, stated precisely
+
+The news tab **does not** currently render from GDELT and does not degrade to an empty
+panel. Like every other panel, it renders hand-authored fixtures, labelled: the SEED
+banner is up and each fact's inspector says *"Served from a hand-authored fixture, not a
+captured response."* **The app makes no runtime fetches at all** — see
+`UNEXERCISED-PATHS.md` §8.
+
+So this is not a shipped wrong-value defect. It is a panel with **no viable live source**,
+which matters when the fetch layer is built and not before. Recorded this way because an
+earlier report of mine described it as "shipping against a source that never responded",
+which was wrong and made the item sound more urgent than it is.
+
 ## Contested and ambiguous identity
 
 | # | Decision |
