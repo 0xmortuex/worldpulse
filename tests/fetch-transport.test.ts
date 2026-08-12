@@ -53,6 +53,9 @@ function stub({ responses }: StubOptions): { impl: typeof fetch; calls: string[]
     calls.push(String(input));
     const next = responses[Math.min(index, responses.length - 1)];
     index += 1;
+    // An empty `responses` array is a test that stubs nothing, which would
+    // otherwise surface as a confusing failure deep inside the transport.
+    if (next === undefined) throw new Error('stub fetch: no responses configured');
     if (next instanceof Error) throw next;
     // Cloned per call: a Response body can only be read once, and re-serving one
     // would make the second attempt fail for a reason the test did not intend.
