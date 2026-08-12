@@ -67,9 +67,34 @@ export async function loadSample(sourceId: string): Promise<{ body: unknown; ctx
     };
   }
 
-  const source = getSource(sourceId);
-  const url = source?.probeUrl ?? fixture.requestUrl;
-  const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+  /**
+   * Fetch the FIXTURE's request URL, not the source's `probeUrl`.
+   *
+   * These are different requests for different purposes: `probeUrl` is the
+   * cheapest thing that proves a host is reachable, while `requestUrl` is the
+   * request whose response shape this fixture claims to represent. Preferring
+   * `probeUrl` meant the live contract test asked a different question than the
+   * fixture answers.
+   *
+   * For `wikidata-sparql` those diverged completely — the fixture is a
+   * `?item ?itemLabel ?capital ?capitalLabel` query and the probe asks
+   * `SELECT ?cap`. The live test passed anyway, because it asserts on whatever
+   * variables come back. The same assertions were running against two different
+   * contracts, and only one of them was the app's.
+   */
+  const url = fixture.requestUrl;
+  void getSource;
+  // Rule 20: identify the client. Node's default User-Agent is rejected by
+  // Wikimedia's UA policy, so without this the live contract test would fail
+  // with a 403 that describes our own anonymity rather than the source. The
+  // probe learned this the expensive way; the same trap was sitting here.
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(20_000),
+    headers: {
+      'User-Agent':
+        'worldpulse/0.0 (https://github.com/0xmortuex/worldpulse) contract-test',
+    },
+  });
   if (!response.ok) {
     // Matches the probe's rule: a 4xx tells us nothing about the success path.
     throw new Error(`live fetch of ${sourceId} returned HTTP ${response.status} — inconclusive, not a contract failure`);
