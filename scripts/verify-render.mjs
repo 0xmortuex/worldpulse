@@ -1037,6 +1037,11 @@ if (picked.id && cameraBefore) {
   let repick = { id: null };
   let arrived = false;
   let attempts = 0;
+  // Which way each attempt failed, so the assertion below can say what the
+  // retry absorbed rather than only how many times it ran. A hover that never
+  // landed and a click that was dropped after a correct hover are different
+  // faults with different fixes.
+  const attemptLog = [];
   while (attempts < 3 && !arrived) {
     attempts += 1;
     // Park the pointer off the marker first, then re-pick. Moving to coordinates
@@ -1045,7 +1050,10 @@ if (picked.id && cameraBefore) {
     await page.mouse.move(10, 10);
     await page.waitForTimeout(250);
     repick = await pickEvent(picked.id, { focus: false });
-    if (repick.id !== picked.id) continue;
+    if (repick.id !== picked.id) {
+      attemptLog.push(`hover-missed (got ${repick.id})`);
+      continue;
+    }
 
     await page.mouse.down();
     await page.waitForTimeout(60);
@@ -1060,6 +1068,7 @@ if (picked.id && cameraBefore) {
       },
       5000,
     );
+    attemptLog.push(arrived ? 'arrived' : 'click-dropped after a correct hover');
   }
 
   check('positive control: the marker is hovered before the click', repick.id === picked.id,
@@ -1072,6 +1081,26 @@ if (picked.id && cameraBefore) {
     `before ${JSON.stringify(cameraBefore)} after ${JSON.stringify(after)} in ${attempts} attempt(s)`);
   check('the camera landed on that event\'s coordinates', arrived,
     `camera ${JSON.stringify(after)} target ${JSON.stringify(target)} in ${attempts} attempt(s)`);
+
+  /**
+   * The retry may absorb a frame-timing coin flip. It may not absorb a broken
+   * guard, and until this assertion existed there was no way to tell which one
+   * it was doing.
+   *
+   * Reporting the attempt count in the failure detail above is not visibility:
+   * those strings print only when the check fails, so a run needing all three
+   * attempts printed exactly like a run that worked first time. Measured on
+   * this machine, the first attempt succeeded 2 of 30 times — the retry was not
+   * smoothing a race, it was carrying the check.
+   *
+   * This is deliberately a check and not a warning. A degraded mechanism that
+   * still produces a green suite is the thing this project keeps being bitten
+   * by, and rule 15's whole claim was that needing all three attempts would be
+   * visible rather than silent.
+   */
+  check('the marker click worked on the first attempt', attempts === 1,
+    `needed ${attempts} attempt(s): ${attemptLog.join(', ')}. ` +
+    'The retry is masking a guard failure, not a frame-timing coin flip — see TESTING.md rule 15.');
 }
 
 // Occlusion: a marker on the far side must not be pickable.

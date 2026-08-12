@@ -296,16 +296,72 @@ inherited by nested templates, and the planted-violation control plants both sha
 
 ## 15. A flaky check is a check nobody reads
 
-The marker-click check failed about one run in three: globe.gl resolves a click against
-whatever its own raycast last hovered, and under swiftshader that raycast lands an
-indeterminate number of frames after the pointer moves, so the click is sometimes
-dropped entirely.
+The marker-click check retries the *race*, never relaxing the *assertion*. Each attempt
+still has to hover the same event, and the camera still has to land on that event's real
+coordinates.
 
-The fix is to retry the *race*, never to relax the *assertion*. Each attempt still has
-to hover the same event, and the camera still has to land on that event's real
-coordinates; only the frame-timing coin flip is retried, and the attempt count is
-reported in the failure detail so a check that starts needing all three attempts is
-visible rather than silent.
+**A flake rate is a property of a machine, not of a check.** Record the frame profile it
+was measured on, or the number cannot be compared with anything. Measure both with
+`node scripts/measure-frame-profile.mjs`.
+
+### This machine's profile
+
+Swiftshader, the same launch args `verify-render.mjs` uses, nothing else running:
+
+| | median | p95 | max | fps |
+| --- | --- | --- | --- | --- |
+| Idle globe, US selected | 583.3ms | 716.7ms | 1266.7ms | 1.7 |
+| During a `flyTo` | 550.1ms | 699.9ms | 1350ms | 1.8 |
+
+Under concurrent load the idle median rises to 716.7ms, so any measurement taken while
+something else runs is not this profile. The earlier machine rendered at ~2100ms per
+frame — 3.6× slower, but the same order. **Neither machine is fast enough for a fixed
+wait to mean anything**: the 600ms settle after `focusCluster` is about one frame, and
+the 150ms and 250ms parks are each under half a frame. Waits in this harness must be
+expressed as conditions, never durations.
+
+### Measured rates on that profile
+
+| Configuration | Failure rate |
+| --- | --- |
+| First attempt succeeded | **2 / 30 — 93% of first attempts fail** |
+| As shipped, 3-attempt retry | **40%** (18/30) |
+| One attempt, no retry (clean box, 20 trials) | **90%** |
+
+**The retry was not smoothing a race. It was carrying the check** — converting a guard
+that fails 93% of the time into a 40% background flake, which is exactly the rate at
+which people learn to re-run rather than read.
+
+Two consequences, both landed:
+
+1. `scripts/verify-render.mjs` now asserts
+   `check('the marker click worked on the first attempt', attempts === 1, …)`, with each
+   attempt's failure mode in the detail. Reporting the count only in a failure string was
+   never visibility: those strings print only when the check already failed, so a run
+   needing all three attempts printed identically to one that worked first time.
+2. `scripts/measure-frame-profile.mjs` measures the profile and all three rates together,
+   so the next machine can re-derive them rather than inheriting a number that does not
+   transfer.
+
+### What the flake is not
+
+Recorded so the next session does not re-derive them:
+
+- **Not camera damping.** Refuted previously.
+- **Not marker drift under a parked pointer.** Every failure measures
+  `pointerOffsetAtClick = 0px` and `driftAfterWait = {maxStep: 0, total: 0}`. The marker
+  is stationary and the pointer is on it. Drift occurs in about 2 trials in 15 and those
+  trials do fail, but it accounts for almost none of the rate.
+- **Not the stale tooltip alone.** `pickEvent` parks the pointer, waits 150ms — under half
+  a frame — then waits for `.evt` to exist, which the *previous* hover's tooltip satisfies
+  instantly. That guard is genuinely vacuous, and the positive control asserting the
+  marker was hovered reads the same leftover. But requiring the tooltip to disappear and
+  reappear, so a fresh hover is observed rather than assumed, **does not fix the click**:
+  4/20 versus 2/20 on a clean box, which is no improvement worth claiming.
+
+So the vacuous guard and the dropped click are two defects, not one. The guard is
+understood and its fix is known; **the click is not yet explained**, and no further fix
+should be written until it is.
 
 Re-running until green is not an option available here. A check that is re-run until it
 passes has stopped being evidence.
