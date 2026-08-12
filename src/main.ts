@@ -19,7 +19,8 @@ import { pairKey, score } from './relations/score';
 import type { RelationResult } from './relations/types';
 import { Store } from './state';
 import { BASE_STROKE, SELECTION_COLOR, SELECTION_STROKE, TIER_COLORS, TIER_COLORS_LOW_CONFIDENCE } from './theme';
-import { mountEconomyTab } from './ui/economy';
+import { mountEconomyTab, setEconScenario } from './ui/economy';
+import type { ScenarioName } from './fetch/scenario';
 import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
 import { mountDossierHeader } from './ui/header';
@@ -311,6 +312,8 @@ declare global {
       eventById(id: string): { lat: number; lng: number } | null;
       clusterFor(id: string): { id: string; memberCount: number } | null;
       tooltipFor(id: string): string | null;
+      /** Swap the economy panel's fetch scenario without reloading the page. */
+      setEconScenario(scenario: ScenarioName | null): void;
       counts(): {
         rendered: number;
         clusters: number;
@@ -341,6 +344,7 @@ function onScreen(lat: number, lng: number): boolean {
 }
 
 window.__worldpulse = {
+  setEconScenario,
   pointOfView: () => globe.pointOfView(),
   facesCamera: (lat, lng) => globe.facesCamera(lat, lng),
   /**

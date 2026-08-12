@@ -50,6 +50,8 @@ export const REGISTERED_RENDER_HELPERS: Record<string, string> = {
   axisBound: 'Axis scale bound describing the plotted range. A property of the plot, not a figure any source publishes in this form.',
   portraitFrame: 'Composes a portrait frame around a CSS pixel size, which it renders through px(). The numeric argument is a layout dimension, never a value read from a source.',
   portraitFigure: 'Composes a portrait figure around a CSS pixel size, which reaches the DOM through px(). Every fact inside it — the name, the office, the dates — is rendered with factHtml.',
+  describeAge:
+    'Age of an entry in OUR cache, coarsened to a phrase. It describes this app\'s request history, not the country — no source publishes it and no source could. The values it dates carry their own badges, and the figure it produces is deliberately imprecise because false precision on a cache age helps nobody.',
 };
 
 export function notAFact(value: number | string, reason: string): string {

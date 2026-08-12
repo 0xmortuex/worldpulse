@@ -1077,3 +1077,34 @@ button.badge { cursor: pointer; }
 .evt-members { margin-top: 6px; font-size: 10px; color: var(--text-dim); }
 .evt-members ul { margin: 4px 0 0; padding-left: 16px; }
 .evt-members li { color: var(--text-faint); }
+
+/* ---- fetch-layer panel states ---- */
+
+/* The skeleton must occupy the loaded panel's box: rules 8 and 9 apply to a
+   loading state exactly as they do to a loaded one, and a skeleton of the wrong
+   height ships a layout shift on every load. */
+.econ-block--skeleton .econ-skeleton-chart {
+  height: 120px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface-2, #161b22) 25%, var(--border, #30363d) 50%, var(--surface-2, #161b22) 75%);
+  background-size: 200% 100%;
+  animation: econ-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes econ-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .econ-block--skeleton .econ-skeleton-chart { animation: none; }
+}
+.econ-loading { color: var(--text-faint); font-style: italic; }
+
+.econ-unavailable,
+.econ-degraded,
+.econ-stale[data-stale='true'] {
+  border-left: 3px solid var(--warn, #d9a441);
+  padding: 0.5rem 0.75rem;
+  margin: 0 0 0.75rem;
+  background: color-mix(in srgb, var(--warn, #d9a441) 8%, transparent);
+}
+.econ-unavailable { border-left-color: var(--warn, #d9a441); }

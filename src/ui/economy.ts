@@ -2,6 +2,7 @@ import { escapeHtml, factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import { renderChart, type Scale } from '../economy/chart';
 import {
+  INDICATORS,
   indicatorById,
   isMonetary,
   latestValueFact,
@@ -9,7 +10,12 @@ import {
   shouldSuggestLog,
   type Series,
 } from '../economy/series';
-import { loadEconomy, type LoadedSeries } from '../dossier/economy-provider';
+import { loadEconomyLive, type EconomyLoad, type LiveRow } from '../dossier/economy-live';
+import { fetcherFor, setScenario, type RequestingFetcher, type ScenarioName } from '../fetch/scenario';
+import { SelectionTracker } from '../fetch/selection';
+import { panelStateFor, panelStateLabel, shortfallNote } from '../economy/panel-state';
+import { describeAge } from '../fetch/cache-policy';
+import type { AnyFact } from '../facts/types';
 
 /**
  * Economy tab.
@@ -33,45 +39,165 @@ export function resetEconomyScales(): void {
   scaleByIndicator.clear();
 }
 
+/**
+ * Live-loading state for the panel.
+ *
+ * Module-scoped rather than threaded through `renderEconomyTab`, because the
+ * tab renderer is synchronous and called by the panel router on every rerender.
+ * The alternative — making the whole panel pipeline async — is a much larger
+ * change than switching one source warrants.
+ */
+const loads = new Map<string, EconomyLoad | 'loading'>();
+const tracker = new SelectionTracker();
+let fetcher: RequestingFetcher | null = null;
+let rerenderPanel: (() => void) | null = null;
+
+/** Test seam: drop cached loads so a scenario can be re-driven. */
+export function resetEconomyLoads(): void {
+  loads.clear();
+  tracker.clear();
+  fetcher = null;
+}
+
 export function renderEconomyTab(iso3: string, countryName: string, today: Date): string {
   const referenceYear = today.getUTCFullYear();
   const window = { fromYear: referenceYear - WINDOW_YEARS, toYear: referenceYear, referenceYear };
-  const rows = loadEconomy(iso3, window);
 
-  const withData = rows.filter((row) => row.loaded !== null).length;
-  if (withData === 0) {
-    return `<div class="econ">
-      <p class="gov-pending"><strong>No economic data for ${escapeHtml(countryName)}.</strong>
-      The World Bank ingest is not connected yet and only a few countries have fixtures.</p>
-    </div>`;
+  if (tracker.current()?.subject !== iso3) tracker.select(iso3);
+
+  const existing = loads.get(iso3);
+  if (existing === undefined) {
+    loads.set(iso3, 'loading');
+    fetcher ??= fetcherFor(typeof location === 'undefined' ? '' : location.search);
+    const identity = tracker.current() ?? tracker.select(iso3);
+
+    void loadEconomyLive(fetcher, iso3, window, { identity }).then((load) => {
+      /**
+       * F6, in the app rather than only in a test.
+       *
+       * A load that resolves after the user has moved on is DISCARDED. Without
+       * this line France's GDP renders in Jamaica's dossier with a correct
+       * badge, real provenance and the wrong country — the one defect every
+       * other mechanism here passes.
+       */
+      if (!tracker.accepts(identity)) return;
+      loads.set(iso3, load);
+      rerenderPanel?.();
+    });
   }
 
-  return `<div class="econ">
-    <p class="econ-preamble">Each indicator states its own most recent year. World Bank
-    series update on different cadences, so there is no single "as of" for this panel.</p>
-    ${rows.map((row) => indicatorBlock(row.id, row.loaded)).join('')}
+  const load = loads.get(iso3);
+  if (load === undefined || load === 'loading') return loadingMarkup(countryName);
+
+  return loadedMarkup(load, countryName);
+}
+
+/**
+ * The skeleton occupies the loaded panel's box.
+ *
+ * Rules 8 and 9 apply to a loading state exactly as they do to a loaded one: a
+ * skeleton of the wrong height ships a layout shift on every single load.
+ */
+function loadingMarkup(countryName: string): string {
+  return `<div class="econ" data-panel-state="loading">
+    <p class="econ-preamble">Loading World Bank indicators for ${escapeHtml(countryName)}…</p>
+    ${INDICATORS.map(
+      (spec) => `<section class="econ-block econ-block--skeleton" data-indicator="${escapeHtml(spec.id)}">
+      <div class="econ-head">
+        <span class="econ-name">${escapeHtml(spec.name)}</span>
+        <span class="econ-loading" aria-live="polite">loading…</span>
+      </div>
+      <div class="econ-skeleton-chart" aria-hidden="true"></div>
+    </section>`,
+    ).join('')}
   </div>`;
 }
 
-function indicatorBlock(id: string, loaded: LoadedSeries | null): string {
-  const spec = indicatorById(id);
+function loadedMarkup(load: EconomyLoad, countryName: string): string {
+  const state = panelStateFor(
+    load.rows.map((row) => ({
+      loading: false,
+      answered: row.loaded !== null,
+      failed: row.failure !== null,
+      unconfigured: false,
+    })),
+  );
+
+  const missing = load.rows
+    .filter((row) => row.failure !== null)
+    .map((row) => indicatorById(row.id)?.name ?? row.id);
+  const shortfall = shortfallNote(missing, load.rows.length);
+
+  /**
+   * A stale value never renders silently (F2). The age is stated here, at the
+   * panel, and each row's own provenance carries it into the inspector.
+   */
+  const stale = load.rows
+    .filter((row) => row.loaded?.ctx.cache === 'stale-revalidating')
+    .map((row) => row.loaded?.ctx.fetchedAt)
+    .filter((at): at is string => typeof at === 'string');
+  const staleNote =
+    stale.length > 0
+      ? `<p class="econ-stale" data-stale="true">Showing cached figures from ${escapeHtml(
+          describeAge(Date.now() - Date.parse(stale[0] ?? new Date().toISOString())),
+        )} ago while refreshing. These are not the newest values the source may hold.</p>`
+      : '';
+
+  if (state === 'unavailable') {
+    return `<div class="econ" data-panel-state="unavailable">
+      <p class="econ-unavailable"><strong>World Bank data is unavailable for ${escapeHtml(countryName)}.</strong>
+      This is a fact about our request, not about ${escapeHtml(countryName)} — the source did not answer,
+      which is different from reporting no data. Open any badge below to see the failed request.</p>
+      ${load.rows.map((row) => indicatorBlock(row)).join('')}
+    </div>`;
+  }
+
+  return `<div class="econ" data-panel-state="${state}">
+    <p class="econ-preamble">Each indicator states its own most recent year. World Bank
+    series update on different cadences, so there is no single "as of" for this panel.</p>
+    ${
+      shortfall
+        ? `<p class="econ-degraded" data-shortfall="true"><strong>${escapeHtml(
+            panelStateLabel(state),
+          )}.</strong> ${escapeHtml(shortfall)}</p>`
+        : ''
+    }
+    ${staleNote}
+    ${load.rows.map((row) => indicatorBlock(row)).join('')}
+  </div>`;
+}
+
+function indicatorBlock(row: LiveRow): string {
+  const spec = indicatorById(row.id);
   if (!spec) return '';
 
-  if (!loaded) {
-    return `<section class="econ-block" data-indicator="${escapeHtml(id)}">
+  if (!row.loaded) {
+    /**
+     * A failed indicator renders as a FACT in the unavailable state, not as a
+     * bare message. That routes it through the badge and the inspector, so the
+     * failed request is inspectable exactly like a successful one — which is the
+     * point of modelling the failure as provenance rather than as an error
+     * string.
+     */
+    const fact: AnyFact = {
+      value: null,
+      asOf: '',
+      tier: spec.tier ?? 'OFFICIAL',
+      provenance: row.failure,
+    };
+    return `<section class="econ-block" data-indicator="${escapeHtml(row.id)}">
       <div class="econ-head">
         <span class="econ-name">${escapeHtml(spec.name)}</span>
-        <span class="econ-notfetched">not fetched</span>
+        <span class="econ-value">${factHtml(fact, { hideAsOf: true })}</span>
       </div>
-      <p class="econ-caveat">No fixture for this indicator and country. It is listed
-      rather than omitted, because an indicator missing from the panel is
-      indistinguishable from one that does not exist.</p>
+      <p class="econ-caveat">The request for this indicator did not succeed. This says
+      nothing about ${escapeHtml(spec.name.toLowerCase())} in this country.</p>
     </section>`;
   }
 
-  const { series, raw, ctx } = loaded;
+  const { series, raw, ctx } = row.loaded;
   const fact = latestValueFact(series, ctx, raw);
-  const scale = scaleByIndicator.get(id) ?? 'linear';
+  const scale = scaleByIndicator.get(row.id) ?? 'linear';
   const logAvailable = logScaleAvailable(series);
 
   // Short here; the full basis caveat travels with the Fact itself so it
@@ -80,7 +206,7 @@ function indicatorBlock(id: string, loaded: LoadedSeries | null): string {
     isMonetary(spec.basis) ? ` · ${escapeHtml(spec.basis.replace('-usd', ' US$').replace('ppp', 'PPP int$'))}` : ''
   }</div>`;
 
-  return `<section class="econ-block" data-indicator="${escapeHtml(id)}">
+  return `<section class="econ-block" data-indicator="${escapeHtml(row.id)}">
     <div class="econ-head">
       <span class="econ-name">${escapeHtml(spec.name)}</span>
       <span class="econ-value">${factHtml(fact, { hideAsOf: true })}</span>
@@ -104,7 +230,7 @@ function indicatorBlock(id: string, loaded: LoadedSeries | null): string {
     </div>
     ${unitLine}
     ${renderChart(series, { ...CHART, scale })}
-    ${scaleControls(id, series, scale, logAvailable)}
+    ${scaleControls(row.id, series, scale, logAvailable)}
     ${gapNote(series)}
   </section>`;
 }
@@ -149,7 +275,26 @@ function gapNote(series: Series): string {
 }
 
 /** Per-indicator log/linear toggle. */
+/**
+ * Test seam for the browser harness, wired into main.ts's existing
+ * `window.__worldpulse` rather than declaring a second global.
+ *
+ * Deliberately narrow: it selects among scenarios already in the bundle, every
+ * one of which marks its responses `fromFixture` so the inspector warns on
+ * screen. It cannot introduce data and cannot make a fixture claim to be live.
+ * What it buys is switching states WITHOUT a page reload, which the harness
+ * needs because reloading measurably degrades the globe checks that run after
+ * it (rule 20: an instrument that degrades what it measures is not measuring
+ * it).
+ */
+export function setEconScenario(scenario: ScenarioName | null): void {
+  setScenario(scenario);
+  resetEconomyLoads();
+  rerenderPanel?.();
+}
+
 export function mountEconomyTab(root: HTMLElement, rerender: () => void): void {
+  rerenderPanel = rerender;
   root.addEventListener('click', (event) => {
     const toggle = (event.target as HTMLElement).closest<HTMLElement>('[data-scale]');
     const id = toggle?.dataset['scale'];

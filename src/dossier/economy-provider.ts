@@ -55,6 +55,21 @@ export const ECONOMY_COUNTRIES = [
   ...new Set([...Object.keys(GDP_BY_COUNTRY), ...Object.keys(INFLATION_BY_COUNTRY), ...Object.keys(GINI_BY_COUNTRY)]),
 ];
 
+/**
+ * The per-country fixture for one indicator, or undefined.
+ *
+ * Exported so the `fixtures` scenario can serve exactly what this provider
+ * served. The browser suite's hard cases — a mid-series gap, a redenomination,
+ * an eight-year-old latest observation, an indicator with no data — are each
+ * reachable only from a specific country's real history, and live data will not
+ * reproduce them on demand. Losing them when the panel went live would have
+ * traded deterministic coverage of the difficult branches for coverage of the
+ * easy one.
+ */
+export function fixtureFor(iso3: string, indicatorId: string): unknown {
+  return BY_INDICATOR[indicatorId]?.[iso3];
+}
+
 export interface LoadedSeries {
   series: Series;
   raw: IndicatorSeries;

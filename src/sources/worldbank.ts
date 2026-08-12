@@ -1,4 +1,5 @@
 import type { Fact } from '../facts/types';
+import type { RequestSpec } from '../fetch/compose';
 import {
   expectArray,
   expectObject,
@@ -25,8 +26,30 @@ export interface IndicatorSeries {
   observations: Observation[];
 }
 
+/**
+ * The question this adapter asks, as data (decision F4).
+ *
+ * The adapter owns path and query; `compose` supplies origin, routing and key
+ * from the registry. `buildUrl` below is kept and now derives from this, so the
+ * two cannot drift: a contract test calling `buildUrl` and an app calling
+ * `buildRequest` must produce the same request, and the only way to guarantee
+ * that is for one to be built from the other.
+ */
+export function buildRequest(iso3: string, indicator: string, perPage = 60): RequestSpec {
+  return {
+    sourceId: SOURCE_ID,
+    path: `/v2/country/${encodeURIComponent(iso3)}/indicator/${encodeURIComponent(indicator)}`,
+    query: { format: 'json', per_page: String(perPage) },
+  };
+}
+
 export function buildUrl(iso3: string, indicator: string, perPage = 60): string {
-  return `https://api.worldbank.org/v2/country/${encodeURIComponent(iso3)}/indicator/${encodeURIComponent(indicator)}?format=json&per_page=${perPage}`;
+  // Derived from buildRequest so the two cannot disagree. The origin is still
+  // written here because this is the pre-fetch-layer entry point the existing
+  // contract test calls; compose() takes it from the registry instead.
+  const spec = buildRequest(iso3, indicator, perPage);
+  const query = new URLSearchParams(spec.query).toString();
+  return `https://api.worldbank.org${spec.path}?${query}`;
 }
 
 /**

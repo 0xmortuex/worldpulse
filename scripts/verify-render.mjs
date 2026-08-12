@@ -240,6 +240,7 @@ const ALL_STEPS = [
   '5 — economy tab',
   '6 — news tab',
   '7 — globe event layers',
+  '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
   'cross-cutting — layout geometry (rule 8)',
 ];
@@ -822,10 +823,23 @@ await page.waitForTimeout(300);
 step('5 — economy tab');
 // ---- step 5: economy tab ----
 
+/**
+ * Step 5's hard cases run against `?econ=fixtures`, which serves exactly what the
+ * fixture provider used to serve.
+ *
+ * The panel is live now, and live World Bank data will not produce a mid-series
+ * gap, a redenomination or an eight-year-old latest observation on demand. Left
+ * on the live path these assertions would silently become assertions about
+ * whatever the API happens to return today, which is not a test of the branches
+ * they were written for.
+ */
+await page.evaluate(() => window.__worldpulse.setEconScenario('fixtures'));
+await page.waitForTimeout(200);
+
 async function openEconomy(country) {
   await selectCountry(country);
   await page.locator('[data-tab="economy"]').click();
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(600);
 }
 
 await openEconomy('United States');
@@ -890,6 +904,7 @@ await page.waitForTimeout(300);
 await openEconomy('United States');
 check('a log toggle does not follow the user to another country',
   /linear scale/.test(await page.locator('.econ').innerText()));
+
 
 step('6 — news tab');
 // ---- step 6: news tab ----
@@ -1261,6 +1276,108 @@ check('the unreviewed magnitude still shows its value and its revision caveat',
 check('a magnitude the source never published reads "no data", not a number',
   /no data/.test(noMagLabel ?? '') && !/fact-value">[\d.]/.test(noMagLabel ?? ''),
   (noMagLabel ?? '').slice(0, 200));
+
+step('7b — economy fetch states');
+// ---- step 7b: the four states the fetch layer introduces ----
+//
+// Placed AFTER the globe steps deliberately. This block reloads the page five
+// times, and running it earlier measurably worsened step 7's marker-click check
+// — which is frame-rate sensitive and already the suite's known flake. Five
+// extra WebGL context teardowns ahead of it took that check from one failure to
+// five. The reloads are necessary; running them before a check they degrade is
+// not.
+//
+// Driven by `?econ=<scenario>`, which installs a deterministic fetcher. Each
+// response it serves is marked fromFixture, so a scenario run says on screen
+// that it is not live data.
+//
+// These states are each reachable only through a specific remote failure.
+// Demonstrating them against the live World Bank would mean waiting for it to
+// break, which is not a test.
+
+/**
+ * Switch scenario WITHOUT reloading.
+ *
+ * Navigating instead of calling this cost step 7 three extra failures: its
+ * marker-click check is frame-rate sensitive and is the suite's known flake, and
+ * repeated WebGL context teardowns ahead of it made it fail four ways instead of
+ * one. Measured, both ways round.
+ */
+async function openEconomyScenario(scenario) {
+  await page.evaluate((name) => window.__worldpulse.setEconScenario(name), scenario);
+  await selectCountry('United States');
+  await page.locator('[data-tab="economy"]').click();
+  await page.waitForTimeout(600);
+}
+
+await openEconomyScenario('loading');
+check(
+  'a panel awaiting its first response renders a loading state, not an empty one',
+  (await page.locator('.econ[data-panel-state="loading"]').count()) === 1,
+);
+check(
+  'the skeleton reserves a block per indicator rather than collapsing the panel',
+  (await page.locator('.econ-block--skeleton').count()) > 0,
+);
+await shot(page, `${SHOTS}/17b-economy-loading.png`);
+
+await openEconomyScenario('unavailable');
+const econUnavailable = await page.locator('.econ').innerText();
+check(
+  'a panel whose every request failed renders unavailable, not "no data"',
+  (await page.locator('.econ[data-panel-state="unavailable"]').count()) === 1,
+);
+check(
+  'the unavailable panel says the failure is about our request, not the country',
+  /fact about our request/i.test(econUnavailable),
+);
+check(
+  'a failed indicator carries an UNAVAILABLE badge rather than a tier badge',
+  (await page.locator('.econ-block .badge--unavailable').count()) > 0 &&
+    (await page.locator('.econ-block .badge--official').count()) === 0,
+);
+check(
+  'no failed indicator is worded as the country having no data',
+  !/>\s*no data\s*</i.test(await page.locator('.econ').innerHTML()),
+);
+await shot(page, `${SHOTS}/17c-economy-unavailable.png`);
+
+await openEconomyScenario('degraded');
+const econDegraded = await page.locator('.econ').innerText();
+check(
+  'a partially-answered panel renders degraded, distinct from both ok and unavailable',
+  (await page.locator('.econ[data-panel-state="degraded"]').count()) === 1,
+);
+check('the degraded panel names what is missing rather than only counting it', /unavailable:/i.test(econDegraded));
+check(
+  'the indicators that did answer still render their values',
+  (await page.locator('.econ-block svg.chart').count()) > 0,
+);
+await shot(page, `${SHOTS}/17d-economy-degraded.png`);
+
+await openEconomyScenario('stale');
+const econCached = await page.locator('.econ').innerText();
+check(
+  'a stale value never renders silently — the panel states its age',
+  (await page.locator('.econ-stale[data-stale="true"]').count()) === 1 && /ago while refreshing/i.test(econCached),
+);
+check('the stale notice says these may not be the newest values', /not the newest values/i.test(econCached));
+await shot(page, `${SHOTS}/17e-economy-stale.png`);
+
+/**
+ * Restore the fixture scenario for the steps that follow.
+ *
+ * NOT the default app. Every later economy assertion measures text fidelity and
+ * layout geometry, which need data that is the same on every run — and the
+ * default path is live, so in an environment that cannot reach api.worldbank.org
+ * those checks would measure an unavailable panel and report "matched something
+ * to measure" failures that say nothing about the geometry they exist to test.
+ *
+ * The live path is exercised end to end in tests/worldbank-live.test.ts under
+ * PROBE_LIVE=1, where a real response can actually be obtained.
+ */
+await page.evaluate(() => window.__worldpulse.setEconScenario('fixtures'));
+await page.waitForTimeout(200);
 
 step('cross-cutting — text fidelity (rule 9)');
 // ---- text fidelity (TESTING.md rule 9), retroactive ----

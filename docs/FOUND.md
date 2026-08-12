@@ -112,3 +112,43 @@ under the old logic and NOT-EXERCISED/exit 1 under the new.
 `TESTING.md` but is not set by this environment, so `npm run verify` and `npm run mutate`
 both need it exported. That is a setup fact, not a defect, but it is what made the defect
 observable.
+
+---
+
+## The browser cannot reach any live origin in this container
+
+**Found while switching the economy panel to live World Bank data (2026-08-12).**
+
+`fetch('https://api.worldbank.org/...')` from inside Chromium fails with
+`TypeError: Failed to fetch`. Outbound HTTPS in this environment goes through an agent
+proxy that Node is configured for and the browser is not. Pointing Playwright at
+`HTTPS_PROXY` does not fix it either — the proxy presents its own CA, which Chromium does
+not trust — and the remaining step, disabling certificate verification, is not available.
+
+**Consequence for the suite.** The live path cannot be exercised in the browser here. It is
+proven end to end in Node instead (`tests/worldbank-live.test.ts`, `PROBE_LIVE=1`), which
+runs the real request through registry → compose → transport → adapter → `Fact`. The
+browser suite drives the economy panel through deterministic scenarios.
+
+**This is not a workaround for flakiness, and the distinction matters.** Even with browser
+egress the scenario mechanism would still be needed: `loading`, `stale`, `degraded` and
+`unavailable` are each reachable only through a specific remote failure, and demonstrating
+them against a live origin means waiting for it to break.
+
+### A second finding, measured rather than suspected
+
+Switching scenarios by page navigation **made an existing flaky check worse**. Step 7's
+marker-click check is frame-rate sensitive and is the suite's known flake. With four extra
+`page.goto` reloads ahead of it:
+
+| Harness shape | Step 7 failures |
+| --- | --- |
+| Before this work | 1 (the known flake) |
+| Scenarios by reload, before step 6 | 5 |
+| Scenarios by reload, after step 7 | 4 |
+| Scenarios by in-page hook, no reload | 2, and 0 on a subsequent run |
+
+Reordering helped and did not fix it; removing the reloads did. **An instrument that
+degrades the thing it measures is not measuring it** — rule 20, arriving from the opposite
+direction to the one it was written for: not an instrument that resembles the client too
+little, but one whose own cost changes the client's behaviour.
