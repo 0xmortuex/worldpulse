@@ -40,3 +40,54 @@ clauses, splitting the round trip, or moving the work to the Worker — which is
 design, not queue work. It also means the legislature contract test in item 2 cannot be
 written against a real capture, which is recorded as deliberately-not-done rather than
 silently skipped.
+
+---
+
+## The mutation suite could report a clean gate over zero executed assertions
+
+Found while running `npm run mutate` for the queue's closing gate.
+
+**Acted on, unlike everything else in this file.** The standing rule is that a finding is
+recorded and does not reprioritise the queue. This one is the exception, and the reason is
+narrow: it is a defect in the instrument that produces *the gate condition for the item in
+flight*. "Zero SURVIVED and zero unclassified" was the thing being measured, and this is
+the bug that lets a run print exactly that having measured nothing. Deferring it would
+have meant closing the item on a number I had just proved could be fabricated.
+
+**What happens.** `verify-render.mjs` aborts before any assertion when it cannot launch a
+browser — an unset `PLAYWRIGHT_CHROMIUM_PATH` on a machine that ships Chromium out of band
+does it. The abort is reported honestly: every step skipped, `0 assertions across 9 steps`,
+non-zero exit.
+
+`mutation-check.mjs` scored that **CAUGHT-ELSEWHERE**. That verdict was absent from the
+list gating the exit code, so:
+
+```
+9 mutation(s): 0 caught by the named assertion, 9 caught elsewhere, 0 SURVIVED, 0 inconclusive
+exit 0
+```
+
+A green mutation gate over an empty run.
+
+**Why the existing guard missed it.** The guard was already there, with the right reasoning
+written above it — *"a non-zero exit with nothing parsed is not a catch... calling that
+CAUGHT would be the same overstatement as calling a build failure a catch."* It is defeated
+because the abort prints its own `FAIL harness aborted: ...` line, so something **was**
+parsed. The check asked *did a FAIL line appear*; the question it meant to ask was *did any
+assertion run*. Those agree on every healthy run and diverge precisely when the harness
+dies — the one case the guard existed for. Third instance of the pattern behind rule 27:
+the two vacuous rule-26 passes were the first two.
+
+**Fixed.** `scripts/mutation-verdict.mjs` — classification extracted as a pure function so
+planted cases can drive it, keyed on the suite's own assertion tally rather than on the
+wording of a failure line. New verdict `NOT-EXERCISED`, checked **before** `exit === 0` so
+a run that never looked cannot score SURVIVED either. `INCONCLUSIVE` is exported from one
+place; it had been three inline literals, and the disagreement between two of them is the
+whole bug. Eight planted cases in `tests/mutation-verdict.test.ts`, the first built from
+the recorded output of the real failed run — verified to score CAUGHT-ELSEWHERE/exit 0
+under the old logic and NOT-EXERCISED/exit 1 under the new.
+
+**Also worth knowing:** `PLAYWRIGHT_CHROMIUM_PATH` is documented in `README.md` and
+`TESTING.md` but is not set by this environment, so `npm run verify` and `npm run mutate`
+both need it exported. That is a setup fact, not a defect, but it is what made the defect
+observable.

@@ -31,8 +31,19 @@ import { existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { dirname, join, resolve } from 'node:path';
+import { INCONCLUSIVE, classifyMutation, failingLabels } from './mutation-verdict.mjs';
 
 const run = promisify(execFile);
+
+/**
+ * The reason the harness gave for dying, when it died. Reported instead of the
+ * app assertions precisely because there are none to report — an unset
+ * PLAYWRIGHT_CHROMIUM_PATH should say so, not leave the reader to guess why a
+ * mutation went unclassified.
+ */
+function firstHarnessFailure(out) {
+  return failingLabels(out).find((label) => label.startsWith('harness'));
+}
 const ROOT = resolve(import.meta.dirname, '..');
 
 /**
@@ -381,26 +392,16 @@ try {
         continue;
       }
 
-      const failedLabels = [...out.matchAll(/^ {2}FAIL (.+?)(?: \{|$)/gm)].map((match) => match[1].trim());
-      // The layout self-test always "fails" by design; it is not evidence.
-      const real = failedLabels.filter((label) => !label.startsWith('self-test'));
-      const matched = real.filter((label) => mutation.expect.test(label));
+      // Classification lives in mutation-verdict.mjs so planted cases can drive
+      // it (rule 27). It was inline here, and inline is why it scored a browser
+      // that failed to launch as CAUGHT-ELSEWHERE for the whole of this step —
+      // the only way to exercise the parser was to run the suite it belongs to.
+      const { verdict, evidence, matched, assertions } = classifyMutation({ exit, out, expect: mutation.expect });
 
-      // A non-zero exit with nothing parsed is not a catch. The suite stopped
-      // for a reason this parser cannot see — an early abort, or a skipped
-      // check, both of which mean the assertion under test never rendered a
-      // verdict. Calling that CAUGHT would be the same overstatement as calling
-      // a build failure a catch.
-      const verdict =
-        exit === 0
-          ? 'SURVIVED'
-          : real.length === 0
-            ? 'UNPARSED'
-            : matched.length > 0
-              ? 'CAUGHT'
-              : 'CAUGHT-ELSEWHERE';
-
-      let detail = (matched[0] ?? real[0] ?? `exit ${exit}, no failing check parsed`).slice(0, 90);
+      let detail =
+        verdict === 'NOT-EXERCISED'
+          ? `${assertions ?? 'no'} assertions ran — ${(evidence[0] ?? firstHarnessFailure(out) ?? `exit ${exit}`).slice(0, 60)}`
+          : (matched[0] ?? evidence[0] ?? `exit ${exit}, no failing check parsed`).slice(0, 90);
       if (verdict !== 'CAUGHT') {
         // Keep the evidence. Diagnosing a surprising verdict by re-running the
         // whole suite is how a surprising verdict gets waved through instead.
@@ -410,7 +411,11 @@ try {
       }
 
       results.push({ ...mutation, verdict, detail });
-      console.log(`  ${verdict}: ${real.length} check(s) failed${matched.length > 0 ? `, incl. "${matched[0]}"` : ''}`);
+      console.log(
+        verdict === 'NOT-EXERCISED'
+          ? `  NOT-EXERCISED — ${detail}`
+          : `  ${verdict}: ${evidence.length} check(s) failed${matched.length > 0 ? `, incl. "${matched[0]}"` : ''}`,
+      );
     } finally {
       await writeFile(path, original);
     }
@@ -426,15 +431,16 @@ const width = Math.max(...results.map((entry) => entry.step.length), 4);
 console.log(`  ${'step'.padEnd(width)}  verdict`);
 for (const entry of results) console.log(`  ${entry.step.padEnd(width)}  ${entry.verdict} — ${entry.detail}`);
 
-const inconclusive = results.filter((entry) =>
-  ['SURVIVED', 'STALE', 'BUILD-FAILED', 'TIMEOUT', 'UNPARSED'].includes(entry.verdict),
-);
+const inconclusive = results.filter((entry) => INCONCLUSIVE.includes(entry.verdict));
 console.log(
   `\n${results.length} mutation(s): ` +
     `${results.filter((e) => e.verdict === 'CAUGHT').length} caught by the named assertion, ` +
     `${results.filter((e) => e.verdict === 'CAUGHT-ELSEWHERE').length} caught elsewhere, ` +
     `${results.filter((e) => e.verdict === 'SURVIVED').length} SURVIVED, ` +
-    `${results.filter((e) => ['STALE', 'BUILD-FAILED', 'TIMEOUT', 'UNPARSED'].includes(e.verdict)).length} inconclusive`,
+    // Counted off the same list that gates the exit code. These were two
+    // independent literals, and CAUGHT-ELSEWHERE being absent from the gating
+    // one is exactly how a run with zero executed assertions exited clean.
+    `${results.filter((e) => e.verdict !== 'SURVIVED' && INCONCLUSIVE.includes(e.verdict)).length} inconclusive`,
 );
 if (inconclusive.length > 0) {
   console.log('\nNot proof that the suite can see these behaviours:');
