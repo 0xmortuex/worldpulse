@@ -392,6 +392,7 @@ describe('refuses rather than rendering a confident wrong value', () => {
     headOfStateHolderCount: 1,
     headOfStateIsPerson: true,
     formLabels: ['republic'],
+    countryQids: ['Q1'],
   };
   const person = {
     qid: 'Q2',
@@ -452,6 +453,21 @@ describe('refuses rather than rendering a confident wrong value', () => {
     assert.equal(result.primary, null);
     assert.match(result.ruleReason, /Emirate/);
     assert.match(result.ruleReason, /unitary state/);
+  });
+
+  it('refuses when the ISO code matches several Wikidata entities', () => {
+    // Palestine, live: P298 "PSE" binds both Q219060 and Q407199, so one dossier
+    // draws fields from two items — which is why it returns two heads of
+    // government. Choosing between them would be taking a position on statehood.
+    const result = resolveLeader('PSE', {
+      ...base,
+      headOfState: person,
+      countryQids: ['Q219060', 'Q407199'],
+    });
+    assert.equal(result.class, 'undetermined');
+    assert.equal(result.primary, null);
+    assert.match(result.ruleReason, /Q219060, Q407199/);
+    assert.match(result.ruleReason, /statehood/);
   });
 
   it('positive control: a single human holder still resolves normally', () => {

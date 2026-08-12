@@ -155,6 +155,33 @@ export function resolveLeader(iso3: string, record: CountryDossierRecord): Leade
    * rule this project already refused, in a smaller costume.
    */
   /**
+   * The ISO code matched more than one Wikidata entity. Refuse, and name them.
+   *
+   * `P298` is not unique: Palestine resolves to Q219060 and Q407199, and a
+   * dossier assembled across two items is a record of neither — it is why PSE
+   * returns two heads of government.
+   *
+   * **This app does not choose a canonical entity.** For a contested case that
+   * would be taking a position on statehood, which is not this app's to take.
+   * Refusing is both the honest answer and the correct one.
+   */
+  if (record.countryQids.length > 1) {
+    return {
+      class: 'undetermined',
+      ruleNumber: 0,
+      ruleLabel: `ISO code matches ${record.countryQids.length} Wikidata entities`,
+      ruleReason:
+        `This country's ISO 3166 code resolves to more than one Wikidata item — ` +
+        `${record.countryQids.join(', ')}. A dossier assembled across several items is a ` +
+        'record of none of them, and choosing between them would be this app taking a ' +
+        'position on statehood rather than reporting one.',
+      primary: null,
+      secondary: null,
+      warnings: [...warnings, 'Resolving this needs a reviewed decision naming which entity this app treats as the country, with a citation.'],
+    };
+  }
+
+  /**
    * Several forms of government. Refuse, exactly as for several heads of state.
    *
    * `first('formLabel')` was a coin flip: Afghanistan returns Emirate, islamic

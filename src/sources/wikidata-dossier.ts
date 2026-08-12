@@ -131,6 +131,15 @@ export interface CountryDossierRecord {
    * fact, and not even a stable one between requests.
    */
   formLabels: readonly string[];
+  /**
+   * Every DISTINCT Wikidata entity the ISO code matched.
+   *
+   * `P298` is not unique. Palestine resolves to two items — Q219060 and Q407199
+   * — and the query binds `?country wdt:P298 "PSE"` without constraining which,
+   * so one dossier draws fields from both. That is why PSE returns two heads of
+   * government: they are the heads of government of two different items.
+   */
+  countryQids: readonly string[];
   /** Only populated when a reviewed override injected an authority office. */
   authority: PersonRecord | null;
 }
@@ -211,7 +220,14 @@ export function parseCountryDossier(raw: unknown, sourceId = SOURCE_ID): Country
     ...new Set(result.rows.map((row) => row['formLabel']).filter((value): value is string => Boolean(value))),
   ].sort();
 
+  const countryQids = [
+    ...new Set(result.rows.map((row) => row['country']).filter((value): value is string => Boolean(value))),
+  ]
+    .map((uri) => qidOf(uri))
+    .sort();
+
   return {
+    countryQids,
     formLabels,
     headOfStateHolderCount: hosIdentities.size,
     headOfStateIsPerson: !hosHumanFlags.has('false'),

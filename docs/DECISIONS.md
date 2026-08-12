@@ -220,6 +220,13 @@ layers.
 | A1a | **`wikimedia-commons` was WORKER-REQUIRED because of our own query string.** MediaWiki emits `Access-Control-Allow-Origin` only when the request carries `origin=*`. Without it: 200, no ACAO. With it: 200, `ACAO: *` — **CLIENT-FETCH**. This is Wikidata's error in a second place, and portraits are a step-3 dependency that has already shipped, so it is corrected before anything is built on the wrong verdict. **Every MediaWiki request this app makes must carry `origin=*`**; it is a property of the API, not of one probe URL. |
 | A1b | **`gdelt-doc` gets one probe after a full day, and a fifth distinct failure is a finding, not a verdict.** It has now failed four times in four different ways: 429, 429, connection error, connect timeout. If a single probe after a day's interval fails a fifth way, that is a **Phase 0 correction about GDELT's availability**, not an inconclusive CORS result — and it matters because GDELT is the news tab's only source and **no fallback is specced for it**. Phase 0 §4 lists "per-country RSS" as the fallback for News; that is a sentence, not a design. |
 
+## Contested and ambiguous identity
+
+| # | Decision |
+| --- | --- |
+| D9 | **When an ISO 3166 code resolves to more than one Wikidata entity, the app refuses.** It renders `undetermined`, names every QID, and states the reason. **It never assembles a dossier across entities and never picks a canonical one.** Measured: `P298 "PSE"` binds both `Q219060` and `Q407199`, and the app's query drew fields from both — which is why Palestine returned two heads of government, one from each item. A dossier assembled across two items is a record of neither. **Choosing between them would be this app taking a position on statehood, which is not ours to take** — so refusing is not merely the safe answer here, it is the correct one. Resolving a specific case needs a reviewed decision naming which entity is treated as the country, with a citation, exactly as a rule-1 override does. |
+| D10 | **A country with several recorded forms of government is `undetermined`, with every value named.** Afghanistan returns `Emirate`, `islamic theocracy` and `unitary state`; Palestine returns `parliamentary republic`, `semi-presidential system` and `unitary state`. They do not classify alike, and SPARQL guarantees no row order, so picking the first was a coin flip whose outcome could differ between two loads. Naming the disagreement reports where it actually lives — in the source. |
+
 ## Cross-country officeholders
 
 | # | Decision |

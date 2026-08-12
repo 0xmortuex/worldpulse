@@ -144,6 +144,29 @@ Beyond misclassification, expect outright absence:
 
 ---
 
+# PREDICTION RECORD — seven of seven (2026-08-12)
+
+Every prediction in this document that has met live data has held.
+
+| Prediction | Outcome |
+| --- | --- |
+| France resolves by rule 2 | held — `semi-presidential system`, rule 2 fired |
+| Switzerland `undetermined` | held |
+| Bosnia `undetermined` | held |
+| Andorra `undetermined`, two co-princes, one foreign | held exactly — Macron returned as a head of state of Andorra |
+| China `undetermined`, override candidate | held |
+| Saudi Arabia rule 4, king is also prime minister | held — same person in both offices |
+| `P35` may be an office rather than a person | held — Switzerland and Haiti both return a council |
+| A former holder with no end date returns two current holders | held — **15 countries**, most of them artifacts |
+| Palestine: office data split across entities | held — `P298 "PSE"` binds two items, Q219060 and Q407199 |
+| Afghanistan: titles may not map to any rule | held, and worse — the **form** does not map to one value either |
+
+Predictions written blind against documented schemas, checked against the app's own
+queries. The value is not the score; it is that the two that failed *interestingly* —
+Palestine's split entities and Afghanistan's multiple forms — were both found because the
+document said to look, and both turned out to be live parser defects rather than
+curiosities.
+
 # CLOSED — the sixth rule is refuted (2026-08-12)
 
 **Verdict: not justified. Do not write it.** Full evidence in `WATCHLIST-RESULTS.md`.
