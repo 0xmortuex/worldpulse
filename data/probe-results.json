@@ -1,0 +1,914 @@
+{
+  "probedAt": "2026-08-12T13:42:54.110Z",
+  "origin": "https://worldpulse.pages.dev",
+  "counts": {
+    "CLIENT-FETCH": 16,
+    "WORKER-REQUIRED": 5,
+    "INCONCLUSIVE": 4,
+    "KEY-GATED": 6,
+    "UNREACHABLE": 2
+  },
+  "results": [
+    {
+      "id": "worldbank",
+      "name": "World Bank Indicators API v2",
+      "panel": "economy",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?format=json&per_page=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 404,
+        "ms": 577,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 634,
+        "contentType": "application/json;charset=utf-8",
+        "bytes": 513,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET",
+          "access-control-allow-headers": "X-Requested-With"
+        },
+        "cacheControl": "public, max-age=86400"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "worldbank-milex",
+      "name": "World Bank MS.MIL.* (SIPRI data, redistributed)",
+      "panel": "military",
+      "url": "https://api.worldbank.org/v2/country/USA/indicator/MS.MIL.XPND.GD.ZS?format=json&per_page=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 404,
+        "ms": 650,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 75,
+        "contentType": "application/json;charset=utf-8",
+        "bytes": 539,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET",
+          "access-control-allow-headers": "X-Requested-With"
+        },
+        "cacheControl": "public, max-age=86400"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "usgs-quakes",
+      "name": "USGS Earthquake Hazards Program feed",
+      "panel": "layers",
+      "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 200,
+        "ms": 789,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, OPTIONS",
+          "access-control-allow-headers": "*",
+          "access-control-max-age": "86400"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 866,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 201560,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, OPTIONS",
+          "access-control-allow-headers": "*",
+          "access-control-max-age": "86400"
+        },
+        "cacheControl": "public, max-age=60"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "nasa-eonet",
+      "name": "NASA EONET v3",
+      "panel": "layers",
+      "url": "https://eonet.gsfc.nasa.gov/api/v3/events?limit=5&status=open",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 204,
+        "ms": 676,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET",
+          "access-control-allow-headers": "content-type",
+          "access-control-max-age": "0"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 713,
+        "contentType": "application/rss+xml; charset=utf-8",
+        "bytes": 4004,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "no-cache, private"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "wikidata-sparql",
+      "name": "Wikidata Query Service (SPARQL)",
+      "panel": "government",
+      "url": "https://query.wikidata.org/sparql?format=json&query=SELECT%20%3Fcap%20WHERE%20%7Bwd%3AQ30%20wdt%3AP36%20%3Fcap%7D",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 572,
+        "cors": {
+          "access-control-allow-origin": "*"
+        }
+      },
+      "get": {
+        "status": 403,
+        "ms": 516,
+        "contentType": "text/html;charset=iso-8859-1",
+        "bytes": 499,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "must-revalidate,no-cache,no-store"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "Requires a descriptive User-Agent, which browsers are forbidden to set. ACAO observed: *."
+    },
+    {
+      "id": "wikipedia-rest",
+      "name": "Wikipedia REST v1 summary",
+      "panel": "government",
+      "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Angela_Merkel",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "share-alike",
+      "preflight": {
+        "status": 429,
+        "ms": 563,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 496,
+        "contentType": "application/json; charset=utf-8; profile=\"https://www.mediawiki.org/wiki/Specs/Summary/1.5.0\"",
+        "bytes": 2298,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET,HEAD",
+          "access-control-allow-headers": "accept, content-type, content-length, cache-control, accept-language, api-user-agent, if-match, if-modified-since, if-none-match, dnt, accept-encoding",
+          "access-control-expose-headers": "etag"
+        },
+        "cacheControl": "s-maxage=1209600, max-age=300"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "wikimedia-commons",
+      "name": "Wikimedia Commons API (portraits, licence and credit)",
+      "panel": "header",
+      "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url%7Cextmetadata&titles=File%3AAngela%20Merkel%202019%20cropped.jpg",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "share-alike",
+      "preflight": {
+        "status": 429,
+        "ms": 462,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 530,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 2704,
+        "cors": {},
+        "cacheControl": "private, must-revalidate, max-age=0"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response."
+    },
+    {
+      "id": "gdelt-doc",
+      "name": "GDELT DOC 2.0 API",
+      "panel": "news",
+      "url": "https://api.gdeltproject.org/api/v2/doc/doc?query=sourcecountry%3AUS&mode=artlist&format=json&maxrecords=5",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "nc",
+      "preflight": {
+        "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
+        "ms": 10321
+      },
+      "get": {
+        "status": 429,
+        "ms": 12173,
+        "contentType": null,
+        "bytes": 444,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "INCONCLUSIVE",
+      "reason": "Upstream returned HTTP 429; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+    },
+    {
+      "id": "ucdp-ged",
+      "name": "UCDP Georeferenced Event Dataset",
+      "panel": "risk",
+      "url": "https://ucdpapi.pcr.uu.se/api/gedevents/26.1?pagesize=5&page=0",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 1404,
+        "cors": {}
+      },
+      "get": {
+        "status": 401,
+        "ms": 1631,
+        "contentType": "text/plain; charset=utf-8",
+        "bytes": 65,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "INCONCLUSIVE",
+      "reason": "Upstream returned HTTP 401; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+    },
+    {
+      "id": "ucdp-candidate",
+      "name": "UCDP Candidate Events (preliminary, monthly)",
+      "panel": "risk",
+      "url": "https://ucdpapi.pcr.uu.se/api/gedevents/26.0.1?pagesize=5&page=0",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 1171,
+        "cors": {}
+      },
+      "get": {
+        "status": 401,
+        "ms": 153,
+        "contentType": "text/plain; charset=utf-8",
+        "bytes": 65,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "INCONCLUSIVE",
+      "reason": "Upstream returned HTTP 401; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+    },
+    {
+      "id": "iptv-org-channels",
+      "name": "iptv-org channel index",
+      "panel": "tv",
+      "url": "https://iptv-org.github.io/api/channels.json",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 1235,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 263,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 10329293,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "max-age=600"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "iptv-org-streams",
+      "name": "iptv-org stream index",
+      "panel": "tv",
+      "url": "https://iptv-org.github.io/api/streams.json",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 477,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 443,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 3464466,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "max-age=600"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "frankfurter",
+      "name": "Frankfurter (ECB reference rates)",
+      "panel": "economy",
+      "url": "https://api.frankfurter.app/latest?from=USD",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 200,
+        "ms": 1596,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, OPTIONS",
+          "access-control-allow-headers": "content-type",
+          "access-control-max-age": "7200",
+          "access-control-expose-headers": ""
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 147,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 436,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, OPTIONS",
+          "access-control-max-age": "7200",
+          "access-control-expose-headers": ""
+        },
+        "cacheControl": "public, max-age=86400"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "exchangerate-host",
+      "name": "exchangerate.host",
+      "panel": "economy",
+      "url": "https://api.exchangerate.host/live?source=USD",
+      "keyRequired": true,
+      "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 600,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 813,
+        "contentType": "application/json; Charset=UTF-8",
+        "bytes": 193,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
+        },
+        "cacheControl": "no-cache"
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Public key VITE_EXCHANGERATE_HOST_KEY; ACAO observed: *."
+    },
+    {
+      "id": "comtrade",
+      "name": "UN Comtrade API",
+      "panel": "economy",
+      "url": "https://comtradeapi.un.org/data/v1/get/C/A/HS?reporterCode=842&period=2023&flowCode=X",
+      "keyRequired": true,
+      "keyEnv": "COMTRADE_KEY",
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 1054,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 1451,
+        "contentType": null,
+        "bytes": 0,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key COMTRADE_KEY is server-side; routed through the Worker regardless of ACAO (observed: none)."
+    },
+    {
+      "id": "congress-gov",
+      "name": "congress.gov API v3",
+      "panel": "legislature",
+      "url": "https://api.congress.gov/v3/bill?format=json&limit=2",
+      "keyRequired": true,
+      "keyEnv": "CONGRESS_GOV_KEY",
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 968,
+        "cors": {
+          "access-control-allow-origin": "*"
+        }
+      },
+      "get": {
+        "status": 403,
+        "ms": 875,
+        "contentType": "application/json",
+        "bytes": 133,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": null
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key CONGRESS_GOV_KEY is server-side; routed through the Worker regardless of ACAO (observed: *)."
+    },
+    {
+      "id": "uk-commons-votes",
+      "name": "UK Commons Votes API",
+      "panel": "legislature",
+      "url": "https://commonsvotes-api.parliament.uk/data/divisions.json/search?take=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 200,
+        "ms": 901,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-headers": "content-type",
+          "access-control-expose-headers": "Request-Context"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 2690,
+        "contentType": "application/json",
+        "bytes": 1051,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-expose-headers": "Request-Context"
+        },
+        "cacheControl": "public, max-age=60"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "howtheyvote-data",
+      "name": "HowTheyVote weekly data dumps (GitHub)",
+      "panel": "legislature",
+      "url": "https://api.github.com/repos/HowTheyVote/data/releases/latest",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 476,
+        "cors": {}
+      },
+      "get": {
+        "status": 403,
+        "ms": 353,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 378,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "INCONCLUSIVE",
+      "reason": "Upstream returned HTTP 403; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+    },
+    {
+      "id": "openparliament-ca",
+      "name": "openparliament.ca API",
+      "panel": "legislature",
+      "url": "https://api.openparliament.ca/votes/?format=json&limit=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 661,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 722,
+        "contentType": "application/json",
+        "bytes": 1140,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": null
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "Requires a descriptive User-Agent, which browsers are forbidden to set. ACAO observed: *."
+    },
+    {
+      "id": "camara-br",
+      "name": "Dados Abertos Câmara dos Deputados",
+      "panel": "legislature",
+      "url": "https://dadosabertos.camara.leg.br/api/v2/proposicoes?itens=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 1379,
+        "cors": {
+          "access-control-expose-headers": "Link, X-Total-Count, X-Validation-Error"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 2060,
+        "contentType": "application/json",
+        "bytes": 1034,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-expose-headers": "Link, X-Total-Count, X-Validation-Error"
+        },
+        "cacheControl": "public, max-age=360"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "abgeordnetenwatch",
+      "name": "abgeordnetenwatch.de API v2",
+      "panel": "legislature",
+      "url": "https://www.abgeordnetenwatch.de/api/v2/polls?range_end=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "share-alike",
+      "preflight": {
+        "status": 204,
+        "ms": 2028,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "POST, GET, OPTIONS",
+          "access-control-allow-headers": "access-control-allow-origin, content-type",
+          "access-control-max-age": "0"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 1204,
+        "contentType": "application/json",
+        "bytes": 6235,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET"
+        },
+        "cacheControl": "must-revalidate, no-cache, private"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "nosdeputes",
+      "name": "NosDéputés.fr API",
+      "panel": "legislature",
+      "url": "https://www.nosdeputes.fr/deputes/json",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "share-alike",
+      "preflight": {
+        "status": 200,
+        "ms": 1676,
+        "cors": {
+          "access-control-allow-origin": "*"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 1260,
+        "contentType": "text/plain; charset=utf-8",
+        "bytes": 813950,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "no-store, no-cache, must-revalidate"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "tweedekamer",
+      "name": "Tweede Kamer OData v4",
+      "panel": "legislature",
+      "url": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Besluit?%24top=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 204,
+        "ms": 951,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET",
+          "access-control-allow-headers": "content-type"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 925,
+        "contentType": "application/json; odata.metadata=minimal; odata.streaming=true; charset=utf-8",
+        "bytes": 835,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": null
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "riksdagen",
+      "name": "Sveriges Riksdag open data",
+      "panel": "legislature",
+      "url": "https://data.riksdagen.se/voteringlista/?utformat=json&sz=2",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 200,
+        "ms": 1213,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 1950,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 1882,
+        "cors": {
+          "access-control-allow-origin": "https://worldpulse.pages.dev"
+        },
+        "cacheControl": "private"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: https://worldpulse.pages.dev"
+    },
+    {
+      "id": "theyvoteforyou",
+      "name": "They Vote For You (Australia)",
+      "panel": "legislature",
+      "url": "https://theyvoteforyou.org.au/api/v1/divisions.json",
+      "keyRequired": true,
+      "keyEnv": "THEYVOTEFORYOU_KEY",
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 785,
+        "cors": {}
+      },
+      "get": {
+        "status": 403,
+        "ms": 455,
+        "contentType": "text/html; charset=UTF-8",
+        "bytes": 5582,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key THEYVOTEFORYOU_KEY is server-side; routed through the Worker regardless of ACAO (observed: none)."
+    },
+    {
+      "id": "epanstwo-pl",
+      "name": "Fundacja ePaństwo (Poland)",
+      "panel": "legislature",
+      "url": "https://api.sejmometr.pl/votings",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "error": "Request was cancelled.",
+        "ms": 212
+      },
+      "get": {
+        "error": "Request was cancelled.",
+        "ms": 449
+      },
+      "verdict": "UNREACHABLE",
+      "reason": "Request was cancelled."
+    },
+    {
+      "id": "ofac-sdn",
+      "name": "OFAC Specially Designated Nationals list",
+      "panel": "risk",
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 204,
+        "ms": 734,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "POST,GET,PUT,HEAD",
+          "access-control-allow-headers": "*,Content-Type"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 2007,
+        "contentType": "text/xml",
+        "bytes": 28809039,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response."
+    },
+    {
+      "id": "eu-sanctions",
+      "name": "EU consolidated financial sanctions list",
+      "panel": "risk",
+      "url": "https://data.europa.eu/api/hub/search/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 404,
+        "ms": 631,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 471,
+        "contentType": "application/json",
+        "bytes": 153862,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": null
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "opensanctions",
+      "name": "OpenSanctions",
+      "panel": "risk",
+      "url": "https://api.opensanctions.org/healthz",
+      "keyRequired": true,
+      "keyEnv": "OPENSANCTIONS_KEY",
+      "licenseClass": "nc",
+      "preflight": {
+        "status": 200,
+        "ms": 644,
+        "cors": {
+          "access-control-allow-origin": "https://worldpulse.pages.dev",
+          "access-control-allow-methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
+          "access-control-allow-headers": "content-type",
+          "access-control-allow-credentials": "true",
+          "access-control-max-age": "600"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 681,
+        "contentType": "application/json",
+        "bytes": 15,
+        "cors": {
+          "access-control-allow-origin": "https://worldpulse.pages.dev",
+          "access-control-allow-credentials": "true"
+        },
+        "cacheControl": null
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key OPENSANCTIONS_KEY is server-side; routed through the Worker regardless of ACAO (observed: https://worldpulse.pages.dev)."
+    },
+    {
+      "id": "state-dept-advisories",
+      "name": "US State Dept travel advisories",
+      "panel": "risk",
+      "url": "https://travel.state.gov/_res/rss/TAsTWs.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 204,
+        "ms": 360,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, HEAD, POST",
+          "access-control-allow-headers": "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
+          "access-control-max-age": "1800"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 793,
+        "contentType": "text/xml",
+        "bytes": 1000929,
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response."
+    },
+    {
+      "id": "fcdo-advisories",
+      "name": "UK FCDO foreign travel advice",
+      "panel": "risk",
+      "url": "https://www.gov.uk/api/content/foreign-travel-advice",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 404,
+        "ms": 419,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 567,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 298600,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "max-age=10, public"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *"
+    },
+    {
+      "id": "smartraveller",
+      "name": "Australian Smartraveller",
+      "panel": "risk",
+      "url": "https://www.smartraveller.gov.au/countries/rss.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 382,
+        "cors": {}
+      },
+      "get": {
+        "error": "The operation was aborted due to timeout",
+        "ms": 20002
+      },
+      "verdict": "UNREACHABLE",
+      "reason": "The operation was aborted due to timeout"
+    },
+    {
+      "id": "eia",
+      "name": "US EIA API v2",
+      "panel": "economy",
+      "url": "https://api.eia.gov/v2/electricity/",
+      "keyRequired": true,
+      "keyEnv": "EIA_KEY",
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 1259,
+        "cors": {
+          "access-control-allow-origin": "*"
+        }
+      },
+      "get": {
+        "status": 403,
+        "ms": 769,
+        "contentType": "application/json",
+        "bytes": 163,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": null
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key EIA_KEY is server-side; routed through the Worker regardless of ACAO (observed: *)."
+    }
+  ]
+}
