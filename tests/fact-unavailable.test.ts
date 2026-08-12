@@ -82,7 +82,17 @@ describe('P9 — unavailable propagates through derivations', () => {
   });
 
   it('lets broken outrank unavailable — a defect here outranks a defect elsewhere', () => {
-    const broken: Provenance = { ...(ok() as never), requestUrl: '' };
+    // An untraceable fetch: no requestUrl, so nobody could re-run it.
+    const broken: Provenance = {
+      kind: 'fetch',
+      sourceId: 'worldbank',
+      requestUrl: '',
+      httpStatus: 200,
+      fetchedAt: '2026-08-12T20:00:00.000Z',
+      cache: 'miss',
+      raw: {},
+      extractedBy: 'test',
+    };
     assert.equal(factState(fact(derived([broken, failed()]), 5)), 'broken');
   });
 

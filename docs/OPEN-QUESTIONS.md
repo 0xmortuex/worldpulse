@@ -128,3 +128,31 @@ is a judgement about tolerance for an unexplained fix, not a technical one.
 **The suite stays red on it**, which is the honest state and was directed.
 
 ---
+
+---
+
+## 6. Does `nodata` carry an "as of" date?
+
+**Context.** `asOf` dates the data. Four states now suppress it — `broken` (a confident date
+lends legitimacy to a value that must not be trusted), `unconfigured` and `unavailable` (no
+data was received for a date to describe). `nodata` still shows it, and that is a judgement
+call rather than an oversight.
+
+**Why it needs you.** Both readings are defensible and they render identically:
+
+- *"no data, as of 2024"* dates **the release we queried** — true and useful. The World Bank
+  published its 2024 series and this country has no value in it.
+- Or it dates **an absence**, which is the same objection that removed it from the other
+  three states.
+
+The distinction is whether `asOf` describes the *query* or the *value*, and the fact model
+does not currently say. `Fact.asOf` is documented as "the date the DATA refers to", which
+leans toward the second reading and therefore toward suppressing it.
+
+**Behaviour is unchanged pending a decision** — `stateCarriesAsOf('nodata')` returns `true`
+with the reasoning recorded inline. I did not change it, because it is shipped behaviour on
+every panel and the queue's rule is that a finding does not become a silent behaviour change.
+
+**My recommendation:** keep it, and clarify `Fact.asOf`'s contract to say it dates the source
+release rather than the individual value — which makes the current behaviour correct and the
+other three suppressions still correct, since in those cases there was no release consulted.

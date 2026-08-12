@@ -1,3 +1,5 @@
+import { assertNever } from './exhaustive';
+
 /**
  * Confidence tiers. Rendered visually distinct at a glance; ESTIMATE and
  * DERIVED must never be mistakable for OFFICIAL.
@@ -191,10 +193,23 @@ export function factState(fact: AnyFact): FactState {
  * than silently approximated.
  */
 function provenanceState(provenance: Provenance): FactState {
-  if (provenance.kind === 'unconfigured') return 'unconfigured';
-  if (provenance.kind === 'fetch-failed') return 'unavailable';
-  if (provenance.kind === 'fetch') return isTraceable(provenance) ? 'ok' : 'broken';
-  if (provenance.kind === 'seed') return provenance.sourceUrl.length === 0 ? 'broken' : 'ok';
+  // Exhaustive by construction. This chain was previously safe only by accident:
+  // its tail read `.inputs`, so a new kind was caught only if it happened not to
+  // have that property.
+  switch (provenance.kind) {
+    case 'unconfigured':
+      return 'unconfigured';
+    case 'fetch-failed':
+      return 'unavailable';
+    case 'fetch':
+      return isTraceable(provenance) ? 'ok' : 'broken';
+    case 'seed':
+      return provenance.sourceUrl.length === 0 ? 'broken' : 'ok';
+    case 'derived':
+      break;
+    default:
+      return assertNever(provenance, 'provenanceState');
+  }
 
   // A derivation with no recorded inputs cannot be audited, which is exactly
   // the failure the inspector exists to catch.

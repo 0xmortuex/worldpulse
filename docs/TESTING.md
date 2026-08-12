@@ -968,3 +968,45 @@ Where the real states are recorded, replay them instead of inventing them:
 `tests/probe-verdict.test.ts` replays all 32 rows of `data/probe-results.json` through the
 extracted ladder. Synthetic cases prove the rule does what its author thinks; a replay of
 recorded observations proves it does what the live run did.
+
+### 32b. A union dispatch is exhaustive by construction, or it is a fall-through waiting to happen
+
+`factHtml` branched on three of four fact states and let the rest fall through to the tier
+badge. A fifth state was added and the fall-through rendered an **OFFICIAL badge over a
+value that was never received**. It was found by reading the function. Nothing else caught
+it and nothing else could have — the fall-through was type-correct.
+
+**Every dispatch over a union ends in a `default` arm calling `assertNever`.** Adding a
+member then fails to compile at every unhandled site.
+
+The two unions here fail differently, and the difference is why "the compiler will catch it"
+was false:
+
+| Union | Shape | What the compiler does |
+| --- | --- | --- |
+| `Provenance` | object types | Errors **only if** the tail reads a property the new variant lacks. Accidental: a new kind carrying `sourceId` slid through `sourceName` unnoticed. |
+| `FactState` | string literals | **Nothing.** There is no property to read, so a fall-through is always silent. |
+
+All three of the dangerous sites were in the second class.
+
+**Audit, 2026-08-12 — 9 sites, 8 lacked exhaustiveness:**
+
+| Site | Union | Before |
+| --- | --- | --- |
+| `badgeMarkup` | state | if-chain, tier fall-through — **shipped the defect** |
+| `factHtml` value | state | ternary chain, formatted-value fall-through |
+| `factHtml` asOf | state | boolean condition; a new state defaulted to showing a date |
+| inspector value wording | state | keyed on `value === null`, so **every** absence read "no data" |
+| inspector "As of" row | state | **did not branch at all** — dated every fact including failed ones |
+| `sourceName` | provenance | if-chain; a new kind with `sourceId` falls through silently |
+| `renderProvenance` | provenance | accidental safety only (tail reads `raw`) |
+| `provenanceState` | provenance | accidental safety only (tail reads `inputs`) |
+| inspector broken banner | state | **fine** — a genuine binary predicate, not a dispatch |
+
+Two of those were not merely at risk: the inspector rendered one state's wording for all
+states, so a failed request already read "no data" inside the dialog — the same conflation
+the fifth state was added to prevent, one click away from the badge that got it right.
+
+**Verified by planting, not by inspection** (rule 27): adding a sixth `FactState` produces 4
+compile errors; adding a sixth `Provenance` kind produces 3, including at `sourceName`,
+which is the site whose old safety was accidental.

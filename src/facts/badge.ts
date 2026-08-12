@@ -1,4 +1,5 @@
 import { getSource } from './registry';
+import { assertNever } from './exhaustive';
 import { factState, TIER_EXPLANATIONS, type AnyFact, type Fact, type FactState, type Tier } from './types';
 
 /**
@@ -90,33 +91,59 @@ function formatValue<T>(fact: Fact<T>): string {
 function sourceName(fact: AnyFact): string {
   const provenance = fact.provenance;
   if (!provenance) return 'no source recorded';
-  if (provenance.kind === 'derived') return `computed by ${provenance.computedBy}`;
-  if (provenance.kind === 'seed') return `hand-checked seed, from ${provenance.source}`;
-  return getSource(provenance.sourceId)?.name ?? `unregistered source "${provenance.sourceId}"`;
+  const named = (sourceId: string): string =>
+    getSource(sourceId)?.name ?? `unregistered source "${sourceId}"`;
+
+  switch (provenance.kind) {
+    case 'derived':
+      return `computed by ${provenance.computedBy}`;
+    case 'seed':
+      return `hand-checked seed, from ${provenance.source}`;
+    case 'fetch':
+    case 'unconfigured':
+      return named(provenance.sourceId);
+    case 'fetch-failed':
+      // Named explicitly rather than sharing the tail: the three kinds above
+      // all carry `sourceId`, so a new kind that also carried one would have
+      // fallen in here silently and been described as a source we fetched.
+      return named(provenance.sourceId);
+    default:
+      return assertNever(provenance, 'sourceName');
+  }
 }
 
+/**
+ * EXHAUSTIVE BY CONSTRUCTION. This dispatch shipped the OFFICIAL-badge-over-a-
+ * blank-value defect when it was a chain of `if`s with a tier fall-through, and
+ * a string-literal union gives the compiler nothing to catch that with. The
+ * `default` arm is the whole point: a sixth state must not silently become a
+ * tier badge.
+ */
 function badgeMarkup(fact: AnyFact, state: FactState, id: string, compact: boolean): string {
-  if (state === 'broken') {
-    // Deliberately the loudest thing on the page. An untraceable value that
-    // looks authoritative is worse than no value at all.
-    return `<button type="button" class="badge badge--broken" data-fact="${id}"
-      title="This value cannot be traced to a request or a computation. It must not be trusted. Click to inspect."
-      aria-label="Untraceable value. Click to inspect provenance.">⚠ UNTRACEABLE</button>`;
+  switch (state) {
+    case 'broken':
+      // Deliberately the loudest thing on the page. An untraceable value that
+      // looks authoritative is worse than no value at all.
+      return `<button type="button" class="badge badge--broken" data-fact="${id}"
+        title="This value cannot be traced to a request or a computation. It must not be trusted. Click to inspect."
+        aria-label="Untraceable value. Click to inspect provenance.">⚠ UNTRACEABLE</button>`;
+    case 'unconfigured':
+      return `<button type="button" class="badge badge--unconfigured" data-fact="${id}"
+        title="This source needs an API key that is not configured. Click to inspect."
+        aria-label="Source not configured. Click to inspect.">KEY NOT SET</button>`;
+    case 'unavailable':
+      return `<button type="button" class="badge badge--unavailable" data-fact="${id}"
+        title="The request to this source did not succeed. This says nothing about the subject — only about our request. Click to inspect."
+        aria-label="Source unavailable. Click to inspect the failed request.">UNAVAILABLE</button>`;
+    case 'ok':
+    case 'nodata':
+      // The only two states a tier badge may describe: we reached the source and
+      // it answered, with a value or with nothing.
+      break;
+    default:
+      return assertNever(state, 'badgeMarkup');
   }
-  if (state === 'unconfigured') {
-    return `<button type="button" class="badge badge--unconfigured" data-fact="${id}"
-      title="This source needs an API key that is not configured. Click to inspect."
-      aria-label="Source not configured. Click to inspect.">KEY NOT SET</button>`;
-  }
-  if (state === 'unavailable') {
-    // NOT a tier badge. Falling through to the tier branch would put an
-    // OFFICIAL badge over a blank value, which is the wrong-value shape this
-    // state exists to prevent: the badge would assert a confidence level for a
-    // value we never received.
-    return `<button type="button" class="badge badge--unavailable" data-fact="${id}"
-      title="The request to this source did not succeed. This says nothing about the subject — only about our request. Click to inspect."
-      aria-label="Source unavailable. Click to inspect the failed request.">UNAVAILABLE</button>`;
-  }
+
   const tier = fact.tier;
   const explanation = `${TIER_EXPLANATIONS[tier]} Source: ${sourceName(fact)}.`;
   const face = compact ? TIER_GLYPH[tier] : `${TIER_GLYPH[tier]} ${tier}`;
@@ -126,33 +153,92 @@ function badgeMarkup(fact: AnyFact, state: FactState, id: string, compact: boole
     >${face}</button>`;
 }
 
+/**
+ * EXHAUSTIVE BY CONSTRUCTION, for the same reason as `badgeMarkup`.
+ *
+ * "no data" and "unavailable" must not share wording. "no data" is a claim about
+ * the SUBJECT — the source was asked and had nothing. "unavailable" is a claim
+ * about OUR REQUEST. Rendering the second in the first's words is rule 30's
+ * conflation, and is why the fifth state exists.
+ */
+export function absentValueWording(state: FactState): string | null {
+  // Shared so the inspector cannot drift from the badge. The inspector rendered
+  // "no data" for ANY null value, which said the subject had nothing whenever a
+  // request had failed — the same conflation as the badge, one dialog away.
+  switch (state) {
+    case 'nodata':
+      return 'no data';
+    case 'unconfigured':
+      return 'not configured';
+    case 'unavailable':
+      return 'source unavailable';
+    case 'ok':
+    case 'broken':
+      return null;
+    default:
+      return assertNever(state, 'absentValueWording');
+  }
+}
+
+function valueMarkup(fact: AnyFact, state: FactState): string {
+  switch (state) {
+    case 'nodata':
+      return '<span class="fact-value fact-value--nodata">no data</span>';
+    case 'unconfigured':
+      return '<span class="fact-value fact-value--nodata">not configured</span>';
+    case 'unavailable':
+      return '<span class="fact-value fact-value--unavailable">source unavailable</span>';
+    case 'ok':
+    case 'broken':
+      // `broken` still shows its value: the alarm is about traceability, and
+      // hiding the number would remove the evidence someone needs to diagnose it.
+      return `<span class="fact-value">${escapeHtml(formatValue(fact))}</span>`;
+    default:
+      return assertNever(state, 'valueMarkup');
+  }
+}
+
+/**
+ * Does this state have data for `asOf` to date?
+ *
+ * `asOf` dates the DATA, not the request. A date rendered over an absence is a
+ * timestamp that lies — it lends a specific, checkable-looking fact to something
+ * we do not have.
+ *
+ * `broken` is the subtle one and it is excluded deliberately. The value is
+ * present but untraceable, so "as of 2024" attaches a confident date to a number
+ * that must not be trusted, which is precisely the air of legitimacy the
+ * UNTRACEABLE badge exists to strip.
+ */
+export function stateCarriesAsOf(state: FactState): boolean {
+  switch (state) {
+    case 'ok':
+      return true;
+    case 'nodata':
+      // Kept, and it is a genuine judgement call rather than an oversight — see
+      // OPEN-QUESTIONS. "no data as of 2024" can be read as dating the release
+      // we queried, which is true and useful, or as dating an absence, which is
+      // the same objection as above. Behaviour is unchanged pending a decision.
+      return true;
+    case 'broken':
+    case 'unconfigured':
+    case 'unavailable':
+      return false;
+    default:
+      return assertNever(state, 'stateCarriesAsOf');
+  }
+}
+
 export function factHtml<T>(fact: Fact<T>, options: FactOptions = {}): string {
   const state = factState(fact);
   const id = register(fact);
 
   const label = options.label ? `<span class="fact-label">${escapeHtml(options.label)}</span>` : '';
 
-  /**
-   * "no data" and "unavailable" must not share wording.
-   *
-   * "no data" is a claim about the subject: the source was asked and had
-   * nothing. "unavailable" is a claim about our request. Rendering the second
-   * with the first's words is rule 30's conflation, and it is the reason this
-   * state exists at all.
-   */
-  const value =
-    state === 'nodata'
-      ? '<span class="fact-value fact-value--nodata">no data</span>'
-      : state === 'unconfigured'
-        ? '<span class="fact-value fact-value--nodata">not configured</span>'
-        : state === 'unavailable'
-          ? '<span class="fact-value fact-value--unavailable">source unavailable</span>'
-          : `<span class="fact-value">${escapeHtml(formatValue(fact))}</span>`;
+  const value = valueMarkup(fact, state);
 
-  // `asOf` dates the DATA. With no data received there is nothing for it to
-  // date, and rendering the stale one would put a confident date on an absence.
   const asOf =
-    options.hideAsOf || state === 'unconfigured' || state === 'unavailable' || !fact.asOf
+    options.hideAsOf || !stateCarriesAsOf(state) || !fact.asOf
       ? ''
       : `<span class="fact-asof">as of ${escapeHtml(fact.asOf)}</span>`;
 

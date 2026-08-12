@@ -1,5 +1,6 @@
-import { escapeHtml, getRegisteredFact } from './badge';
+import { absentValueWording, escapeHtml, getRegisteredFact, stateCarriesAsOf } from './badge';
 import { getSource, licenseClassNote, licenseIsConstrained, verifiedAgainstNote } from './registry';
+import { assertNever } from './exhaustive';
 import { factState, TIER_EXPLANATIONS, type AnyFact, type Provenance } from './types';
 
 /**
@@ -60,10 +61,16 @@ export function mountInspector(root: HTMLElement): void {
 
 function renderInspector(fact: AnyFact): string {
   const state = factState(fact);
+  // Not `fact.value === null ? 'no data'`. That wording is a claim about the
+  // subject, and it was being applied to every absence including a failed
+  // request.
+  const absent = absentValueWording(state);
   const value =
-    fact.value === null
-      ? '<em>no data</em>'
-      : escapeHtml(fact.format ? fact.format(fact.value) : String(fact.value));
+    fact.value === null && absent !== null
+      ? `<em>${escapeHtml(absent)}</em>`
+      : fact.value === null
+        ? '<em>no value</em>'
+        : escapeHtml(fact.format ? fact.format(fact.value) : String(fact.value));
 
   const brokenBanner =
     state === 'broken'
@@ -88,7 +95,11 @@ function renderInspector(fact: AnyFact): string {
 
     <dl class="inspector-grid">
       <dt>Tier</dt><dd><strong>${fact.tier}</strong> — ${escapeHtml(TIER_EXPLANATIONS[fact.tier])}</dd>
-      <dt>As of</dt><dd>${escapeHtml(fact.asOf || '—')} <span class="inspector-hint">(the date the data refers to)</span></dd>
+      ${
+        stateCarriesAsOf(state)
+          ? `<dt>As of</dt><dd>${escapeHtml(fact.asOf || '—')} <span class="inspector-hint">(the date the data refers to)</span></dd>`
+          : '<dt>As of</dt><dd><em>not applicable</em> <span class="inspector-hint">(no data was received for this date to describe)</span></dd>'
+      }
       ${fact.note ? `<dt>Note</dt><dd>${escapeHtml(fact.note)}</dd>` : ''}
     </dl>
 
@@ -97,6 +108,22 @@ function renderInspector(fact: AnyFact): string {
 }
 
 function renderProvenance(provenance: Provenance, depth: number): string {
+  // Exhaustive by construction. The tail below renders a successful request and
+  // reads `raw`, `cache` and `extractedBy`; when `fetch-failed` was added, that
+  // property access is what produced the compile error. That safety was
+  // accidental — a new kind carrying those fields would have rendered as a
+  // successful fetch instead.
+  switch (provenance.kind) {
+    case 'unconfigured':
+    case 'fetch-failed':
+    case 'seed':
+    case 'derived':
+    case 'fetch':
+      break;
+    default:
+      return assertNever(provenance, 'renderProvenance');
+  }
+
   if (provenance.kind === 'unconfigured') {
     const source = getSource(provenance.sourceId);
     return `<section class="inspector-block">
