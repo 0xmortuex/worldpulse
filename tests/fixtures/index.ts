@@ -2,6 +2,9 @@ import worldbankIndicator from './worldbank-indicator.json';
 import wikidataSparql from './wikidata-sparql.json';
 import usgsQuakes from './usgs-quakes.json';
 import gdeltDoc from './gdelt-doc.json';
+import eonetEvents from './eonet-events.json';
+import wikipediaSummaryLive from './wikipedia-summary-live.json';
+import commonsImageinfoLive from './commons-imageinfo-live.json';
 import { getSource } from '../../src/facts/registry';
 import type { FetchContext } from '../../src/sources/adapter';
 
@@ -104,6 +107,29 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'usgs-quakes',
     requestUrl: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
     body: usgsQuakes,
+  },
+  'nasa-eonet': {
+    sourceId: 'nasa-eonet',
+    requestUrl: 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&limit=40',
+    body: eonetEvents,
+  },
+  'wikipedia-rest': {
+    sourceId: 'wikipedia-rest',
+    requestUrl: 'https://en.wikipedia.org/api/rest_v1/page/summary/Emmanuel_Macron',
+    body: wikipediaSummaryLive,
+  },
+  'wikimedia-commons': {
+    sourceId: 'wikimedia-commons',
+    /**
+     * Carries `origin=*`. MediaWiki emits Access-Control-Allow-Origin only when
+     * a request asks for it, and a contract test written against a URL without
+     * it would be measuring a different request than the app makes — the
+     * Wikidata label-service trap in a second place (decision A1a).
+     */
+    requestUrl:
+      'https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo' +
+      '&iiprop=url%7Cextmetadata&origin=*&titles=File%3AEmmanuel%20Macron%20in%202019.jpg',
+    body: commonsImageinfoLive,
   },
   'gdelt-doc': {
     sourceId: 'gdelt-doc',

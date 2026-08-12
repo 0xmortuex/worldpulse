@@ -1,0 +1,49 @@
+{
+  "type": "standard",
+  "title": "Emmanuel Macron",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Emmanuel Macron</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q3052772",
+  "titles": {
+    "canonical": "Emmanuel_Macron",
+    "normalized": "Emmanuel Macron",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Emmanuel Macron</span></span>"
+  },
+  "pageid": 43671127,
+  "thumbnail": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Emmanuel_Macron_Slovenia_October_2025_%283x4_cropped%29.jpg/330px-Emmanuel_Macron_Slovenia_October_2025_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 440
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/0/05/Emmanuel_Macron_Slovenia_October_2025_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "width": 2146,
+    "height": 2863
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1367997979",
+  "tid": "91f26ded-9193-11f1-ad42-c62cdd02cdb5",
+  "timestamp": "2026-08-06T12:37:22Z",
+  "description": "President of France and co-prince of Andorra since 2017",
+  "description_source": "local",
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Emmanuel_Macron",
+      "revisions": "https://en.wikipedia.org/wiki/Emmanuel_Macron?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Emmanuel_Macron?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Emmanuel_Macron"
+    },
+    "mobile": {
+      "page": "https://en.wikipedia.org/wiki/Emmanuel_Macron",
+      "revisions": "https://en.wikipedia.org/wiki/Special:History/Emmanuel_Macron",
+      "edit": "https://en.wikipedia.org/wiki/Emmanuel_Macron?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Emmanuel_Macron"
+    }
+  },
+  "extract": "Emmanuel Jean-Michel Frédéric Macron is a French politician who has served as President of France since 2017. He has been a member of Renaissance since founding the party in 2016. Macron previously served as Deputy Secretary-General to the President from 2012 to 2014 and Minister of Economics and Finance from 2014 to 2016 under President François Hollande.",
+  "extract_html": "<p><b>Emmanuel Jean-Michel Frédéric Macron</b> is a French politician who has served as President of France since 2017. He has been a member of Renaissance since founding the party in 2016. Macron previously served as Deputy Secretary-General to the President from 2012 to 2014 and Minister of Economics and Finance from 2014 to 2016 under President François Hollande.</p>"
+}

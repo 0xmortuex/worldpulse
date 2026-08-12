@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { liveOrInconclusive } from './fixtures/index';
+import { parseSummary } from '../src/sources/wikipedia';
 import { ShapeError } from '../src/sources/adapter';
 import * as worldbank from '../src/sources/worldbank';
 import * as wikidata from '../src/sources/wikidata';
@@ -200,5 +201,146 @@ describe('GDELT DOC contract', () => {
   it('rejects a malformed timestamp', () => {
     assert.throws(() => gdelt.parseSeenDate('2026-08-10T14:30:00Z'), ShapeError);
     assert.throws(() => gdelt.parseSeenDate('20260899T143000Z'), ShapeError);
+  });
+});
+
+/**
+ * EONET, Wikipedia REST and Commons.
+ *
+ * These three backed shipped panels — step 7's event layers, step 3 and 4's bios,
+ * step 3's portrait credit — with no fixture, no contract test and no recorded
+ * shape at all. The assertions below encode what live actually returns, measured
+ * before they were written (docs/SOURCE-CONTRADICTIONS.md), not what the code
+ * assumed.
+ */
+describe('NASA EONET contract', () => {
+  it('parses events and carries the shapes the layer path depends on', async () => {
+    const sample = await liveOrInconclusive('nasa-eonet');
+    if (!sample) return;
+    const body = sample.body as { events?: Array<Record<string, unknown>> };
+
+    assert.ok(Array.isArray(body.events), 'events is not an array');
+    assert.ok((body.events?.length ?? 0) > 0, 'no events returned');
+
+    for (const event of body.events ?? []) {
+      assert.equal(typeof event['id'], 'string');
+      assert.equal(typeof event['title'], 'string');
+      const geometry = event['geometry'] as Array<Record<string, unknown>>;
+      assert.ok(Array.isArray(geometry) && geometry.length > 0, 'event has no geometry');
+
+      for (const shape of geometry) {
+        const type = shape['type'];
+        assert.ok(type === 'Point' || type === 'Polygon', `unexpected geometry type ${String(type)}`);
+        assert.equal(typeof shape['date'], 'string');
+      }
+
+      const categories = event['categories'] as Array<Record<string, unknown>>;
+      assert.ok(Array.isArray(categories) && categories.length > 0, 'event has no categories');
+      // The parser derives the layer id from `title`, NOT `id`. Asserted because
+      // reading the other field would silently mis-map every category, and the
+      // two differ: id "severeStorms" versus title "Severe Storms".
+      assert.equal(typeof categories[0]?.['title'], 'string');
+    }
+  });
+
+  /**
+   * Decision L8 originally asserted EONET publishes no magnitude. It does. This
+   * asserts the fields exist and that a value never arrives without its unit —
+   * rule 22, at the source boundary.
+   */
+  it('publishes magnitudeValue with magnitudeUnit, or neither', async () => {
+    const sample = await liveOrInconclusive('nasa-eonet');
+    if (!sample) return;
+    const body = sample.body as { events?: Array<Record<string, unknown>> };
+
+    let measured = 0;
+    for (const event of body.events ?? []) {
+      for (const shape of (event['geometry'] as Array<Record<string, unknown>>) ?? []) {
+        const value = shape['magnitudeValue'];
+        const unit = shape['magnitudeUnit'];
+        if (value === null || value === undefined) continue;
+        assert.equal(typeof value, 'number', 'magnitudeValue is present but not a number');
+        assert.equal(typeof unit, 'string', 'magnitudeValue present without magnitudeUnit — a number with no unit');
+        measured += 1;
+      }
+    }
+    // Positive control (rule 10): an absence-tolerant loop must prove it saw the
+    // thing it tolerates, or "no violations" and "no data" are the same result.
+    assert.ok(measured > 0, 'no magnitude-bearing geometry in the sample — the check examined nothing');
+  });
+
+  it('closed is either null or a date string, never absent', async () => {
+    const sample = await liveOrInconclusive('nasa-eonet');
+    if (!sample) return;
+    const body = sample.body as { events?: Array<Record<string, unknown>> };
+    for (const event of body.events ?? []) {
+      const closed = event['closed'];
+      assert.ok(closed === null || typeof closed === 'string', `closed is ${typeof closed}`);
+    }
+  });
+});
+
+describe('Wikipedia REST summary contract', () => {
+  it('parses a standard article into a renderable summary', async () => {
+    const sample = await liveOrInconclusive('wikipedia-rest');
+    if (!sample) return;
+    const result = parseSummary(sample.body, 'Emmanuel_Macron', sample.ctx.httpStatus);
+    assert.equal(result.ok, true, 'a known-good article did not parse');
+    if (!result.ok) return;
+    assert.ok(result.summary.extract.length > 0);
+    assert.match(result.summary.url, /^https:\/\/en\.wikipedia\.org\/wiki\//);
+    assert.equal(result.summary.resolvedTitle.length > 0, true);
+  });
+
+  it('carries titles.normalized, which provenance records instead of the requested title', async () => {
+    const sample = await liveOrInconclusive('wikipedia-rest');
+    if (!sample) return;
+    const body = sample.body as { titles?: Record<string, unknown>; type?: unknown };
+    assert.equal(typeof body.titles?.['normalized'], 'string', 'titles.normalized is missing');
+    assert.equal(body.type, 'standard');
+  });
+});
+
+describe('Wikimedia Commons imageinfo contract', () => {
+  it('returns the licence and credit fields the portrait credit renders', async () => {
+    const sample = await liveOrInconclusive('wikimedia-commons');
+    if (!sample) return;
+    const body = sample.body as { query?: { pages?: Record<string, Record<string, unknown>> } };
+    const pages = body.query?.pages;
+    assert.ok(pages && Object.keys(pages).length > 0, 'no pages in the response');
+
+    const page = Object.values(pages ?? {})[0] as Record<string, unknown>;
+    assert.equal('missing' in page, false, 'the reference file has gone missing from Commons');
+    const info = (page['imageinfo'] as Array<Record<string, unknown>>)[0];
+    assert.ok(info, 'no imageinfo on a file that exists');
+    assert.equal(typeof info['url'], 'string');
+
+    const extmetadata = info['extmetadata'] as Record<string, Record<string, unknown>>;
+    assert.ok(extmetadata, 'no extmetadata — the credit line has nothing to render');
+    assert.equal(typeof extmetadata['LicenseShortName']?.['value'], 'string');
+    assert.equal(typeof extmetadata['Artist']?.['value'], 'string');
+  });
+
+  /**
+   * A file that does not exist is HTTP 200 with a `missing` key on the page —
+   * NOT a 404. Asserted explicitly rather than reached by accident: the
+   * credit path fails closed with creditRequired: true (D5), and it has to get
+   * there via this key, because the status code it might otherwise wait for
+   * never arrives.
+   */
+  it('reports an absent file as a missing key on a 200, not as an error status', async () => {
+    if (process.env['PROBE_LIVE'] !== '1') return;
+    const url =
+      'https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo' +
+      '&iiprop=url%7Cextmetadata&origin=*&titles=File%3AZzzz%20Not%20A%20Real%20File%2012345.jpg';
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'worldpulse/0.0 (https://github.com/0xmortuex/worldpulse) contract-test' },
+      signal: AbortSignal.timeout(20_000),
+    });
+    assert.equal(response.status, 200, 'Commons answered an absent file with a status code');
+    const body = (await response.json()) as { query?: { pages?: Record<string, Record<string, unknown>> } };
+    const page = Object.values(body.query?.pages ?? {})[0] as Record<string, unknown>;
+    assert.equal('missing' in page, true, 'an absent file did not carry the missing key');
+    assert.equal('imageinfo' in page, false, 'an absent file carried imageinfo');
   });
 });

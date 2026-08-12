@@ -105,7 +105,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "live"
     },
     {
       "id": "wikidata-sparql",
@@ -139,7 +139,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "live"
     },
     {
       "id": "wikimedia-commons",
@@ -155,7 +155,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation",
+      "verifiedAgainst": "live",
       "notes": "MediaWiki emits Access-Control-Allow-Origin only when the request carries `origin=*`. Without it the API answers 200 with no ACAO, which scored WORKER-REQUIRED — a property of our query string, not of the API. Every MediaWiki request this app makes must carry it. Measured: without origin=* 200 and no ACAO; with it 200 and ACAO `*`."
     },
     {
