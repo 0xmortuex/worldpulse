@@ -475,6 +475,9 @@ check('default selection is the United States', /United States/.test(heading ?? 
 // Tier counts must be populated, and no-data must dominate — the seed set is
 // partial and the UI is supposed to make that obvious.
 const counts = await page.locator('.tier-count-n').allTextContents();
+// Five is structural, not incidental: the relation vocabulary has exactly five
+// tiers and the next line destructures all five. The number IS the claim here,
+// which is what separates this from the tab and layer counts (rule 25).
 check('tier counts rendered', counts.length === 5, counts.join(','));
 const [allies, , , , nodata] = counts.map(Number);
 check('USA has allies from the seed set', allies > 20, `allies=${allies}`);
@@ -711,7 +714,18 @@ step('4 — government tab');
 // ---- step 4: government tab ----
 
 await selectCountry('United Kingdom');
-check('dossier tabs render', (await page.locator('.tabs .tab').count()) === 7);
+/**
+ * Every specced section has a tab. Asserted as CONTAINMENT, not as a total:
+ * `=== 7` encoded how many tabs exist today, and `military` is already declared
+ * in TABS, so the step that ships it would have failed this check and read as a
+ * regression. Rule 25 — the invariant is that no section is missing, not that
+ * there are seven of them.
+ */
+const tabLabels = (await page.locator('.tabs .tab').allTextContents()).map((label) => label.trim().toLowerCase());
+const missingTabs = ['government', 'legislature', 'military', 'economy', 'news', 'tv', 'risk']
+  .filter((section) => !tabLabels.some((label) => label.includes(section)));
+check('every specced dossier section has a tab', missingTabs.length === 0,
+  `missing: ${missingTabs.join(', ')} | present: ${tabLabels.join(', ')}`);
 check('government is the default tab', (await page.locator('.tab--active').innerText()).trim() === 'Government');
 
 const govGbr = await page.locator('.gov').innerText();
@@ -920,12 +934,16 @@ await page.setViewportSize({ width: 1600, height: 950 });
 await selectCountry('United States');
 await page.waitForTimeout(600);
 
-// Tracks LAYERS in src/layers/provider.ts, which gained eonet:floods under
-// decision L12. Still a literal, and therefore still the rule-25 shape: it
-// encodes how many layers there are rather than the invariant that every
-// declared layer gets a toggle. Recorded as a known tension — deriving it needs
-// the harness to read LAYERS, which is a change to the app's debug API.
-check('layer toggles render with counts', (await page.locator('.layer-toggle').count()) === 5);
+/**
+ * Every declared layer has a toggle. Containment again, not a total — `=== 4`
+ * broke when eonet:floods was registered under L12, which is the same defect as
+ * the tab count.
+ */
+const toggleText = (await page.locator('.layer-toggle').allTextContents()).map((t) => t.trim().toLowerCase());
+const missingToggles = ['earthquakes', 'volcanoes', 'wildfires', 'severe storms', 'floods']
+  .filter((layer) => !toggleText.some((t) => t.includes(layer)));
+check('every declared layer has a toggle', missingToggles.length === 0,
+  `missing: ${missingToggles.join(', ')} | present: ${toggleText.join(' / ')}`);
 
 /**
  * Pick a marker by brute-force hover across the globe and read back the event id

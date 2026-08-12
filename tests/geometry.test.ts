@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Position } from 'geojson';
+import { feature } from 'topojson-client';
+import topology from 'world-atlas/countries-110m.json';
 import { loadCountries } from '../src/countries';
 
 const countries = loadCountries();
@@ -19,7 +21,13 @@ function longitudeSpan(ring: Position[]): number {
 
 describe('country geometry', () => {
   it('loads every mappable country', () => {
-    assert.equal(countries.length, 177);
+    // The invariant is that every topology feature became a country — nothing
+    // was silently dropped by the ISO lookup. `=== 177` encoded how many the
+    // 110m topology happens to contain, so a topology update would fail a test
+    // about dropping (rule 25).
+    const features = feature(topology, topology.objects.countries).features;
+    assert.equal(countries.length, features.length, 'a topology feature was dropped during load');
+    assert.ok(countries.length > 100, `only ${countries.length} countries loaded`);
   });
 
   it('has no antimeridian-spanning rings outside the polar caps', () => {
@@ -52,7 +60,16 @@ describe('country geometry', () => {
     const kosovo = countries.find((country) => country.code === 'XKX');
     assert.ok(kosovo);
     assert.equal(kosovo.codeStatus, 'user-assigned');
-    assert.equal(countries.filter((c) => c.codeStatus === 'user-assigned').length, 3);
+    // Names the entities rather than counting them: a fourth user-assigned code
+    // is an ordinary addition and must not fail a test about Kosovo's status.
+    const userAssigned = countries.filter((c) => c.codeStatus === 'user-assigned').map((c) => c.code);
+    for (const code of ['XKX']) {
+      assert.ok(userAssigned.includes(code), `${code} is not marked user-assigned`);
+    }
+    assert.ok(
+      userAssigned.every((code) => !/^[A-Z]{3}$/.test(code) || code.startsWith('X')),
+      `a user-assigned code outside the X-prefix range: ${userAssigned.join(', ')}`,
+    );
   });
 });
 

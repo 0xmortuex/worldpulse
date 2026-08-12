@@ -77,10 +77,13 @@ describe('hard case — coincident events', () => {
     // Stacked markers leave only the topmost pickable: the globe's version of a
     // UI element that resolves to the wrong record.
     const events = quakeEvents('quakes-aftershocks');
-    assert.equal(events.length, 7);
+    assert.ok(events.length > 1, 'the fixture must hold a sequence to cluster');
     const clusters = clusterEvents(events);
+    // The claim is that the sequence collapses to ONE marker carrying EVERY
+    // event — not that there are seven of them. Derived from the input so the
+    // fixture can grow without failing a test about stacking (rule 25).
     assert.equal(clusters.length, 1);
-    assert.equal(clusters[0]?.members.length, 7);
+    assert.equal(clusters[0]?.members.length, events.length, 'an event was lost during clustering');
   });
 
   it('puts the marker on the strongest member, never on an average', () => {

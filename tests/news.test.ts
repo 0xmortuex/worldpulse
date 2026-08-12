@@ -17,8 +17,15 @@ function fixture(name: string): unknown {
 
 describe('hard case — non-Latin scripts and RTL', () => {
   it('parses headlines and outlet names in every script without loss', () => {
-    const list = parseArticles(fixture('articles-multiscript'));
-    assert.equal(list.articles.length, 6);
+    const raw = fixture('articles-multiscript') as { articles: unknown[] };
+    const list = parseArticles(raw);
+    // "Without loss" is the claim, so assert nothing was dropped rather than
+    // that six survived — six is a property of the fixture (rule 25).
+    assert.equal(
+      list.articles.length + list.unusable.length,
+      raw.articles.length,
+      'an article was neither parsed nor counted as unusable',
+    );
     assert.equal(list.unusable.length, 0);
     // Outlet names are themselves non-Latin here, which is the case a
     // Latin-only assumption quietly breaks.
