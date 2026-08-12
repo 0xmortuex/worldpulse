@@ -35,6 +35,96 @@ here or fixed in place, and the work continues.
 
 ## Status
 
-**No open questions.** Entries appear below as they are found.
+**Five open.** All surfaced during the queue run of 2026-08-12.
+
+---
+
+## 1. UCDP slice storage — bundled dataset or Worker extract?
+
+**Context.** The build-time extraction is written, pinned and fully accounted
+(`scripts/extract-ucdp.mjs`, 417,968 events, 0 dropped). What it writes is undecided.
+Measured, not estimated: naive per-country JSON is **134.0 MB** with Syria alone at
+**28.0 MB**. A lossless dictionary + positional-array encoding takes it to **27.5 MB**
+total, Syria to **5.8 MB**.
+
+**Why it needs you.** You directed a two-product shape — per-country conflict summaries
+plus a binned globe point set — which is not yet built. But the encoding question survives
+that decision: even summaries need a storage form, and 5.8 MB for one country is either
+acceptable as an on-demand fetch or it is not. That is a product judgement about what a
+visitor should be asked to download.
+
+**Options.** (a) Encoded per-country slices, 27.5 MB total, worst case 5.8 MB on selection.
+(b) Per-country-per-year, worst case ~1.2 MB — Syria's busiest year is 18,649 events.
+(c) Summaries only, with event detail deferred to a Worker endpoint.
+
+**My recommendation:** (c), because nothing in the spec renders individual events and two
+things render derivations of them. **Not built either way** — writing 134 MB, or picking a
+threshold and burying it, are both worse than asking.
+
+---
+
+## 2. San Marino renders a flat refusal
+
+**Context.** San Marino returns **six** concurrent heads of state where its constitution
+provides **two** Captains Regent. The multi-holder guard refuses rather than picking, which
+is honest but not maximally useful: "six holders" is a fact about Wikidata's data quality,
+not about San Marino.
+
+**Why it needs you.** Rendering it as a *discrepancy* — six observed against a cited two —
+requires an override recording the constitutionally expected count with a citation. That is
+the rule-1 override mechanism, and O1 requires a constitutional or statutory citation, not a
+consensus. Supplying that citation is a judgement about sources, not a parsing decision.
+
+**Explicitly not done:** inferring the expected count from the data. That is the post-hoc
+rule this project already refused, in a smaller costume.
+
+---
+
+## 3. Commonwealth realms render a shared monarch with no indication it is shared
+
+**Context.** Charles III is head of state of 24 states and territories, Willem-Alexander of
+4, Frederik X of 3. Each renders correctly today — he genuinely is their head of state — but
+a reader of Jamaica's dossier sees the same portrait as Canada's with nothing connecting
+them.
+
+**Why it needs you.** D8 records the decision to render the relation. What it does not settle
+is the *wording*, and the wording carries the meaning: "one of 24 states and territories"
+counts crown dependencies alongside sovereign states, which rule 22 says must be made
+explicit. Andorra is a different arrangement entirely (D7) and must not share phrasing.
+
+**Not built** — it is rendering work, and the queue excluded feature work.
+
+---
+
+## 4. P3 — missing-data propagation through derived facts
+
+**Context.** `DerivedProvenance.inputs` is `Provenance[]`, not `Fact[]`, so a derivation
+cannot see that an input came back empty. Recorded since step 7 as a modelling gap rather
+than an oversight.
+
+**Why it needs you.** Closing it changes the shape **every adapter emits** — either
+`inputs: AnyFact[]` or a per-input state recorded beside each provenance. That is a
+breaking change to the fact model, affecting every source, and it is scheduled to land with
+the step-12 choropleth. Doing it now inside a queue that excludes feature work would be a
+large uninstructed refactor.
+
+**Recommendation:** leave until step 12 forces it, as recorded. Raised here only so the
+deferral is a decision rather than an omission.
+
+---
+
+## 5. The marker-click mechanism is located but unexplained
+
+**Context.** The DOM click reaches the canvas every time; globe.gl's `onPointClick` never
+fires on a failure; `facesCamera` is `true` in all 12 instrumented trials. The loss is
+inside globe.gl's raycast. Three hypotheses were tested and refuted — camera damping,
+marker drift, stale tooltip.
+
+**Why it needs you.** L11 records a cheap defence (resolve from the last hovered point) as
+noted-and-not-built, because a fix without a mechanism would be a fourth guess after three
+refutations. Whether to ship an unvalidated mitigation for a check that fails ~40% of runs
+is a judgement about tolerance for an unexplained fix, not a technical one.
+
+**The suite stays red on it**, which is the honest state and was directed.
 
 ---

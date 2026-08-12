@@ -86,18 +86,21 @@ Ten modules. Coverage after this session's conversions:
 | `eonet.ts` | yes | yes |
 | `wikipedia.ts` | yes | yes |
 | `wikidata.ts` | yes | no — awaiting three consecutive clean runs |
-| `wikidata-dossier.ts` | **no** | no |
-| `wikidata-government.ts` | **no** | no |
+| `wikidata-dossier.ts` | **yes** — `tests/wikidata-queries.test.ts` | no |
+| `wikidata-government.ts` | **partial** — cabinet, judiciary, timeline, person-history covered; **legislature has none** | no |
 | `gdelt.ts` | yes | **no — source unusable** |
 | `gdelt-tone.ts` | **no** | **no — source unusable** |
 | `adapter.ts` | n/a — shared helpers | n/a |
 
-**`wikidata-dossier.ts` and `wikidata-government.ts` have no contract tests.** They are
-the largest query-building modules in the app — six SPARQL queries between them, backing
-the dossier header and the whole government tab — and the `wikidata-sparql` contract test
-covers only the generic binding-flattening path, not the queries these construct. This is
-the same shape as the three shipped-but-unvalidated sources: shipped code whose real
-request has never been checked against a real response.
+**Closed for five of the six queries.** `tests/wikidata-queries.test.ts` now covers the
+dossier, cabinet, judiciary, leadership-timeline and person-history builders against live
+captures from real countries.
+
+**`buildLegislatureQuery` remains uncovered, and not for want of trying.** It does not
+complete against live Wikidata for any country tested — 504 for the UK, 500 after 60.6s
+for Iceland, 504 after 65.5s for Vatican City, all at WDQS's ~60s server timeout. There is
+no real capture to write a contract against, and hand-writing one would be a prediction
+about a response nobody has seen. See `FOUND.md`.
 
 ---
 
