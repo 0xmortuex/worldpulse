@@ -120,6 +120,17 @@ export interface CountryDossierRecord {
    */
   headOfStateHolderCount: number;
   headOfStateIsPerson: boolean;
+  /**
+   * Every DISTINCT `P122` value the query returned, not just the first.
+   *
+   * Countries routinely carry several. Afghanistan returns `Emirate`,
+   * `islamic theocracy` and `unitary state`; Palestine returns
+   * `parliamentary republic`, `semi-presidential system` and `unitary state`.
+   * Those do not classify alike, so taking the first row makes the country's
+   * form of government depend on SPARQL row order — a coin flip rendered as a
+   * fact, and not even a stable one between requests.
+   */
+  formLabels: readonly string[];
   /** Only populated when a reviewed override injected an authority office. */
   authority: PersonRecord | null;
 }
@@ -196,7 +207,12 @@ export function parseCountryDossier(raw: unknown, sourceId = SOURCE_ID): Country
   // Only an explicit "false" says Wikidata was asked and answered no.
   const hosHumanFlags = new Set(result.rows.map((row) => row['hosIsHuman']).filter(Boolean));
 
+  const formLabels = [
+    ...new Set(result.rows.map((row) => row['formLabel']).filter((value): value is string => Boolean(value))),
+  ].sort();
+
   return {
+    formLabels,
     headOfStateHolderCount: hosIdentities.size,
     headOfStateIsPerson: !hosHumanFlags.has('false'),
     qid: qidOf(countryUri),

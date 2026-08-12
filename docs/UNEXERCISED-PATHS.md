@@ -127,3 +127,80 @@ Stated so the enumeration is not mistaken for complete:
   guarded branch.
 - **Anything keyed on a string the scan did not know to look for** — the same limitation
   that made the source-coverage grid a lower bound.
+
+---
+
+## 8. The fetch layer — the largest unexercised path, and this sweep did not catch it
+
+**There is not a single runtime `fetch` anywhere in `src/`.** Every panel in the
+application renders hand-authored fixtures. Verified by search, not assumed:
+
+```
+grep -rn "await fetch(\|fetch(" src/ --include=*.ts   →   no results outside src/dev
+```
+
+This is not dishonest — the SEED banner is up, every fixture-backed fact carries
+`fromFixture: true`, and the inspector renders *"Served from a hand-authored fixture, not a
+captured response."* But it reframes what the rest of this document, and the deploy gate,
+actually mean.
+
+### Why the sweep missed it
+
+Sections 1–7 look for unexercised **branches inside code that runs**. This is a whole
+**layer that does not exist**, and an enumeration of what exists cannot find what was never
+written. Section 7 stated the sweep's limits and did not include this one — the honest
+conclusion is that "what could this sweep not see" is itself a question that needs
+enumerating, not just answering once.
+
+### What `verifiedAgainst: "live"` actually means
+
+**It means a contract test fetched the source and its shape matched.** It does *not* mean
+the application has ever fetched anything. Five sources marked `live` and seven clearing
+the gate describe **the test suite**, not the app.
+
+That label will mislead someone, and the most likely someone is us. It is recorded here
+rather than renamed unilaterally, because the gate's semantics are a decision.
+
+### What exists
+
+| Piece | State |
+| --- | --- |
+| Response **parsing** per source | built and tested — `expectObject`, `expectArray`, `expectInRange`, `ShapeError` |
+| **Provenance** capture (`FetchContext`, `fetchProvenance`) | built; every fixture supplies one by hand |
+| **URL construction** | built and now exported per source, used by fixtures |
+| Contract tests against live sources | built, 5 sources |
+| `ttlMs` in the registry | **declared, never read** — no code consumes it |
+| `cache` on `FetchContext` | a *field* every fixture sets to `'miss'`; no cache exists |
+
+### What does not exist
+
+- **Any runtime request.** No fetch call, no request wrapper, no per-source client.
+- **Error handling at runtime.** `ShapeError` is thrown by parsers under test; nothing
+  catches it in a rendering path, because no rendering path fetches.
+- **Retries, backoff, request queueing, per-source concurrency limits** — features 38 in
+  the Phase 0 list. None present.
+- **Caching or IndexedDB.** `ttlMs` is registry metadata nothing reads; `cache: 'miss'` is
+  a literal in fixtures.
+- **The Worker proxy.** Needed by 4 sources per the CORS verdicts. Not started.
+- **Loading and degraded states.** Every panel renders synchronously from an import, so
+  there is no pending state, no partial state, and no error state in the UI — for any
+  panel.
+
+### What one panel rendering live data end-to-end would require
+
+Stated as a gap, not a plan:
+
+1. A request wrapper that fetches, times out, and returns a real `FetchContext` — status,
+   fetch time, cache state — rather than a hand-written one.
+2. Somewhere for the response to be parsed by the existing adapter and for `ShapeError` to
+   be *caught*, mapping to the panel's degraded state rather than an exception.
+3. Three UI states per panel that today has one: loading, loaded, failed. Rule 8 and rule 9
+   apply to each, and none has ever been laid out.
+4. A cache honouring `ttlMs`, or a decision that the first version has none — either is
+   fine, but silently having none while the registry declares TTLs is the gap that
+   matters.
+5. For the four WORKER-REQUIRED sources, the proxy, before they can be fetched at all.
+
+**None of this contradicts the contract tests.** They prove the real sources match the
+shapes the fixtures predict. They do not prove the app can consume them, because nothing
+in the app has ever tried.

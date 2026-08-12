@@ -391,6 +391,7 @@ describe('refuses rather than rendering a confident wrong value', () => {
     authority: null,
     headOfStateHolderCount: 1,
     headOfStateIsPerson: true,
+    formLabels: ['republic'],
   };
   const person = {
     qid: 'Q2',
@@ -436,6 +437,21 @@ describe('refuses rather than rendering a confident wrong value', () => {
     const b = resolveLeader('AND', record);
     assert.deepEqual(a, b);
     assert.equal(a.primary, null, 'a multi-holder country rendered an arbitrary primary');
+  });
+
+  it('refuses when Wikidata records several forms of government', () => {
+    // Afghanistan, live: Emirate | islamic theocracy | unitary state. These do
+    // not classify alike, and SPARQL guarantees no row order, so first() was a
+    // coin flip rendered as a fact.
+    const result = resolveLeader('AFG', {
+      ...base,
+      headOfState: person,
+      formLabels: ['Emirate', 'islamic theocracy', 'unitary state'],
+    });
+    assert.equal(result.class, 'undetermined');
+    assert.equal(result.primary, null);
+    assert.match(result.ruleReason, /Emirate/);
+    assert.match(result.ruleReason, /unitary state/);
   });
 
   it('positive control: a single human holder still resolves normally', () => {

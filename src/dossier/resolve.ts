@@ -154,6 +154,31 @@ export function resolveLeader(iso3: string, record: CountryDossierRecord): Leade
    * count is never inferred from the data — inferring it would be the post-hoc
    * rule this project already refused, in a smaller costume.
    */
+  /**
+   * Several forms of government. Refuse, exactly as for several heads of state.
+   *
+   * `first('formLabel')` was a coin flip: Afghanistan returns Emirate, islamic
+   * theocracy and unitary state, which classify differently from one another, and
+   * SPARQL guarantees no ordering — so the rendered classification could differ
+   * between two loads of the same country. Naming all of them is more useful than
+   * picking one, and honest about the disagreement being in the source.
+   */
+  if (record.formLabels.length > 1) {
+    return {
+      class: 'undetermined',
+      ruleNumber: 0,
+      ruleLabel: `Wikidata records ${record.formLabels.length} forms of government`,
+      ruleReason:
+        `Wikidata gives this country more than one form of government — ` +
+        `${record.formLabels.map((label) => `"${label}"`).join(', ')} — and they do not ` +
+        'classify alike. This app will not pick one: the query returns them in no ' +
+        'guaranteed order, so the choice would not be stable between page loads.',
+      primary: null,
+      secondary: null,
+      warnings: [...warnings, 'A country with several recorded forms needs a reviewed override naming which applies.'],
+    };
+  }
+
   if (record.headOfStateHolderCount > 1) {
     return {
       class: 'undetermined',
