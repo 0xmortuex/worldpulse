@@ -348,6 +348,9 @@ body {
 .fact-label { color: var(--text-dim); }
 .fact-value { color: var(--text); font-variant-numeric: tabular-nums; }
 .fact-value--nodata { color: var(--text-faint); font-style: italic; }
+/* Distinct from --nodata on purpose: "no data" is a claim about the subject,
+   "unavailable" is a claim about our request, and they must not look alike. */
+.fact-value--unavailable { color: var(--warn, #d9a441); font-style: italic; }
 .fact-asof { color: var(--text-faint); font-size: 10px; }
 .fact-note {
   flex-basis: 100%;
@@ -396,6 +399,13 @@ button.badge { cursor: pointer; }
 .badge--unconfigured {
   color: var(--text-faint);
   border: 1px solid var(--border);
+  background: transparent;
+}
+/* Between unconfigured (quiet, expected) and broken (loud, our defect):
+   a source being down is neither routine nor our fault. */
+.badge--unavailable {
+  color: var(--warn, #d9a441);
+  border: 1px solid var(--warn, #d9a441);
   background: transparent;
 }
 .badge--broken {

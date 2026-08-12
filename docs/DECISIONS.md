@@ -186,7 +186,7 @@ that unreliability.
 
 | # | Decision |
 | --- | --- |
-| P5 | **A missing input renders as UNAVAILABLE in the arithmetic, never as zero.** Zero is a measurement; absence is not. |
+| P5 | **A missing input renders as NOT-MODELLED in the arithmetic, never as zero.** Zero is a measurement; absence is not. *(Marker renamed from UNAVAILABLE by F1: that word now names the fetch state, and one label for two different claims is the conflation rule 30 exists to name. Renamed while P5 was still unimplemented and the change cost nothing.)* |
 | P6 | **The surface header states which inputs were available at compute time, not only the individual cards.** The *ordering* is a product of the incomplete input set, so the disclosure belongs where the ordering is presented. |
 | P7 | **Where two items' relative order would change if a missing input took any plausible value, they do not present as confidently ordered.** This reuses the tie-band mechanism, applied to uncertainty from missing inputs rather than from close scores. An exact computation is not required: **a conservative approximation that widens the band is acceptable, because over-declaring uncertainty is the safe direction.** |
 | P8 | **The disclosure is permanent and data-driven, never a temporary banner.** It reports whatever is unavailable at compute time, forever. A banner someone removes when elections land is a banner that stops telling the truth the next time an input goes missing — a feed outage, a key not configured, a source degraded. **"We will add the inputs later" must not become the reason the incompleteness stops being disclosed once they do.** |

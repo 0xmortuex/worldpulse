@@ -66,11 +66,51 @@ export interface UnconfiguredProvenance {
   keyEnv: string;
 }
 
+/**
+ * Why a request did not produce a usable response.
+ *
+ * `shape` is deliberately in this list rather than being modelled as brokenness:
+ * the origin answered and our parse disagreed, which is a real answer we cannot
+ * use, not an untraceable value.
+ */
+export type FailureReason = 'network' | 'timeout' | 'http' | 'rate-limited' | 'shape' | 'aborted';
+
+/**
+ * A request that was made and did not produce a usable response.
+ *
+ * THIS EXISTS SO THAT A FAILED FETCH IS NOT RENDERED AS `nodata`.
+ *
+ * `nodata` means the source was asked and had nothing — a fact about the
+ * subject. A timeout is a fact about our request. Routing one to the other
+ * would render "no GDP data for this country" when what happened is that we
+ * could not reach the World Bank, which is rule 30's conflation built into the
+ * framework rather than into a call site, and it would happen in every panel at
+ * once.
+ *
+ * `broken` is equally wrong in the other direction: this provenance is fully
+ * traceable — source, URL, status, time — and `broken` means a defect in THIS
+ * app. A source being down is not one.
+ */
+export interface FailedFetchProvenance {
+  kind: 'fetch-failed';
+  sourceId: string;
+  requestUrl: string;
+  /** null when the transport failed before any response arrived. */
+  httpStatus: number | null;
+  attemptedAt: string;
+  attempts: number;
+  reason: FailureReason;
+  detail: string;
+  /** When a retry becomes possible; null when nothing will be retried. */
+  retryableAt: string | null;
+}
+
 export type Provenance =
   | FetchProvenance
   | DerivedProvenance
   | SeedProvenance
-  | UnconfiguredProvenance;
+  | UnconfiguredProvenance
+  | FailedFetchProvenance;
 
 export interface Fact<T> {
   /** null means the source was asked and had nothing. Never a placeholder. */
@@ -102,7 +142,7 @@ export interface Fact<T> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyFact = Fact<any>;
 
-export type FactState = 'ok' | 'nodata' | 'broken' | 'unconfigured';
+export type FactState = 'ok' | 'nodata' | 'broken' | 'unconfigured' | 'unavailable';
 
 /**
  * Resolve what a fact should render as.
@@ -132,6 +172,14 @@ export function factState(fact: AnyFact): FactState {
  *       as a confident DERIVED figure is the worst failure this app has.
  *   P2  Unconfigured propagates. If an input's source needs a key that is not
  *       set, the pipeline never ran and there is nothing to be confident about.
+ *   P9  Unavailable propagates. A derivation with an input whose fetch failed is
+ *       unavailable. The pipeline ran and did not complete, which as far as the
+ *       confidence of the output goes is not a different situation from its
+ *       never having started. P9 is P2's live sibling.
+ *
+ *       P9 is implementable where P3 is not, and the distinction is exact:
+ *       unavailability is a property of a PROVENANCE, which `inputs` holds,
+ *       while "no data" is a property of a VALUE, which it does not.
  *
  * Inputs used to be ignored entirely, so a seed with no citation rendered
  * BROKEN on its own but vanished into a confident derived value when used as an
@@ -144,6 +192,7 @@ export function factState(fact: AnyFact): FactState {
  */
 function provenanceState(provenance: Provenance): FactState {
   if (provenance.kind === 'unconfigured') return 'unconfigured';
+  if (provenance.kind === 'fetch-failed') return 'unavailable';
   if (provenance.kind === 'fetch') return isTraceable(provenance) ? 'ok' : 'broken';
   if (provenance.kind === 'seed') return provenance.sourceUrl.length === 0 ? 'broken' : 'ok';
 
@@ -151,9 +200,16 @@ function provenanceState(provenance: Provenance): FactState {
   // the failure the inspector exists to catch.
   if (provenance.inputs.length === 0) return 'broken';
 
-  // Loudest wins: broken over unconfigured over ok.
+  // Loudest wins: broken over unavailable over unconfigured over ok.
+  //
+  // `broken` stays first because it means a defect in this app, which outranks
+  // a defect anywhere else. `unavailable` sits above `unconfigured` because it
+  // is the actionable one — a failed fetch may recover or may need
+  // investigating, where a missing key is a known, stable state someone has
+  // already decided not to configure.
   const states = provenance.inputs.map(provenanceState);
   if (states.includes('broken')) return 'broken';
+  if (states.includes('unavailable')) return 'unavailable';
   if (states.includes('unconfigured')) return 'unconfigured';
   return 'ok';
 }

@@ -108,6 +108,15 @@ function badgeMarkup(fact: AnyFact, state: FactState, id: string, compact: boole
       title="This source needs an API key that is not configured. Click to inspect."
       aria-label="Source not configured. Click to inspect.">KEY NOT SET</button>`;
   }
+  if (state === 'unavailable') {
+    // NOT a tier badge. Falling through to the tier branch would put an
+    // OFFICIAL badge over a blank value, which is the wrong-value shape this
+    // state exists to prevent: the badge would assert a confidence level for a
+    // value we never received.
+    return `<button type="button" class="badge badge--unavailable" data-fact="${id}"
+      title="The request to this source did not succeed. This says nothing about the subject — only about our request. Click to inspect."
+      aria-label="Source unavailable. Click to inspect the failed request.">UNAVAILABLE</button>`;
+  }
   const tier = fact.tier;
   const explanation = `${TIER_EXPLANATIONS[tier]} Source: ${sourceName(fact)}.`;
   const face = compact ? TIER_GLYPH[tier] : `${TIER_GLYPH[tier]} ${tier}`;
@@ -123,15 +132,27 @@ export function factHtml<T>(fact: Fact<T>, options: FactOptions = {}): string {
 
   const label = options.label ? `<span class="fact-label">${escapeHtml(options.label)}</span>` : '';
 
+  /**
+   * "no data" and "unavailable" must not share wording.
+   *
+   * "no data" is a claim about the subject: the source was asked and had
+   * nothing. "unavailable" is a claim about our request. Rendering the second
+   * with the first's words is rule 30's conflation, and it is the reason this
+   * state exists at all.
+   */
   const value =
     state === 'nodata'
       ? '<span class="fact-value fact-value--nodata">no data</span>'
       : state === 'unconfigured'
         ? '<span class="fact-value fact-value--nodata">not configured</span>'
-        : `<span class="fact-value">${escapeHtml(formatValue(fact))}</span>`;
+        : state === 'unavailable'
+          ? '<span class="fact-value fact-value--unavailable">source unavailable</span>'
+          : `<span class="fact-value">${escapeHtml(formatValue(fact))}</span>`;
 
+  // `asOf` dates the DATA. With no data received there is nothing for it to
+  // date, and rendering the stale one would put a confident date on an absence.
   const asOf =
-    options.hideAsOf || state === 'unconfigured' || !fact.asOf
+    options.hideAsOf || state === 'unconfigured' || state === 'unavailable' || !fact.asOf
       ? ''
       : `<span class="fact-asof">as of ${escapeHtml(fact.asOf)}</span>`;
 

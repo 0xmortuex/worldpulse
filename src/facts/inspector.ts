@@ -110,6 +110,29 @@ function renderProvenance(provenance: Provenance, depth: number): string {
     </section>`;
   }
 
+  if (provenance.kind === 'fetch-failed') {
+    const source = getSource(provenance.sourceId);
+    return `<section class="inspector-block">
+      <h3>${depth > 0 ? 'Input — ' : ''}Request failed</h3>
+      <div class="inspector-warn">This is a fact about our request, not about the subject.
+      No value is shown because none was received — not because the source reported none.</div>
+      <dl class="inspector-grid">
+        <dt>Source</dt><dd>${escapeHtml(source?.name ?? provenance.sourceId)}</dd>
+        <dt>URL</dt><dd><code class="inspector-url">${escapeHtml(provenance.requestUrl)}</code></dd>
+        <dt>HTTP</dt><dd>${provenance.httpStatus === null ? '<em>no response</em>' : provenance.httpStatus}</dd>
+        <dt>Reason</dt><dd><span class="failure failure--${provenance.reason}">${provenance.reason}</span>
+          <div class="inspector-hint">${escapeHtml(provenance.detail)}</div></dd>
+        <dt>Attempted at</dt><dd>${escapeHtml(provenance.attemptedAt)}</dd>
+        <dt>Attempts</dt><dd>${provenance.attempts}</dd>
+        <dt>Retry</dt><dd>${
+          provenance.retryableAt === null
+            ? '<em>not retryable — see reason</em>'
+            : escapeHtml(provenance.retryableAt)
+        }</dd>
+      </dl>
+    </section>`;
+  }
+
   if (provenance.kind === 'seed') {
     return `<section class="inspector-block">
       <div class="inspector-warn">Hand-checked seed value, not a live source.
