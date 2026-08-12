@@ -24,6 +24,7 @@
  * Run:  npm run check:deploy
  */
 import { readFile } from 'node:fs/promises';
+import { verdictFor } from './deploy-gate-rules.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -60,62 +61,24 @@ const MARK = { live: '  ok  ', bundled: 'bundled', documentation: ' BLOCK' };
 const problems = [];
 console.log(`deploy gate: ${sources.length} active sources\n`);
 
+// Evidence files are read once, so the rule itself stays pure and testable.
+const evidencePresent = new Set();
+for (const evidence of Object.values(BUNDLED_EVIDENCE)) {
+  const covered = await readFile(resolve(ROOT, evidence), 'utf8').catch(() => null);
+  if (covered !== null) evidencePresent.add(evidence);
+}
+const world = {
+  fixtureIds,
+  contractIds,
+  bundledEvidence: BUNDLED_EVIDENCE,
+  evidenceExists: (path) => evidencePresent.has(path),
+};
+
 for (const source of sources) {
-  const status = source.verifiedAgainst ?? 'documentation';
-  const problemsBefore = problems.length;
-  let detail = '';
-
-  if (status === 'bundled') {
-    const evidence = BUNDLED_EVIDENCE[source.id];
-    if (!evidence) {
-      problems.push(`${source.id}: claims "bundled" but no byte-level shape assertion is registered for it`);
-      detail = 'NO EVIDENCE REGISTERED';
-    } else {
-      const covered = await readFile(resolve(ROOT, evidence), 'utf8').catch(() => null);
-      if (covered === null) {
-        problems.push(`${source.id}: claims "bundled" but its evidence file ${evidence} is missing`);
-        detail = `missing ${evidence}`;
-      } else {
-        detail = `asserted by ${evidence}`;
-      }
-    }
-  } else if (status === 'documentation') {
-    problems.push(`${source.id}: contract read from documentation only, never confirmed against a live response`);
-    detail = 'never seen a live response';
-  } else if (status === 'live') {
-    /**
-     * "Live" requires a registered fixture AND a contract test naming the
-     * source. Confirming a response by hand and flipping the flag leaves
-     * nothing that would notice the shape drifting tomorrow.
-     *
-     * This was the documented process and it was not enforced, which is how
-     * three sources — nasa-eonet, wikipedia-rest and wikimedia-commons — came
-     * to have shipped panels with no fixture, no contract test and no recorded
-     * shape at all. The gate checked whether someone had *claimed* a live
-     * response, never whether anything could detect the next change.
-     *
-     * Registration is what a static gate can check; that the test passes is
-     * `npm test`'s job. A source registered here but asserted vacuously is
-     * still possible, which is what rule 16 and `npm run mutate` are for.
-     */
-    const missing = [];
-    if (!fixtureIds.has(source.id)) missing.push('no fixture registered in tests/fixtures/index.ts');
-    if (!contractIds.has(source.id)) missing.push('no contract test names it in tests/contracts.test.ts');
-    if (missing.length > 0) {
-      problems.push(`${source.id}: claims "live" but ${missing.join(' and ')}`);
-      detail = `LIVE WITHOUT COVERAGE — ${missing.join('; ')}`;
-    } else {
-      detail = 'confirmed against a live response, fixture and contract test registered';
-    }
-  } else {
-    problems.push(`${source.id}: unknown verifiedAgainst value ${JSON.stringify(status)}`);
-    detail = 'unknown status';
-  }
-
-  // The mark reflects the OUTCOME, not the claim. A source that recorded a
-  // problem this iteration must not print the same "ok" as one that passed —
-  // the reader scans the marks, not the detail column.
-  const mark = problems.length > problemsBefore ? ' BLOCK' : (MARK[status] ?? '  ??  ');
+  const { status, detail, problem } = verdictFor(source, world);
+  if (problem) problems.push(problem);
+  // The mark reflects the OUTCOME, not the claim (rule 21).
+  const mark = problem ? ' BLOCK' : (MARK[status] ?? '  ??  ');
   console.log(`  [${mark}] ${source.id.padEnd(24)} ${detail}`);
 }
 

@@ -64,7 +64,11 @@ function oneOf<T extends string>(allowed: readonly T[], value: unknown, where: s
   return value as T;
 }
 
-function parseRegistry(raw: typeof registry): Registry {
+/**
+ * Exported so a planted violation can be fed to it (rule 27). A validator that
+ * has only ever seen valid input is a validator nobody has watched work.
+ */
+export function parseRegistry(raw: typeof registry): Registry {
   const sources = raw.sources.map((source): SourceRecord => {
     const record = source as SourceRecord & Record<string, unknown>;
     return {
