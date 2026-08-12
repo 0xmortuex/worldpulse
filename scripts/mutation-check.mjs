@@ -133,6 +133,35 @@ const MUTATIONS = [
     expect: /occlusion|behind the globe|far side/i,
   },
   {
+    /**
+     * `degraded` collapsing into `ok`.
+     *
+     * The state most likely to be skipped and the one whose loss is silent: a
+     * panel showing two of three indicators would look exactly like a panel
+     * showing three, with no marker and no shortfall line. Nothing about the
+     * remaining values is wrong, which is precisely why nothing else catches it.
+     */
+    step: '7b — economy fetch states',
+    what: 'a partially-answered panel reports itself complete',
+    file: 'src/economy/panel-state.ts',
+    from: '  if (failed > 0 || unconfigured > 0) return \'degraded\';',
+    to: '  if (false) return \'degraded\';',
+    expect: /degraded|names what is missing/i,
+  },
+  {
+    /**
+     * The conflation the fifth fact state exists to prevent: a failed request
+     * worded as the subject having no data. "No GDP data for this country" when
+     * the truth is that we could not reach the World Bank.
+     */
+    step: '7b — economy fetch states',
+    what: 'a failed request is worded as the country having no data',
+    file: 'src/facts/badge.ts',
+    from: "      return '<span class=\"fact-value fact-value--unavailable\">source unavailable</span>';",
+    to: "      return '<span class=\"fact-value fact-value--nodata\">no data</span>';",
+    expect: /no failed indicator is worded as the country having no data|unavailable/i,
+  },
+  {
     step: 'cross-cutting — text fidelity (rule 9)',
     what: 'axis labels stop being compacted, so long values overflow the gutter',
     file: 'src/economy/series.ts',

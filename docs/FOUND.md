@@ -152,3 +152,36 @@ Reordering helped and did not fix it; removing the reloads did. **An instrument 
 degrades the thing it measures is not measuring it** — rule 20, arriving from the opposite
 direction to the one it was written for: not an instrument that resembles the client too
 little, but one whose own cost changes the client's behaviour.
+
+---
+
+## The app-level F6 guard is defence in depth, not the load-bearing defence
+
+**Found while writing a mutation to break it (2026-08-12).**
+
+The intended mutation was to remove the selection-identity check in
+`src/fetch/selection.ts` and watch the browser suite catch France's data rendering into
+Jamaica's dossier. It would not have been caught, and the reason is structural rather than
+a gap in the assertions.
+
+`renderEconomyTab` stores loads in a `Map` keyed by ISO3, and renders
+`loads.get(currentIso3)`. A late response for France is therefore written to France's own
+key; the panel showing Jamaica reads Jamaica's entry and finds it still loading. **The
+keying prevents the cross-country render on its own**, and the identity check only avoids a
+pointless rerender.
+
+**Both are kept.** The guard is not redundant in general — it is load-bearing for any panel
+holding a single "current load" rather than a map, which is the obvious shape and the one a
+future panel is likely to reach for. What changed is my claim about it: the app is safe
+because of how the loads are stored, and the guard is the second lock, not the first.
+
+**Where the race is actually proven:** `tests/fetch-transport.test.ts`, which drives the
+sequence directly — issue for France, switch to Jamaica, resolve France late, assert no
+panel receives it — plus the mirror case where the user returns to France and the response
+IS accepted. Those tests fail if the guard is removed, because they exercise the guard
+rather than the panel's storage.
+
+**Worth stating plainly:** I would have shipped a mutation that passed vacuously and read
+it as evidence the race was covered in the browser. It was caught by asking what the
+mutation would actually change before running it, which is the habit rule 27 is really
+about.
