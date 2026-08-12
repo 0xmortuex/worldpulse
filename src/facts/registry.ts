@@ -9,9 +9,11 @@ import type { Tier } from './types';
 const LICENSE_CLASSES = ['open', 'nc', 'share-alike', 'restricted'] as const;
 const VERIFIED_AGAINST = ['documentation', 'live', 'bundled'] as const;
 const TIERS = ['OFFICIAL', 'ESTIMATE', 'DERIVED'] as const;
+const TRANSPORTS = ['direct', 'worker'] as const;
 
 export type LicenseClass = (typeof LICENSE_CLASSES)[number];
 export type VerifiedAgainst = (typeof VERIFIED_AGAINST)[number];
+export type Transport = (typeof TRANSPORTS)[number];
 
 export interface SourceRecord {
   id: string;
@@ -31,11 +33,35 @@ export interface SourceRecord {
   excluded?: boolean;
   notes?: string;
   requiresCustomUserAgent?: boolean;
+  /** Scheme + host, derived from probeUrl. The one place a host is written. */
+  origin?: string;
+  /**
+   * Derived from the probe verdict, never hand-set — see the deploy gate check.
+   * ABSENT MEANS UNKNOWN, and compose() refuses rather than assuming 'direct':
+   * guessing the browser can read a response is how a panel ships broken.
+   */
+  transport?: Transport;
+  /** Bumped when this source's adapter changes how it parses. Cache key input. */
+  schemaVersion?: number;
+  rateLimit?: { perMinute: number; burst: number };
+  maxConcurrent?: number;
+  timeoutMs?: number;
+}
+
+/** Policy that applies to every source unless it overrides it. */
+export interface FetchDefaults {
+  rateLimit: { perMinute: number; burst: number };
+  maxConcurrent: number;
+  globalMaxConcurrent: number;
+  timeoutMs: number;
+  /** Multiple of ttlMs past which a cached value stops being servable (F3). */
+  staleMultiple: number;
 }
 
 interface Registry {
   licenseClasses: Record<LicenseClass, string>;
   verifiedAgainstValues: Record<VerifiedAgainst, string>;
+  fetchDefaults: FetchDefaults;
   sources: SourceRecord[];
 }
 
@@ -76,6 +102,11 @@ export function parseRegistry(raw: typeof registry): Registry {
       licenseClass: oneOf(LICENSE_CLASSES, record.licenseClass, `${record.id}.licenseClass`),
       verifiedAgainst: oneOf(VERIFIED_AGAINST, record.verifiedAgainst, `${record.id}.verifiedAgainst`),
       tier: oneOf(TIERS, record.tier, `${record.id}.tier`),
+      // Validated only when present: absent is the meaningful "not probed" state
+      // and must stay distinguishable from a value we invented.
+      ...(record.transport === undefined
+        ? {}
+        : { transport: oneOf(TRANSPORTS, record.transport, `${record.id}.transport`) }),
     };
   });
 
@@ -85,9 +116,18 @@ export function parseRegistry(raw: typeof registry): Registry {
     }
   }
 
+  const defaults = raw.fetchDefaults as FetchDefaults | undefined;
+  if (!defaults) throw new Error('sources.json: fetchDefaults is missing');
+  for (const field of ['maxConcurrent', 'globalMaxConcurrent', 'timeoutMs', 'staleMultiple'] as const) {
+    if (typeof defaults[field] !== 'number' || defaults[field] <= 0) {
+      throw new Error(`sources.json: fetchDefaults.${field} must be a positive number`);
+    }
+  }
+
   return {
     licenseClasses: raw.licenseClasses as Record<LicenseClass, string>,
     verifiedAgainstValues: raw.verifiedAgainstValues as Record<VerifiedAgainst, string>,
+    fetchDefaults: defaults,
     sources,
   };
 }
@@ -102,6 +142,10 @@ export function getSource(id: string): SourceRecord | undefined {
 
 export function allSources(): readonly SourceRecord[] {
   return data.sources;
+}
+
+export function fetchDefaults(): FetchDefaults {
+  return data.fetchDefaults;
 }
 
 export function licenseClassNote(licenseClass: LicenseClass): string {

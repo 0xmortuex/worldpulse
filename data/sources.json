@@ -22,7 +22,9 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "bundled"
+      "verifiedAgainst": "bundled",
+      "origin": "https://www.naturalearthdata.com",
+      "schemaVersion": 1
     },
     {
       "id": "iso-3166-names",
@@ -40,7 +42,9 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "Registered because the app SHIPS this data, not merely a library. It was invisible to the source-coverage grid and to the deploy gate until a test required every bundled dataset to name a registry source: the grid keyed on source-id strings, and nothing in src/ named this one.",
-      "verifiedAgainst": "bundled"
+      "verifiedAgainst": "bundled",
+      "origin": "https://github.com",
+      "schemaVersion": 1
     },
     {
       "id": "worldbank",
@@ -56,7 +60,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "live"
+      "verifiedAgainst": "live",
+      "origin": "https://api.worldbank.org",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "worldbank-milex",
@@ -73,7 +80,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "Used in place of a direct SIPRI ingest: SIPRI publishes no API and restricts redistribution, but the World Bank redistributes the same series under CC BY 4.0. Indicators: MS.MIL.XPND.CD, MS.MIL.XPND.GD.ZS, MS.MIL.TOTL.P1.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.worldbank.org",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "usgs-quakes",
@@ -89,7 +99,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "live"
+      "verifiedAgainst": "live",
+      "origin": "https://earthquake.usgs.gov",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "nasa-eonet",
@@ -105,7 +118,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "live"
+      "verifiedAgainst": "live",
+      "origin": "https://eonet.gsfc.nasa.gov",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "wikidata-sparql",
@@ -123,7 +139,10 @@
       "keyEnv": null,
       "requiresCustomUserAgent": true,
       "notes": "Requires a descriptive User-Agent. Browsers cannot set User-Agent, so this needs the Worker regardless of CORS posture.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://query.wikidata.org",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "wikipedia-rest",
@@ -139,7 +158,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "live"
+      "verifiedAgainst": "live",
+      "origin": "https://en.wikipedia.org",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "wikimedia-commons",
@@ -156,7 +178,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "verifiedAgainst": "live",
-      "notes": "MediaWiki emits Access-Control-Allow-Origin only when the request carries `origin=*`. Without it the API answers 200 with no ACAO, which scored WORKER-REQUIRED — a property of our query string, not of the API. Every MediaWiki request this app makes must carry it. Measured: without origin=* 200 and no ACAO; with it 200 and ACAO `*`."
+      "notes": "MediaWiki emits Access-Control-Allow-Origin only when the request carries `origin=*`. Without it the API answers 200 with no ACAO, which scored WORKER-REQUIRED — a property of our query string, not of the API. Every MediaWiki request this app makes must carry it. Measured: without origin=* 200 and no ACAO; with it 200 and ACAO `*`.",
+      "origin": "https://commons.wikimedia.org",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "gdelt-doc",
@@ -173,7 +198,9 @@
       "keyRequired": false,
       "keyEnv": null,
       "verifiedAgainst": "documentation",
-      "notes": "UNREACHABLE: eight consecutive failed attempts on 2026-08-12 in four modes — 429, 429, connection error, connect timeout, fetch failed at 10.9s, 429, 429, 429. Zero successful responses ever observed. Held in the registry with its history rather than deleted: a removed source is a source nobody knows was tried. Per decision 11a, re-entry is through the normal gate — fixture, contract test, then live — and it returns as an enrichment on top of the RSS feeds, never as the base layer."
+      "notes": "UNREACHABLE: eight consecutive failed attempts on 2026-08-12 in four modes — 429, 429, connection error, connect timeout, fetch failed at 10.9s, 429, 429, 429. Zero successful responses ever observed. Held in the registry with its history rather than deleted: a removed source is a source nobody knows was tried. Per decision 11a, re-entry is through the normal gate — fixture, contract test, then live — and it returns as an enrichment on top of the RSS feeds, never as the base layer.",
+      "origin": "https://api.gdeltproject.org",
+      "schemaVersion": 1
     },
     {
       "id": "rss-npr",
@@ -191,7 +218,9 @@
       "keyEnv": null,
       "countryFocus": "USA",
       "notes": "Headline, link and summary only. NPR permits feed display with attribution. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://feeds.npr.org",
+      "schemaVersion": 1
     },
     {
       "id": "rss-voa",
@@ -209,7 +238,9 @@
       "keyEnv": null,
       "countryFocus": "USA",
       "notes": "US federal work, no rights reserved. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.voanews.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-bbc",
@@ -227,7 +258,9 @@
       "keyEnv": null,
       "countryFocus": "GBR",
       "notes": "Non-commercial only, which decision 3 satisfies. Link back is mandatory. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://feeds.bbci.co.uk",
+      "schemaVersion": 1
     },
     {
       "id": "rss-guardian",
@@ -245,7 +278,9 @@
       "keyEnv": null,
       "countryFocus": "GBR",
       "notes": "Headline and link only; do not render the full article body. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.theguardian.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-dw",
@@ -263,7 +298,9 @@
       "keyEnv": null,
       "countryFocus": "DEU",
       "notes": "Attribution required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://rss.dw.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-france24",
@@ -281,7 +318,9 @@
       "keyEnv": null,
       "countryFocus": "FRA",
       "notes": "Attribution required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.france24.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-aljazeera",
@@ -299,7 +338,9 @@
       "keyEnv": null,
       "countryFocus": "QAT",
       "notes": "Non-commercial only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.aljazeera.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-abc-au",
@@ -317,7 +358,9 @@
       "keyEnv": null,
       "countryFocus": "AUS",
       "notes": "Attribution and link back required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.abc.net.au",
+      "schemaVersion": 1
     },
     {
       "id": "rss-thehindu",
@@ -335,7 +378,9 @@
       "keyEnv": null,
       "countryFocus": "IND",
       "notes": "Headline and link only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.thehindu.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-cna",
@@ -353,7 +398,9 @@
       "keyEnv": null,
       "countryFocus": "SGP",
       "notes": "Non-commercial only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.channelnewsasia.com",
+      "schemaVersion": 1
     },
     {
       "id": "rss-japantimes",
@@ -371,7 +418,9 @@
       "keyEnv": null,
       "countryFocus": "JPN",
       "notes": "Headline and link only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.japantimes.co.jp",
+      "schemaVersion": 1
     },
     {
       "id": "rss-rnz",
@@ -389,7 +438,9 @@
       "keyEnv": null,
       "countryFocus": "NZL",
       "notes": "NC and ND: display headline and link, never a modified excerpt. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.rnz.co.nz",
+      "schemaVersion": 1
     },
     {
       "id": "rss-rte",
@@ -407,7 +458,9 @@
       "keyEnv": null,
       "countryFocus": "IRL",
       "notes": "Attribution and link back required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.rte.ie",
+      "schemaVersion": 1
     },
     {
       "id": "rss-agenciabrasil",
@@ -425,7 +478,9 @@
       "keyEnv": null,
       "countryFocus": "BRA",
       "notes": "The most permissive feed in the set; attribution still required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://agenciabrasil.ebc.com.br",
+      "schemaVersion": 1
     },
     {
       "id": "rss-yonhap",
@@ -443,7 +498,9 @@
       "keyEnv": null,
       "countryFocus": "KOR",
       "notes": "Headline and link only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://en.yna.co.kr",
+      "schemaVersion": 1
     },
     {
       "id": "ucdp-ged",
@@ -460,7 +517,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "Bulk CSV download, not the REST API. The API at ucdpapi.pcr.uu.se now answers 401 on EVERY endpoint and version tested (gedevents 24.1 and 26.1, ucdpprioconflict, battledeaths, nonstate, onesided): \"API token required. Add header: x-ucdp-access-token\". The bulk downloads at ucdp.uu.se/downloads are keyless and still CC BY 4.0 — verified 200, application/x-zip-compressed, 39.1MB, PK zip magic. An annually-released dataset does not need a live API, so the keyless path is preferred and no key is introduced. ARCHITECTURE CONSEQUENCE, undecided: at 39MB this is not a per-visitor browser fetch. It wants version-pinning as a bundled dataset (which under A6a requires a registered byte-level shape assertion) or a Worker-side extract. Not a runtime client fetch either way. Annual release, NOT a live feed; the layer header must state version and coverage end date.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://ucdp.uu.se",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "ucdp-candidate",
@@ -477,7 +537,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "Bulk CSV download, not the REST API — the API is keyed on every endpoint (see ucdp-ged). The candidate CSVs are keyless, verified 200. Preliminary and subject to revision. Must render visually distinct from GED.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://ucdp.uu.se",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "iptv-org-channels",
@@ -494,7 +557,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "Never proxy or re-host video. Link to upstream HLS only. Health-check before display.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://iptv-org.github.io",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "iptv-org-streams",
@@ -510,7 +576,10 @@
       "tier": "DERIVED",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://iptv-org.github.io",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "frankfurter",
@@ -527,7 +596,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "~30 currencies, weekdays only. Exotic currencies and weekends fall back or show no data.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.frankfurter.app",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "exchangerate-host",
@@ -544,7 +616,10 @@
       "keyRequired": true,
       "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
       "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.exchangerate.host",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "comtrade",
@@ -561,7 +636,10 @@
       "keyRequired": true,
       "keyEnv": "COMTRADE_KEY",
       "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://comtradeapi.un.org",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "congress-gov",
@@ -578,7 +656,10 @@
       "keyRequired": true,
       "keyEnv": "CONGRESS_GOV_KEY",
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.congress.gov",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "uk-commons-votes",
@@ -595,7 +676,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://commonsvotes-api.parliament.uk",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "howtheyvote-data",
@@ -613,7 +697,9 @@
       "keyEnv": null,
       "legislatureTier": 1,
       "notes": "Stable path. The live howtheyvote.eu API is self-described as experimental with no availability guarantee; use it only as a freshness layer.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.github.com",
+      "schemaVersion": 1
     },
     {
       "id": "openparliament-ca",
@@ -632,7 +718,10 @@
       "legislatureTier": 1,
       "requiresCustomUserAgent": true,
       "notes": "Requests should carry a contact User-Agent per site guidance.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.openparliament.ca",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "camara-br",
@@ -650,7 +739,10 @@
       "keyEnv": null,
       "legislatureTier": 1,
       "notes": "Câmara only. Senado Federal is a separate API.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://dadosabertos.camara.leg.br",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "abgeordnetenwatch",
@@ -668,7 +760,10 @@
       "keyEnv": null,
       "legislatureTier": 1,
       "notes": "Named votes (namentliche Abstimmungen) only. Tab must be labelled named-votes-only so absent routine votes do not read as inactivity.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.abgeordnetenwatch.de",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "nosdeputes",
@@ -686,7 +781,10 @@
       "keyEnv": null,
       "legislatureTier": 1,
       "notes": "ODbL share-alike is viral into derived datasets. Per decision 3: keep in its own store, never merge into a general-purpose derived table.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.nosdeputes.fr",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "tweedekamer",
@@ -703,7 +801,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://gegevensmagazijn.tweedekamer.nl",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "riksdagen",
@@ -720,7 +821,10 @@
       "keyRequired": false,
       "keyEnv": null,
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://data.riksdagen.se",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "theyvoteforyou",
@@ -737,7 +841,10 @@
       "keyRequired": true,
       "keyEnv": "THEYVOTEFORYOU_KEY",
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://theyvoteforyou.org.au",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "ofac-sdn",
@@ -753,7 +860,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://sanctionslistservice.ofac.treas.gov",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "eu-sanctions",
@@ -769,7 +879,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://data.europa.eu",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "opensanctions",
@@ -786,7 +899,10 @@
       "keyRequired": true,
       "keyEnv": "OPENSANCTIONS_KEY",
       "notes": "Non-commercial only. Optional enrichment on top of OFAC and EU primary lists, isolated behind its own adapter.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.opensanctions.org",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "state-dept-advisories",
@@ -802,7 +918,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://travel.state.gov",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "fcdo-advisories",
@@ -818,7 +937,10 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.gov.uk",
+      "transport": "direct",
+      "schemaVersion": 1
     },
     {
       "id": "smartraveller",
@@ -834,7 +956,9 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.smartraveller.gov.au",
+      "schemaVersion": 1
     },
     {
       "id": "eia",
@@ -850,7 +974,10 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "EIA_KEY",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.eia.gov",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "globalfirepower",
@@ -869,7 +996,9 @@
       "keyEnv": null,
       "excluded": true,
       "notes": "Per decision 2: excluded. No API, no licence grant, proprietary compiled estimates. Named in the Military tab's no-data card as a reason equipment inventories are unavailable.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.globalfirepower.com",
+      "schemaVersion": 1
     },
     {
       "id": "iiss-military-balance",
@@ -888,7 +1017,9 @@
       "keyEnv": null,
       "excluded": true,
       "notes": "Per decision 2: excluded. Named in the Military tab's no-data card.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.iiss.org",
+      "schemaVersion": 1
     },
     {
       "id": "acled",
@@ -907,7 +1038,10 @@
       "keyEnv": null,
       "excluded": true,
       "notes": "Excluded per Phase 0 section 1.1. UCDP GED is the conflict source.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://acleddata.com",
+      "transport": "worker",
+      "schemaVersion": 1
     },
     {
       "id": "sipri-direct",
@@ -926,7 +1060,9 @@
       "keyEnv": null,
       "excluded": true,
       "notes": "No API. Reached indirectly via worldbank-milex. Link-out only. Arms-transfer arcs dropped per decision 4.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.sipri.org",
+      "schemaVersion": 1
     },
     {
       "id": "un-register-arms",
@@ -945,12 +1081,24 @@
       "keyEnv": null,
       "excluded": true,
       "notes": "Excluded per decision 4. Self-reported and sparse; drawn as arcs, a missing report reads as 'no transfers', which is a confident falsehood. Replaced by a coverage note in the Military tab.",
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "origin": "https://www.unroca.org",
+      "schemaVersion": 1
     }
   ],
   "verifiedAgainstValues": {
     "documentation": "Endpoint contract taken from vendor documentation. NOT confirmed against a live response. Blocks deployment.",
     "live": "Confirmed against a live response captured by npm run probe, with the observed shape recorded in a fixture.",
     "bundled": "Not fetched at runtime. Shipped from a version-pinned package and asserted byte-level against the real data by the test suite. Passes the gate, and is listed by name in every gate run rather than being skipped."
+  },
+  "fetchDefaults": {
+    "rateLimit": {
+      "perMinute": 60,
+      "burst": 10
+    },
+    "maxConcurrent": 4,
+    "globalMaxConcurrent": 6,
+    "timeoutMs": 15000,
+    "staleMultiple": 5
   }
 }
