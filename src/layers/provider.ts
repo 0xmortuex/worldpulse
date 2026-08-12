@@ -32,6 +32,10 @@ export const LAYERS: readonly LayerDefinition[] = [
   { id: 'eonet:volcanoes', label: 'Volcanoes', sourceId: 'nasa-eonet', color: '#d99024', defaultOn: true },
   { id: 'eonet:wildfires', label: 'Wildfires', sourceId: 'nasa-eonet', color: '#e8b339', defaultOn: true },
   { id: 'eonet:severe-storms', label: 'Severe storms', sourceId: 'nasa-eonet', color: '#79c0ff', defaultOn: true },
+  // Floods were 6 of 200 live EONET events and already specced as a layer, so
+  // they are registered rather than left to `unregisteredLayers`. The other nine
+  // EONET categories stay unregistered on purpose — see decision L12.
+  { id: 'eonet:floods', label: 'Floods', sourceId: 'nasa-eonet', color: '#58a6ff', defaultOn: true },
 ];
 
 const LAYER_IDS = new Set(LAYERS.map((layer) => layer.id));

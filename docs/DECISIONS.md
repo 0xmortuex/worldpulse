@@ -106,6 +106,21 @@ Rationale lives in `PHASE-0-REPORT.md`; this file is the record of what was sett
 | L8 | **A layer with no magnitude concept carries no magnitude fact at all.** Distinct from a quake whose magnitude is genuinely null: EONET does not measure magnitude, so rendering "no data" for one would invent a missing value rather than report an absent one. |
 | L8a | **Amended after live data. The original reason above is FALSE and is left visible on purpose** — a decision that was right for a wrong reason is worth seeing whole (same treatment as G1). EONET *does* measure: every geometry carries `magnitudeValue` and `magnitudeUnit` — 9673 `hectare` for a wildfire's burned area, 35 `kts` for a storm's winds. The app was discarding a published NASA figure because we had assumed it did not exist. **Corrected decision:** parse it into a distinct unit-bearing `measurement` fact, render it as value + unit with its own OFFICIAL badge, and **never feed it into the point-sizing scale**. Sizing is comparative and there is no honest comparison between 9673 hectares and 35 knots, nor between either and moment magnitude; non-quake events keep a fixed size. **Never aggregate, average or rank across units** — a future "biggest events" panel is per-unit within a category, or it is nothing. The original conclusion (`magnitude` stays null for EONET) survives; only its justification changes. |
 
+## EONET category scope
+
+EONET publishes 13 categories; the app registered 3. The other 10 were not a bug —
+`unregisteredLayers()` surfaces them in the rail rather than dropping them, which is the
+design working — but which to register had never been decided.
+
+| # | Decision |
+| --- | --- |
+| L12 | **`floods` is registered as a layer.** 6 of 200 live events, already specced, and a flood is the same kind of thing as the three layers already carried. |
+| L12a | **The remaining nine stay unregistered, with reasons, and `unregisteredLayers` keeps surfacing them.** `drought`, `tempExtremes`, `seaLakeIce`, `snow`, `waterColor` and `dustHaze` are slow-onset or areal phenomena that a point marker misrepresents — a drought is not located at a coordinate, and rendering one as a pin would be the position-precision error decision L3 exists to prevent. `landslides` and `manmade` are candidates but were absent from a 200-event sample, so registering them would ship a layer whose live path has never been exercised. `earthquakes` is deliberately excluded: USGS is the earthquake source, and carrying EONET's as a second layer would double-count the same events under two provenances. |
+
+**Registering a layer is a claim that a point marker represents the phenomenon.** For
+half of EONET's categories that claim is false, which is why the honest default is to
+leave them unregistered and visible rather than mapped and wrong.
+
 ## Verification
 
 | # | Decision |

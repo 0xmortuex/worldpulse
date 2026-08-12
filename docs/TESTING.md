@@ -591,3 +591,51 @@ result can disagree with it.
 
 The fix is mechanical: compute the marker *after* the check, from what the check
 recorded. Here that meant comparing the problem count before and after the row.
+
+## 22. A numeric fact whose meaning depends on a unit carries the unit or does not render
+
+**If a number means nothing without its unit, the unit is part of the value — not a label
+beside it, and not optional.**
+
+Where this came from: EONET publishes `magnitudeValue` alongside `magnitudeUnit` —
+`9673 hectare` for a wildfire's burned area, `35 kts` for a storm's winds. The adapter
+emits a measurement only when *both* are present and well-formed.
+
+`9673` on its own tells a reader nothing, and it is worse than nothing: placed next to an
+unlabelled `35`, it invites a comparison that is meaningless. A bare number in a numeric
+surface reads as commensurable with the other bare numbers around it, which is a
+wrong-value failure of the kind rule 7 ranks above absence.
+
+This generalises past EONET. Any fact whose interpretation depends on a unit or basis —
+currency and current/constant (decision E2), fatality counts against a best/high/low
+estimate, seat counts against a chamber size, percentages against their denominator —
+either carries that context to the point of render or does not render.
+
+The corollary is the one that bites: **do not aggregate, average, rank or compare across
+units.** Sorting `9673 hectare` against `35 kts` produces an ordering with no meaning,
+presented with all the authority of a sorted list.
+
+## 23. A defect report cites the line that exhibits the defect, not the line that would
+
+**Before reporting a defect, read the code path that actually runs. Cite it. A report
+built from a plausible derivation is a hypothesis, and hypotheses are reported as
+questions.**
+
+Where this came from: EONET's category *ids* are camelCase (`severeStorms`), and the
+layer id is derived by lowercasing and hyphenating whitespace — which would yield
+`eonet:severestorms` and fail to match the registered `eonet:severe-storms`. That was
+written up as a shipped step-7 defect.
+
+It is not one. The parser reads the category **title** (`"Severe Storms"`), not the id, so
+it derives `eonet:severe-storms` correctly. The derivation was right; the input was
+imagined. One `sed` of the parsing function was the difference between a finding and a
+false alarm.
+
+A false defect report costs more than silence: it sends someone to fix working code, and
+if they "fix" it the working code becomes broken. It also spends the credibility that
+makes real findings actionable.
+
+Disposal matters too. A near-miss like this is recorded as an explicit **non-finding**,
+with the reason it is not a bug, so the next reader who notices the same camelCase ids
+does not re-derive the same wrong conclusion. An investigation that concludes "no defect"
+has produced knowledge, and throwing it away means paying for it again.
