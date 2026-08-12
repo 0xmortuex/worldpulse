@@ -1,12 +1,12 @@
 {
-  "probedAt": "2026-08-12T13:42:54.110Z",
+  "probedAt": "2026-08-12T14:13:09.840Z",
   "origin": "https://worldpulse.pages.dev",
   "counts": {
     "CLIENT-FETCH": 16,
-    "WORKER-REQUIRED": 5,
     "INCONCLUSIVE": 4,
-    "KEY-GATED": 6,
-    "UNREACHABLE": 2
+    "WORKER-REQUIRED": 4,
+    "UNREACHABLE": 3,
+    "KEY-GATED": 6
   },
   "results": [
     {
@@ -19,12 +19,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 577,
+        "ms": 336,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 634,
+        "ms": 436,
         "contentType": "application/json;charset=utf-8",
         "bytes": 513,
         "cors": {
@@ -47,12 +47,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 650,
+        "ms": 874,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 75,
+        "ms": 76,
         "contentType": "application/json;charset=utf-8",
         "bytes": 539,
         "cors": {
@@ -75,7 +75,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 200,
-        "ms": 789,
+        "ms": 960,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, OPTIONS",
@@ -85,9 +85,9 @@
       },
       "get": {
         "status": 200,
-        "ms": 866,
+        "ms": 818,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 201560,
+        "bytes": 203025,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, OPTIONS",
@@ -109,7 +109,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 676,
+        "ms": 704,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET",
@@ -119,7 +119,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 713,
+        "ms": 1096,
         "contentType": "application/rss+xml; charset=utf-8",
         "bytes": 4004,
         "cors": {
@@ -140,23 +140,21 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 572,
+        "ms": 727,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
-        "status": 403,
-        "ms": 516,
-        "contentType": "text/html;charset=iso-8859-1",
-        "bytes": 499,
-        "cors": {
-          "access-control-allow-origin": "*"
-        },
-        "cacheControl": "must-revalidate,no-cache,no-store"
+        "status": 429,
+        "ms": 543,
+        "contentType": "text/html; charset=utf-8",
+        "bytes": 1966,
+        "cors": {},
+        "cacheControl": null
       },
-      "verdict": "WORKER-REQUIRED",
-      "reason": "Requires a descriptive User-Agent, which browsers are forbidden to set. ACAO observed: *."
+      "verdict": "INCONCLUSIVE",
+      "reason": "Upstream returned HTTP 429; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
     },
     {
       "id": "wikipedia-rest",
@@ -167,13 +165,18 @@
       "keyEnv": null,
       "licenseClass": "share-alike",
       "preflight": {
-        "status": 429,
-        "ms": 563,
-        "cors": {}
+        "status": 200,
+        "ms": 503,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET,HEAD",
+          "access-control-allow-headers": "accept, content-type, content-length, cache-control, accept-language, api-user-agent, if-match, if-modified-since, if-none-match, dnt, accept-encoding",
+          "access-control-expose-headers": "etag"
+        }
       },
       "get": {
         "status": 200,
-        "ms": 496,
+        "ms": 661,
         "contentType": "application/json; charset=utf-8; profile=\"https://www.mediawiki.org/wiki/Specs/Summary/1.5.0\"",
         "bytes": 2298,
         "cors": {
@@ -197,12 +200,12 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 429,
-        "ms": 462,
+        "ms": 506,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 530,
+        "ms": 552,
         "contentType": "application/json; charset=utf-8",
         "bytes": 2704,
         "cors": {},
@@ -221,18 +224,14 @@
       "licenseClass": "nc",
       "preflight": {
         "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
-        "ms": 10321
+        "ms": 10691
       },
       "get": {
-        "status": 429,
-        "ms": 12173,
-        "contentType": null,
-        "bytes": 444,
-        "cors": {},
-        "cacheControl": null
+        "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
+        "ms": 10487
       },
-      "verdict": "INCONCLUSIVE",
-      "reason": "Upstream returned HTTP 429; no usable ACAO on the error response. CORS posture on the success path is unknown — re-probe with a request that succeeds."
+      "verdict": "UNREACHABLE",
+      "reason": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)"
     },
     {
       "id": "ucdp-ged",
@@ -244,12 +243,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 1404,
+        "ms": 1111,
         "cors": {}
       },
       "get": {
         "status": 401,
-        "ms": 1631,
+        "ms": 159,
         "contentType": "text/plain; charset=utf-8",
         "bytes": 65,
         "cors": {},
@@ -268,12 +267,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 1171,
+        "ms": 995,
         "cors": {}
       },
       "get": {
         "status": 401,
-        "ms": 153,
+        "ms": 1172,
         "contentType": "text/plain; charset=utf-8",
         "bytes": 65,
         "cors": {},
@@ -292,12 +291,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 1235,
+        "ms": 642,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 263,
+        "ms": 269,
         "contentType": "application/json; charset=utf-8",
         "bytes": 10329293,
         "cors": {
@@ -318,12 +317,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 477,
+        "ms": 547,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 443,
+        "ms": 245,
         "contentType": "application/json; charset=utf-8",
         "bytes": 3464466,
         "cors": {
@@ -343,19 +342,12 @@
       "keyEnv": null,
       "licenseClass": "open",
       "preflight": {
-        "status": 200,
-        "ms": 1596,
-        "cors": {
-          "access-control-allow-origin": "*",
-          "access-control-allow-methods": "GET, OPTIONS",
-          "access-control-allow-headers": "content-type",
-          "access-control-max-age": "7200",
-          "access-control-expose-headers": ""
-        }
+        "error": "The operation was aborted due to timeout",
+        "ms": 20001
       },
       "get": {
         "status": 200,
-        "ms": 147,
+        "ms": 1372,
         "contentType": "application/json; charset=utf-8",
         "bytes": 436,
         "cors": {
@@ -379,7 +371,7 @@
       "licenseClass": "restricted",
       "preflight": {
         "status": 200,
-        "ms": 600,
+        "ms": 701,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
@@ -387,7 +379,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 813,
+        "ms": 654,
         "contentType": "application/json; Charset=UTF-8",
         "bytes": 193,
         "cors": {
@@ -409,12 +401,12 @@
       "licenseClass": "restricted",
       "preflight": {
         "status": 200,
-        "ms": 1054,
+        "ms": 1742,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 1451,
+        "ms": 1545,
         "contentType": null,
         "bytes": 0,
         "cors": {},
@@ -433,14 +425,14 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 968,
+        "ms": 1183,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
         "status": 403,
-        "ms": 875,
+        "ms": 956,
         "contentType": "application/json",
         "bytes": 133,
         "cors": {
@@ -461,7 +453,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 200,
-        "ms": 901,
+        "ms": 772,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-headers": "content-type",
@@ -470,7 +462,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 2690,
+        "ms": 2506,
         "contentType": "application/json",
         "bytes": 1051,
         "cors": {
@@ -492,12 +484,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 476,
+        "ms": 358,
         "cors": {}
       },
       "get": {
         "status": 403,
-        "ms": 353,
+        "ms": 324,
         "contentType": "application/json; charset=utf-8",
         "bytes": 378,
         "cors": {},
@@ -516,12 +508,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 661,
+        "ms": 594,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 722,
+        "ms": 696,
         "contentType": "application/json",
         "bytes": 1140,
         "cors": {
@@ -542,14 +534,14 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1379,
+        "ms": 1777,
         "cors": {
           "access-control-expose-headers": "Link, X-Total-Count, X-Validation-Error"
         }
       },
       "get": {
         "status": 200,
-        "ms": 2060,
+        "ms": 11477,
         "contentType": "application/json",
         "bytes": 1034,
         "cors": {
@@ -571,7 +563,7 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 204,
-        "ms": 2028,
+        "ms": 879,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "POST, GET, OPTIONS",
@@ -581,7 +573,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 1204,
+        "ms": 1031,
         "contentType": "application/json",
         "bytes": 6235,
         "cors": {
@@ -603,14 +595,14 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 200,
-        "ms": 1676,
+        "ms": 990,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
         "status": 200,
-        "ms": 1260,
+        "ms": 964,
         "contentType": "text/plain; charset=utf-8",
         "bytes": 813950,
         "cors": {
@@ -631,7 +623,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 951,
+        "ms": 697,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET",
@@ -640,7 +632,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 925,
+        "ms": 1072,
         "contentType": "application/json; odata.metadata=minimal; odata.streaming=true; charset=utf-8",
         "bytes": 835,
         "cors": {
@@ -661,12 +653,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 200,
-        "ms": 1213,
+        "ms": 1013,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 1950,
+        "ms": 1832,
         "contentType": "application/json; charset=utf-8",
         "bytes": 1882,
         "cors": {
@@ -687,12 +679,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 785,
+        "ms": 383,
         "cors": {}
       },
       "get": {
         "status": 403,
-        "ms": 455,
+        "ms": 369,
         "contentType": "text/html; charset=UTF-8",
         "bytes": 5582,
         "cors": {},
@@ -711,11 +703,11 @@
       "licenseClass": "restricted",
       "preflight": {
         "error": "Request was cancelled.",
-        "ms": 212
+        "ms": 191
       },
       "get": {
         "error": "Request was cancelled.",
-        "ms": 449
+        "ms": 301
       },
       "verdict": "UNREACHABLE",
       "reason": "Request was cancelled."
@@ -730,7 +722,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 734,
+        "ms": 999,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "POST,GET,PUT,HEAD",
@@ -739,7 +731,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 2007,
+        "ms": 2114,
         "contentType": "text/xml",
         "bytes": 28809039,
         "cors": {},
@@ -758,12 +750,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 631,
+        "ms": 1024,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 471,
+        "ms": 856,
         "contentType": "application/json",
         "bytes": 153862,
         "cors": {
@@ -784,7 +776,7 @@
       "licenseClass": "nc",
       "preflight": {
         "status": 200,
-        "ms": 644,
+        "ms": 652,
         "cors": {
           "access-control-allow-origin": "https://worldpulse.pages.dev",
           "access-control-allow-methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
@@ -795,7 +787,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 681,
+        "ms": 759,
         "contentType": "application/json",
         "bytes": 15,
         "cors": {
@@ -817,7 +809,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 360,
+        "ms": 715,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST",
@@ -827,9 +819,9 @@
       },
       "get": {
         "status": 200,
-        "ms": 793,
+        "ms": 795,
         "contentType": "text/xml",
-        "bytes": 1000929,
+        "bytes": 728858,
         "cors": {},
         "cacheControl": null
       },
@@ -846,12 +838,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 419,
+        "ms": 662,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 567,
+        "ms": 582,
         "contentType": "application/json; charset=utf-8",
         "bytes": 298600,
         "cors": {
@@ -872,12 +864,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 382,
+        "ms": 1118,
         "cors": {}
       },
       "get": {
         "error": "The operation was aborted due to timeout",
-        "ms": 20002
+        "ms": 20009
       },
       "verdict": "UNREACHABLE",
       "reason": "The operation was aborted due to timeout"
@@ -892,14 +884,14 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1259,
+        "ms": 1129,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
         "status": 403,
-        "ms": 769,
+        "ms": 712,
         "contentType": "application/json",
         "bytes": 163,
         "cors": {
