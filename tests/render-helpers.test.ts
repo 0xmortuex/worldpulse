@@ -146,7 +146,8 @@ describe('render-helper registry', () => {
   it('every number-to-string conversion reaching markup is sanctioned or registered', () => {
     const unregistered = LAUNDERINGS.filter(
       (entry) =>
-        !SANCTIONED_RENDER_HELPERS.includes(entry.name) && REGISTERED_RENDER_HELPERS[entry.name] === undefined,
+        !SANCTIONED_RENDER_HELPERS.some((helper) => helper === entry.name) &&
+        REGISTERED_RENDER_HELPERS[entry.name] === undefined,
     );
 
     const detail = [...new Set(unregistered.map((entry) => `${entry.name}() at ${entry.file}:${entry.line}`))]

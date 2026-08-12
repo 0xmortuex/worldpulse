@@ -401,7 +401,7 @@ describe('refuses rather than rendering a confident wrong value', () => {
     birthDate: null,
     party: null,
     officeTitle: 'President',
-    since: null,
+    inOfficeSince: null,
   };
 
   it('renders no portrait when the head of state is an institution', () => {

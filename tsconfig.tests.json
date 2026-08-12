@@ -1,0 +1,8 @@
+{
+  "$comment": "Tests run in Node, the app runs in a browser. Kept as a separate config so adding Node's globals to the test files does not also hand them to src/ — the app's browser-only surface is a guarantee worth keeping, and one shared `types` array would quietly retire it. src is compiled here too so its ambient module declarations (src/types/modules.d.ts) load — without them the world-atlas topology import loses its declared type and picks the wrong topojson overload. src keeps its browser-only guarantee because tsconfig.json still checks it WITHOUT node types, and typecheck runs that first.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src", "scripts", "tests"]
+}
