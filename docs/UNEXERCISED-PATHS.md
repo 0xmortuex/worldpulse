@@ -276,3 +276,32 @@ The residual gap is real and worth stating: a self-test proves the predicate *ca
 that it fires on each specific geometry it claims to detect. The rule-8 mutation covers one
 more case (rows collapsed to zero height). Neither is a substitute for calling the overlap
 arithmetic with two synthetic rectangles.
+
+## 10. The live fetch path is unexercised in a browser
+
+| Path | Exercised by | NOT exercised by |
+| --- | --- | --- |
+| registry → compose → transport → adapter → `Fact`, against a real origin | `tests/worldbank-live.test.ts` under `PROBE_LIVE=1`, in **Node** | any browser check |
+
+**Chromium in this container cannot reach a live origin.** Outbound HTTPS goes through an
+agent proxy the browser is not configured for; pointing Playwright at it still fails because
+the proxy's CA is not in Chromium's trust store, and disabling certificate verification is
+not available. Measured, not assumed: `fetch('https://api.worldbank.org/...')` from inside
+the page returns `TypeError: Failed to fetch`, with and without the proxy.
+
+**What this means for the four rendered states.** `loading`, `stale`, `degraded` and
+`unavailable` are demonstrated in the browser against **fixtures and a stub**, not against a
+real response in a real browser. The assertions are real and the states are really computed
+from real row outcomes — but the responses feeding them did not cross a network.
+
+> **This must never be recorded as "live end-to-end in the app".** The app's live path is
+> proven in Node. In the environment the app actually runs in — a browser — it is unproven,
+> and the honest statement is that the panel is *wired* to live data and *verified* against
+> a stub.
+
+**What would close it:** browser egress to at least one live origin, or a CA the browser
+trusts on the proxy. Neither is available here. Until then this row stays.
+
+Note that even with egress the scenario mechanism would remain necessary: the four states
+are each reachable only through a specific remote failure, and demonstrating them against a
+live origin means waiting for it to break.

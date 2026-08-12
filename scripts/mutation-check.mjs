@@ -76,6 +76,8 @@ const MUTATIONS = [
   {
     step: '1 — globe, selection, relations',
     what: 'relations scoring returns neutral for every pair',
+    nonVacuity:
+      'Relations classification is computed in exactly one place; no other module assigns ally/adversary. A panel could still render, so nothing else turns the classification wrong into a visible failure.',
     file: 'src/relations/score.ts',
     from: '  const tier = resolveTier(total, thresholds);',
     to: '  const tier = resolveTier(0, thresholds);',
@@ -84,6 +86,8 @@ const MUTATIONS = [
   {
     step: '2 — confidence badges, provenance inspector',
     what: 'the inspector stops surfacing the request URL',
+    nonVacuity:
+      'The request URL reaches the DOM only through the inspector own markup. No badge, tooltip or panel renders it, so the assertion cannot fail by any other route.',
     file: 'src/facts/inspector.ts',
     from: 'escapeHtml(provenance.requestUrl)',
     to: "escapeHtml('')",
@@ -92,6 +96,8 @@ const MUTATIONS = [
   {
     step: '3 — dossier header, leader resolution',
     what: 'the de-facto-authority branch reports the wrong resolution rule',
+    nonVacuity:
+      'Only resolve.ts names which rule fired, and the three checks matching /rule/ are all step-3 resolution checks. Verified: no other check label in the suite contains the word.',
     file: 'src/dossier/resolve.ts',
     from: "ruleLabel: 'Rule 1 — de facto authority above the formal head of state',",
     to: "ruleLabel: 'Rule 7 — de facto authority above the formal head of state',",
@@ -100,6 +106,8 @@ const MUTATIONS = [
   {
     step: '4 — government tab',
     what: 'vacant cabinet posts stop being counted',
+    nonVacuity:
+      'The vacancy count is derived in government.ts alone. The posts still render, so the row count is unchanged and only the counted total moves.',
     file: 'src/ui/government.ts',
     from: "n(cabinet.vacantCount, 'count of positions rendered below with no officeholder; each row shows its own state')",
     to: "n(0, 'count of positions rendered below with no officeholder; each row shows its own state')",
@@ -108,6 +116,8 @@ const MUTATIONS = [
   {
     step: '5 — economy tab',
     what: 'a gap in a series is bridged instead of breaking the line',
+    nonVacuity:
+      'Segment splitting happens only in chart.ts. The values, axis and badges are untouched, so a failure can only come from the path geometry.',
     file: 'src/economy/chart.ts',
     from: '    if (point.value === null) {',
     to: '    if (false) {',
@@ -119,6 +129,8 @@ const MUTATIONS = [
     // the syndication grouping, the news tab's other derived behaviour.
     step: '6 — news tab',
     what: 'syndicated copies stop collapsing, so one story reads as many',
+    nonVacuity:
+      'Grouping lives only in news-text.ts. Every article still parses and renders, so nothing else changes the row count.',
     file: 'src/sources/news-text.ts',
     from: 'export function groupSyndicated(articles: readonly Article[]): ArticleGroup[] {',
     to: 'export function groupSyndicated(articles: readonly Article[]): ArticleGroup[] {\n  return articles.map((a) => ({ lead: a, outlets: [a.domain], copies: 1 }));',
@@ -127,6 +139,8 @@ const MUTATIONS = [
   {
     step: '7 — globe event layers',
     what: 'back-facing markers become pickable through the planet',
+    nonVacuity:
+      'The occlusion test is the only thing preventing a far-side pick; the marker is present in the scene either way. The assertion aims at a point behind the globe, which no other guard filters.',
     file: 'src/globe.ts',
     from: 'return cosAngle > horizon;',
     to: 'return true;',
@@ -143,6 +157,8 @@ const MUTATIONS = [
      */
     step: '7b — economy fetch states',
     what: 'a partially-answered panel reports itself complete',
+    nonVacuity:
+      'panelStateFor is the only computation of the panel marker, and the shortfall line is rendered from the same result. The answered indicators still render correctly, so nothing else distinguishes partial from complete.',
     file: 'src/economy/panel-state.ts',
     from: '  if (failed > 0 || unconfigured > 0) return \'degraded\';',
     to: '  if (false) return \'degraded\';',
@@ -156,14 +172,18 @@ const MUTATIONS = [
      */
     step: '7b — economy fetch states',
     what: 'a failed request is worded as the country having no data',
+    nonVacuity:
+      'valueMarkup is the only place the absent-value wording is chosen, and the inspector shares it via absentValueWording. The badge, panel state and provenance are untouched, so only the wording moves.',
     file: 'src/facts/badge.ts',
     from: "      return '<span class=\"fact-value fact-value--unavailable\">source unavailable</span>';",
     to: "      return '<span class=\"fact-value fact-value--nodata\">no data</span>';",
-    expect: /no failed indicator is worded as the country having no data|unavailable/i,
+    expect: /worded as the country having no data/i,
   },
   {
     step: 'cross-cutting — text fidelity (rule 9)',
     what: 'axis labels stop being compacted, so long values overflow the gutter',
+    nonVacuity:
+      'Compaction happens once, in series.ts. The chart geometry and the badged values are unchanged, so an overflow can only come from the label text.',
     file: 'src/economy/series.ts',
     from: "  if (spec.basis === 'ratio') return value.toFixed(Math.abs(value) >= 100 ? 0 : 1);",
     to: '  return String(value);',
@@ -172,6 +192,8 @@ const MUTATIONS = [
   {
     step: 'cross-cutting — layout geometry (rule 8)',
     what: 'party legend rows collapse to zero height — present in the DOM, invisible on screen',
+    nonVacuity:
+      'The rows remain in the DOM with correct text, so every presence and text assertion still passes. Only the geometry check can see it, which is the point of the mutation.',
     file: 'src/styles.css',
     // A COLLAPSE, not an overlay. The first attempt laid the dossier portraits
     // over the title block, which made an overlapping element intercept pointer
@@ -188,6 +210,23 @@ const MUTATIONS = [
     expect: /party legend/i,
   },
 ];
+
+/**
+ * Rule 34, enforced rather than trusted.
+ *
+ * A mutation without a written non-vacuity argument is one nobody has asked the
+ * only question that makes its CAUGHT verdict mean anything: what ELSE would
+ * produce this failure. Both a real catch and a vacuous one print the same word,
+ * so the verdict cannot supply the answer.
+ */
+for (const mutation of MUTATIONS) {
+  if (typeof mutation.nonVacuity !== 'string' || mutation.nonVacuity.trim().length < 40) {
+    throw new Error(
+      `mutation "${mutation.step} / ${mutation.what}" has no non-vacuity argument. ` +
+        'State what behaviour the edit removes and why no other mechanism supplies it (TESTING.md rule 34).',
+    );
+  }
+}
 
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 

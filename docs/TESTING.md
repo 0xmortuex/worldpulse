@@ -1010,3 +1010,93 @@ the fifth state was added to prevent, one click away from the badge that got it 
 **Verified by planting, not by inspection** (rule 27): adding a sixth `FactState` produces 4
 compile errors; adding a sixth `Provenance` kind produces 3, including at `sourceName`,
 which is the site whose old safety was accidental.
+
+## 34. A mutation states what it removes, and why nothing else supplies it
+
+The mutation suite is itself a guard, and rule 32's argument applies to it: **a guard that
+has only ever been watched succeeding is a guard nobody has watched work.** For a mutation,
+succeeding means being CAUGHT — and a CAUGHT verdict proves nothing if the failure it
+produced would have been produced by some other defence anyway.
+
+**Every mutation carries a written statement of the behaviour it removes and why no other
+mechanism supplies that behaviour.** A mutation whose CAUGHT verdict is explicable by a
+defence other than the one it names is not a valid mutation, however green it looks.
+
+### Where this came from
+
+The intended first fetch-layer mutation removed the selection-identity check in
+`selection.ts`, to watch the browser suite catch France's data rendering into Jamaica's
+dossier. It would have been CAUGHT — and for the wrong reason. `renderEconomyTab` keys its
+loads by ISO3 and renders `loads.get(currentIso3)`, so a late France response is written to
+France's key and never reaches a panel showing Jamaica. **The keying is the load-bearing
+defence; the identity check is the second lock.**
+
+Removing a second lock and finding the door still shut proves the door, not the lock.
+
+Caught by asking *what would this mutation actually change* before running it — which is
+the habit the whole suite depends on and which no verdict can supply, because both a real
+catch and a vacuous one print the same word.
+
+### The test to apply
+
+For each mutation, answer in writing:
+
+1. **What behaviour does the edit remove?** Not "which line" — which observable behaviour.
+2. **Which named assertion should fail, and why is that assertion sensitive to exactly this
+   behaviour?**
+3. **What else in the system would produce the same failure?** If anything would, the
+   mutation is measuring that instead.
+
+Question 3 is the one that was missing.
+
+### 20a. A flake rate is a property of the app UNDER A HARNESS CONFIGURATION
+
+Rule 20 says the instrument must resemble the client whose behaviour it predicts. This is
+the same rule from the other side: **the instrument's own cost can change the client's
+behaviour, and then the number it reports describes the pair, not the app.**
+
+Measured on step 7's marker-click check, which is frame-rate sensitive, while adding four
+scenario switches to the economy step:
+
+| Harness configuration | Step 7 failures |
+| --- | --- |
+| Before the fetch-layer work | 1 (the known flake) |
+| Scenario switching by `page.goto`, placed before step 6 | 5 |
+| Same, moved after step 7 | 4 |
+| Scenario switching by an in-page hook, no reload | 2 |
+| Same configuration, next run | **0** |
+
+Reordering helped and did not fix it. Removing the page reloads did. Four extra WebGL
+context teardowns ahead of a frame-rate-sensitive check took it from one failure to five.
+
+**So every flake number is recorded with the harness configuration that produced it**, in
+the same way the frame profile already is. "The marker click fails about 40% of runs" is
+not a fact about the app; it is a fact about the app under a stated harness, and the two
+diverge exactly when someone changes the harness for an unrelated reason.
+
+### 20b. The standing conversion pattern, for every panel switched to live
+
+Panels 2–9 each face this, and the economy panel is the worked example.
+
+**A panel's hard cases come from specific subjects' real histories, and live data will not
+reproduce them on demand.** The economy tab's difficult branches are a mid-series gap
+(Kosovo), a redenomination spanning five orders of magnitude (Zimbabwe), an eight-year-old
+latest observation (Eritrea), a single lone observation (Fiji), and an indicator with no
+data at all (Somalia). None of those is guaranteed to exist in tomorrow's API response.
+
+Left pointing at the live path, **those assertions quietly stop testing the branch they were
+written for and start testing whatever the API returned that morning.** They keep passing,
+which is what makes it dangerous.
+
+So, when converting a panel:
+
+1. **Keep the fixtures.** They become the contract test's input and the browser suite's
+   deterministic input; they stop being the app's data source.
+2. **Add a `fixtures` scenario** serving exactly what the panel's fixture provider served,
+   per subject.
+3. **Point every hard-case assertion at that scenario**, and say in the harness why.
+4. **Point the state assertions** — loading, stale, degraded, unavailable — at their own
+   scenarios, since each is reachable only through a specific remote failure.
+5. **Prove the live path separately**, under `PROBE_LIVE=1`, against invariants rather than
+   values: a live figure that changes yearly must not be pinned, or the test fails every
+   spring for the wrong reason.
