@@ -806,3 +806,30 @@ between UNAVAILABLE and zero.
 A refusal guard also needs a **positive control**: a case that must still resolve. A guard
 that refuses everything passes every test written about what it refuses, which is the
 vacuous-pass class pointed in the opposite direction.
+
+## 30. "No answer" is not an answer of "no" — the register
+
+This project has now rediscovered the same distinction three times in three places, each
+time paying to learn it again. Registering it so the fourth instance is recognised rather
+than re-derived, the way the P3 class register works in `DECISIONS.md`.
+
+| Instance | The two states conflated | Rule |
+| --- | --- | --- |
+| An error response read as evidence about the success path | "the server said no" vs. "the server never answered" | rule 3 / A2 |
+| A missing scoring input summed as zero | "the input measured zero" vs. "the input was unavailable" | P5 |
+| A guard reading an absent binding as false | "Wikidata says not a person" vs. "Wikidata was not asked" | rule 29 |
+
+**The shape:** a value that is absent, and a value that is present and negative, arrive at
+the same call site looking identical — and the *absent* one is silently given the
+negative's meaning. What makes it dangerous every time is that the resulting behaviour is
+plausible: a WORKER-REQUIRED verdict, a score of zero, a refusal to render. None of them
+looks like a bug.
+
+**The test, applied to any new check:** if the field, response or input were simply
+*missing*, what would this code do? If the answer is "the same thing it does when the
+answer is no", the two states are conflated and one of them is wrong.
+
+**The fix is always the same:** make absence its own state with its own name —
+`INCONCLUSIVE`, `UNAVAILABLE`, `undetermined` — and choose the default polarity so that
+absence degrades toward the ordinary path rather than toward a confident refusal
+(rule 29).

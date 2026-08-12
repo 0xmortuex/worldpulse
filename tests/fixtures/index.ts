@@ -5,7 +5,12 @@ import gdeltDoc from './gdelt-doc.json';
 import eonetEvents from './eonet-events.json';
 import wikipediaSummaryLive from './wikipedia-summary-live.json';
 import commonsImageinfoLive from './commons-imageinfo-live.json';
-import { getSource } from '../../src/facts/registry';
+import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
+import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
+import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
+import { summaryUrl as wikipediaSummaryUrl } from '../../src/sources/wikipedia';
+import { commonsImageinfoUrl } from '../../src/dossier/portrait';
+import { buildCountryQueryUrl } from '../../src/sources/wikidata-dossier';
 import type { FetchContext } from '../../src/sources/adapter';
 
 /**
@@ -75,47 +80,37 @@ function isNetworkFailure(error: unknown): boolean {
 export const FIXTURES: Record<string, Fixture> = {
   worldbank: {
     sourceId: 'worldbank',
-    requestUrl:
-      'https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?format=json&per_page=3',
+    requestUrl: worldbankUrl('USA', 'NY.GDP.MKTP.CD', 3),
     body: worldbankIndicator,
   },
   'wikidata-sparql': {
     sourceId: 'wikidata-sparql',
     /**
-     * Carries `SERVICE wikibase:label`, because the body carries `*Label`
-     * bindings and **Wikidata only populates those when the label service is
-     * invoked**.
+     * The REAL dossier query, derived from the app's own builder.
      *
-     * The previous URL omitted it while the body contained `itemLabel` and
-     * `capitalLabel` — a request that cannot produce this response. Harmless
-     * only for as long as nobody re-captured from it: doing so yields a
-     * label-free body, which looks like a corrected fixture and would empty the
-     * government tab's label-driven classification (decision D3) with nothing
-     * going red. Every app query does invoke the service, in six places across
-     * wikidata-dossier.ts and wikidata-government.ts.
+     * It used to be a hand-written capital-city query whose recorded URL could
+     * not have produced its recorded body — it omitted `SERVICE wikibase:label`
+     * while the body carried `*Label` bindings. Deriving the URL removes the
+     * possibility of that divergence rather than guarding against it: three of
+     * six fixtures were found recording a request the app does not make, which
+     * makes hand-written fixture URLs the failure mode rather than the exception.
      */
-    requestUrl:
-      'https://query.wikidata.org/sparql?format=json&query=' +
-      encodeURIComponent(
-        'SELECT ?item ?itemLabel ?capital ?capitalLabel WHERE { ' +
-          '?item wdt:P36 ?capital . ' +
-          'SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . } } LIMIT 5',
-      ),
+    requestUrl: buildCountryQueryUrl('FRA'),
     body: wikidataSparql,
   },
   'usgs-quakes': {
     sourceId: 'usgs-quakes',
-    requestUrl: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
+    requestUrl: usgsFeedUrl('all_day'),
     body: usgsQuakes,
   },
   'nasa-eonet': {
     sourceId: 'nasa-eonet',
-    requestUrl: 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&limit=40',
+    requestUrl: eonetEventsUrl({ status: 'all', limit: 40 }),
     body: eonetEvents,
   },
   'wikipedia-rest': {
     sourceId: 'wikipedia-rest',
-    requestUrl: 'https://en.wikipedia.org/api/rest_v1/page/summary/Emmanuel_Macron',
+    requestUrl: wikipediaSummaryUrl('Emmanuel_Macron'),
     body: wikipediaSummaryLive,
   },
   'wikimedia-commons': {
@@ -126,9 +121,7 @@ export const FIXTURES: Record<string, Fixture> = {
      * it would be measuring a different request than the app makes — the
      * Wikidata label-service trap in a second place (decision A1a).
      */
-    requestUrl:
-      'https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo' +
-      '&iiprop=url%7Cextmetadata&origin=*&titles=File%3AEmmanuel%20Macron%20in%202019.jpg',
+    requestUrl: commonsImageinfoUrl('File:Emmanuel Macron in 2019.jpg'),
     body: commonsImageinfoLive,
   },
   'gdelt-doc': {
@@ -183,7 +176,6 @@ export async function loadSample(sourceId: string): Promise<{ body: unknown; ctx
    * contracts, and only one of them was the app's.
    */
   const url = fixture.requestUrl;
-  void getSource;
   // Rule 20: identify the client. Node's default User-Agent is rejected by
   // Wikimedia's UA policy, so without this the live contract test would fail
   // with a 403 that describes our own anonymity rather than the source. The

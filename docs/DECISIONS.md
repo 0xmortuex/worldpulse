@@ -220,6 +220,13 @@ layers.
 | A1a | **`wikimedia-commons` was WORKER-REQUIRED because of our own query string.** MediaWiki emits `Access-Control-Allow-Origin` only when the request carries `origin=*`. Without it: 200, no ACAO. With it: 200, `ACAO: *` — **CLIENT-FETCH**. This is Wikidata's error in a second place, and portraits are a step-3 dependency that has already shipped, so it is corrected before anything is built on the wrong verdict. **Every MediaWiki request this app makes must carry `origin=*`**; it is a property of the API, not of one probe URL. |
 | A1b | **`gdelt-doc` gets one probe after a full day, and a fifth distinct failure is a finding, not a verdict.** It has now failed four times in four different ways: 429, 429, connection error, connect timeout. If a single probe after a day's interval fails a fifth way, that is a **Phase 0 correction about GDELT's availability**, not an inconclusive CORS result — and it matters because GDELT is the news tab's only source and **no fallback is specced for it**. Phase 0 §4 lists "per-country RSS" as the fallback for News; that is a sentence, not a design. |
 
+## Cross-country officeholders
+
+| # | Decision |
+| --- | --- |
+| D7 | **A shared head of state and an ex-officio foreign office are different arrangements and are never phrased alike.** Enumerated live: Charles III across 24 states and territories, Willem-Alexander across 4, Frederik X across 3 — one crown held across several states. Andorra is not that. Macron holds the Andorran co-princedom **because** he is President of France: an office of one country conferring an office in another. Andorra does not share a head of state with France; it shares a constitutional consequence of France's presidency. Flattening the two into one phrasing would state something false about both. |
+| D8 | **The shared relation is rendered, tagged `[DERIVED]`, with the count computed from the query.** Omitting it misleads: Jamaica's dossier shows the same portrait as Canada's with nothing connecting them. The count is never hardcoded — a literal 24 is a fact with no provenance and goes stale silently — and per rule 22 the label states **what** it counts, since "states and territories" includes crown dependencies and is not a count of sovereign states. |
+
 ## Known user-facing risk — marker clicks on low-frame-rate devices
 
 **This is a product risk, not a harness note.** It is recorded here rather than only in
