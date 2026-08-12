@@ -128,7 +128,7 @@
       "name": "Wikimedia Commons API (portraits, licence and credit)",
       "panel": "header",
       "homepage": "https://commons.wikimedia.org/w/api.php",
-      "probeUrl": "https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url%7Cextmetadata&titles=File%3AAngela%20Merkel%202019%20cropped.jpg",
+      "probeUrl": "https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url%7Cextmetadata&titles=File%3AAngela%20Merkel%202019%20cropped.jpg&origin=*",
       "license": "per file, frequently CC BY / CC BY-SA",
       "licenseClass": "share-alike",
       "attribution": "Per-image; photographer credit and licence shown on hover.",
@@ -137,7 +137,8 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation"
+      "verifiedAgainst": "documentation",
+      "notes": "MediaWiki emits Access-Control-Allow-Origin only when the request carries `origin=*`. Without it the API answers 200 with no ACAO, which scored WORKER-REQUIRED — a property of our query string, not of the API. Every MediaWiki request this app makes must carry it. Measured: without origin=* 200 and no ACAO; with it 200 and ACAO `*`."
     },
     {
       "id": "gdelt-doc",
@@ -447,24 +448,6 @@
       "keyRequired": true,
       "keyEnv": "THEYVOTEFORYOU_KEY",
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation"
-    },
-    {
-      "id": "epanstwo-pl",
-      "name": "Fundacja ePaństwo (Poland)",
-      "panel": "legislature",
-      "homepage": "https://api.sejmometr.pl/",
-      "probeUrl": "https://api.sejmometr.pl/votings",
-      "license": "Unverified",
-      "licenseClass": "restricted",
-      "attribution": "Fundacja ePaństwo.",
-      "cadence": "unknown",
-      "ttlMs": 3600000,
-      "tier": "OFFICIAL",
-      "keyRequired": false,
-      "keyEnv": null,
-      "legislatureTier": 2,
-      "notes": "Per decision 10: verify live during step 9. ePaństwo has wound down services. Stays Tier 2 until a probe shows it responding.",
       "verifiedAgainst": "documentation"
     },
     {

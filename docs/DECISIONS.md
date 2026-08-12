@@ -172,6 +172,14 @@ layers.
 
 ---
 
+## Source registry corrections — measured, 2026-08-12
+
+| # | Decision |
+| --- | --- |
+| 9a | **Poland drops to Tier 2 now, not at step 9, and `epanstwo-pl` is removed from the registry.** Decision 10 said "do not build against a service not seen to respond", and it has now been *seen not to respond*: `api.sejmometr.pl` fails at CONNECT with the request cancelled — the host does not resolve — across four probe runs. Fundacja ePaństwo winding down its services was the Phase 0 caveat and this confirms it. A dead host left in a table that reports 34 sources is a table that overstates coverage by one, every run, in the direction of looking healthier than it is. Poland renders as Tier 2: official-but-unstructured, no vote endpoint. |
+| A1a | **`wikimedia-commons` was WORKER-REQUIRED because of our own query string.** MediaWiki emits `Access-Control-Allow-Origin` only when the request carries `origin=*`. Without it: 200, no ACAO. With it: 200, `ACAO: *` — **CLIENT-FETCH**. This is Wikidata's error in a second place, and portraits are a step-3 dependency that has already shipped, so it is corrected before anything is built on the wrong verdict. **Every MediaWiki request this app makes must carry `origin=*`**; it is a property of the API, not of one probe URL. |
+| A1b | **`gdelt-doc` gets one probe after a full day, and a fifth distinct failure is a finding, not a verdict.** It has now failed four times in four different ways: 429, 429, connection error, connect timeout. If a single probe after a day's interval fails a fifth way, that is a **Phase 0 correction about GDELT's availability**, not an inconclusive CORS result — and it matters because GDELT is the news tab's only source and **no fallback is specced for it**. Phase 0 §4 lists "per-country RSS" as the fallback for News; that is a sentence, not a design. |
+
 ## Known user-facing risk — marker clicks on low-frame-rate devices
 
 **This is a product risk, not a harness note.** It is recorded here rather than only in

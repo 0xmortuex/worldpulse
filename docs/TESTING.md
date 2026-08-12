@@ -471,6 +471,47 @@ not assumed: 16.5px before, 2px after.
 vertical counterpart to rule 9's horizontal `scrollWidth` test. It catches the whole
 family of squashed rows rather than the single value zero.
 
+## 20. An instrument must resemble the client whose behaviour it predicts
+
+**Any probe or measurement must be configured to resemble the client whose behaviour it
+claims to predict. A verdict that changes when the instrument changes is a finding about
+the instrument first.**
+
+Where this came from: `probe-sources.mjs` sent Node's default `User-Agent`, which
+Wikimedia's UA policy rejects. `query.wikidata.org` answered 403, and the probe recorded
+that as the source's posture — for the government tab's primary source.
+
+```
+no UA            403   ACAO: *
+descriptive UA   200   ACAO: *
+browser-like UA  200   ACAO: *
+```
+
+**A browser always sends a real User-Agent, so the 403 describes a state no browser can
+ever occupy.** The instrument failed a policy the real client satisfies automatically,
+and then reported its own failure as a property of the source. One architecture decision
+later we would have built a Worker proxy for an API that never needed one.
+
+The same defect had a second form, further upstream. `requiresCustomUserAgent` forced
+WORKER-REQUIRED with the reason "requires a descriptive User-Agent, which browsers are
+forbidden to set" — which has the causality backwards. The browser cannot set the header
+and does not need to. The client that fails such a policy is an anonymous script. And the
+flag was independently wrong: `openparliament-ca` answers 200 with `ACAO: *` with or
+without a UA, and was scored WORKER-REQUIRED on the strength of the flag alone.
+
+Two rules follow:
+
+1. **Configure the instrument to look like the client.** Origin header, User-Agent,
+   redirect policy, credentials mode — each one the probe gets wrong is a way for it to
+   measure itself.
+2. **When a verdict moves because the instrument moved, the instrument is the finding.**
+   Two verdicts here flipped from WORKER-REQUIRED to CLIENT-FETCH with no upstream change
+   whatsoever. Neither was ever a fact about the source.
+
+This generalises past CORS. Any measurement whose subject can respond to the measurer —
+rate limits, bot policies, feature detection, user-agent sniffing — can report the
+measurer's identity as the subject's behaviour.
+
 ## The harness's own failure modes
 
 Every class below produces a green result without testing the thing it names. Four were

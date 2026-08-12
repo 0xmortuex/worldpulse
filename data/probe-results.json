@@ -1,13 +1,13 @@
 {
-  "probedAt": "2026-08-12T15:23:50.035Z",
+  "probedAt": "2026-08-12T15:29:42.187Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "smartraveller"
+    "wikimedia-commons"
   ],
   "counts": {
-    "CLIENT-FETCH": 18,
-    "WORKER-REQUIRED": 5,
-    "UNREACHABLE": 3,
+    "CLIENT-FETCH": 19,
+    "UNREACHABLE": 2,
+    "WORKER-REQUIRED": 4,
     "KEY-GATED": 6,
     "INCONCLUSIVE": 1
   },
@@ -204,25 +204,37 @@
       "id": "wikimedia-commons",
       "name": "Wikimedia Commons API (portraits, licence and credit)",
       "panel": "header",
-      "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url%7Cextmetadata&titles=File%3AAngela%20Merkel%202019%20cropped.jpg",
+      "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url%7Cextmetadata&titles=File%3AAngela%20Merkel%202019%20cropped.jpg&origin=*",
       "keyRequired": false,
       "keyEnv": null,
       "licenseClass": "share-alike",
       "preflight": {
-        "status": 429,
-        "ms": 506,
-        "cors": {}
+        "status": 200,
+        "ms": 549,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "POST, GET, HEAD",
+          "access-control-allow-headers": "content-type",
+          "access-control-allow-credentials": "false"
+        }
       },
       "get": {
         "status": 200,
-        "ms": 552,
+        "ms": 609,
         "contentType": "application/json; charset=utf-8",
         "bytes": 2704,
-        "cors": {},
+        "truncated": false,
+        "contentLength": null,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-credentials": "false",
+          "access-control-expose-headers": "MediaWiki-API-Error, Retry-After, X-Database-Lag, MediaWiki-Login-Suppressed"
+        },
         "cacheControl": "private, must-revalidate, max-age=0"
       },
-      "verdict": "WORKER-REQUIRED",
-      "reason": "No Access-Control-Allow-Origin on the response."
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-12T15:29:42.187Z"
     },
     {
       "id": "gdelt-doc",
@@ -718,26 +730,6 @@
       },
       "verdict": "KEY-GATED",
       "reason": "Key THEYVOTEFORYOU_KEY is server-side; routed through the Worker regardless of ACAO (observed: none)."
-    },
-    {
-      "id": "epanstwo-pl",
-      "name": "Fundacja ePaństwo (Poland)",
-      "panel": "legislature",
-      "url": "https://api.sejmometr.pl/votings",
-      "keyRequired": false,
-      "keyEnv": null,
-      "licenseClass": "restricted",
-      "preflight": {
-        "error": "Request was cancelled.",
-        "ms": 638
-      },
-      "get": {
-        "error": "Request was cancelled.",
-        "ms": 447
-      },
-      "verdict": "UNREACHABLE",
-      "reason": "Request was cancelled.",
-      "probedAt": "2026-08-12T15:22:13.450Z"
     },
     {
       "id": "ofac-sdn",
