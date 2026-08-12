@@ -1,0 +1,580 @@
+{
+  "head": {
+    "vars": [
+      "office",
+      "person",
+      "personLabel",
+      "start",
+      "end"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20020731"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Élisabeth Borne"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2022-05-16T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-01-08T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q2124"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Valéry Giscard d'Estaing"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1974-05-27T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1981-05-21T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q10287"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Manuel Valls"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2014-03-31T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2016-12-06T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3171170"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jean Castex"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2020-07-03T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2022-05-16T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q158768"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "René Coty"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-01-16T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1959-01-08T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q30339350"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Gabriel Attal"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-01-09T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-07-08T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q12963"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "François Bayrou"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-12-13T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-09-09T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q2105"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jacques Chirac"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1995-05-17T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2007-05-16T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q438465"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Michel Barnier"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-09-05T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-12-13T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3579995"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Édouard Philippe"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-15T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2020-07-02T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q12950"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Alain Poher"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1969-04-28T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1969-06-20T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3052772"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Emmanuel Macron"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-14T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q101410"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "François Fillon"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2007-05-17T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2012-05-10T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q7711"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jean-Marc Ayrault"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2012-05-16T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2014-03-31T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q2038"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "François Mitterrand"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1981-05-21T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1995-05-17T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q560890"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Bernard Cazeneuve"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2016-12-06T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-10T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q329"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Nicolas Sarkozy"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2007-05-16T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2012-05-15T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q158772"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Vincent Auriol"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1947-01-16T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-01-16T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q157"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "François Hollande"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2012-05-15T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-14T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q2185"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Georges Pompidou"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1969-06-20T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1974-04-02T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q12950"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Alain Poher"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1974-04-02T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1974-05-27T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q2042"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-state"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Charles de Gaulle"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1959-01-08T00:00:00Z"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1969-04-28T00:00:00Z"
+        }
+      },
+      {
+        "person": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20089181"
+        },
+        "office": {
+          "type": "literal",
+          "value": "head-of-government"
+        },
+        "personLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Sébastien Lecornu"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2025-09-09T00:00:00Z"
+        }
+      }
+    ]
+  }
+}

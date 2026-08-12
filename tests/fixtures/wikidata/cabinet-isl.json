@@ -1,0 +1,777 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "positionDescription",
+      "holder",
+      "holderLabel",
+      "holderImage",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q115538865"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ministry of Culture and Business Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "The Ministry of Culture and Business Affairs of Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17278723"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Food, Fisheries and Agriculture (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q438056"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-01-01T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Svand%C3%ADs%20Svavarsd%C3%B3ttir%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Svandís Svavarsdóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q6865928"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister for Nordic Cooperation"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17051931"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Social Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic cabinet position (1939-2008)"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q119897891"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Culture and Business Affairs (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q23753778"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Lilja%20Alfre%C3%B0sd%C3%B3ttir%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Lilja Dögg Alfreðsdóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20087600"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Fisheries"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister in Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q55374777"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister for Foreign Affairs"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q28734624"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/%C3%9E%C3%B3rd%C3%ADs%20Kolbr%C3%BAn%20Reykfj%C3%B6r%C3%B0%20Gylfad%C3%B3ttir%202025.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Þórdís Kolbrún R. Gylfadóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q119787645"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister’s Office"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic Prime Minister’s Office"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16429370"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister for the Environment, Energy and Climate (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Iceland public agency with responsibilities for environmental affairs"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q1557735"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Gu%C3%B0laugur%20%C3%9E%C3%B3r%20%C3%9E%C3%B3r%C3%B0arson%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Guðlaugur Þór Þórðarson"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16429268"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Industry of Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17278719"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Finance and Economic Affairs (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q879376"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-11-30T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Bjarni%20Benediktsson%20-%202023%20%28cropped%29.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Bjarni Benediktsson"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q131279"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Althing"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unicameral parliament of Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20558616"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of the Interior of Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q119776869"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ministry of Food, Agriculture and Fisheries"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ministry of Food, Agriculture and Fisheries since 1st of September 2012"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q6866420"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Welfare"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic Cabinet position"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q109799141"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Higher Education, Science and Innovation (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q27988721"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/%C3%81slaug%20Arna%20Sigurbj%C3%B6rnsd%C3%B3ttir%202025.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Áslaug Arna Sigurbjörnsdóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q109799103"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Infrastructure (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q201075"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Sigur%C3%B0ur%20Ingi%20J%C3%B3hannsson%202025.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Sigurður Ingi Jóhannsson"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17013941"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Justice (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108856353"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-06-19T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Gu%C3%B0r%C3%BAn%20Hafsteinsd%C3%B3ttir%202025.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Guðrún Hafsteinsdóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17013938"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Health (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3481103"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Willum%20%C3%9E%C3%B3r%20%C3%9E%C3%B3rsson%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Willum Þór Þórsson"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q19190022"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Iceland"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic head of government"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108856371"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2024-12-21T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Kristr%C3%BAn%20Frostad%C3%B3ttir%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kristrún Mjöll Frostadóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q107600158"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Transport and Local Government"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic Cabinet position"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q19190022"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Iceland"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic head of government"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q467464"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-11-30T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Katr%C3%ADn%20Jakobsd%C3%B3ttir%20%2824539871465%29%20%28cropped%29.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Katrín Jakobsdóttir"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q31749478"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Transport"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "cabinet position in Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20087601"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Agriculture"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "government minister in Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q109799248"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Tourism, Trade and Culture"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "cabinet position in Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q55373978"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Justice and Human Rights of Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q55374811"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Commerce of Iceland"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16422303"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Education"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic cabinet position"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17013941"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Justice (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q1715048"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2022-02-01T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/J%C3%B3n%20Gunnarsson%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jón Gunnarsson"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q119785136"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Education and Children (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q252565"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/%C3%81smundur%20Einar%20Da%C3%B0ason%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ásmundur Einar Daðason"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3354110"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Cabinet of Iceland"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "collective decision-making body of the Icelandic government"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q12351697"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Education, Science and Culture"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic cabinet position"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q109799167"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Social Affairs and the Labour (Iceland)"
+        },
+        "positionDescription": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Icelandic minister"
+        },
+        "holder": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q44216756"
+        },
+        "since": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-11-28T00:00:00Z"
+        },
+        "holderImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Gu%C3%B0mundur%20Ingi%20Gu%C3%B0brandsson%202021.jpg"
+        },
+        "holderLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Guðmundur Ingi Guðbrandsson"
+        }
+      }
+    ]
+  }
+}

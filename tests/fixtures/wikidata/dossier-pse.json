@@ -1,0 +1,1344 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hosIsHuman",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q49890"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20423278"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Mustafa%20to%20the%20European%20Commission%20%2801%29%20%28cropped%29.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-08-26T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ramallah"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "semi-presidential system"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Mustafa"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "independent politician"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q49890"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20423278"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Mustafa%20to%20the%20European%20Commission%20%2801%29%20%28cropped%29.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-08-26T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "East Jerusalem"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "semi-presidential system"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Mustafa"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "independent politician"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20423278"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Mustafa%20to%20the%20European%20Commission%20%2801%29%20%28cropped%29.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-08-26T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ramallah"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Mustafa"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "independent politician"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20423278"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Mustafa%20to%20the%20European%20Commission%20%2801%29%20%28cropped%29.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-08-26T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "East Jerusalem"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Mustafa"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "independent politician"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4198907"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20423278"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Mustafa%20to%20the%20European%20Commission%20%2801%29%20%28cropped%29.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-08-26T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ramallah"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "parliamentary republic"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Mustafa"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "independent politician"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4198907"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q20423278"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Mustafa%20to%20the%20European%20Commission%20%2801%29%20%28cropped%29.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1954-08-26T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "East Jerusalem"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "parliamentary republic"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Mustafa"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "independent politician"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q49890"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16192933"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Shtayyeh%20September%202025.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1958-01-17T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ramallah"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "semi-presidential system"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Shtayyeh"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2019-03-10T00:00:00Z"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q49890"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16192933"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Shtayyeh%20September%202025.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1958-01-17T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "East Jerusalem"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "semi-presidential system"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Shtayyeh"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2019-03-10T00:00:00Z"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16192933"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Shtayyeh%20September%202025.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1958-01-17T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ramallah"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Shtayyeh"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2019-03-10T00:00:00Z"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16192933"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Shtayyeh%20September%202025.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1958-01-17T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "East Jerusalem"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Shtayyeh"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2019-03-10T00:00:00Z"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4198907"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16192933"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Shtayyeh%20September%202025.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1958-01-17T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Ramallah"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "parliamentary republic"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Shtayyeh"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2019-03-10T00:00:00Z"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q219060"
+        },
+        "officialName": {
+          "xml:lang": "ar",
+          "type": "literal",
+          "value": "دولة فلسطين"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "5227193"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q4198907"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q127998"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2005-01-15T00:00:00Z"
+        },
+        "hosImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mahmoud%20Abbas%20%282024%29.jpg"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1935-11-15T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q16192933"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mohammad%20Shtayyeh%20September%202025.jpg"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1958-01-17T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Palestine"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "East Jerusalem"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "parliamentary republic"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mahmoud Abbas"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "president of the State of Palestine"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Shtayyeh"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Fatah"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of the State of Palestine"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2019-03-10T00:00:00Z"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q407199"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20Palestine.svg"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Occupied Palestinian territories"
+        }
+      }
+    ]
+  }
+}

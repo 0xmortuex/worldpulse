@@ -1,0 +1,176 @@
+{
+  "head": {
+    "vars": [
+      "position",
+      "positionLabel",
+      "start",
+      "end",
+      "replaces",
+      "replacesLabel",
+      "replacedBy",
+      "replacedByLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q191954"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-14T00:00:00Z"
+        },
+        "replaces": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q157"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "President of the French Republic"
+        },
+        "replacesLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "François Hollande"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q140686"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2016-04-06T00:00:00Z"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "chairperson"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-08T00:00:00Z"
+        },
+        "replacedBy": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q29866490"
+        },
+        "replacedByLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Catherine Barbaroux"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17618189"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2012-05-15T00:00:00Z"
+        },
+        "replaces": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q3171170"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Assistant Secretary General of the Presidency of the French Republic"
+        },
+        "replacesLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Jean Castex"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2014-07-15T00:00:00Z"
+        },
+        "replacedBy": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17166195"
+        },
+        "replacedByLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Laurence Boone"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q19808845"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2017-05-14T00:00:00Z"
+        },
+        "replaces": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q157"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "French co-prince of Andorra"
+        },
+        "replacesLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "François Hollande"
+        }
+      },
+      {
+        "position": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q17618126"
+        },
+        "start": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2014-08-26T00:00:00Z"
+        },
+        "replaces": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q737311"
+        },
+        "positionLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Minister of Economy, Industry and Digital"
+        },
+        "replacesLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Arnaud Montebourg"
+        },
+        "end": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2016-08-30T00:00:00Z"
+        },
+        "replacedBy": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q713296"
+        },
+        "replacedByLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Michel Sapin"
+        }
+      }
+    ]
+  }
+}

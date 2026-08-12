@@ -1,0 +1,27 @@
+{
+  "head": {
+    "vars": [
+      "court",
+      "courtLabel",
+      "seats",
+      "justice",
+      "justiceLabel",
+      "since"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "court": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q1122261"
+        },
+        "courtLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Court of the United Kingdom"
+        }
+      }
+    ]
+  }
+}
