@@ -71,6 +71,44 @@ Every input is measurable from the feed. **None requires us to judge importance.
 - **Ties do not present as a confident ordering.** Scores within a stated epsilon render
   as a tied band, not as ranks 4, 5, 6.
 
+### Normalisation — required by rule 22, not optional
+
+The score sums contributions from inputs measured in **different things**: outlet counts,
+days, country counts, a boolean linkage. Rule 22 forbids aggregating across units, and a
+raw sum of `12 outlets + 9 days + 4 countries` is exactly the incoherent arithmetic it
+names.
+
+**The sum is only legitimate because each input is normalised to a unitless contribution
+in [0, 1] before weighting.** That normalisation is part of the score's definition, not an
+implementation detail:
+
+- **it is stated per input in the README** — the function, its bounds, and what saturates
+  it
+- **the arithmetic popover shows the raw measurement and its normalised contribution
+  side by side**, so a reader can see that 40 outlets became 0.9 and why
+
+Without a stated normalisation the score is not merely undocumented, it is incoherent —
+rule 22 applied to our own derivation rather than to a source's.
+
+### Missing inputs — an instance of the P3 class
+
+Two of the five inputs (elections, sanctions) do not exist, and a third (UCDP conflict
+linkage) is unshipped. **A weighted sum missing two of five inputs is not a complete score
+with a footnote; it is a less reliable score, and the ranking inherits that.** See
+DECISIONS P5–P8, which are binding here:
+
+- missing inputs render **UNAVAILABLE**, never zero — in a weighted sum the two are
+  indistinguishable
+- **the surface header** states which inputs were available at compute time, because the
+  *ordering* is a product of the incomplete set, not just the individual scores
+- **where two stories' relative order would flip if a missing input took any plausible
+  value, they render in a tied band** rather than as a confident ordering; a conservative
+  approximation that widens the band is acceptable, since over-declaring uncertainty is
+  the safe direction
+- the disclosure is **permanent and data-driven**, computed from what is unavailable at
+  compute time — never a banner removed when elections land, because the same mechanism
+  must still fire for a feed outage or an unconfigured key years later
+
 ### The failure mode this design is guarding against
 
 A ranked list is the most authoritative-looking format there is. Presenting

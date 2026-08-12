@@ -167,6 +167,30 @@ seeing live data so the predictions are falsifiable. At egress: populate the `qi
 arrays, key on Q-id as primary with the label as an independent second signal, and
 **output `undetermined` and log a finding when the two disagree** — neither wins silently.
 
+## The P3 class — a register, not a rediscovery
+
+**P3 says missing data propagates through required inputs.** It is unimplemented, and it
+keeps reappearing in new places. This is the register, so the third instance is
+recognised rather than re-derived.
+
+| Instance | Shape | State |
+| --- | --- | --- |
+| Relations score | `DerivedProvenance.inputs` is `Provenance[]`, not `Fact[]`, so a derivation cannot see that an input came back empty | open — needs `inputs: AnyFact[]` or per-input state |
+| Coverage-gap choropleth (step 12) | will force the modelling change above | pending |
+| **Breaking-news significance score** | a weighted sum over five inputs, two of which (elections, sanctions) do not exist and one of which (UCDP) is unshipped | **open, and specced below** |
+
+**The invariant across all three: in a weighted sum, an absent input and a zero
+contribution are indistinguishable.** A score computed without them is not the same score
+with a footnote — it is a *less reliable* score, and any ordering built from it inherits
+that unreliability.
+
+| # | Decision |
+| --- | --- |
+| P5 | **A missing input renders as UNAVAILABLE in the arithmetic, never as zero.** Zero is a measurement; absence is not. |
+| P6 | **The surface header states which inputs were available at compute time, not only the individual cards.** The *ordering* is a product of the incomplete input set, so the disclosure belongs where the ordering is presented. |
+| P7 | **Where two items' relative order would change if a missing input took any plausible value, they do not present as confidently ordered.** This reuses the tie-band mechanism, applied to uncertainty from missing inputs rather than from close scores. An exact computation is not required: **a conservative approximation that widens the band is acceptable, because over-declaring uncertainty is the safe direction.** |
+| P8 | **The disclosure is permanent and data-driven, never a temporary banner.** It reports whatever is unavailable at compute time, forever. A banner someone removes when elections land is a banner that stops telling the truth the next time an input goes missing — a feed outage, a key not configured, a source degraded. **"We will add the inputs later" must not become the reason the incompleteness stops being disclosed once they do.** |
+
 ## Feature scope
 
 **Approved and scheduled**

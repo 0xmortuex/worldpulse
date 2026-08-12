@@ -639,3 +639,57 @@ Disposal matters too. A near-miss like this is recorded as an explicit **non-fin
 with the reason it is not a bug, so the next reader who notices the same camelCase ids
 does not re-derive the same wrong conclusion. An investigation that concludes "no defect"
 has produced knowledge, and throwing it away means paying for it again.
+
+## 24. Registering a layer is a claim that its marker represents the phenomenon
+
+**Before adding a layer, state what its marker asserts about the thing it draws. If that
+assertion is false for the phenomenon, the layer does not ship — visibly unmapped beats
+mapped and wrong.**
+
+Where this came from: EONET publishes 13 categories and the app registered 3. Deciding
+what to do with the other 10 turned out not to be a coverage question at all. A point
+marker asserts *this happened here*. That is true of a wildfire, a flood, a volcano and a
+storm. It is false of a drought, a temperature extreme, sea-lake ice, snow cover, water
+colour and dust haze — **a drought is not located at a coordinate**, and pinning one to
+its centroid would be the position-precision error decision L3 exists to prevent, made
+worse by being invisible: the marker looks exactly like a wildfire's.
+
+Two further tests a layer must pass, both learned from the same decision:
+
+- **Has its live path ever run?** `landslides` and `manmade` are honest point events, but
+  neither appeared in a 200-event live sample. Registering them would ship a layer whose
+  category mapping, marker, tooltip, click and provenance have never been exercised by
+  real data — five code paths that could each be broken with nothing to show it.
+- **Does another source already carry these events?** EONET publishes earthquakes and so
+  does USGS. Registering both would double-count the same events under two provenances,
+  and a user clicking one of a coincident pair would get a different answer depending on
+  which marker the raycast happened to hit.
+
+The general form: **a layer is a claim, and an unregistered layer that is visibly listed
+as unmapped is more honest than a registered one that draws the wrong shape.**
+`unregisteredLayers()` surfacing them in the rail is the design working, not a gap in it.
+
+## 25. Assert the invariant, not an incidental property of the fixture
+
+**An assertion must encode the property it means to protect. A number that happens to be
+true of today's fixture is not that property.**
+
+Where this came from: `layers.test.ts` asserted `events.length === 5` under the name
+*keeps stale events in the data rather than deleting them*. The invariant is **no event is
+dropped**; five was a coincidence of how many events the fixture held. Adding a sixth —
+for an unrelated reason, a measured wildfire — broke a test about deletion.
+
+Both failure directions matter, and the second is the dangerous one:
+
+- **It breaks on unrelated changes.** A test that fails when its input legitimately grows
+  trains people to update the number without reading what the test is for, and the next
+  person updates it again.
+- **It can pass while the invariant is violated.** If the fixture had gained one event and
+  the parser had dropped a different one, the count would still have read 5 and the test
+  would have stayed green over exactly the bug it was written to catch.
+
+The fix is to derive the expectation from the input: `events.length === raw.events.length`
+says *nothing was dropped* and stays true however the fixture grows. This is rule 2's
+sibling — that one says name the test after the invariant, this one says **assert the
+invariant you named.** A correct name over an incidental assertion is worse than either
+alone, because the name is what the next reader trusts.
