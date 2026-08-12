@@ -1,0 +1,1629 @@
+{
+  "head": {
+    "vars": [
+      "country",
+      "countryLabel",
+      "officialName",
+      "capitalLabel",
+      "population",
+      "flag",
+      "form",
+      "formLabel",
+      "hos",
+      "hosLabel",
+      "hosImage",
+      "hosBirth",
+      "hosPartyLabel",
+      "hosOfficeLabel",
+      "hosSince",
+      "hosIsHuman",
+      "hog",
+      "hogLabel",
+      "hogImage",
+      "hogBirth",
+      "hogPartyLabel",
+      "hogOfficeLabel",
+      "hogSince",
+      "authority",
+      "authorityLabel",
+      "authorityImage",
+      "authorityBirth",
+      "authorityPartyLabel",
+      "authorityOfficeLabel"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "pl",
+          "type": "literal",
+          "value": "Islamskie Państwo Afganistanu"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "sk",
+          "type": "literal",
+          "value": "Afganská islamská republika"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Islamic Emirate of Afghanistan"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "ru",
+          "type": "literal",
+          "value": "Исламский Эмират Афганистан"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "fa-af",
+          "type": "literal",
+          "value": "امارت اسلامی افغانستان"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q179164"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "unitary state"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "pl",
+          "type": "literal",
+          "value": "Islamskie Państwo Afganistanu"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q189898"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Emirate"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "sk",
+          "type": "literal",
+          "value": "Afganská islamská republika"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q189898"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Emirate"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Islamic Emirate of Afghanistan"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q189898"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Emirate"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "ru",
+          "type": "literal",
+          "value": "Исламский Эмират Афганистан"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q189898"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Emirate"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "fa-af",
+          "type": "literal",
+          "value": "امارت اسلامی افغانستان"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q189898"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Emirate"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "pl",
+          "type": "literal",
+          "value": "Islamskie Państwo Afganistanu"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q138567551"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "islamic theocracy"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "sk",
+          "type": "literal",
+          "value": "Afganská islamská republika"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q138567551"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "islamic theocracy"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Islamic Emirate of Afghanistan"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q138567551"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "islamic theocracy"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "ru",
+          "type": "literal",
+          "value": "Исламский Эмират Афганистан"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q138567551"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "islamic theocracy"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      },
+      {
+        "country": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q889"
+        },
+        "officialName": {
+          "xml:lang": "fa-af",
+          "type": "literal",
+          "value": "امارت اسلامی افغانستان"
+        },
+        "population": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "41454761"
+        },
+        "flag": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Taliban.svg"
+        },
+        "form": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q138567551"
+        },
+        "hos": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q24237654"
+        },
+        "hosSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2021-08-15T00:00:00Z"
+        },
+        "hosBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "1967-10-19T00:00:00Z"
+        },
+        "hosIsHuman": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "type": "literal",
+          "value": "true"
+        },
+        "hog": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q108444479"
+        },
+        "hogSince": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2023-07-17T00:00:00Z"
+        },
+        "hogImage": {
+          "type": "uri",
+          "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Hasan%20Akhund.png"
+        },
+        "hogBirth": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "type": "literal",
+          "value": "2000-01-01T00:00:00Z"
+        },
+        "countryLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Afghanistan"
+        },
+        "capitalLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Kabul"
+        },
+        "formLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "islamic theocracy"
+        },
+        "hosLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Hibatullah Akhundzada"
+        },
+        "hosPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hosOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Supreme Leader of Afghanistan"
+        },
+        "hogLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Mohammad Hasan Akhund"
+        },
+        "hogPartyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Taliban"
+        },
+        "hogOfficeLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Prime Minister of Afghanistan"
+        }
+      }
+    ]
+  }
+}

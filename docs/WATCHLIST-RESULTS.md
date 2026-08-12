@@ -241,3 +241,58 @@ override that would render it as a *discrepancy* — six against a cited two —
 deliberately unbuilt, because the only wrong version infers the expected count from the
 data. **Tracked here so the flat refusal is a known state rather than an assumed-correct
 one.**
+
+---
+
+# Missing-binding captures — two defects found in the capture itself
+
+Captured from real countries rather than by editing the France response, because this
+session established that our predictions about request and response shape are wrong about
+half the time. Rule 28 applied at capture: **row count and distinct-entity count reported
+separately**, so a cross product is visible in the fixture rather than discovered later in
+a parser.
+
+| Country | Rows | distinct `hos` | distinct `hog` | **distinct `form`** | distinct country entities |
+| --- | --- | --- | --- | --- | --- |
+| PSE (Palestine) | 13 | 1 | **2** | **3** | **2** |
+| AFG (Afghanistan) | 15 | 1 | 1 | **3** | 1 |
+
+## Defect 1 — the form of government is picked arbitrarily from several
+
+Both countries return **three distinct `P122` values**:
+
+```
+PSE : parliamentary republic | semi-presidential system | unitary state
+AFG : Emirate | islamic theocracy | unitary state
+```
+
+`parseCountryDossier` takes `first('formLabel')` — the first row that has one — and SPARQL
+guarantees no ordering. **Afghanistan's classification therefore depends on which row
+arrives first**, and `Emirate`, `islamic theocracy` and `unitary state` do not classify
+alike. This is the same arbitrary-pick defect just fixed for head of state, in a second
+field, and it is live.
+
+It is also exactly the case WATCHLIST flagged: *"Afghanistan | Unrecognised government;
+office titles may not map to any rule."* The titles are the least of it — the *form* does
+not map to one value at all.
+
+## Defect 2 — `P298` is not unique, and the query silently spans entities
+
+Palestine returns **two distinct country entities** for one ISO-3166 code:
+
+```
+Q219060  and  Q407199
+```
+
+The app's query binds `?country wdt:P298 "PSE"` and takes whatever matches, so a single
+dossier mixes fields from two different Wikidata items — which is precisely why PSE shows
+**two heads of government**. WATCHLIST predicted this: *"Palestine | Contested statehood;
+office data may be split across entities."*
+
+The survey query found PSE among countries with **no** `P35` at all, while the app's query
+returns Mahmoud Abbas — the two queries matched different entities under the same code.
+A dossier assembled across two items is not a record of either.
+
+**Both defects are recorded, not fixed.** Each needs the same treatment as the head-of-state
+case — refuse rather than pick — and defect 2 additionally needs a decision about which
+entity is canonical when a code resolves to several, which is not a parser question.
