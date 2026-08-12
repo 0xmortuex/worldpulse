@@ -160,8 +160,15 @@ the three candidates:
 
 And a survey of all countries found **15 with multiple concurrent holders**, of which most
 — Australia, Bulgaria, Hungary, Albania among them — are stale statements with no end
-date rather than collective arrangements. A rule keyed on "more than one holder" would
-have promoted about twelve data-quality artifacts into constitutional arrangements.
+date rather than collective arrangements.
+
+**The ratio is the argument, and it is roughly four to one.** Of the fifteen, about three
+are genuinely collective (San Marino, Bosnia, Andorra) and about twelve are unclosed
+Wikidata statements. A sixth rule keyed on "more than one concurrent holder" would not
+have been a near miss — **it would have been wrong about most of the cases it fired on**,
+promoting twelve data-quality artifacts into constitutional arrangements and rendering
+each one with this app's full confidence. The refutation is not that the rule was
+unproven; it is that the rule was mostly false.
 
 **Why this is recorded as reasoning and not just a verdict:** a standard written *after*
 seeing this data would have been very tempting to bend. Three countries that look alike

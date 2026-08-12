@@ -109,6 +109,70 @@ export function resolveLeader(iso3: string, record: CountryDossierRecord): Leade
   const hos = record.headOfState;
   const hog = record.headOfGovernment;
 
+  /**
+   * Refuse before resolving, when the head of state is not a single identified
+   * person. Both branches below are WRONG-VALUE guards, not missing-data ones:
+   * each prevents rendering something confidently false rather than something
+   * empty, which is the ordering rule 7 sets.
+   */
+
+  // Not a person at all. Switzerland's P35 resolves to the Swiss Federal Council
+  // and Haiti's to the Transitional Presidential Council — bodies, not people —
+  // and the parser cannot tell an institution's name from a human's. Rendering
+  // one in a portrait frame states that an institution is a person.
+  if (!record.headOfStateIsPerson) {
+    return {
+      class: 'undetermined',
+      ruleNumber: 0,
+      ruleLabel: 'Head of state is not a person',
+      ruleReason:
+        `Wikidata records "${hos?.name ?? 'the head of state'}" as this country's head of state, ` +
+        'and it is an institution rather than a person. This app will not render a body as an ' +
+        'individual, so no primary portrait is shown.',
+      primary: null,
+      secondary: null,
+      warnings: [...warnings, 'A collective or institutional head of state needs a reviewed rule-1 override with a constitutional citation.'],
+    };
+  }
+
+  /**
+   * More than one concurrent holder. NEVER pick one.
+   *
+   * The count alone cannot distinguish a constitutionally collective head of
+   * state from a stale statement: a survey of live data found 15 countries with
+   * multiple concurrent holders, of which roughly three are genuine (San Marino,
+   * Bosnia, Andorra) and twelve are former holders with no end date — Australia,
+   * Bulgaria, Hungary and Albania among them. That is roughly four artifacts for
+   * every real arrangement, so a rule keyed on count would be wrong about most
+   * of the cases it fired on.
+   *
+   * Taking the first row is worse than wrong, it is UNSTABLE: SPARQL guarantees
+   * no ordering, so the same country could render a different leader between two
+   * loads of the same page.
+   *
+   * Only a cited expected count can license a collective rendering, and that
+   * count is never inferred from the data — inferring it would be the post-hoc
+   * rule this project already refused, in a smaller costume.
+   */
+  if (record.headOfStateHolderCount > 1) {
+    return {
+      class: 'undetermined',
+      ruleNumber: 0,
+      ruleLabel: `Multiple concurrent heads of state (${record.headOfStateHolderCount})`,
+      ruleReason:
+        `Wikidata returns ${record.headOfStateHolderCount} people as concurrent head of state with no end date. ` +
+        'That is either a collective head of state or a former holder whose record was never closed, ' +
+        'and the data cannot tell those apart. This app will not choose one arbitrarily — the query ' +
+        'returns them in no guaranteed order, so choosing would not even be stable between page loads.',
+      primary: null,
+      secondary: null,
+      warnings: [
+        ...warnings,
+        'Resolving this needs a reviewed override stating the constitutionally expected number of holders, with a citation.',
+      ],
+    };
+  }
+
   // ---- Rule 1: a reviewed de facto authority above the formal head of state.
   const override = overrideFor(iso3);
   if (override) {

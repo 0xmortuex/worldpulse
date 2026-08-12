@@ -369,3 +369,82 @@ describe('rule number and rule label agree', () => {
     assert.deepEqual([...observed].sort(), [0, 1, 2, 3, 4, 5]);
   });
 });
+
+/**
+ * Refusal guards, from live data rather than imagination.
+ *
+ * Switzerland and Haiti both return an institution as head of state; fifteen
+ * countries return more than one concurrent holder, of which roughly twelve are
+ * stale records rather than collective arrangements. Both cases are wrong-value
+ * failures — rule 7's worse category — so the resolver refuses rather than picks.
+ */
+describe('refuses rather than rendering a confident wrong value', () => {
+  const base = {
+    qid: 'Q1',
+    name: 'Testland',
+    officialName: null,
+    capital: null,
+    population: null,
+    flagUrl: null,
+    formLabel: 'republic',
+    headOfGovernment: null,
+    authority: null,
+    headOfStateHolderCount: 1,
+    headOfStateIsPerson: true,
+  };
+  const person = {
+    qid: 'Q2',
+    name: 'A Person',
+    imageUrl: null,
+    birthDate: null,
+    party: null,
+    officeTitle: 'President',
+    since: null,
+  };
+
+  it('renders no portrait when the head of state is an institution', () => {
+    const result = resolveLeader('CHE', {
+      ...base,
+      headOfState: { ...person, name: 'Swiss Federal Council' },
+      headOfStateIsPerson: false,
+    });
+    assert.equal(result.class, 'undetermined');
+    assert.equal(result.primary, null, 'an institution was rendered in a portrait frame');
+    assert.match(result.ruleReason, /institution rather than a person/i);
+  });
+
+  it('refuses to pick when several people hold the office concurrently', () => {
+    const result = resolveLeader('BIH', { ...base, headOfState: person, headOfStateHolderCount: 3 });
+    assert.equal(result.class, 'undetermined');
+    assert.equal(result.primary, null);
+    assert.match(result.ruleLabel, /Multiple concurrent heads of state \(3\)/);
+  });
+
+  it('states the holder count rather than hiding it', () => {
+    const result = resolveLeader('SMR', { ...base, headOfState: person, headOfStateHolderCount: 6 });
+    assert.match(result.ruleReason, /6 people/);
+  });
+
+  /**
+   * Determinism. SPARQL guarantees no row ordering, so "take the first row"
+   * could render a different leader between two loads of the same country. The
+   * refusal must be stable by construction.
+   */
+  it('is deterministic — the same record resolves identically every time', () => {
+    const record = { ...base, headOfState: person, headOfStateHolderCount: 2 };
+    const a = resolveLeader('AND', record);
+    const b = resolveLeader('AND', record);
+    assert.deepEqual(a, b);
+    assert.equal(a.primary, null, 'a multi-holder country rendered an arbitrary primary');
+  });
+
+  it('positive control: a single human holder still resolves normally', () => {
+    const result = resolveLeader('FRA', {
+      ...base,
+      formLabel: 'semi-presidential system',
+      headOfState: person,
+    });
+    assert.notEqual(result.class, 'undetermined');
+    assert.ok(result.primary, 'an ordinary country stopped resolving');
+  });
+});

@@ -106,6 +106,20 @@ export interface CountryDossierRecord {
   formLabel: string | null;
   headOfState: PersonRecord | null;
   headOfGovernment: PersonRecord | null;
+  /**
+   * How many DISTINCT people the query returned as concurrent head of state, and
+   * whether the holder is a person at all.
+   *
+   * Both are needed because holder count alone cannot distinguish a
+   * constitutionally collective head of state from a stale Wikidata statement
+   * nobody closed. A survey of live data found 15 countries with more than one
+   * concurrent holder, of which roughly three are genuine (San Marino, Bosnia,
+   * Andorra) and twelve are unclosed records — Australia, Bulgaria, Hungary and
+   * Albania among them. The resolver must therefore refuse rather than pick, and
+   * only a cited expected count can license a collective rendering.
+   */
+  headOfStateHolderCount: number;
+  headOfStateIsPerson: boolean;
   /** Only populated when a reviewed override injected an authority office. */
   authority: PersonRecord | null;
 }
@@ -168,7 +182,23 @@ export function parseCountryDossier(raw: unknown, sourceId = SOURCE_ID): Country
   const hogRow = rowNaming('hog');
   const authorityRow = rowNaming('authority');
 
+  /**
+   * Count DISTINCT people, not rows. The query cross-products optional clauses,
+   * so one holder with two parties yields two rows — counting rows would report
+   * a collective head of state for an ordinary country.
+   */
+  const hosIdentities = new Set(
+    result.rows
+      .map((row) => row['hos'] ?? row['hosLabel'])
+      .filter((value): value is string => Boolean(value)),
+  );
+  // Absent means the binding never came back, which is not the same as false.
+  // Only an explicit "false" says Wikidata was asked and answered no.
+  const hosHumanFlags = new Set(result.rows.map((row) => row['hosIsHuman']).filter(Boolean));
+
   return {
+    headOfStateHolderCount: hosIdentities.size,
+    headOfStateIsPerson: !hosHumanFlags.has('false'),
     qid: qidOf(countryUri),
     name: first('countryLabel') ?? qidOf(countryUri),
     officialName: first('officialName'),
