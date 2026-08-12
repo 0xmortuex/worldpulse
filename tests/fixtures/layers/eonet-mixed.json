@@ -200,6 +200,32 @@
      ]
     }
    ]
+  },
+  {
+   "id": "EONET_FLOOD",
+   "title": "Flood \u2014 fixture inundation",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_FLOOD",
+   "closed": null,
+   "categories": [
+    {
+     "id": "floods",
+     "title": "Floods"
+    }
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "magnitudeValue": null,
+     "magnitudeUnit": null,
+     "date": "2026-08-11T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      90.4,
+      23.8
+     ]
+    }
+   ]
   }
  ]
 }
