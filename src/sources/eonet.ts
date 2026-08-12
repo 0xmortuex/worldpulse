@@ -59,6 +59,46 @@ function readRing(sourceId: string, coordinates: unknown, at: string): Coordinat
  * to see that a point was made out of a shape — pointing at the fetch alone
  * would present our arithmetic as NASA's report.
  */
+/**
+ * NASA's published measurement for this event, with its unit.
+ *
+ * Decision L8 originally read "EONET does not measure magnitude", and every
+ * event was given `magnitude: null` on that basis. Live data disproves it —
+ * every geometry carries `magnitudeValue` and `magnitudeUnit`, e.g. 9673
+ * `hectare` for a wildfire's burned area and 35 `kts` for a storm's winds — so
+ * the app was discarding a figure NASA publishes because we had assumed it did
+ * not exist.
+ *
+ * Both fields must be present and well-formed, or nothing is emitted. A value
+ * with no unit is not a measurement, it is a number: "9673" tells a reader
+ * nothing and inviting them to compare it with another unitless 35 is worse than
+ * showing neither. OFFICIAL, because this is NASA's figure and not ours.
+ */
+function measurementOf(
+  geometry: Record<string, unknown>,
+  date: string,
+  raw: unknown,
+  ctx: FetchContext,
+  at: string,
+): { measurement?: { fact: Fact<number>; unit: string } } {
+  const value = geometry['magnitudeValue'];
+  const unit = geometry['magnitudeUnit'];
+  if (typeof value !== 'number' || !Number.isFinite(value)) return {};
+  if (typeof unit !== 'string' || unit.trim() === '') return {};
+
+  return {
+    measurement: {
+      unit,
+      fact: {
+        value,
+        asOf: date,
+        tier: 'OFFICIAL',
+        provenance: fetchProvenance(SOURCE_ID, ctx, raw, `${at}.geometry[last].magnitudeValue`),
+      },
+    },
+  };
+}
+
 function positionFact(
   lat: number,
   lng: number,
@@ -146,7 +186,11 @@ export function parseEvents(raw: unknown, now: Date, ctx: FetchContext, sourceId
           lat,
           lng,
           time: date,
+          // Stays null on purpose. `magnitude` is the comparative scale that
+          // drives marker radius and cluster ranking, and EONET's figures are
+          // unit-bearing — see `measurement` below and decision L8.
           magnitude: null,
+          ...measurementOf(geometry, date, raw, ctx, at),
           positionFact: positionFact(lat, lng, positionKind, perimeterVertices, date, raw, ctx, at),
           positionKind,
           ...(perimeterVertices === undefined ? {} : { perimeterVertices }),

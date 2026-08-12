@@ -219,12 +219,23 @@ function eventTooltip(cluster: EventCluster): string {
  * analyst-reviewed one printed identically. The badge is the whole point of the
  * app; a tooltip is not an exemption from it.
  *
- * Layers with no magnitude concept (every EONET category) have no fact at all,
- * which is a different statement from a quake whose magnitude is null — that one
- * renders "no data" with its provenance intact.
+ * Layers with no comparative magnitude have no `magnitudeFact`, which is a
+ * different statement from a quake whose magnitude is null — that one renders
+ * "no data" with its provenance intact.
+ *
+ * An EONET event may still carry a `measurement`: a unit-bearing figure NASA
+ * publishes (burned hectares, wind knots). It renders as value + unit and never
+ * as a bare number, because the unit is what makes it a measurement rather than
+ * a quantity to be compared with the next one. See decision L8.
  */
 function magnitudeHtml(event: GlobeEvent, compact: boolean): string {
   if (!event.magnitudeFact) {
+    if (event.measurement) {
+      return (
+        `${factHtml(event.measurement.fact, { compact, hideAsOf: true })} ` +
+        `<span class="evt-unit">${escapeForLabel(event.measurement.unit)}</span>`
+      );
+    }
     return `<span class="evt-nomag">no magnitude</span> · <span class="evt-tier">${escapeForLabel(event.tier)}</span>`;
   }
   // No "M" label: the fact's unit is the magnitude type USGS actually used

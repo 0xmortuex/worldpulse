@@ -38,6 +38,23 @@ export interface GlobeEvent {
    */
   magnitudeFact?: Fact<number>;
   /**
+   * A unit-bearing measurement the source publishes, kept SEPARATE from
+   * `magnitude` and never fed into sizing, sorting or clustering.
+   *
+   * EONET publishes `magnitudeValue` with a `magnitudeUnit` — 9673 hectares for
+   * a wildfire's burned area, 35 kts for a storm's winds. Decision L8 originally
+   * said EONET does not measure magnitude at all, which live data disproved; the
+   * app was discarding a published measurement on a false premise.
+   *
+   * It is a distinct field because **there is no honest comparison between 9673
+   * hectares and 35 knots**, nor between either and an earthquake's moment
+   * magnitude. `magnitude` is comparative — it drives marker radius, cluster
+   * ranking and "strongest member". A unit-bearing figure that entered that
+   * scale would size a wildfire against a quake. Rendered as value + unit,
+   * badged with the source's own tier, and never aggregated across units.
+   */
+  measurement?: { fact: Fact<number>; unit: string };
+  /**
    * Where the marker sits, with its provenance.
    *
    * A coordinate printed as `lat.toFixed(3), lng.toFixed(3)` is a measured value

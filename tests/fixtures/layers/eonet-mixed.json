@@ -1,179 +1,205 @@
 {
-  "title": "EONET Events",
-  "description": "",
-  "link": "",
-  "events": [
+ "title": "EONET Events",
+ "description": "",
+ "link": "",
+ "events": [
+  {
+   "id": "EONET_1",
+   "title": "Volcano \u2014 fixture peak",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_1",
+   "closed": null,
+   "categories": [
     {
-      "id": "EONET_1",
-      "title": "Volcano \u2014 fixture peak",
-      "description": "",
-      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_1",
-      "closed": null,
-      "categories": [
-        {
-          "id": "x",
-          "title": "Volcanoes"
-        }
-      ],
-      "sources": [],
-      "geometry": [
-        {
-          "magnitudeValue": null,
-          "magnitudeUnit": null,
-          "date": "2026-08-09T00:00:00Z",
-          "type": "Point",
-          "coordinates": [
-            -155.28,
-            19.41
-          ]
-        }
-      ]
-    },
-    {
-      "id": "EONET_2",
-      "title": "Wildfire \u2014 fixture perimeter",
-      "description": "",
-      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_2",
-      "closed": null,
-      "categories": [
-        {
-          "id": "x",
-          "title": "Wildfires"
-        }
-      ],
-      "sources": [],
-      "geometry": [
-        {
-          "magnitudeValue": null,
-          "magnitudeUnit": null,
-          "date": "2026-08-10T00:00:00Z",
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                -120.5,
-                38.5
-              ],
-              [
-                -120.1,
-                38.5
-              ],
-              [
-                -120.1,
-                38.9
-              ],
-              [
-                -120.5,
-                38.9
-              ],
-              [
-                -120.5,
-                38.5
-              ]
-            ]
-          ]
-        }
-      ]
-    },
-    {
-      "id": "EONET_3",
-      "title": "Storm \u2014 fixture track",
-      "description": "",
-      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_3",
-      "closed": null,
-      "categories": [
-        {
-          "id": "x",
-          "title": "Severe Storms"
-        }
-      ],
-      "sources": [],
-      "geometry": [
-        {
-          "date": "2026-08-01T00:00:00Z",
-          "type": "Point",
-          "coordinates": [
-            -40.0,
-            22.0
-          ]
-        },
-        {
-          "date": "2026-08-08T00:00:00Z",
-          "type": "Point",
-          "coordinates": [
-            -52.0,
-            28.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "EONET_4",
-      "title": "Volcano \u2014 open since 2019, never closed",
-      "description": "",
-      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_4",
-      "closed": null,
-      "categories": [
-        {
-          "id": "x",
-          "title": "Volcanoes"
-        }
-      ],
-      "sources": [],
-      "geometry": [
-        {
-          "date": "2019-04-12T00:00:00Z",
-          "type": "Point",
-          "coordinates": [
-            145.0,
-            -5.5
-          ]
-        }
-      ]
-    },
-    {
-      "id": "EONET_5",
-      "title": "Wildfire \u2014 perimeter crossing the antimeridian",
-      "description": "",
-      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_5",
-      "closed": null,
-      "categories": [
-        {
-          "id": "x",
-          "title": "Wildfires"
-        }
-      ],
-      "sources": [],
-      "geometry": [
-        {
-          "date": "2026-08-10T00:00:00Z",
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                179.6,
-                -17.0
-              ],
-              [
-                -179.7,
-                -17.0
-              ],
-              [
-                -179.7,
-                -16.6
-              ],
-              [
-                179.6,
-                -16.6
-              ],
-              [
-                179.6,
-                -17.0
-              ]
-            ]
-          ]
-        }
-      ]
+     "id": "x",
+     "title": "Volcanoes"
     }
-  ]
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "magnitudeValue": null,
+     "magnitudeUnit": null,
+     "date": "2026-08-09T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      -155.28,
+      19.41
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_2",
+   "title": "Wildfire \u2014 fixture perimeter",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_2",
+   "closed": null,
+   "categories": [
+    {
+     "id": "x",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "magnitudeValue": null,
+     "magnitudeUnit": null,
+     "date": "2026-08-10T00:00:00Z",
+     "type": "Polygon",
+     "coordinates": [
+      [
+       [
+        -120.5,
+        38.5
+       ],
+       [
+        -120.1,
+        38.5
+       ],
+       [
+        -120.1,
+        38.9
+       ],
+       [
+        -120.5,
+        38.9
+       ],
+       [
+        -120.5,
+        38.5
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_3",
+   "title": "Storm \u2014 fixture track",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_3",
+   "closed": null,
+   "categories": [
+    {
+     "id": "x",
+     "title": "Severe Storms"
+    }
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "date": "2026-08-01T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      -40.0,
+      22.0
+     ]
+    },
+    {
+     "date": "2026-08-08T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      -52.0,
+      28.0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_4",
+   "title": "Volcano \u2014 open since 2019, never closed",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_4",
+   "closed": null,
+   "categories": [
+    {
+     "id": "x",
+     "title": "Volcanoes"
+    }
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "date": "2019-04-12T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      145.0,
+      -5.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_5",
+   "title": "Wildfire \u2014 perimeter crossing the antimeridian",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_5",
+   "closed": null,
+   "categories": [
+    {
+     "id": "x",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "date": "2026-08-10T00:00:00Z",
+     "type": "Polygon",
+     "coordinates": [
+      [
+       [
+        179.6,
+        -17.0
+       ],
+       [
+        -179.7,
+        -17.0
+       ],
+       [
+        -179.7,
+        -16.6
+       ],
+       [
+        179.6,
+        -16.6
+       ],
+       [
+        179.6,
+        -17.0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_MEASURED",
+   "title": "Wildfire \u2014 fixture measured area",
+   "description": "",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_MEASURED",
+   "closed": null,
+   "categories": [
+    {
+     "id": "wildfires",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [],
+   "geometry": [
+    {
+     "magnitudeValue": 9673,
+     "magnitudeUnit": "hectare",
+     "date": "2026-08-10T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      -120.5,
+      38.9
+     ]
+    }
+   ]
+  }
+ ]
 }
