@@ -367,3 +367,44 @@ all return a gateway 403 at CONNECT. `api.github.com` responds 200 as a control,
 proxy is healthy and the allowlist is the gap. `npm run probe` is written and runs today,
 reporting UNREACHABLE. **No further building against assumed CORS posture** until it
 returns real verdicts.
+
+## Fetch layer — decisions taken before building (2026-08-12)
+
+Answers to the four open questions in `SPEC-FETCH-LAYER.md` §11. Recorded here because
+three of them constrain what the app is allowed to render, not merely how it is built.
+
+| # | Decision |
+| --- | --- |
+| F1 | **`UNAVAILABLE` and P5's marker are renamed apart, never overloaded.** They are different claims: P5's marker means an input is **absent from the scoring model**; the fetch state means an **origin failed to answer**. One label for both merges them in the reader's head, and that merge is the conflation rule 30 exists to name. `UNAVAILABLE` is the fetch state; P5's marker becomes **`NOT-MODELLED`**. They must remain visibly distinct wherever both can appear. |
+| F2 | **Stale-while-revalidate is the default, and a stale value never renders silently.** It renders with its age and a revalidating indicator; the inspector shows both the cached `fetchedAt` and the in-flight attempt. Stale-and-labelled beats a spinner. **Stale-and-unlabelled is a wrong-value error carrying a timestamp that lies** — the timestamp is the part that makes it worse than showing nothing. |
+| F3 | **The stale window is bounded.** Past a stated multiple of the source's `ttlMs`, a cached value stops being stale-servable and becomes `unavailable`. An unbounded window lets a dead origin serve last year's number forever, which is the same defect as F2 with a longer fuse and no indicator that ever escalates. |
+| F4 | **The registry owns policy; adapters own the question.** URL templates in JSON would move query construction somewhere untyped and break rule 26's parity guarantee — the contract test would no longer issue the request the app issues. **Not to be revisited for convenience.** |
+| F5 | **Rate buckets are keyed by host, never by source id.** Several registry entries share one origin, and per-source buckets multiply the real request rate against it. That produces 429s which are then read back as the source's posture — which has already happened once, to `wikidata-sparql`. |
+
+### F6 — the cross-country race is a correctness requirement, not a UX detail
+
+A response for France arriving after the user has selected Jamaica, and rendering into
+Jamaica's dossier: correct badge, traceable provenance, real value, **wrong country**. Every
+existing defence passes it, because only the country is wrong.
+
+| # | Requirement |
+| --- | --- |
+| F6a | **Every in-flight request carries the selection identity it was issued for.** A response whose identity does not match the current selection is **discarded, not rendered**. |
+| F6b | **The discard logic is directly callable with synthetic inputs** (rule 32), not reachable only by driving the UI. A browser-level test is necessary and not sufficient. |
+| F6c | **The check is identity matching, not recency.** A response arriving for a selection the user has *returned to* is still usable if the cache logic says so. "Discard anything late" is a different rule and the wrong one. |
+| F6d | Asserted end to end: issue for A, switch to B, resolve A's response late, assert nothing from A reaches B's panel. |
+
+### F7 — retry is not uniform, and the never-retry rows carry the weight
+
+`buildLegislatureQuery` exceeds WDQS's ~60s server timeout for **every** country tried,
+including single-chamber Vatican City. Uniform retry would convert that visible design
+constraint into intermittent panel flicker.
+
+Each never-retry row states its own reason, because they are different reasons:
+
+| Condition | Why not |
+| --- | --- |
+| 4xx other than 408/425/429 | The request is wrong. Repeating it asks the same wrong question louder. |
+| `ShapeError` | The origin answered correctly; **our parse disagrees**. Retrying hides schema drift, which is the failure contract tests exist to catch. |
+| Abort | Nobody is waiting for the answer. Retrying spends budget on a discarded selection (F6). |
+| Repeated timeout across countries | A query that cannot complete is a design defect. Retrying it converts a diagnosable fault into flicker. |

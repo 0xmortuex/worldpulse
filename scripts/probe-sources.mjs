@@ -39,6 +39,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { VERDICT, verdictForResponse } from './probe-verdict.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -67,13 +68,6 @@ const PROBE_UA =
   process.env.PROBE_USER_AGENT ??
   'worldpulse/0.0 (https://github.com/0xmortuex/worldpulse) source-reachability-probe';
 
-const VERDICT = {
-  CLIENT: 'CLIENT-FETCH',
-  WORKER: 'WORKER-REQUIRED',
-  KEY: 'KEY-GATED',
-  INCONCLUSIVE: 'INCONCLUSIVE',
-  UNREACHABLE: 'UNREACHABLE',
-};
 
 const CORS_HEADERS = [
   'access-control-allow-origin',
@@ -91,16 +85,6 @@ function pickCorsHeaders(headers) {
     if (value !== null) out[name] = value;
   }
   return out;
-}
-
-/**
- * Does the observed Access-Control-Allow-Origin let OUR origin read the body?
- * '*' works only when credentials are not in play, which is our case — we never
- * send cookies to these APIs.
- */
-function originIsAllowed(acao) {
-  if (!acao) return false;
-  return acao === '*' || acao.toLowerCase() === ORIGIN.toLowerCase();
 }
 
 async function timedFetch(url, init) {
@@ -202,74 +186,18 @@ async function probeOne(source) {
     cacheControl: res.headers.get('cache-control'),
   };
 
-  const acao = cors['access-control-allow-origin'];
-  const allowed = originIsAllowed(acao);
-
-  // Ordering matters. A secret key beats a permissive ACAO: even if the browser
-  // *could* read the response, we will not put the key in front of the user.
-  const keyIsSecret = source.keyRequired && !(source.keyEnv ?? '').startsWith('VITE_');
-
-  if (source.keyRequired) {
-    result.verdict = VERDICT.KEY;
-    result.reason = keyIsSecret
-      ? `Key ${source.keyEnv} is server-side; routed through the Worker regardless of ACAO (observed: ${acao ?? 'none'}).`
-      : `Public key ${source.keyEnv}; ACAO observed: ${acao ?? 'none'}.`;
-  } else if (!res.ok) {
-    /**
-     * An error response tells us nothing about the success path, whatever
-     * headers it happens to carry.
-     *
-     * This used to read `!res.ok && !allowed`, which guarded only the case
-     * where the error ALSO lacked an ACAO — so an error carrying `*` fell
-     * through to a conclusive verdict inferred from a failed request. That is
-     * exactly the inference rule 3 was written to forbid, one condition away.
-     *
-     * It was not hypothetical. Across three runs `wikidata-sparql` scored
-     * WORKER-REQUIRED twice off a 403 that happened to carry `*`, and
-     * INCONCLUSIVE once off a 429 that did not: same source, same question,
-     * verdict decided by a header on an error path. Its true posture, measured
-     * directly, is a 200 with `ACAO: *`.
-     *
-     * A declared key requirement is checked before this and is unaffected: that
-     * is a property of the source, not something inferred from the response.
-     */
-    result.verdict = VERDICT.INCONCLUSIVE;
-    result.reason =
-      `Upstream returned HTTP ${res.status}; an error response is not evidence about the ` +
-      `success path (ACAO observed on it: ${acao ?? 'none'}). ` +
-      'Re-probe with a request that succeeds.';
-  } else if (source.requiresCustomUserAgent && !allowed) {
-    /**
-     * The flag means "this host rejects anonymous scripts", NOT "this host
-     * needs a proxy", and it no longer decides the verdict on its own.
-     *
-     * It used to read `else if (source.requiresCustomUserAgent)` with the
-     * reason "requires a descriptive User-Agent, which browsers are forbidden
-     * to set" — which has the situation backwards. A browser cannot set the
-     * header, but it does not need to: it sends its own real UA, and that is
-     * exactly what these policies ask for. The client that fails such a policy
-     * is an anonymous script, which is what this probe used to be.
-     *
-     * Measured: with a descriptive UA, query.wikidata.org answers 200 with
-     * ACAO `*`, and api.openparliament.ca answers 200 with ACAO `*` with or
-     * without one. Both were scored WORKER-REQUIRED on the old rule. If ACAO
-     * does permit our origin, the browser can read it and no proxy is needed;
-     * only a genuinely unreadable response should reach this branch now.
-     */
-    result.verdict = VERDICT.WORKER;
-    result.reason =
-      `Host requires an identifying User-Agent and its ACAO does not permit our origin ` +
-      `(observed: ${acao ?? 'none'}).`;
-  } else if (allowed) {
-    result.verdict = VERDICT.CLIENT;
-    result.reason = `ACAO: ${acao}`;
-  } else if (acao) {
-    result.verdict = VERDICT.WORKER;
-    result.reason = `ACAO present but does not match our origin: ${acao}`;
-  } else {
-    result.verdict = VERDICT.WORKER;
-    result.reason = 'No Access-Control-Allow-Origin on the response.';
-  }
+  // The ladder itself lives in probe-verdict.mjs so it can be called with a
+  // synthetic status and header map (rule 32). Everything it needs is passed in;
+  // this function keeps the I/O and none of the deciding.
+  const decided = verdictForResponse({
+    status: res.status,
+    ok: res.ok,
+    cors,
+    origin: ORIGIN,
+    source,
+  });
+  result.verdict = decided.verdict;
+  result.reason = decided.reason;
 
   return result;
 }

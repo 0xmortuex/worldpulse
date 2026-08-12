@@ -935,3 +935,36 @@ whole reason to exist. A proxy chosen because it agrees on normal data is theref
 So when writing a guard, state the principle first, then ask what input would separate it
 from the thing being measured — and if that input cannot be constructed and passed in, the
 guard is not finished (rule 32).
+
+## 33. A synthetic input must describe a state the real system can reach
+
+Rule 32 says a guard must be callable with a synthetic input. This is its immediate
+hazard: **a synthetic input can describe a world that cannot exist, and a test built on one
+exercises a path the real function never takes.**
+
+Found immediately, in the first test written under rule 32. A stub filesystem for
+`findChromiumCandidates` claimed:
+
+- `/opt/pw-browsers` — does **not** exist
+- `/opt/pw-browsers/chromium-1194/chrome-linux/chrome` — **does** exist
+
+No filesystem can be in that state. The real function checks the directory before reading
+it, returned `[]`, and the test failed. The code was right and the test was wrong (rule 2),
+but the interesting part is the near miss: **had the assertion been weaker — a length check,
+a `deepEqual` against `[]`, an `ok(found)` — it would have passed, and it would have been
+asserting that a function returns nothing when asked about an impossible directory.**
+
+This is a distinct shape from the vacuous passes already catalogued. Those tested a real
+state with a guard that could not see it. This tests a state that is not real at all, so no
+guard could see it and nothing is learned either way.
+
+**The check when writing a stub: could the system actually be in the state I have
+described?** Existence predicates, status/header pairs, and cache entries are the usual
+offenders, because each has internal consistency requirements that a hand-written literal
+does not enforce — a 304 with a body, a `nodata` fact with a value, a directory whose
+absence coexists with its contents.
+
+Where the real states are recorded, replay them instead of inventing them:
+`tests/probe-verdict.test.ts` replays all 32 rows of `data/probe-results.json` through the
+extracted ladder. Synthetic cases prove the rule does what its author thinks; a replay of
+recorded observations proves it does what the live run did.

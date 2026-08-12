@@ -226,34 +226,19 @@ its decision logic can be invoked with a synthetic input.
 
 ### FAILING — logic is unreachable except by running the thing
 
-**1. `scripts/probe-sources.mjs` — the CORS verdict ladder. Highest stakes.**
+*(Item 1 below has since been fixed; kept in place with its record, because the defect history is the reason the rule exists.)*
 
-The five-way classification (`CLIENT-FETCH` / `WORKER-REQUIRED` / `KEY-GATED` /
-`INCONCLUSIVE` / `UNREACHABLE`) is an `if`/`else if` chain inside `probeSource`, between two
-`await timedFetch` calls. The module exports nothing. There is no way to ask "what verdict
-does a 403 carrying `ACAO: *` produce" without making a live request to a real host.
+**1. `scripts/probe-sources.mjs` — the CORS verdict ladder. FIXED 2026-08-12.**
 
-This one has the worst record in the repository. **Three separate defects have been found in
-this exact ladder, all by live re-runs:**
+Extracted to `scripts/probe-verdict.mjs` as `verdictForResponse({status, ok, cors, origin,
+source})`. The probe keeps the I/O and none of the deciding. 14 planted cases, including all
+three historical defects as permanent regression tests, plus a replay of all 32 recorded
+observations in `data/probe-results.json` — 30 of 30 decidable rows reproduce their recorded
+verdict, the other 2 being transport failures decided before the ladder runs.
 
-- `!res.ok && !allowed` let an error response carrying `*` reach a conclusive verdict —
-  `wikidata-sparql` scored WORKER-REQUIRED twice and INCONCLUSIVE once off different error
-  codes, same source, same question, verdict decided by a header on a failed request
-- `requiresCustomUserAgent` decided the verdict on its own, on a premise that was backwards
-- the probe sent no User-Agent at all, so it measured a client the app is not
-
-Each was caught by re-probing and noticing an inconsistent answer — which requires network,
-an hour of rate-limited waiting, and someone to notice. Every one of them is a two-line
-synthetic input: a status, a header set, a source record.
-
-**This is a prerequisite for the fetch layer, not an aside.** `CORS-VERDICT.md` decides
-which sources the browser may call directly and which must go through the Worker, and that
-table is the fetch layer's routing input. A misclassification ships as either a broken panel
-or an unnecessary proxy hop.
-
-*Fix:* extract `verdictFor({ status, ok, corsHeaders, source })` as a pure function; the
-caller keeps the fetching. Planted cases for at least the three historical defects, which
-become permanent regression tests instead of anecdotes in a comment.
+Fixed first because it is the fetch layer's routing input: `CORS-VERDICT.md` decides which
+sources the browser may call directly and which must go through the Worker, and that table
+could not be trusted while the logic producing it was unreachable.
 
 **2. `scripts/extract-ucdp.mjs` — the RFC 4180 parser.**
 
