@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { verdictFor } from '../scripts/deploy-gate-rules.mjs';
+import { findUnexercised, unexercisedProblems } from '../scripts/unexercised-check.mjs';
 import { parseRegistry } from '../src/facts/registry';
 import registry from '../data/sources.json';
 
@@ -119,5 +120,44 @@ describe('sources.json registry validator', () => {
       /missing an entry for "bundled"/,
       'a documented status with no description was accepted',
     );
+  });
+});
+
+describe('standing unexercised-path check', () => {
+  it('finds nothing unexercised in the current tree', async () => {
+    const report = await findUnexercised();
+    assert.deepEqual(report.problems, [], report.problems.join('\n'));
+    // Rule 16: prove it looked. "No problems" and "nothing examined" are the
+    // same value otherwise.
+    assert.ok(report.declaredLayers.length > 0, 'the check found no declared layers to examine');
+    assert.ok(report.exercisedLayers.length > 0, 'the check found no exercised layers');
+  });
+
+  it('names the path and why it matters, not just that something is wrong', () => {
+    // A gate that says "something is unexercised" trains people to re-run it;
+    // the message has to be actionable on its own. Driven through the REAL rule,
+    // not a copy of it in the test — a duplicated rule drifts from the one that
+    // runs.
+    const problems = unexercisedProblems({
+      declaredLayers: ['usgs:earthquakes', 'eonet:landslides'],
+      exercisedLayers: ['usgs:earthquakes'],
+      liveSourceIds: [],
+      fixtureIds: [],
+    });
+    assert.equal(problems.length, 1, 'a declared-but-unexercised layer went unreported');
+    assert.match(problems[0] ?? '', /eonet:landslides/);
+    assert.match(problems[0] ?? '', /no fixture event exercises it/);
+    assert.match(problems[0] ?? '', /marker rendering, tooltip, click handling and provenance/);
+  });
+
+  it('catches a live source with no fixture registered', () => {
+    const problems = unexercisedProblems({
+      declaredLayers: [],
+      exercisedLayers: [],
+      liveSourceIds: ['naked-source'],
+      fixtureIds: [],
+    });
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /naked-source is marked live but no fixture is registered/);
   });
 });

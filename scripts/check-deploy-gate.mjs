@@ -25,6 +25,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { verdictFor } from './deploy-gate-rules.mjs';
+import { findUnexercised } from './unexercised-check.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -80,6 +81,20 @@ for (const source of sources) {
   // The mark reflects the OUTCOME, not the claim (rule 21).
   const mark = problem ? ' BLOCK' : (MARK[status] ?? '  ??  ');
   console.log(`  [${mark}] ${source.id.padEnd(24)} ${detail}`);
+}
+
+/**
+ * Standing unexercised-path check. Runs every gate run rather than when someone
+ * remembers to audit — eonet:floods was registered and unexercised within the
+ * same hour, and an audit that depends on memory eventually does not happen.
+ */
+const unexercised = await findUnexercised();
+console.log(`\n  unexercised-path check: ${unexercised.declaredLayers.length} layers declared, ${unexercised.exercisedLayers.length} exercised by fixtures`);
+for (const problem of unexercised.problems) problems.push(problem);
+if (unexercised.problems.length === 0) {
+  console.log('    every declared layer and every live source is exercised');
+} else {
+  for (const problem of unexercised.problems) console.log(`    [ BLOCK] ${problem}`);
 }
 
 console.log(`\n  ${excluded.length} source(s) excluded on licensing grounds and not gated:`);
