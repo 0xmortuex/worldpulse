@@ -764,3 +764,45 @@ third fixture recording a request the app does not make.
 Guard logic therefore lives in `tests/guards.ts` as pure functions, so each can be run
 against real input *and* against a synthetic violation. A guard embedded in the `it()`
 block that uses it cannot be pointed at a planted case without inventing a whole codebase.
+
+## 28. Count distinct entities, not result rows
+
+**Any count taken from a SPARQL result is a count of rows unless you make it otherwise.**
+
+A query with `OPTIONAL` clauses returns a cross product. A head of state with two recorded
+parties yields two rows, and **a country whose leader has two parties is not a country
+with two leaders** — but `rows.length` cannot tell those apart, and the number it produces
+is confident, plausible, and wrong.
+
+This bites hardest where the count carries meaning. The multi-holder guard refuses to
+render a leader when more than one person concurrently holds the office; keyed on rows it
+would have refused ordinary countries whose leader has a second party, a second image, or
+a second start date. Counting `new Set` of holder identities is what makes it a count of
+people.
+
+Audited across the existing query parsers: the cabinet and legislature parsers already
+deduplicate through `Map<string, …>` keyed on position and chamber QIDs, so their
+`vacantCount`, `untranslatedCount` and party lists are per-entity and correct. Recorded so
+the next reader does not re-derive it.
+
+## 29. A guard keyed on a missing field fires on schema drift, not on its condition
+
+**Choose the polarity so that an absent field degrades toward the normal path, and let
+only an explicit signal trigger a refusal.**
+
+`headOfStateIsPerson` defaults to **true** when the binding is absent, and only an
+explicit `false` refuses. The opposite polarity looks safer — "refuse unless proven a
+person" — and is a trap: if the query changes, the endpoint drops a variable, or the label
+service times out, the field vanishes for *every* country and the app refuses to render
+any leader at all. The guard would then be firing on schema drift, not on the condition it
+was written for, and it would look exactly like a correct refusal.
+
+The general form: **a guard reading a field it did not verify is present cannot
+distinguish "the answer is no" from "there was no answer".** Where the two must be
+distinguished, the absent case is its own state and is treated as such — the same
+distinction rule 3 draws between an error response and evidence, and the same one P5 draws
+between UNAVAILABLE and zero.
+
+A refusal guard also needs a **positive control**: a case that must still resolve. A guard
+that refuses everything passes every test written about what it refuses, which is the
+vacuous-pass class pointed in the opposite direction.

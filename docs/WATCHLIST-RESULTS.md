@@ -190,3 +190,54 @@ Andorra remains the only confirmed case in the sample: Emmanuel Macron appears a
 of state of Andorra by virtue of being President of France. Detecting this needs a
 different query — a holder whose office is tied to another country — and is not covered by
 the two surveys above. **The set is not closed and should not be assumed to be.**
+
+---
+
+# Cross-country officeholders — enumerated
+
+Four arrangements, 33 countries. **Unlike the multi-holder class, this one is clean**: no
+artifacts found. That was checked rather than assumed, because the last enumeration's
+genuine cases were outnumbered four to one.
+
+| Holder | Countries | Shape |
+| --- | --- | --- |
+| **Charles III** | 24 — ATG AUS BHS BLZ CAN COK CYM FLK GBR GGY GIB GRD IMN JAM JEY KNA LCA NIU NZL PNG SLB TCA TUV VCT | shared monarch across realms, crown dependencies and territories |
+| **Willem-Alexander** | 4 — ABW CUW NLD SXM | shared monarch, constituent countries of one kingdom |
+| **Frederik X** | 3 — DNK FRO GRL | shared monarch, one realm |
+| **Emmanuel Macron** | 2 — AND FRA | **ex officio co-prince** — a different relation entirely |
+
+Macron is the odd one and the reason this enumeration was worth running. The three
+monarchs are one crown held across several states. Macron holds Andorra's co-princedom
+**because** he is President of France: not a shared crown, but an office of one country
+conferring an office in another. A rendering rule built only on the shared-monarch shape
+would mis-describe it.
+
+## Artifact check
+
+None found. Every pair resolves to a documented constitutional arrangement, and the office
+labels corroborate (`monarch of Australia`, `King of the Netherlands`, `French co-prince of
+Andorra`). One noisy detail worth recording so it is not mistaken for a defect: `P1906`
+returns several offices per country, so Charles III's office list includes
+`Governor-General of Antigua and Barbuda` — that is the country's office list, not a claim
+that Charles is the Governor-General.
+
+## The shipped-defect subset — smaller than expected
+
+**Only Andorra**, and it is already fixed. It was the one country in this set returning two
+concurrent holders, so the multi-holder guard now refuses it rather than attributing
+France's president to Andorra silently.
+
+The 24 realms each return exactly **one** head of state, and Charles III genuinely is their
+head of state — so they render correctly today. What they do not render is that the
+monarch is **shared**: a user reading Jamaica's dossier sees the same portrait as Canada's
+with nothing connecting them. That is **incomplete, not wrong**, and it belongs in the
+rendering decision rather than in a defect fix.
+
+## Open item — San Marino renders a flat refusal
+
+San Marino returns **six** concurrent holders where its constitution provides **two**
+Captains Regent. It currently refuses, which is honest but not maximally useful. The
+override that would render it as a *discrepancy* — six against a cited two — is
+deliberately unbuilt, because the only wrong version infers the expected count from the
+data. **Tracked here so the flat refusal is a known state rather than an assumed-correct
+one.**
