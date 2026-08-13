@@ -185,3 +185,42 @@ rather than the panel's storage.
 it as evidence the race was covered in the browser. It was caught by asking what the
 mutation would actually change before running it, which is the habit rule 27 is really
 about.
+
+---
+
+## The marker-click flake invalidates mutations, not just its own check
+
+**Found in a full mutation run on `e95ca67` (2026-08-13).**
+
+Step 7's marker-click failure is recorded as a known flake — one assertion, ~40% of runs. That
+understates it. In this run the flake escalated: three dropped clicks in a row, then a
+`locator.click` timeout at 90s, which threw and **aborted step 7 and every step after it**.
+
+    7 — globe event layers                       23  19  4   -
+    7b — economy fetch states                     0   0  0   1
+    cross-cutting — text fidelity (rule 9)        0   0  0   1
+    cross-cutting — layout geometry (rule 8)      0   0  0   1
+
+    141 assertions across 10 steps, 3 skipped
+
+**Consequence.** Two mutations target those steps. Both were scored `CAUGHT-ELSEWHERE` from
+step 7's failing labels, having never been exercised — and `CAUGHT-ELSEWHERE` is not in the
+inconclusive set, so the run printed `0 SURVIVED, 0 inconclusive` with two mutations
+unmeasured.
+
+**Classifier fixed.** `stepWasExercised` reads the per-step table and scores a mutation whose
+own step never ran as `NOT-EXERCISED`. Replayed against the recorded output: old logic
+`CAUGHT-ELSEWHERE` and gated as a pass, new logic `NOT-EXERCISED` and blocks. Same shape as
+the bug that produced this module — the check asked a question about the RUN when the
+principle is about the MUTATION, and the two agree on every healthy run.
+
+**Not fixed: step isolation.** One step's exception ends the suite. Each step is top-level
+`await` code in a 1400-line script rather than a function, so making steps independently
+recoverable is a real refactor and is recorded rather than attempted mid-run. The journal
+limits the damage — a re-run resumes the verdicts already recorded and re-runs only the
+unexercised ones — but the underlying fault stands: **a flaky assertion in one step can
+silently invalidate measurements of unrelated steps.**
+
+**Reclassification.** L9 describes marker clicks as a user-facing risk on slow devices. It is
+also a *measurement* risk: it is the only known fault in this project that can make other
+checks report verdicts they did not earn.

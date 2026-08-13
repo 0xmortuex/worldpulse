@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { INCONCLUSIVE, anchorProblem, assertionsRun, classifyMutation } from '../scripts/mutation-verdict.mjs';
+import {
+  INCONCLUSIVE,
+  anchorProblem,
+  assertionsRun,
+  classifyMutation,
+  stepWasExercised,
+} from '../scripts/mutation-verdict.mjs';
 
 /**
  * Planted cases for the mutation classifier (rule 27).
@@ -184,5 +190,75 @@ describe('mutation anchors name exactly one place, on any platform', () => {
       INCONCLUSIVE.includes('AMBIGUOUS-ANCHOR'),
       'an ambiguous anchor would otherwise let a mutation testing the wrong code path pass the gate',
     );
+  });
+});
+
+/**
+ * A step that never ran cannot supply a verdict about a mutation targeting it.
+ *
+ * Transcribed from a real run: step 7's marker-click flake escalated into a 90s
+ * locator.click timeout that aborted the step and the three after it. Two
+ * mutations were scored CAUGHT-ELSEWHERE off step 7's failing labels, having
+ * never been exercised. 141 assertions ran, so the existing zero-assertion guard
+ * saw nothing wrong.
+ */
+const ABORTED_MIDWAY = `
+  FAIL clicking a marker moved the camera at all before {"lat":52.66} after {"lat":52.66} in 3 attempt(s)
+  FAIL the marker click worked on the first attempt needed 3 attempt(s)
+  FAIL 7 — globe event layers aborted: locator.click: Timeout 90000ms exceeded.
+
+per-step results
+  step                                         assert  pass  fail  skipped
+  1 — globe, selection, relations                  13    13     0  -
+  7 — globe event layers                           23    19     4  -
+  7b — economy fetch states                         0     0     0  1
+  cross-cutting — layout geometry (rule 8)          0     0     0  1
+
+checks that did NOT run:
+  - [7b — economy fetch states] entire step — the run aborted before reaching it
+
+  141 assertions across 10 steps, 3 skipped
+`;
+
+describe('a mutation whose own step never ran has no verdict', () => {
+  it('reports which steps were exercised and which were not', () => {
+    assert.equal(stepWasExercised(ABORTED_MIDWAY, '7 — globe event layers'), true);
+    assert.equal(stepWasExercised(ABORTED_MIDWAY, '7b — economy fetch states'), false);
+    assert.equal(stepWasExercised(ABORTED_MIDWAY, 'cross-cutting — layout geometry (rule 8)'), false);
+  });
+
+  it('scores a mutation on a skipped step as NOT-EXERCISED, not CAUGHT-ELSEWHERE', () => {
+    const { verdict } = classifyMutation({
+      exit: 1,
+      out: ABORTED_MIDWAY,
+      expect: /degraded/i,
+      step: '7b — economy fetch states',
+    });
+    assert.equal(
+      verdict,
+      'NOT-EXERCISED',
+      'a mutation was scored from another step\'s failures while its own step never ran',
+    );
+  });
+
+  it('still scores a mutation whose step DID run', () => {
+    const { verdict } = classifyMutation({
+      exit: 1,
+      out: ABORTED_MIDWAY,
+      expect: /marker click worked on the first attempt/i,
+      step: '7 — globe event layers',
+    });
+    assert.equal(verdict, 'CAUGHT');
+  });
+
+  it('treats an unmentioned step as no answer rather than as "did not run"', () => {
+    // Rule 30 at the classifier: an older or truncated output that never names
+    // the step has not told us the step was skipped.
+    assert.equal(stepWasExercised(ABORTED_MIDWAY, 'step that does not exist'), null);
+    assert.equal(stepWasExercised('no table here', '7b — economy fetch states'), null);
+  });
+
+  it('does not regress the global zero-assertion guard', () => {
+    assert.equal(assertionsRun(ABORTED_MIDWAY), 141);
   });
 });

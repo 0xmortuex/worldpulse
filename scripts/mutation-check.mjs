@@ -639,7 +639,7 @@ try {
       // it (rule 27). It was inline here, and inline is why it scored a browser
       // that failed to launch as CAUGHT-ELSEWHERE for the whole of this step —
       // the only way to exercise the parser was to run the suite it belongs to.
-      const { verdict, evidence, matched, assertions } = classifyMutation({ exit, out, expect: mutation.expect });
+      const { verdict, evidence, matched, assertions } = classifyMutation({ exit, out, expect: mutation.expect, step: mutation.step });
 
       let detail =
         verdict === 'NOT-EXERCISED'

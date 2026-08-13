@@ -69,11 +69,55 @@ export function failingLabels(out) {
 }
 
 /**
- * @param {{exit: number, out: string, expect: RegExp}} outcome
+ * Did the mutation's OWN step actually execute?
+ *
+ * `assertionsRun` asks a global question — did ANY assertion run — and that is
+ * the wrong question one level down. A step can abort and take later steps with
+ * it while a hundred assertions from earlier steps run perfectly:
+ *
+ *     7 — globe event layers                      23  19  4   -
+ *     7b — economy fetch states                    0   0  0   1
+ *     cross-cutting — layout geometry (rule 8)     0   0  0   1
+ *
+ *     141 assertions across 10 steps, 3 skipped
+ *
+ * That is a real recorded run. Step 7's marker-click flake escalated into a 90s
+ * `locator.click` timeout which aborted the step and the three after it. Two
+ * mutations targeting those steps were scored CAUGHT-ELSEWHERE off step 7's
+ * failing labels, having never been exercised at all.
+ *
+ * Same shape as the bug this module was extracted to fix, one level finer: the
+ * check asked a question about the RUN when the principle is about the
+ * MUTATION, and the two agree on every healthy run.
+ *
+ * @returns true if exercised, false if the step ran nothing, null if the table
+ *          does not mention the step (an older or truncated output — no answer,
+ *          which rule 30 says is not an answer of "no").
+ */
+export function stepWasExercised(out, step) {
+  if (!step) return null;
+  const table = out.slice(out.indexOf('per-step results'));
+  if (table.length === 0) return null;
+
+  for (const line of table.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith(step)) continue;
+    // Trailing columns: assert pass fail skipped, where skipped may be "-".
+    const numbers = trimmed.slice(step.length).trim().split(/\s+/);
+    const asserted = Number(numbers[0]);
+    if (!Number.isFinite(asserted)) return null;
+    return asserted > 0;
+  }
+  return null;
+}
+
+/**
+ * @param {{exit: number, out: string, expect: RegExp, step?: string}} outcome
  * @returns {{verdict: string, evidence: string[], matched: string[], assertions: number|null}}
  */
-export function classifyMutation({ exit, out, expect }) {
+export function classifyMutation({ exit, out, expect, step }) {
   const assertions = assertionsRun(out);
+  const exercised = stepWasExercised(out, step);
   const evidence = failingLabels(out).filter(isEvidence);
   const matched = evidence.filter((label) => expect.test(label));
 
@@ -82,7 +126,7 @@ export function classifyMutation({ exit, out, expect }) {
   // never looked. Ordering this after the exit check would restore the original
   // bug for any future abort that happens to exit clean.
   const verdict =
-    assertions === null || assertions === 0
+    assertions === null || assertions === 0 || exercised === false
       ? 'NOT-EXERCISED'
       : exit === 0
         ? 'SURVIVED'
