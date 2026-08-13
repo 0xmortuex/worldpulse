@@ -34,6 +34,42 @@ import { dirname, join, resolve } from 'node:path';
 import { INCONCLUSIVE, anchorProblem, classifyMutation, failingLabels } from './mutation-verdict.mjs';
 import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
 import { acquireRunLock } from './run-lock.mjs';
+import { planFrom } from './mutation-journal.mjs';
+import { appendFileSync, readFileSync as readSync } from 'node:fs';
+
+/**
+ * Verdicts are journalled as they land, so a reboot costs one mutation instead
+ * of all of them. Outside /tmp deliberately — /tmp is what the reboot wiped.
+ */
+const journalPath = () => resolve(ROOT, '.mutation-journal.jsonl');
+
+function readJournal() {
+  try {
+    return readSync(journalPath(), 'utf8')
+      .split('\n')
+      .filter((line) => line.trim().length > 0)
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          // A half-written line is what a kill mid-append looks like. Skipping
+          // it costs one mutation; refusing to parse the file costs all of them.
+          return null;
+        }
+      })
+      .filter((entry) => entry !== null);
+  } catch {
+    return [];
+  }
+}
+
+function journal(entry) {
+  try {
+    appendFileSync(journalPath(), `${JSON.stringify(entry)}\n`);
+  } catch {
+    // A journal we cannot write is a slower resume, not a wrong result.
+  }
+}
 import { cpus, loadavg, totalmem } from 'node:os';
 
 /**
@@ -518,12 +554,29 @@ try {
   const tree = await makeWorktree();
   console.log(`worktree: ${tree}\n`);
 
+  const selected = only ? MUTATIONS.filter((mutation) => mutation.step.includes(only)) : MUTATIONS;
+  const { pending, resumed } = planFrom(readJournal(), selected, head);
+
+  if (resumed.length > 0) {
+    console.log(
+      `resuming: ${resumed.length} verdict(s) already recorded for ${head}, ${pending.length} to run\n` +
+        resumed.map((entry) => `  reused  ${entry.step} — ${entry.verdict}`).join('\n') +
+        '\n',
+    );
+    results.push(...resumed);
+  }
+
+  // Nothing to run means nothing to build. A resumed run that still spends two
+  // minutes compiling a worktree it never mutates is a run people stop using.
+  if (pending.length > 0) {
   const first = await build(tree);
   if (!first.ok) throw new Error(`baseline build failed in the worktree: ${first.detail}`);
   await startPreview(tree);
+  } else {
+    console.log('every mutation already has a verdict for this commit — nothing to build.\n');
+  }
 
-  for (const mutation of MUTATIONS) {
-    if (only && !mutation.step.includes(only)) continue;
+  for (const mutation of pending) {
 
     const path = join(tree, mutation.file);
     const onDisk = await readFile(path, 'utf8');
@@ -600,7 +653,9 @@ try {
         detail += ` [output: ${dump}]`;
       }
 
-      results.push({ ...mutation, verdict, detail, ms: Date.now() - startedAt });
+      const entry = { ...mutation, verdict, detail, ms: Date.now() - startedAt };
+      results.push(entry);
+      journal({ commit: head, step: mutation.step, what: mutation.what, verdict, detail, ms: entry.ms });
       console.log(
         verdict === 'NOT-EXERCISED'
           ? `  NOT-EXERCISED — ${detail}`
