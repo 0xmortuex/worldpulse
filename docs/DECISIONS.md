@@ -362,11 +362,23 @@ Stated because it was asked for explicitly, not because the answer was in doubt.
 
 ## Blocked
 
-**Egress.** The environment's network policy does not permit any of the 33 data hosts;
-all return a gateway 403 at CONNECT. `api.github.com` responds 200 as a control, so the
-proxy is healthy and the allowlist is the gap. `npm run probe` is written and runs today,
-reporting UNREACHABLE. **No further building against assumed CORS posture** until it
-returns real verdicts.
+**Egress — CLEARED 2026-08-12.** This section said the environment's network policy
+permitted none of the 33 data hosts, and that no further building against assumed CORS
+posture was allowed until the probe returned real verdicts.
+
+**It does.** `npm run probe` produced measured verdicts for 32 sources — 19 CLIENT-FETCH,
+4 WORKER-REQUIRED, 6 KEY-GATED, 2 UNREACHABLE, 1 INCONCLUSIVE — recorded in
+`CORS-VERDICT.md`, and five sources have since been converted to `live` against captured
+responses. Re-confirmed on the machine this was cleared from: `query.wikidata.org` 200,
+`api.worldbank.org` 200.
+
+The block is lifted and the entry is kept rather than deleted, because a constraint that
+shaped several decisions should remain legible after it stops applying.
+
+**One narrower block replaces it**, and it is not the same thing: **a browser cannot reach
+any live origin in this container** (`UNEXERCISED-PATHS.md` §10). Node can. That means the
+live fetch path is proven end to end in Node and unproven in the environment the app
+actually runs in — a coverage limit on the harness, not a bar on building.
 
 ## Fetch layer — decisions taken before building (2026-08-12)
 

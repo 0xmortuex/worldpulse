@@ -72,6 +72,20 @@ describe('chromium resolution', () => {
     ]);
   });
 
+  it('finds the Windows layout Playwright actually ships', () => {
+    // chrome-win64, not chrome-win. Its absence meant a Windows machine WITH
+    // browsers installed would have been told none were found — and the whole
+    // point of that error path is the line it prints.
+    const fs = {
+      readdirSync: (): string[] => ['chromium-1234'],
+      existsSync: (path: string): boolean =>
+        path === '/browsers' || path.endsWith('chrome-win64/chrome.exe'),
+    };
+    assert.deepEqual(findChromiumCandidates('/browsers', fs, (...parts) => parts.join('/')), [
+      '/browsers/chromium-1234/chrome-win64/chrome.exe',
+    ]);
+  });
+
   it('returns nothing rather than throwing when the browsers path is absent', () => {
     const fs = { readdirSync: (): string[] => [], existsSync: (): boolean => false };
     assert.deepEqual(findChromiumCandidates(undefined, fs, (...parts) => parts.join('/')), []);

@@ -35,7 +35,11 @@ here or fixed in place, and the work continues.
 
 ## Status
 
-**Five open.** All surfaced during the queue run of 2026-08-12.
+**Six open.** Surfaced during the queue run and the fetch-layer build of 2026-08-12.
+
+*(This line said "Five" while six were listed below it — a document asserting a false fact
+about itself, which is the same category of defect as a panel asserting a false fact about a
+country, in the one file whose job is to be read instead of the code.)*
 
 ---
 

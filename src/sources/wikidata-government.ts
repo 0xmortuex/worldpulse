@@ -137,13 +137,55 @@ export function parseCabinet(raw: unknown, sourceId = SOURCE_ID): Cabinet {
 
 /* ------------------------------------------------------------- legislature */
 
+/**
+ * ## This query used to be broken in a way that read as slowness
+ *
+ * It was recorded as "never completes against live WDQS" — HTTP 504 for GBR,
+ * 500 after 60.6s for Iceland, 504 after 65.5s for Vatican City, a country with
+ * one legislative body. The diagnosis was that it timed out. The cause was a
+ * SPARQL scoping bug that ALSO produced wrong answers:
+ *
+ * ```
+ * { BIND(?body AS ?chamber) } UNION { ?body wdt:P527 ?chamber . }
+ * ```
+ *
+ * `BIND` in a group of its own does not see `?body` — that variable belongs to
+ * the enclosing group, not to the UNION branch — so `?chamber` came out
+ * **unbound** on the first branch. The `OPTIONAL { ?chamber wdt:P1342 ?seats }`
+ * below it then matched **every entity in Wikidata with a seat count**. That is
+ * the timeout, and it is also why a query for the United Kingdom returned Swiss
+ * cantons and South Australian electoral districts.
+ *
+ * Two fixes, each measured:
+ *
+ *   `wdt:P527?` — a property path stays in one scope, so `?chamber` binds to the
+ *   body itself or to its parts, which is what the UNION was reaching for.
+ *   GBR: 504 → 5.6s.
+ *
+ *   the chamber-type constraint — the path alone still returns whatever
+ *   Wikidata lists as a part, which includes the Monarch, "Member of the
+ *   Althing", and the chauffeur service of the German Bundestag. Constraining to
+ *   legislative types drops them. GBR: 5.6s → 4.7s, and the rows become correct.
+ *
+ * Measured after: GBR 4.7s (Parliament 1433, Lords 808, Commons 650), DEU 2.7s
+ * (Bundestag, Bundesrat), ISL 4.3s (Althing), VAT 3.2s, TUV 4.8s. Every country
+ * that previously failed now returns, and `parseLegislature` reads all of them
+ * unchanged.
+ *
+ * Rule 31 applied before treating it as one bug: the other BIND-inside-UNION
+ * site, `buildLeadershipTimelineQuery`, binds CONSTANTS in branches that bind
+ * their own variables, so it is unaffected. One site, checked rather than
+ * assumed.
+ */
 export function buildLegislatureQuery(iso3: string): string {
   assertIso3(iso3);
   return `SELECT DISTINCT ?chamber ?chamberLabel ?seats ?party ?partyLabel ?partySeats
 WHERE {
   ?country wdt:P298 "${iso3}" .
   ?country wdt:P194 ?body .
-  { BIND(?body AS ?chamber) } UNION { ?body wdt:P527 ?chamber . }
+  ?body wdt:P527? ?chamber .
+  VALUES ?chamberType { wd:Q35749 wd:Q10553309 wd:Q375928 wd:Q637846 }
+  ?chamber wdt:P31/wdt:P279* ?chamberType .
   OPTIONAL { ?chamber wdt:P1342 ?seats . }
   OPTIONAL {
     ?chamber p:P527 ?partyStatement .

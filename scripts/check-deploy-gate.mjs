@@ -26,6 +26,7 @@
 import { readFile } from 'node:fs/promises';
 import { verdictFor } from './deploy-gate-rules.mjs';
 import { findUnexercised } from './unexercised-check.mjs';
+import { transportProblems } from './transport-check.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -95,6 +96,22 @@ if (unexercised.problems.length === 0) {
   console.log('    every declared layer and every live source is exercised');
 } else {
   for (const problem of unexercised.problems) console.log(`    [ BLOCK] ${problem}`);
+}
+
+/**
+ * Standing transport check. `transport` decides whether the browser calls an
+ * origin directly or goes through the Worker; it is derived from the probe and
+ * then sits in JSON where being wrong later is silent — the same shape as the
+ * `verifiedAgainst` cast that went unnoticed for two whole steps.
+ */
+const probeResults = JSON.parse(await readFile(resolve(ROOT, 'data/probe-results.json'), 'utf8'));
+const transportIssues = transportProblems(registry, probeResults.results ?? []);
+console.log(`\n  transport check: ${registry.sources.filter((s) => s.transport).length} source(s) declare a transport`);
+for (const problem of transportIssues) problems.push(problem);
+if (transportIssues.length === 0) {
+  console.log('    every declared transport matches the verdict the probe measured');
+} else {
+  for (const problem of transportIssues) console.log(`    [ BLOCK] ${problem}`);
 }
 
 console.log(`\n  ${excluded.length} source(s) excluded on licensing grounds and not gated:`);

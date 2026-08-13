@@ -1,0 +1,123 @@
+{
+  "head": {
+    "vars": [
+      "chamber",
+      "chamberLabel",
+      "seats",
+      "party",
+      "partyLabel",
+      "partySeats"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11010"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "1433"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Parliament of the United Kingdom"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q9134365"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Monarch of the United Kingdom"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11010"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "1433"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Parliament of the United Kingdom"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11007"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Lords"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11010"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "1433"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "Parliament of the United Kingdom"
+        },
+        "party": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11005"
+        },
+        "partyLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Commons"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11007"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "808"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Lords"
+        }
+      },
+      {
+        "chamber": {
+          "type": "uri",
+          "value": "http://www.wikidata.org/entity/Q11005"
+        },
+        "seats": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+          "type": "literal",
+          "value": "650"
+        },
+        "chamberLabel": {
+          "xml:lang": "en",
+          "type": "literal",
+          "value": "House of Commons"
+        }
+      }
+    ]
+  }
+}

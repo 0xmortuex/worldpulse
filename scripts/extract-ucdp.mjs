@@ -27,7 +27,7 @@ import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { mkdir, readFile, writeFile, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Readable } from 'node:stream';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -108,7 +108,15 @@ function slimEvent(row, col) {
  * A filter that silently loses a fifth of a conflict dataset would have made
  * every country's history quietly incomplete, with no symptom anywhere.
  */
-function makeCsvParser(onRecord) {
+/**
+ * Exported so planted cases can drive it (rules 27 and 32).
+ *
+ * Both defects this parser has had were found by cross-checking the record
+ * count against Python's csv module, because nothing could call this directly —
+ * it was module-private in a script whose only entry point downloads a 39 MB
+ * archive. The chunk-boundary bug is two lines to reproduce once you can.
+ */
+export function makeCsvParser(onRecord) {
   let field = '';
   let record = [];
   let inQuotes = false;
@@ -354,4 +362,20 @@ void exec;
 void Readable;
 void createReadStream;
 
-await main();
+/**
+ * Run only when invoked directly, never on import.
+ *
+ * This was a bare `await main()`, so importing the module to test its parser
+ * DOWNLOADED AND EXTRACTED THE ENTIRE DATASET as a side effect — 126 country
+ * slices and 129 MB written into data/ on a plain `import`. That is the naive
+ * per-country encoding OPEN-QUESTIONS 1 explicitly says must not be written
+ * until the storage shape is decided, so an import was materialising the exact
+ * artefact a decision was being held open for.
+ *
+ * A module whose import has side effects cannot be unit-tested, which is rule 32
+ * arriving from a direction the audit did not anticipate: the logic was
+ * unreachable not because it was unexported, but because reaching it cost 129 MB.
+ */
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  await main();
+}

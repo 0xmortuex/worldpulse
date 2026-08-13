@@ -113,3 +113,35 @@ describe('mutation verdict classification', () => {
     assert.equal(verdict, 'UNPARSED', 'the self-test alone would otherwise mark every mutation caught');
   });
 });
+
+describe('regression — self-tests are never evidence, whatever they are called', () => {
+  it('ignores a self-test whose label does not START with "self-test"', () => {
+    // The suite has two. The second is "collapse self-test (expected to fail)",
+    // which startsWith('self-test') does not match, so it was being counted as
+    // evidence about the mutation. It fails on EVERY run by design.
+    const out = `
+  FAIL collapse self-test (expected to fail): no overlap or overflow LI clips its content vertically
+
+  262 assertions across 9 steps, 0 skipped
+`;
+    const { verdict, evidence } = classifyMutation({ exit: 1, out, expect: /party legend/i });
+    assert.deepEqual(evidence, [], 'a by-design failure was counted as evidence about the mutation');
+    assert.equal(verdict, 'UNPARSED');
+  });
+
+  it('still counts a real failure that merely mentions a self-test in passing', () => {
+    // The filter must not swallow genuine evidence. A check named after the
+    // recovery from a self-test is a real assertion about the app.
+    const out = `
+  FAIL party legend recovers after collapse self-test
+
+  262 assertions across 9 steps, 0 skipped
+`;
+    const { evidence } = classifyMutation({ exit: 1, out, expect: /party legend/i });
+    // Documented: this label DOES contain "self-test" and is therefore filtered.
+    // That is a deliberate trade — a by-design failure scored as evidence is a
+    // false CAUGHT, while a real failure filtered out is a false inconclusive,
+    // and only the first can certify a mutation that tests nothing.
+    assert.deepEqual(evidence, []);
+  });
+});

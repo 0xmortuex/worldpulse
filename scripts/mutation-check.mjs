@@ -89,8 +89,20 @@ const MUTATIONS = [
     nonVacuity:
       'The request URL reaches the DOM only through the inspector own markup. No badge, tooltip or panel renders it, so the assertion cannot fail by any other route.',
     file: 'src/facts/inspector.ts',
-    from: 'escapeHtml(provenance.requestUrl)',
-    to: "escapeHtml('')",
+    /**
+     * Anchored on the SUCCESSFUL-fetch block, which is the one step 2 inspects.
+     *
+     * The anchor was `escapeHtml(provenance.requestUrl)`, which became ambiguous
+     * the moment a `fetch-failed` branch was added above it — and since the edit
+     * takes the first occurrence, the mutation moved to a block the browser suite
+     * never opens. It kept reporting a verdict while testing nothing.
+     */
+    from:
+      '      <dt>URL</dt><dd><code class="inspector-url">${escapeHtml(provenance.requestUrl)}</code></dd>\n' +
+      '      <dt>HTTP</dt><dd>${provenance.httpStatus}</dd>',
+    to:
+      '      <dt>URL</dt><dd><code class="inspector-url"></code></dd>\n' +
+      '      <dt>HTTP</dt><dd>${provenance.httpStatus}</dd>',
     expect: /request url/i,
   },
   {
@@ -433,6 +445,35 @@ try {
     if (!original.includes(mutation.from)) {
       results.push({ ...mutation, verdict: 'STALE', detail: `anchor not found: ${mutation.from.slice(0, 60)}` });
       console.log(`\n✗ ${mutation.step}\n  anchor not found in ${mutation.file}`);
+      continue;
+    }
+
+    /**
+     * An ambiguous anchor is refused, not silently resolved to the first hit.
+     *
+     * The edit below replaces the FIRST occurrence only, which is right when
+     * there is one — and becomes a silent no-op against the named assertion when
+     * a second appears. That happened: adding a `fetch-failed` branch to the
+     * inspector put a second `escapeHtml(provenance.requestUrl)` ABOVE the
+     * successful-fetch block, so the request-URL mutation began blanking a URL
+     * in a block the browser suite never inspects. It scored CAUGHT-ELSEWHERE
+     * off an unrelated flake while step 2 passed 19/19 WITH the mutation
+     * applied.
+     *
+     * Nothing about that verdict said "this mutation stopped testing what it
+     * names", which is precisely the vacuity rule 34 exists to prevent.
+     */
+    const occurrences = original.split(mutation.from).length - 1;
+    if (occurrences > 1) {
+      results.push({
+        ...mutation,
+        verdict: 'AMBIGUOUS-ANCHOR',
+        detail: `${occurrences} occurrences of the anchor in ${mutation.file}; first-occurrence replace would pick one arbitrarily`,
+      });
+      console.log(
+        `\n✗ ${mutation.step}\n  AMBIGUOUS-ANCHOR — ${occurrences} matches in ${mutation.file}.\n` +
+          '  Narrow the anchor so it names the one behaviour under test (rule 34).',
+      );
       continue;
     }
 

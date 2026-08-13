@@ -20,14 +20,8 @@
  */
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { judgeTestRun } from './test-count.mjs';
 
-/**
- * A deliberately low bar. The point is to catch "the glob matched nothing", not
- * to pin an exact number that has to be edited every time a test is added — a
- * count that must be maintained by hand is a count that gets bumped without
- * being read.
- */
-const MINIMUM_TESTS = 100;
 
 // Resolved rather than looked up on PATH: `tsx` is only on PATH when npm puts
 // it there, so invoking this script directly found no binary, ran nothing, and
@@ -55,16 +49,13 @@ child.stdout.on('data', (chunk) => {
 });
 
 child.on('close', (code) => {
-  // Both reporters: "ℹ tests 181" (spec) and "# tests 181" (tap).
-  const match = output.match(/^[ℹ#]\s*tests\s+(\d+)/m);
-  const ran = match ? Number(match[1]) : 0;
-
-  if (ran < MINIMUM_TESTS) {
-    console.error(
-      `\nRAN ${ran} TEST(S), EXPECTED AT LEAST ${MINIMUM_TESTS}.\n` +
-        'The suite did not run — a pattern that matches nothing exits zero and reads as a pass.\n' +
-        'Check the test glob and the tests/ directory before trusting any green result above.',
-    );
+  // The judgement lives in test-count.mjs so a planted case can drive it
+  // (rule 32). This is the guard that stops every other test from passing
+  // vacuously, and it was the last one reachable only by running the suite it
+  // protects.
+  const verdict = judgeTestRun(output);
+  if (!verdict.ok) {
+    console.error(`\n${verdict.problem}`);
     process.exit(1);
   }
 

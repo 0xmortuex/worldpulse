@@ -55,7 +55,13 @@ export function assertionsRun(out) {
  * behaving, and the two must never be scored the same.
  */
 function isEvidence(label) {
-  return !label.startsWith('self-test') && !label.startsWith('harness');
+  // `includes`, not `startsWith`. The suite has two self-tests and the second is
+  // labelled "collapse self-test (expected to fail)" — which does not start with
+  // "self-test", so it was being counted as evidence about the mutation. It
+  // fails on EVERY run by design, so any mutation whose expect pattern happened
+  // to match it would have been scored CAUGHT for a failure that was going to
+  // happen anyway. Rule 34's question 3, in the classifier itself.
+  return !label.includes('self-test') && !label.startsWith('harness');
 }
 
 export function failingLabels(out) {
@@ -97,4 +103,14 @@ export function classifyMutation({ exit, out, expect }) {
  * the exit code — and a fourth verdict added later would have had to be
  * remembered in all three.
  */
-export const INCONCLUSIVE = ['SURVIVED', 'STALE', 'BUILD-FAILED', 'TIMEOUT', 'UNPARSED', 'NOT-EXERCISED'];
+export const INCONCLUSIVE = [
+  'SURVIVED',
+  'STALE',
+  'BUILD-FAILED',
+  'TIMEOUT',
+  'UNPARSED',
+  'NOT-EXERCISED',
+  // A mutation whose anchor matches more than once did not necessarily edit the
+  // code its named assertion covers, so its verdict is not evidence either way.
+  'AMBIGUOUS-ANCHOR',
+];

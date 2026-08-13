@@ -109,8 +109,25 @@ function explain(problem, candidates) {
 export function findChromiumCandidates(browsersPath, fs, join) {
   if (!browsersPath || !fs.existsSync(browsersPath)) return [];
 
-  /** Relative layouts seen in practice, headful build preferred over the shell. */
-  const layouts = ['chrome-linux/chrome', 'chrome-mac/Chromium.app/Contents/MacOS/Chromium', 'chrome-win/chrome.exe'];
+  /**
+   * Relative layouts seen in practice, headful build preferred over the shell.
+   *
+   * `chrome-win64` is the layout Playwright actually ships on Windows today, and
+   * its absence here was a real gap: on a Windows machine with browsers
+   * installed, a failed resolution would have reported "No Chromium was found"
+   * while `chromium-1234/chrome-win64/chrome.exe` sat on disk. The message is
+   * the whole deliverable of that error path, so a message that sends someone
+   * looking for a missing install is worse than no message.
+   *
+   * `chrome-win` is kept because older Playwright versions used it, and this
+   * runs against whatever version a checkout happens to have.
+   */
+  const layouts = [
+    'chrome-linux/chrome',
+    'chrome-mac/Chromium.app/Contents/MacOS/Chromium',
+    'chrome-win64/chrome.exe',
+    'chrome-win/chrome.exe',
+  ];
 
   let entries;
   try {
