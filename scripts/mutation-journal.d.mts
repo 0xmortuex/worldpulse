@@ -17,6 +17,7 @@ export function usableEntries(
   commit: string,
 ): { usable: JournalEntry[]; discarded: number };
 
+export function isResumable(entry: JournalEntry | null | undefined): boolean;
 export function alreadyDecided(entries: JournalEntry[], mutation: MutationLike): JournalEntry | null;
 
 export function planFrom<T extends MutationLike>(

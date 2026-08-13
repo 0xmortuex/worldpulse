@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { alreadyDecided, planFrom, usableEntries, type JournalEntry } from '../scripts/mutation-journal.mjs';
+import { alreadyDecided, isResumable, planFrom, usableEntries, type JournalEntry } from '../scripts/mutation-journal.mjs';
 
 /**
  * Planted cases for resume (rules 27 and 32).
@@ -56,5 +56,28 @@ describe('mutation journal', () => {
   it('preserves mutation order in the pending list', () => {
     const { pending } = planFrom([entry()], MUTATIONS, 'c473569');
     assert.deepEqual(pending.map((m) => m.what), [MUTATIONS[1]!.what, MUTATIONS[2]!.what]);
+  });
+});
+
+describe('an inconclusive verdict is not a decision', () => {
+  it('does not resume a NOT-EXERCISED entry', () => {
+    // Reusing one would "resume" a row that was never measured and print a
+    // complete-looking table containing it — the same vacuity the classifier
+    // fix removed, arriving through the cache instead.
+    const notRun = entry({ verdict: 'NOT-EXERCISED' });
+    assert.equal(isResumable(notRun), false);
+    assert.equal(alreadyDecided([notRun], MUTATIONS[0]!), null);
+    assert.equal(planFrom([notRun], MUTATIONS, 'c473569').pending.length, 3);
+  });
+
+  it('does not resume SURVIVED or AMBIGUOUS-ANCHOR either', () => {
+    for (const verdict of ['SURVIVED', 'AMBIGUOUS-ANCHOR', 'TIMEOUT', 'BUILD-FAILED']) {
+      assert.equal(isResumable(entry({ verdict })), false, `${verdict} was treated as decided`);
+    }
+  });
+
+  it('still resumes a genuine CAUGHT', () => {
+    assert.equal(isResumable(entry({ verdict: 'CAUGHT' })), true);
+    assert.equal(isResumable(entry({ verdict: 'CAUGHT-ELSEWHERE' })), true);
   });
 });

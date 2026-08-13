@@ -23,7 +23,23 @@
  * The journal lives outside `/tmp` deliberately: `/tmp` is what the reboot wiped.
  */
 
+import { INCONCLUSIVE } from './mutation-verdict.mjs';
+
 /** @typedef {{ commit: string, step: string, what: string, verdict: string, detail: string, ms: number }} JournalEntry */
+
+/**
+ * An inconclusive verdict is not a decision, so it is not resumable.
+ *
+ * NOT-EXERCISED means the mutation's step never ran. Reusing that on a later run
+ * would "resume" a row that was never measured and print a complete-looking
+ * table containing it — the same vacuity the classifier fix removed, arriving
+ * through the cache instead of through the classifier.
+ *
+ * Only a conclusive verdict answers the question the run is asking.
+ */
+export function isResumable(entry) {
+  return typeof entry?.verdict === 'string' && !INCONCLUSIVE.includes(entry.verdict);
+}
 
 /**
  * Entries usable for a run on `commit`.
@@ -52,7 +68,11 @@ export function usableEntries(entries, commit) {
  * the first one's verdict stand in for the second.
  */
 export function alreadyDecided(entries, mutation) {
-  return entries.find((entry) => entry.step === mutation.step && entry.what === mutation.what) ?? null;
+  return (
+    entries.find(
+      (entry) => entry.step === mutation.step && entry.what === mutation.what && isResumable(entry),
+    ) ?? null
+  );
 }
 
 /**
