@@ -10,6 +10,7 @@ import { mkdir, readdir, stat } from 'node:fs/promises';
 import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
+import { layoutProblems } from './layout-rules.mjs';
 
 /**
  * What Playwright would launch if left to itself. It throws rather than
@@ -298,36 +299,9 @@ async function assertLayout(page, containerSelector, childSelector, label) {
     return;
   }
 
-  const problems = [];
-  const { rootBox, kids } = report;
-
-  for (const kid of kids) {
-    if (kid.w <= 0 || kid.h <= 0) problems.push(`${kid.tag} collapsed to ${kid.w}x${kid.h}`);
-    // "Collapsed" was defined as exactly zero, which let a row squashed to 2px
-    // — its text clipped entirely away — pass as healthy. A mutation collapsing
-    // party-legend rows survived on precisely that margin: height:0 plus 1px
-    // padding top and bottom is not zero. What matters is not whether the box
-    // reached zero but whether its content still fits inside it.
-    if (kid.clipsY && kid.scrollH > kid.clientH + 1) {
-      problems.push(`${kid.tag} clips its content vertically (${kid.scrollH}px of content in ${kid.clientH}px)`);
-    }
-    // 1px tolerance for sub-pixel rounding.
-    if (kid.x < rootBox.x - 1 || kid.x + kid.w > rootBox.x + rootBox.w + 1) {
-      problems.push(`${kid.tag} overflows horizontally (${kid.x}..${kid.x + kid.w} vs ${Math.round(rootBox.x)}..${Math.round(rootBox.x + rootBox.w)})`);
-    }
-  }
-
-  for (let i = 0; i < kids.length; i += 1) {
-    for (let j = i + 1; j < kids.length; j += 1) {
-      const a = kids[i];
-      const b = kids[j];
-      const overlapW = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-      const overlapH = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-      if (overlapW > 1 && overlapH > 1) {
-        problems.push(`${a.tag} overlaps ${b.tag} by ${overlapW}x${overlapH}px`);
-      }
-    }
-  }
+  // The judgement is in layout-rules.mjs so it can be called with synthetic
+  // boxes (rule 32). Measuring needs a DOM; deciding never did.
+  const problems = layoutProblems(report);
 
   check(`${label}: no overlap or overflow`, problems.length === 0, problems.slice(0, 3).join('; '));
 }

@@ -240,7 +240,7 @@ Fixed first because it is the fetch layer's routing input: `CORS-VERDICT.md` dec
 sources the browser may call directly and which must go through the Worker, and that table
 could not be trusted while the logic producing it was unreachable.
 
-**2. `scripts/extract-ucdp.mjs` — the RFC 4180 parser.**
+**2. `scripts/extract-ucdp.mjs` — the RFC 4180 parser. FIXED.** `makeCsvParser` is exported with planted cases, including the chunk-boundary case that reproduces the 14-record loss in two lines. The deeper finding recorded with the fix: the parser was unreachable not because it was unexported but because importing the module ran `main()` and cost 129 MB.
 
 `makeCsvParser` and `slimEvent` are module-private; nothing imports them and no test
 references the file. The parser has had **two** defects, both found by cross-checking output
@@ -258,12 +258,26 @@ losing records, because the loss happened before counting.
 *Fix:* export `makeCsvParser`; planted cases for embedded newlines, escaped quotes, quotes
 spanning a chunk boundary, and a CRLF terminator.
 
-**3. `scripts/run-tests.mjs` — the "glob matched nothing" guard.**
+**3. `scripts/run-tests.mjs` — the "glob matched nothing" guard. FIXED.** Extracted to `test-count.mjs` with planted cases, and it now distinguishes "no count reported" from "reported zero" — a crash before the summary is not a report of zero tests (rule 30).
 
 Inline, low stakes, and worth naming only because it is the guard protecting every other
 test from vacuously passing. A malformed glob reports success over zero tests.
 
 *Fix:* extract the count predicate. Small.
+
+### FIXED — rule 8's judgement is now directly callable
+
+`layoutProblems` in `scripts/layout-rules.mjs`, with 10 planted cases.
+
+The measuring genuinely needs a DOM; the deciding never did, and while it sat inline in
+`assertLayout` the only way to exercise it was to run the browser suite. Every threshold now
+has a case, because every threshold is somewhere a real defect once hid — including the
+2px one, where a row with `height: 0` plus 1px of padding each side is *not* zero and passed
+as healthy while its text was clipped entirely away.
+
+Both self-tests remain. They prove the predicate can fail on every run; the planted cases
+prove it fires on each specific geometry it claims to detect. Those are different claims and
+the audit needed both.
 
 ### Neither — covered by a permanent live planted case
 
@@ -272,10 +286,15 @@ cannot be unit-called without a DOM. They are not unreachable, though: two **sel
 on every single run**, deliberately breaking the page and asserting the predicate fires.
 That is rule 27 satisfied by a different mechanism.
 
-The residual gap is real and worth stating: a self-test proves the predicate *can* fail, not
-that it fires on each specific geometry it claims to detect. The rule-8 mutation covers one
-more case (rows collapsed to zero height). Neither is a substitute for calling the overlap
-arithmetic with two synthetic rectangles.
+**The residual gap named here is now closed** — see the section above: the overlap
+arithmetic is called with synthetic rectangles, including the two cases that would make the
+check useless if it got them wrong (stacked rows and side-by-side columns must NOT report as
+overlapping).
+
+What remains in the browser is the measurement itself: `getBoundingClientRect`,
+`getComputedStyle`, `scrollHeight`. Those cannot be unit-called and are covered by the
+self-tests, which is the right division — a browser is the only thing that knows where a box
+actually landed.
 
 ## 10. The live fetch path is unexercised in a browser
 
