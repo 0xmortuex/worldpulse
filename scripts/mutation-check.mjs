@@ -242,6 +242,29 @@ for (const mutation of MUTATIONS) {
 
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 
+/**
+ * `--check-anchors`: validate every anchor against the working tree and exit.
+ *
+ * A full run is hours. Learning three hours in that an anchor went stale or
+ * ambiguous — which is exactly what happened when a second
+ * `escapeHtml(provenance.requestUrl)` appeared in the inspector — is a slow way
+ * to be told something that takes milliseconds to check. Runs against the real
+ * checkout rather than a worktree, since it writes nothing.
+ */
+if (process.argv.includes('--check-anchors')) {
+  const { readFile: read } = await import('node:fs/promises');
+  let bad = 0;
+  for (const mutation of MUTATIONS) {
+    const source = (await read(resolve(ROOT, mutation.file), 'utf8')).replace(/\r\n/g, '\n');
+    const hits = source.split(mutation.from).length - 1;
+    const state = hits === 1 ? 'ok' : hits === 0 ? 'STALE' : `AMBIGUOUS (${hits})`;
+    if (hits !== 1) bad += 1;
+    console.log(`  ${state.padEnd(16)} ${mutation.step} — ${mutation.file}`);
+  }
+  console.log(`\n${MUTATIONS.length} anchor(s), ${bad} unusable`);
+  process.exit(bad === 0 ? 0 : 1);
+}
+
 /* ------------------------------------------------------- primary checkout */
 
 async function trackedDirt() {
@@ -440,7 +463,18 @@ try {
     if (only && !mutation.step.includes(only)) continue;
 
     const path = join(tree, mutation.file);
-    const original = await readFile(path, 'utf8');
+    const onDisk = await readFile(path, 'utf8');
+
+    /**
+     * Anchors are written with `\n`; a Windows checkout has `\r\n`.
+     *
+     * Without this, every multi-line anchor reports STALE on Windows and single-
+     * line anchors keep working — so the harness would silently lose exactly the
+     * anchors that were narrowed to be unambiguous, which is the opposite of the
+     * intended effect. The worktree is disposable and neither tsc nor vite cares
+     * about line endings, so normalising the copy under test is free.
+     */
+    const original = onDisk.replace(/\r\n/g, '\n');
 
     if (!original.includes(mutation.from)) {
       results.push({ ...mutation, verdict: 'STALE', detail: `anchor not found: ${mutation.from.slice(0, 60)}` });
@@ -526,7 +560,9 @@ try {
           : `  ${verdict}: ${evidence.length} check(s) failed${matched.length > 0 ? `, incl. "${matched[0]}"` : ''}`,
       );
     } finally {
-      await writeFile(path, original);
+      // Restore the bytes that were there, not the normalised copy, so a
+      // Windows worktree is left exactly as the checkout produced it.
+      await writeFile(path, onDisk);
     }
   }
 } finally {
