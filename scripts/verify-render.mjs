@@ -290,6 +290,29 @@ for (const event of ['uncaughtException', 'unhandledRejection']) {
  * collapsed to zero size — a collapsed element is invisible, not absent, so
  * presence checks pass on it.
  */
+/**
+ * Click something, and record a FAILURE rather than aborting the suite if it
+ * cannot be clicked.
+ *
+ * A `locator.click` that times out throws, and an uncaught throw ends the whole
+ * run: three mutation runs in a row were blocked because step 7's flake took the
+ * three steps after it down, leaving four of eleven mutations unmeasured with
+ * verdicts assembled from step 7's failures.
+ *
+ * THIS DOES NOT SOFTEN ANY CHECK. The failed click is still a failed check, it
+ * still counts as a failure, and it still fails the run. What changes is that a
+ * failure in one step stops invalidating measurements of unrelated steps.
+ */
+async function clickOrFail(page, selector, label) {
+  try {
+    await page.locator(selector).click({ timeout: 15_000 });
+    return true;
+  } catch (error) {
+    check(`${label}: clickable`, false, String(error?.message ?? error).split('\n')[0].slice(0, 120));
+    return false;
+  }
+}
+
 async function assertLayout(page, containerSelector, childSelector, label) {
   const report = await page.evaluate(
     ([container, child]) => {
@@ -1219,7 +1242,7 @@ check('stale events are excluded by default', countsBefore.staleHidden > 0, JSON
 
 // Toggle one layer off and assert the delta, not merely "fewer".
 const quakeTotal = await page.evaluate(() => window.__worldpulse.counts().byLayer['usgs:earthquakes'] ?? 0);
-await page.locator('[data-layer="usgs:earthquakes"]').click();
+await clickOrFail(page, '[data-layer="usgs:earthquakes"]', 'earthquake layer toggle');
 await page.waitForTimeout(500);
 const countsAfter = await page.evaluate(() => window.__worldpulse.counts());
 check('toggling a layer off removes exactly that layer\'s events',
@@ -1236,13 +1259,13 @@ const stillPickable = remainingId ? await pickEvent(remainingId) : { aimed: fals
 check('positive control: a remaining marker is still pickable', stillPickable.id !== null, JSON.stringify(stillPickable));
 check('no earthquake marker survives the toggle', /^EONET_/.test(remainingId ?? ''), String(remainingId));
 
-await page.locator('[data-layer="usgs:earthquakes"]').click();
+await clickOrFail(page, '[data-layer="usgs:earthquakes"]', 'earthquake layer toggle');
 await page.waitForTimeout(500);
 check('re-enabling the layer restores the exact count',
   (await page.evaluate(() => window.__worldpulse.counts().rendered)) === countsBefore.rendered);
 
 // Stale toggle, with its own positive control.
-await page.locator('[data-stale-toggle]').click();
+await clickOrFail(page, '[data-stale-toggle]', 'stale toggle');
 await page.waitForTimeout(500);
 const withStale = await page.evaluate(() => window.__worldpulse.counts());
 check('including stale events adds exactly the hidden ones',
@@ -1250,7 +1273,7 @@ check('including stale events adds exactly the hidden ones',
   `${countsBefore.rendered} + ${countsBefore.staleHidden} != ${withStale.rendered}`);
 check('positive control: the stale toggle flipped',
   (await page.locator('[data-stale-toggle]').getAttribute('aria-pressed')) === 'true');
-await page.locator('[data-stale-toggle]').click();
+await clickOrFail(page, '[data-stale-toggle]', 'stale toggle');
 await page.waitForTimeout(400);
 
 // Clustering: an aftershock sequence must remain reachable.
