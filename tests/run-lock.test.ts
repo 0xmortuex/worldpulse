@@ -66,3 +66,29 @@ describe('run lock', () => {
     assert.match(decision.proceed === false ? decision.reason : '', /unknown ago/);
   });
 });
+
+describe('signal handling does not cut short a caller with its own teardown', () => {
+  it('registers no exiting signal handler when exitOnSignal is false', async () => {
+    // Node runs EVERY signal listener. A lock handler that calls process.exit
+    // synchronously kills the process before an async teardown registered
+    // earlier can finish — which is how a git worktree got leaked the first time
+    // this lock met a SIGTERM.
+    const { acquireRunLock } = await import('../scripts/run-lock.mjs');
+    const path = `${process.env['TMPDIR'] ?? '/tmp'}/worldpulse-locktest-${process.pid}.lock`;
+
+    const before = process.listenerCount('SIGTERM');
+    const release = acquireRunLock('test', 'commit', path, { exitOnSignal: false });
+    const added = process.listeners('SIGTERM').slice(before);
+    try {
+      assert.equal(added.length, 1, 'expected exactly one SIGTERM listener from the lock');
+      assert.doesNotMatch(
+        String(added[0]),
+        /process\.exit/,
+        'the lock installed an exiting handler despite exitOnSignal: false',
+      );
+    } finally {
+      for (const listener of added) process.removeListener('SIGTERM', listener as never);
+      release();
+    }
+  });
+});

@@ -500,7 +500,10 @@ const runStartedAt = Date.now();
 
 try {
   const head = (await run('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT })).stdout.trim();
-  releaseLock = acquireRunLock('mutate', head);
+  // exitOnSignal: false — this harness removes a worktree and waits for a port
+  // to close on the way out, and a lock handler calling process.exit() would cut
+  // that short. It leaked a worktree exactly once, which is how this was found.
+  releaseLock = acquireRunLock('mutate', head, undefined, { exitOnSignal: false });
 
   const profile = machineProfile();
   console.log(

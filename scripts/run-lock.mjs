@@ -103,7 +103,7 @@ export function processIsAlive(pid) {
  * failure this guards against is precisely a run that ended without cleaning up
  * after itself.
  */
-export function acquireRunLock(kind, commit, path = LOCK_PATH) {
+export function acquireRunLock(kind, commit, path = LOCK_PATH, options = {}) {
   const decision = lockDecision({
     existing: readLock(path),
     now: Date.now(),
@@ -138,11 +138,36 @@ export function acquireRunLock(kind, commit, path = LOCK_PATH) {
   };
 
   process.on('exit', release);
-  for (const signal of ['SIGINT', 'SIGTERM']) {
-    process.on(signal, () => {
-      release();
-      process.exit(130);
-    });
+
+  /**
+   * Exiting on a signal is OPT-OUT, and the opt-out is load-bearing.
+   *
+   * Node runs every registered signal listener. A caller with its own async
+   * teardown — `mutation-check.mjs` removes a git worktree and waits for a
+   * preview port to close — registers first; if this handler then calls
+   * `process.exit` synchronously, the process dies before that teardown can
+   * finish. That is not hypothetical: it leaked a worktree the first time this
+   * lock met a SIGTERM, and the harness's own comment ("a signal-killed run must
+   * still take its worktree with it") was correct about its intent and wrong
+   * about the outcome, because of a handler added later in a different file.
+   *
+   * So a caller that cleans up asynchronously passes `exitOnSignal: false` and
+   * keeps responsibility for exiting. A caller with nothing to clean up leaves
+   * the default, because installing a signal listener at all suppresses Node's
+   * default termination — without this the process would ignore Ctrl-C.
+   */
+  if (options.exitOnSignal !== false) {
+    for (const signal of ['SIGINT', 'SIGTERM']) {
+      process.on(signal, () => {
+        release();
+        process.exit(130);
+      });
+    }
+  } else {
+    for (const signal of ['SIGINT', 'SIGTERM']) {
+      // Release the lock, then stand aside: whoever owns cleanup owns the exit.
+      process.on(signal, release);
+    }
   }
 
   return release;

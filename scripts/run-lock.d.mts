@@ -18,5 +18,15 @@ export function lockDecision(input: {
 
 export function readLock(path?: string): LockRecord | null;
 export function processIsAlive(pid: number): boolean;
-export function acquireRunLock(kind: string, commit: string | undefined, path?: string): () => void;
+export interface AcquireOptions {
+  /** false when the caller has its own async teardown and owns the exit. */
+  exitOnSignal?: boolean;
+}
+
+export function acquireRunLock(
+  kind: string,
+  commit: string | undefined,
+  path?: string,
+  options?: AcquireOptions,
+): () => void;
 export const LOCK_PATH: string;
