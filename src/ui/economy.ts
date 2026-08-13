@@ -82,6 +82,25 @@ export function renderEconomyTab(iso3: string, countryName: string, today: Date)
        */
       if (!tracker.accepts(identity)) return;
       loads.set(iso3, load);
+
+      /**
+       * Only redraw when this panel is the one on screen.
+       *
+       * `rerenderPanel` rebuilds the whole dossier, tab strip included. Calling
+       * it because a BACKGROUND load finished for a tab nobody is looking at
+       * detaches and recreates every element the user is currently interacting
+       * with — a click in flight lands on a button that no longer exists.
+       *
+       * Not hypothetical: it aborted a verify run. Playwright reported
+       * "element was detached from the DOM, retrying" seventeen times against
+       * the government tab before timing out at 90s, which took the whole rule 8
+       * step with it. A user clicking that tab at the wrong moment gets the same
+       * dropped click and no explanation.
+       *
+       * The result is not lost by skipping the redraw — it is already in
+       * `loads`, and switching to the economy tab renders it from there.
+       */
+      if (document.querySelector('.econ') === null) return;
       rerenderPanel?.();
     });
   }
