@@ -33,6 +33,30 @@ import { promisify } from 'node:util';
 import { dirname, join, resolve } from 'node:path';
 import { INCONCLUSIVE, anchorProblem, classifyMutation, failingLabels } from './mutation-verdict.mjs';
 import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
+import { acquireRunLock } from './run-lock.mjs';
+import { cpus, loadavg, totalmem } from 'node:os';
+
+/**
+ * The machine and harness this run measured under (rule 20a).
+ *
+ * Recorded because a duration is a property of the app UNDER A CONFIGURATION,
+ * and a table of times with no configuration beside it is a number nobody can
+ * compare against anything. The previous timing data on this project was
+ * collected under unnoticed contention from three abandoned background runs,
+ * which is exactly what this block plus the run lock exist to make visible.
+ */
+function machineProfile() {
+  const cores = cpus();
+  return {
+    cores: cores.length,
+    cpu: cores[0]?.model?.trim() ?? 'unknown',
+    memGb: Math.round(totalmem() / 1024 ** 3),
+    node: process.version,
+    loadAvg1: loadavg()[0]?.toFixed(2) ?? '?',
+    rasteriser: process.env['WORLDPULSE_HARDWARE_GL'] === '1' ? 'hardware GL' : 'software (swiftshader)',
+    chromium: process.env['PLAYWRIGHT_CHROMIUM_PATH'] ?? "playwright's own build",
+  };
+}
 
 const run = promisify(execFile);
 
@@ -408,6 +432,10 @@ async function verify(cwd) {
       cwd,
       maxBuffer: 32 * 1024 * 1024,
       timeout: VERIFY_TIMEOUT_MS,
+      // The parent already holds the machine-wide lock, and this child IS the
+      // work it was taken for. Without this the very first mutation would
+      // refuse to run, blocked by its own parent.
+      env: { ...process.env, MUTATE_CHILD: '1' },
     });
     return { exit: 0, out: stdout, timedOut: false };
   } catch (error) {
@@ -467,8 +495,21 @@ async function startPreview(cwd) {
 /* ------------------------------------------------------------------ run */
 
 const results = [];
+let releaseLock = () => {};
+const runStartedAt = Date.now();
 
 try {
+  const head = (await run('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT })).stdout.trim();
+  releaseLock = acquireRunLock('mutate', head);
+
+  const profile = machineProfile();
+  console.log(
+    `machine: ${profile.cores} cores, ${profile.cpu}, ${profile.memGb}GB, node ${profile.node}\n` +
+      `harness: ${profile.rasteriser}, chromium ${profile.chromium}\n` +
+      `load average at start: ${profile.loadAvg1}  (durations below describe THIS configuration — rule 20a)\n` +
+      `measuring: ${head}\n`,
+  );
+
   await requireCleanCheckout('before starting');
   await requireFreshBranch();
   const tree = await makeWorktree();
@@ -514,6 +555,7 @@ try {
     }
 
     console.log(`\n▸ ${mutation.step}\n  mutating: ${mutation.what}`);
+    const startedAt = Date.now();
 
     try {
       // First occurrence only: a blanket replace can change more than the one
@@ -525,14 +567,14 @@ try {
         // A mutation that does not build proves the compiler noticed, not that
         // the browser assertion can see the behaviour. Those are different
         // claims and scoring them the same would overstate the suite.
-        results.push({ ...mutation, verdict: 'BUILD-FAILED', detail: built.detail });
+        results.push({ ...mutation, verdict: 'BUILD-FAILED', detail: built.detail, ms: Date.now() - startedAt });
         console.log('  BUILD-FAILED — the assertion was never exercised');
         continue;
       }
 
       const { exit, out, timedOut } = await verify(tree);
       if (timedOut) {
-        results.push({ ...mutation, verdict: 'TIMEOUT', detail: `no verdict within ${VERIFY_TIMEOUT_MS / 1000}s` });
+        results.push({ ...mutation, verdict: 'TIMEOUT', detail: `no verdict within ${VERIFY_TIMEOUT_MS / 1000}s`, ms: Date.now() - startedAt });
         console.log('  TIMEOUT — a hang is a failure signal, not a pass');
         continue;
       }
@@ -555,7 +597,7 @@ try {
         detail += ` [output: ${dump}]`;
       }
 
-      results.push({ ...mutation, verdict, detail });
+      results.push({ ...mutation, verdict, detail, ms: Date.now() - startedAt });
       console.log(
         verdict === 'NOT-EXERCISED'
           ? `  NOT-EXERCISED — ${detail}`
@@ -569,14 +611,41 @@ try {
   }
 } finally {
   await teardown();
+  releaseLock();
 }
 
 await requireCleanCheckout('after finishing');
 
 console.log('\nmutation results');
 const width = Math.max(...results.map((entry) => entry.step.length), 4);
-console.log(`  ${'step'.padEnd(width)}  verdict`);
-for (const entry of results) console.log(`  ${entry.step.padEnd(width)}  ${entry.verdict} — ${entry.detail}`);
+console.log(`  ${'step'.padEnd(width)}  ${'time'.padStart(6)}  verdict`);
+for (const entry of results) {
+  const time = entry.ms === undefined ? '     -' : `${(entry.ms / 1000).toFixed(0)}s`.padStart(6);
+  console.log(`  ${entry.step.padEnd(width)}  ${time}  ${entry.verdict} — ${entry.detail}`);
+}
+
+/**
+ * The distribution, not just the total.
+ *
+ * A mean alone hides the case that matters: one mutation taking four times the
+ * median is the signal that something about THAT step is slow, and it is
+ * invisible in a total. Reported because the reason a wrong estimate went
+ * unchallenged for an hour is that the harness recorded verdicts and never
+ * recorded time.
+ */
+const timed = results.filter((entry) => typeof entry.ms === 'number').map((entry) => entry.ms);
+if (timed.length > 0) {
+  const sorted = [...timed].sort((a, b) => a - b);
+  const at = (q) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))];
+  const seconds = (ms) => `${(ms / 1000).toFixed(0)}s`;
+  const end = machineProfile();
+  console.log(
+    `\ntiming — ${timed.length} mutation(s) over ${seconds(Date.now() - runStartedAt)} wall clock\n` +
+      `  fastest ${seconds(sorted[0])} · median ${seconds(at(0.5))} · slowest ${seconds(sorted[sorted.length - 1])}\n` +
+      `  load average: ${end.loadAvg1} at finish, on ${end.cores} cores, ${end.rasteriser}\n` +
+      `  measured under the run lock, so nothing else was measuring on this machine (rule 20a).`,
+  );
+}
 
 const inconclusive = results.filter((entry) => INCONCLUSIVE.includes(entry.verdict));
 console.log(

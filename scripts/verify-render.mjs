@@ -11,6 +11,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
 import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
+import { acquireRunLock } from './run-lock.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -409,6 +410,17 @@ const BREAKPOINTS = [
 // the mutation suite scored as a catch. Failing before the run starts, with the
 // export line to paste, is the difference between a misconfiguration and an
 // hour spent reading a green table that measured nothing.
+/**
+ * Refuse to start while another measuring run holds the machine.
+ *
+ * Taken here rather than at the top of the file so that a mutation run — which
+ * spawns this harness as a child — is not blocked by its own parent's lock.
+ * MUTATE_CHILD is set by mutation-check.mjs for exactly that reason: the parent
+ * already holds the lock on the whole machine, and the child is the work the
+ * lock was taken for.
+ */
+if (process.env['MUTATE_CHILD'] !== '1') acquireRunLock('verify', undefined);
+
 const { executablePath, note: chromiumNote } = resolveChromium({
   envPath: process.env.PLAYWRIGHT_CHROMIUM_PATH,
   pinnedPath: pinnedChromiumPath(),
