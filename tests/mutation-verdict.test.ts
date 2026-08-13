@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { INCONCLUSIVE, assertionsRun, classifyMutation } from '../scripts/mutation-verdict.mjs';
+import { INCONCLUSIVE, anchorProblem, assertionsRun, classifyMutation } from '../scripts/mutation-verdict.mjs';
 
 /**
  * Planted cases for the mutation classifier (rule 27).
@@ -143,5 +143,46 @@ describe('regression — self-tests are never evidence, whatever they are called
     // false CAUGHT, while a real failure filtered out is a false inconclusive,
     // and only the first can certify a mutation that tests nothing.
     assert.deepEqual(evidence, []);
+  });
+});
+
+describe('mutation anchors name exactly one place, on any platform', () => {
+  it('accepts an anchor that appears once', () => {
+    assert.equal(anchorProblem('a\nTARGET\nb', 'TARGET'), null);
+  });
+
+  it('rejects an anchor that appears nowhere', () => {
+    assert.equal(anchorProblem('a\nb', 'TARGET')?.kind, 'STALE');
+  });
+
+  it('rejects a duplicated anchor rather than editing the first hit arbitrarily', () => {
+    // The real case: adding a fetch-failed branch to the inspector put a second
+    // `escapeHtml(provenance.requestUrl)` above the successful-fetch block, so
+    // the request-URL mutation began blanking a URL in a block the browser suite
+    // never inspects — and step 2 passed 19/19 WITH the mutation applied.
+    const problem = anchorProblem('x\nTARGET\ny\nTARGET\nz', 'TARGET');
+    assert.equal(problem?.kind, 'AMBIGUOUS-ANCHOR');
+    assert.match(problem?.detail ?? '', /2 occurrences/);
+  });
+
+  it('matches a multi-line anchor against a CRLF checkout', () => {
+    // The second real case: anchors are written with \n, the working tree was
+    // CRLF, and every MULTI-LINE anchor silently reported STALE while every
+    // single-line anchor kept working — losing precisely the anchors that had
+    // been narrowed to be unambiguous.
+    assert.equal(anchorProblem('pre\r\nONE\r\nTWO\r\npost', 'ONE\nTWO'), null);
+  });
+
+  it('normalises the anchor as well as the source, so a CRLF anchor also matches', () => {
+    // Both sides, deliberately: normalising one and not the other would leave
+    // the same bug in the gap between them.
+    assert.equal(anchorProblem('pre\nONE\nTWO\npost', 'ONE\r\nTWO'), null);
+  });
+
+  it('keeps AMBIGUOUS-ANCHOR out of the passing set', () => {
+    assert.ok(
+      INCONCLUSIVE.includes('AMBIGUOUS-ANCHOR'),
+      'an ambiguous anchor would otherwise let a mutation testing the wrong code path pass the gate',
+    );
   });
 });

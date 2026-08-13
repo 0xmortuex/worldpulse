@@ -114,3 +114,37 @@ export const INCONCLUSIVE = [
   // code its named assertion covers, so its verdict is not evidence either way.
   'AMBIGUOUS-ANCHOR',
 ];
+
+/**
+ * Whether a mutation's anchor names exactly one place to edit, on any platform.
+ *
+ * Extracted from `mutation-check.mjs` for the same reason the classifier was:
+ * inline, its only exercise path was an hour-long run, and rule 32 says a guard
+ * reachable only by running the thing it guards has not been tested. Both of
+ * this function's failure modes have already occurred in this repository —
+ * a duplicated anchor, and a CRLF checkout silently failing every multi-line
+ * anchor — and neither was found by reading the code.
+ *
+ * Line endings are normalised here rather than by the caller so that the check
+ * and the edit cannot disagree about what "matches" means: a caller that
+ * normalised for one and not the other would reintroduce the CRLF bug in the
+ * gap between them.
+ *
+ * @returns null when the anchor is usable, otherwise the reason it is not.
+ */
+export function anchorProblem(source, from) {
+  const normalisedSource = source.replace(/\r\n/g, '\n');
+  const normalisedFrom = from.replace(/\r\n/g, '\n');
+  const occurrences = normalisedSource.split(normalisedFrom).length - 1;
+
+  if (occurrences === 0) {
+    return { kind: 'STALE', detail: `anchor not found: ${normalisedFrom.slice(0, 60)}` };
+  }
+  if (occurrences > 1) {
+    return {
+      kind: 'AMBIGUOUS-ANCHOR',
+      detail: `${occurrences} occurrences of the anchor; first-occurrence replace would pick one arbitrarily`,
+    };
+  }
+  return null;
+}

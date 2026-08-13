@@ -31,7 +31,7 @@ import { existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { dirname, join, resolve } from 'node:path';
-import { INCONCLUSIVE, classifyMutation, failingLabels } from './mutation-verdict.mjs';
+import { INCONCLUSIVE, anchorProblem, classifyMutation, failingLabels } from './mutation-verdict.mjs';
 
 const run = promisify(execFile);
 
@@ -476,37 +476,20 @@ try {
      */
     const original = onDisk.replace(/\r\n/g, '\n');
 
-    if (!original.includes(mutation.from)) {
-      results.push({ ...mutation, verdict: 'STALE', detail: `anchor not found: ${mutation.from.slice(0, 60)}` });
-      console.log(`\n✗ ${mutation.step}\n  anchor not found in ${mutation.file}`);
-      continue;
-    }
-
     /**
-     * An ambiguous anchor is refused, not silently resolved to the first hit.
-     *
-     * The edit below replaces the FIRST occurrence only, which is right when
-     * there is one — and becomes a silent no-op against the named assertion when
-     * a second appears. That happened: adding a `fetch-failed` branch to the
-     * inspector put a second `escapeHtml(provenance.requestUrl)` ABOVE the
-     * successful-fetch block, so the request-URL mutation began blanking a URL
-     * in a block the browser suite never inspects. It scored CAUGHT-ELSEWHERE
-     * off an unrelated flake while step 2 passed 19/19 WITH the mutation
-     * applied.
-     *
-     * Nothing about that verdict said "this mutation stopped testing what it
-     * names", which is precisely the vacuity rule 34 exists to prevent.
+     * Both anchor failures are decided by `anchorProblem`, which is pure and
+     * planted-cased. Inline, this logic could only be exercised by an hour-long
+     * run — the same shape that let the classifier bug survive, and rule 32's
+     * whole point.
      */
-    const occurrences = original.split(mutation.from).length - 1;
-    if (occurrences > 1) {
-      results.push({
-        ...mutation,
-        verdict: 'AMBIGUOUS-ANCHOR',
-        detail: `${occurrences} occurrences of the anchor in ${mutation.file}; first-occurrence replace would pick one arbitrarily`,
-      });
+    const anchor = anchorProblem(original, mutation.from);
+    if (anchor) {
+      results.push({ ...mutation, verdict: anchor.kind, detail: `${anchor.detail} in ${mutation.file}` });
       console.log(
-        `\n✗ ${mutation.step}\n  AMBIGUOUS-ANCHOR — ${occurrences} matches in ${mutation.file}.\n` +
-          '  Narrow the anchor so it names the one behaviour under test (rule 34).',
+        `\n✗ ${mutation.step}\n  ${anchor.kind} — ${anchor.detail} in ${mutation.file}.` +
+          (anchor.kind === 'AMBIGUOUS-ANCHOR'
+            ? '\n  Narrow the anchor so it names the one behaviour under test (rule 34).'
+            : ''),
       );
       continue;
     }
