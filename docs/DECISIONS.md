@@ -420,3 +420,58 @@ Each never-retry row states its own reason, because they are different reasons:
 | `ShapeError` | The origin answered correctly; **our parse disagrees**. Retrying hides schema drift, which is the failure contract tests exist to catch. |
 | Abort | Nobody is waiting for the answer. Retrying spends budget on a discarded selection (F6). |
 | Repeated timeout across countries | A query that cannot complete is a design defect. Retrying it converts a diagnosable fault into flicker. |
+
+## Two agents on one branch — 2026-08-13
+
+Two sessions worked `claude/worldpulse-globe-dashboard-n3984g-0oxido` concurrently from
+different machines. **One writer per branch from here.**
+
+### The benign version, which the tooling catches
+
+The second writer's `git push` is rejected as non-fast-forward. Somebody has to look, and
+the reconciliation is ordinary. This is the version people picture when they think of two
+agents colliding, and it is not the one worth writing down.
+
+### The dangerous version, which nothing catches
+
+The timings differ by minutes rather than seconds:
+
+1. Writer A starts a measurement — a mutation run, a verify pass — against its local HEAD.
+2. Writer B pushes. The branch moves.
+3. Writer A's run continues, measuring a tree that is now **behind the branch**.
+4. Writer A reports a table. It is green, it is internally consistent, and it describes
+   **code that is not on the branch**.
+
+**A's work is not lost and A's tree is not broken** — which is exactly why nothing objects.
+The checkout is clean, it builds, every assertion runs. The rejected-push defence never
+fires because A has nothing to push at that moment. The report reads as a statement about
+the branch and is a statement about a tree that no longer exists anywhere.
+
+**This occurred.** A mutation run spent its time on `18cd64a` while origin had moved to
+`a9a0994` — two commits, both touching the mutation harness itself. It was caught by a
+`git fetch` run for an unrelated reason, not by any check.
+
+### What changed
+
+`scripts/branch-freshness.mjs` — a startup assertion in both `mutation-check.mjs` and
+`verify-render.mjs`. Same shape as the clean-checkout and stale-bundle assertions beside
+it: **it runs regardless, before anything is measured**, rather than being cleanup at exit
+or a step someone remembers. A check that runs when someone remembers is a check that
+eventually does not run — the argument that moved the unexercised-path sweep into the
+deploy gate.
+
+| State | Behaviour | Why |
+| --- | --- | --- |
+| Level with origin | proceed | — |
+| Behind origin | **refuse**, naming both heads and the fast-forward command | anything measured describes code that is not on the branch |
+| Diverged | **refuse**, stating the result would describe neither tree | — |
+| Ahead only | proceed | unpushed local commits are the harness's normal working state, and it measures HEAD deliberately |
+| No upstream | proceed | rule 30 — no answer about the remote is not an answer that the remote disagrees; refusing would block offline work to catch a concurrency case |
+
+It does **not** fetch. A harness that reaches the network before every run fails when the
+network does; the check is that this clone agrees with what it last saw, and the message
+names `git fetch` as the operator's move.
+
+Seven planted cases, including the ahead/behind ordering — `--left-right --count` prints
+ahead first, and reversing them would invert the whole check, letting a behind branch read
+as ahead and pass.

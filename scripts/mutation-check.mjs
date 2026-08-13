@@ -32,6 +32,7 @@ import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { dirname, join, resolve } from 'node:path';
 import { INCONCLUSIVE, anchorProblem, classifyMutation, failingLabels } from './mutation-verdict.mjs';
+import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
 
 const run = promisify(execFile);
 
@@ -272,6 +273,23 @@ async function trackedDirt() {
   return stdout.trim();
 }
 
+/**
+ * The branch must be what origin says it is.
+ *
+ * Same shape as the clean-checkout assertion above and for the same reason: a
+ * run that measured something other than what it reported is the failure this
+ * harness exists to remove. Two agents on one branch produced exactly that —
+ * a run spent an hour on a tree two commits behind origin, and nothing noticed,
+ * because nothing was wrong with the tree it was handed.
+ */
+async function requireFreshBranch() {
+  const state = await readBranchState(async (args) => (await run('git', args, { cwd: ROOT })).stdout);
+  const problem = freshnessProblem(state);
+  if (problem === null) return;
+  console.error(`BRANCH IS NOT WHAT ORIGIN SAYS IT IS:\n\n  ${problem}\n`);
+  process.exit(1);
+}
+
 async function requireCleanCheckout(when) {
   const dirt = await trackedDirt();
   if (dirt.length === 0) return;
@@ -452,6 +470,7 @@ const results = [];
 
 try {
   await requireCleanCheckout('before starting');
+  await requireFreshBranch();
   const tree = await makeWorktree();
   console.log(`worktree: ${tree}\n`);
 

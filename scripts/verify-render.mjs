@@ -10,6 +10,11 @@ import { mkdir, readdir, stat } from 'node:fs/promises';
 import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
+import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 import { layoutProblems } from './layout-rules.mjs';
 
 /**
@@ -87,7 +92,30 @@ async function assertBundleIsCurrent() {
   }
 }
 
-if (/localhost|127\.0\.0\.1/.test(BASE)) await assertBundleIsCurrent();
+/**
+ * The branch must be what origin says it is, asserted before anything is
+ * measured — the sibling of the stale-bundle check directly above.
+ *
+ * Both answer the same question: is the thing under test the thing the report
+ * will name? A stale `dist/` and a stale checkout are the same failure at
+ * different distances, and the second is quieter, because a clean tree that
+ * builds gives no sign it is two commits behind the branch.
+ */
+async function assertBranchIsCurrent() {
+  const state = await readBranchState(async (args) => {
+    const { stdout } = await execFileAsync('git', args, { cwd: resolve(import.meta.dirname, '..') });
+    return stdout;
+  });
+  const problem = freshnessProblem(state);
+  if (problem === null) return;
+  console.error(`\nBRANCH IS NOT WHAT ORIGIN SAYS IT IS:\n\n  ${problem}\n`);
+  process.exit(1);
+}
+
+if (/localhost|127\.0\.0\.1/.test(BASE)) {
+  await assertBranchIsCurrent();
+  await assertBundleIsCurrent();
+}
 
 /**
  * Screenshots are evidence for a human, not assertions.
