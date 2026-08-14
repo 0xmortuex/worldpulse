@@ -20,7 +20,12 @@
  */
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { judgeTestRun } from './test-count.mjs';
+import { censusProblems, declaredSuites, parseSuiteCounts } from './suite-census.mjs';
 
 
 // Resolved rather than looked up on PATH: `tsx` is only on PATH when npm puts
@@ -39,7 +44,29 @@ const tsxCli = createRequire(import.meta.url).resolve('tsx/cli');
  * one exists because a suite that ran nothing exited zero.
  */
 const pattern = process.env['WORLDPULSE_TEST_GLOB'] ?? 'tests/*.test.ts';
-const args = [tsxCli, '--test', pattern, ...process.argv.slice(2)];
+
+/**
+ * TAP goes to a file alongside the human-readable spec output.
+ *
+ * The spec reporter names a file only when it fails, so a suite that ran zero
+ * tests is invisible in it. TAP nests every suite and every assertion, which is
+ * what makes "ran three of eleven" distinguishable from "passed".
+ */
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const CENSUS_PATH = join(ROOT, 'tests/suite-census.json');
+const tapDir = mkdtempSync(join(tmpdir(), 'worldpulse-tap-'));
+const tapPath = join(tapDir, 'run.tap');
+
+const args = [
+  tsxCli,
+  '--test',
+  '--test-reporter=spec',
+  '--test-reporter-destination=stdout',
+  '--test-reporter=tap',
+  `--test-reporter-destination=${tapPath}`,
+  pattern,
+  ...process.argv.slice(2),
+];
 const child = spawn(process.execPath, args, { stdio: ['inherit', 'pipe', 'inherit'] });
 
 let output = '';
@@ -57,6 +84,55 @@ child.on('close', (code) => {
   if (!verdict.ok) {
     console.error(`\n${verdict.problem}`);
     process.exit(1);
+  }
+
+  /**
+   * The per-suite census. The total-count floor above catches a suite that ran
+   * nothing; this catches a suite that ran *most* things, which is what nine
+   * crashed imports looked like — 381 tests reported where 496 existed, with
+   * only a failure count to say so.
+   *
+   * `WORLDPULSE_TEST_CENSUS=write` records the current run as the baseline.
+   * It is deliberately explicit: a baseline that rewrote itself on every run
+   * would ratify whatever just happened, including a crash.
+   */
+  let observed = {};
+  try {
+    observed = parseSuiteCounts(readFileSync(tapPath, 'utf8'));
+  } catch {
+    console.error('\ncould not read TAP output — the per-suite census did not run');
+    process.exit(1);
+  } finally {
+    rmSync(tapDir, { recursive: true, force: true });
+  }
+
+  if (process.env['WORLDPULSE_TEST_CENSUS'] === 'write') {
+    const sorted = Object.fromEntries(Object.entries(observed).sort(([a], [b]) => a.localeCompare(b)));
+    writeFileSync(CENSUS_PATH, `${JSON.stringify(sorted, null, 2)}\n`);
+    console.error(`\nwrote suite census: ${Object.keys(sorted).length} suites`);
+    process.exit(code ?? 0);
+  }
+
+  if (existsSync(CENSUS_PATH)) {
+    const baseline = JSON.parse(readFileSync(CENSUS_PATH, 'utf8'));
+
+    // Which suites does the tree still declare? A suite that vanished because
+    // its file was deleted is a baseline update; one that vanished while still
+    // declared did not run, and that is the failure.
+    const declared = new Set();
+    for (const name of readdirSync(join(ROOT, 'tests'))) {
+      if (!name.endsWith('.test.ts')) continue;
+      for (const suite of declaredSuites(readFileSync(join(ROOT, 'tests', name), 'utf8'))) declared.add(suite);
+    }
+
+    const { problems, drifted } = censusProblems(baseline, observed, declared);
+    for (const note of drifted) console.error(`census drift: ${note}`);
+    if (problems.length > 0) {
+      console.error(`\nSUITE CENSUS FAILED — ${problems.length} suite(s) were meant to run and did not:`);
+      for (const problem of problems) console.error(`  ${problem}`);
+      console.error('\nRe-record with WORLDPULSE_TEST_CENSUS=write once the cause is fixed.');
+      process.exit(1);
+    }
   }
 
   process.exit(code ?? 0);

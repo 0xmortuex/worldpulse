@@ -106,22 +106,40 @@ describe('PortWatch chokepoints — contract', () => {
 
   it('capacities sum to within rounding, NOT exactly', () => {
     /**
+     * THE TOLERANCE'S BASIS IS ROUNDING OF INDEPENDENTLY-ESTIMATED TONNAGES,
+     * and it is not a general fudge factor.
+     *
      * Measured, not assumed: on 2026-08-01 the four cargo capacities sum to
-     * 499,606 against a published `capacity_cargo` of 499,607. These are
-     * estimated payloads rounded independently, so asserting exact equality
-     * would fail on arithmetic that is not wrong. A tolerance of one ton per
-     * summand is generous enough to survive rounding and tight enough that a
-     * genuine mis-sum — a category dropped, a field re-pointed — still fails.
+     * 499,606 against a published `capacity_cargo` of 499,607 — a residual of
+     * one ton on a 500,000-ton total. Each component is an estimated payload
+     * rounded to whole tons independently, so a residual on the order of one
+     * ton per summand is the arithmetic working correctly. Asserting exact
+     * equality would encode an incidental property of one response rather than
+     * the invariant that components account for the total (rule 25).
+     *
+     * **A residual beyond this class is a finding, not a tolerance to widen.**
+     * Rounding of four and five summands cannot produce tens of tons; that
+     * would mean a category dropped, a field re-pointed, or a unit changed. The
+     * next session to see this fail should investigate the cause, because a
+     * tolerance widened to absorb a failure is a loosened assertion wearing a
+     * justification.
      */
     for (const row of rows) {
       const cargo = row.capacity_container + row.capacity_dry_bulk + row.capacity_general_cargo + row.capacity_roro;
+      const cargoResidual = Math.abs(row.capacity_cargo - cargo);
       assert.ok(
-        Math.abs(row.capacity_cargo - cargo) <= 4,
-        `capacity_cargo ${row.capacity_cargo} vs summed ${cargo} on ${row.date}`,
+        cargoResidual <= 4,
+        `capacity_cargo ${row.capacity_cargo} vs summed ${cargo} on ${row.date}: residual ${cargoResidual}t ` +
+          'exceeds rounding of 4 independently-rounded tonnage estimates — investigate a dropped category, ' +
+          'a re-pointed field or a unit change; do NOT widen this tolerance',
       );
+
+      const totalResidual = Math.abs(row.capacity - (cargo + row.capacity_tanker));
       assert.ok(
-        Math.abs(row.capacity - (cargo + row.capacity_tanker)) <= 5,
-        `capacity ${row.capacity} vs summed ${cargo + row.capacity_tanker} on ${row.date}`,
+        totalResidual <= 5,
+        `capacity ${row.capacity} vs summed ${cargo + row.capacity_tanker} on ${row.date}: residual ` +
+          `${totalResidual}t exceeds rounding of 5 independently-rounded tonnage estimates — ` +
+          'investigate rather than widen',
       );
     }
   });

@@ -541,3 +541,17 @@ checkable.**
 `comtrade`, and `portwatch-chokepoints`. **Strict `restricted` now has no members**, which is
 the intended state — the class is available and honest rather than stretched to cover work it
 was never meant to describe.
+
+**Two of those were classified by the rule, not by reading their terms.** `exchangerate-host`
+and `comtrade` were moved because they were `restricted` while declaring a `worker` transport,
+which is the contradiction the guard exists to catch. Both do ingest minimal attributed values,
+so the classification is truthful — but it was **produced by a rule rather than verified
+against a licence**, and those are different states.
+
+| # | Decision |
+| --- | --- |
+| L15 | **`exchangerate-host` and `comtrade` carry a rule-derived licence class, pending a reading.** Their terms should get the same treatment PortWatch's did — read, or recorded as unreadable with the walls named — when convenient. A classification produced by a rule is *consistent*; it is not yet *verified*, and the registry should not imply otherwise. |
+
+This is the same distinction the probe draws between a measured verdict and a carried one:
+consistency and verification are not the same claim, and the weaker one must not be displayed
+as the stronger.
