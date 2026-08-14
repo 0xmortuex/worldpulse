@@ -313,6 +313,31 @@ async function clickOrFail(page, selector, label) {
   }
 }
 
+/**
+ * Read text, or fail this check instead of ending the suite.
+ *
+ * Third location of the same fault. `locator.innerText()` waits the full default
+ * timeout for an element that never appears, then throws — and the throw aborted
+ * step 7b before the cross-cutting steps could run, which is why two mutations
+ * were unmeasurable across four consecutive runs while nine caught reliably.
+ *
+ * The two earlier sites were clicks; this one is a read. The lesson generalises
+ * past "wrap clicks": ANY Playwright call that waits can abort the suite, and an
+ * aborted suite silently invalidates every later step's mutations.
+ *
+ * A shorter timeout is deliberate. 90s of waiting produces the same verdict as
+ * 10s — the element is not there — while costing 80 seconds of a run that is
+ * already the slowest thing in this project.
+ */
+async function textOrFail(page, selector, label) {
+  try {
+    return await page.locator(selector).innerText({ timeout: 15_000 });
+  } catch (error) {
+    check(`${label}: present to read`, false, String(error?.message ?? error).split('\n')[0].slice(0, 120));
+    return '';
+  }
+}
+
 async function assertLayout(page, containerSelector, childSelector, label) {
   const report = await page.evaluate(
     ([container, child]) => {
@@ -1359,7 +1384,7 @@ check(
 await shot(page, `${SHOTS}/17b-economy-loading.png`);
 
 await openEconomyScenario('unavailable');
-const econUnavailable = await page.locator('.econ').innerText();
+const econUnavailable = await textOrFail(page, '.econ', 'unavailable panel');
 check(
   'a panel whose every request failed renders unavailable, not "no data"',
   (await page.locator('.econ[data-panel-state="unavailable"]').count()) === 1,
@@ -1380,7 +1405,7 @@ check(
 await shot(page, `${SHOTS}/17c-economy-unavailable.png`);
 
 await openEconomyScenario('degraded');
-const econDegraded = await page.locator('.econ').innerText();
+const econDegraded = await textOrFail(page, '.econ', 'degraded panel');
 check(
   'a partially-answered panel renders degraded, distinct from both ok and unavailable',
   (await page.locator('.econ[data-panel-state="degraded"]').count()) === 1,
@@ -1393,7 +1418,7 @@ check(
 await shot(page, `${SHOTS}/17d-economy-degraded.png`);
 
 await openEconomyScenario('stale');
-const econCached = await page.locator('.econ').innerText();
+const econCached = await textOrFail(page, '.econ', 'stale panel');
 check(
   'a stale value never renders silently — the panel states its age',
   (await page.locator('.econ-stale[data-stale="true"]').count()) === 1 && /ago while refreshing/i.test(econCached),
