@@ -875,7 +875,7 @@ await page.waitForTimeout(200);
 
 async function openEconomy(country) {
   await selectCountry(country);
-  await page.locator('[data-tab="economy"]').click();
+  await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
   await page.waitForTimeout(600);
 }
 
@@ -1343,7 +1343,7 @@ step('7b — economy fetch states');
 async function openEconomyScenario(scenario) {
   await page.evaluate((name) => window.__worldpulse.setEconScenario(name), scenario);
   await selectCountry('United States');
-  await page.locator('[data-tab="economy"]').click();
+  await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
   await page.waitForTimeout(600);
 }
 
@@ -1420,7 +1420,7 @@ step('cross-cutting — text fidelity (rule 9)');
 // ---- text fidelity (TESTING.md rule 9), retroactive ----
 
 await selectCountry('Germany');
-await page.locator('[data-tab="economy"]').click();
+await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
 await page.waitForTimeout(400);
 await assertTextFits(page, '.econ-block .fact-value', 'economy values');
 await assertTextFits(page, '.econ-block .econ-name', 'economy indicator names');
@@ -1429,7 +1429,7 @@ await assertSvgTextFits(page, '.econ-block .chart-axis', 42, 'economy axis label
 
 // The extreme-value fixture: the longest plausible strings on this surface.
 await selectCountry('Zimbabwe');
-await page.locator('[data-tab="economy"]').click();
+await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
 await page.waitForTimeout(400);
 await assertTextFits(page, '.econ-block .fact-value', 'economy values at extreme magnitude');
 await assertSvgTextFits(page, '.econ-block .chart-axis', 42, 'economy axis labels at extreme magnitude');
