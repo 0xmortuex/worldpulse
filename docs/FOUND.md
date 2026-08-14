@@ -224,3 +224,37 @@ silently invalidate measurements of unrelated steps.**
 **Reclassification.** L9 describes marker clicks as a user-facing risk on slow devices. It is
 also a *measurement* risk: it is the only known fault in this project that can make other
 checks report verdicts they did not earn.
+
+## `pickEvent` reads the tooltip twice, and the gap between the reads is a false negative
+
+Recorded because the fix was written, measured, and then reverted on purpose — so the next
+session finds the reasoning rather than rediscovering the idea and landing it.
+
+**Mechanism.** `pickEvent` asks two questions in two round-trips: `waitFor(… '.evt' !== null)`,
+then a separate `page.evaluate` reading `data-event-id` off that element. globe.gl rewrites
+the tooltip container on every raycast frame, so a re-render landing between the two calls
+returns `settled: true, id: null` — a marker that resolved correctly, reported as one that did
+not resolve at all.
+
+**Observed** 2026-08-14 under swiftshader: three step-7 failures, all cascading from a single
+such read (`the pick resolves to…` compares against `null`, and the camera positive control
+then calls `eventById('')`). `artifacts/23-globe-layers.png`, captured immediately after,
+shows the correct tooltip for the aimed-at event on screen — the app had resolved the marker;
+the harness failed to read it.
+
+**The edit.** Merging both reads into one `page.evaluate`, returning `{id}` from the same
+evaluation that finds the element, removes the gap. Presence and identity stay separately
+reportable, so "no tooltip" remains distinguishable from "wrong id", and timeout behaviour is
+unchanged — which matters for the occlusion check, which requires a null pick.
+
+**Why it was reverted.** Rule 15 already records that the `.evt`-existence wait is *vacuous*:
+the previous hover's tooltip satisfies it instantly, so the guard can pass without a fresh
+hover ever happening. Merging the reads does not touch that. **It removes the failures without
+removing their cause**, which is what rule 34 exists to prevent — and it was measured on an
+11-commit-stale tree under a frame rate that no longer applies to this machine, so "it fixed
+the three failures" is uninterpretable as evidence.
+
+**What would make it landable.** Fix the vacuity first — require the tooltip to clear and a
+fresh hover to be observed, which `measure-frame-profile.mjs` already implements as its
+`cleared` mode — then measure the read race on its own under a stated harness configuration
+per rule 20a. Two defects, fixed and measured in the order that lets each be seen.

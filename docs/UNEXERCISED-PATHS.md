@@ -302,11 +302,23 @@ actually landed.
 | --- | --- | --- |
 | registry → compose → transport → adapter → `Fact`, against a real origin | `tests/worldbank-live.test.ts` under `PROBE_LIVE=1`, in **Node** | any browser check |
 
-**Chromium in this container cannot reach a live origin.** Outbound HTTPS goes through an
-agent proxy the browser is not configured for; pointing Playwright at it still fails because
-the proxy's CA is not in Chromium's trust store, and disabling certificate verification is
-not available. Measured, not assumed: `fetch('https://api.worldbank.org/...')` from inside
-the page returns `TypeError: Failed to fetch`, with and without the proxy.
+**Browser egress — measured in two environments, with opposite results.**
+
+| Environment | `fetch('https://api.worldbank.org/…')` from inside the page |
+| --- | --- |
+| Cloud sandbox, through 2026-08-13 | `TypeError: Failed to fetch`, with and without the proxy |
+| Local Windows box, 2026-08-14, `cf62bcd` | **HTTP 200**, 513 bytes of real JSON (`"lastupdated":"2026-07-13"`), 1184ms |
+
+In the sandbox, outbound HTTPS went through an agent proxy the browser was not configured
+for; pointing Playwright at it still failed because the proxy's CA was not in Chromium's
+trust store, and disabling certificate verification was not available. On the local box
+there is no proxy and the fetch simply succeeds. `earthquake.usgs.gov` answers the same way
+(200, 9650 bytes of GeoJSON, 1279ms), so this is egress in general rather than one lenient
+origin.
+
+**The environmental blocker is lifted. The row above still stands**, because that row names
+a *check*, not a capability: no browser check exercises the live path. "Not possible here"
+has been replaced by "not written yet", which is progress and is not the same as coverage.
 
 **What this means for the four rendered states.** `loading`, `stale`, `degraded` and
 `unavailable` are demonstrated in the browser against **fixtures and a stub**, not against a
@@ -318,8 +330,15 @@ from real row outcomes — but the responses feeding them did not cross a networ
 > and the honest statement is that the panel is *wired* to live data and *verified* against
 > a stub.
 
-**What would close it:** browser egress to at least one live origin, or a CA the browser
-trusts on the proxy. Neither is available here. Until then this row stays.
+**What would close it:** a browser check that drives registry → compose → transport → adapter
+against a real origin and asserts on what renders. That is now possible on this machine and
+was not before; it is not yet written. Until it exists and passes, this row stays.
+
+**What it is not.** Egress does not make the four states live, and the blockquote above is
+unchanged by it. A machine-dependent capability is also not a property of the project: the
+same run found `riksdagen` reset at the TCP level from this network while the sandbox
+reached it fine, so "the browser can reach live origins" is true of this box on this day,
+which is exactly the claim rule 20a says to record with its configuration.
 
 Note that even with egress the scenario mechanism would remain necessary: the four states
 are each reachable only through a specific remote failure, and demonstrating them against a

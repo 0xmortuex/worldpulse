@@ -343,6 +343,65 @@ Two consequences, both landed:
    so the next machine can re-derive them rather than inheriting a number that does not
    transfer.
 
+### Second configuration — local Windows 11 box, 2026-08-14
+
+Recorded as a **new** configuration rather than replacing the numbers above, per 20a. The
+profile above is the cloud sandbox (4-core Xeon 2.10GHz, Linux container). This one is a
+local Windows 11 machine with a discrete GPU. Two expectations went in and both were wrong,
+which is the reason to write them down.
+
+Measured with `measure-frame-profile.mjs` on `cf62bcd`, US selected, nothing else running:
+
+| Rasteriser | idle median | idle p95 | idle max | flyTo median | fps |
+| --- | --- | --- | --- | --- | --- |
+| swiftshader (harness default) | 750ms | 1499.9ms | 2416.5ms | 750ms | 1.3 |
+| hardware GL (`WORLDPULSE_HARDWARE_GL=1`) | 733.3ms | 750ms | 766.6ms | 733.3ms | 1.4 |
+
+**This machine is slower than the sandbox, not faster** — 750ms against 583.3ms per frame,
+1.29× worse — despite better hardware on paper. Software rasterisation is single-thread
+bound and does not care about the GPU sitting idle beside it.
+
+**Hardware GL is not "roughly twice as fast" here**, as `measure-frame-profile.mjs`'s own
+header claims. The medians are within 2% of each other. What differs is the *tail*: hardware
+GL holds p95 at 750ms against swiftshader's 1499.9ms, so its frame times are far more
+consistent at the same median. A bare page with no country selected measures swiftshader
+much faster (4.9fps against 1.5fps) — but that is a state the harness never runs in, and the
+two converge as soon as the globe has work to do. Measure in the state the check runs in.
+
+Flake rates, swiftshader, **10 trials per mode** (the sandbox used 20–30):
+
+| mode | passed | failure rate | first attempt | hover-missed | click-dropped |
+| --- | --- | --- | --- | --- | --- |
+| shipped, 3-attempt retry | 8/10 | 20% | 6/10 | 0 | 9 |
+| single, no retry | 5/10 | 50% | 5/10 | 0 | 5 |
+| cleared | 7/10 | 30% | 7/10 | 0 | 3 |
+
+`npm run verify` on this configuration: **894s, 276 assertions, 6 failures** — the marker
+click needing 2 attempts, two `locator.click` actionability timeouts, and their cascades.
+The sandbox recorded 313–510s per *mutation*, each of which is a build plus a full verify,
+so the same run there was on the order of 300–500s.
+
+**Hardware GL rates were not measured.** Three attempts were killed externally by the
+environment — at 186 checks, at 11 checks, and immediately after the profile printed — while
+every swiftshader run on the same box completed. No GPU driver or TDR events appear in the
+Windows system log for those windows and no Playwright process was left orphaned, so the
+cause is recorded as unidentified rather than guessed at.
+
+#### What this configuration says about the mechanism
+
+Two results do not fit "globe.gl fails to resolve a click at a low frame rate":
+
+- **The frame period got worse and the flake got better.** 750ms against 583.3ms per frame,
+  yet single-attempt failure fell from 90% to 50% and first-attempt success rose from 2/30
+  to 6/10. A mechanism driven by frame period alone should have moved the other way.
+- **`hover-missed` was 0 in all 30 trials.** Every failure was `click-dropped`. The hover and
+  pick path — the one the reverted change in `FOUND.md` addressed — was never implicated on
+  this machine.
+
+At n=10 per mode the ordering of the three modes is not resolved; the gaps sit inside the
+noise. What the sample does support is that the flake is roughly halved here, nowhere near
+gone, and is a *click* failure rather than a *hover* failure on this box.
+
 ### What the flake is not
 
 Recorded so the next session does not re-derive them:
