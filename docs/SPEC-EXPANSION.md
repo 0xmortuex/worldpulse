@@ -57,7 +57,7 @@ integrated — **one at a time**.
 | # | Source | Licence / key | Feeds |
 | --- | --- | --- | --- |
 | 1 | **CISA KEV** — known exploited vulnerabilities | CC0, no key | cyber row in Risk & Stability |
-| 2 | **disease.sh + WHO Disease Outbreak News** | keyless, CORS-enabled | foundation of biohazard mode |
+| 2 | **disease.sh + WHO Disease Outbreak News** | keyless, CORS-enabled | foundation of biohazard mode — **split on measurement, see below** |
 | 3 | **UNHCR Refugee Data Finder** | keyless JSON, CC BY 4.0 | displacement figures per country |
 | 4 | **IOM DTM** | public API | IDP figures, country/admin level |
 | 5 | **NASA FIRMS** | free MAP_KEY, 5,000 tx/10min | thermal anomalies layer |
@@ -75,6 +75,30 @@ integrated — **one at a time**.
 **1. CISA KEV** — pull from the **`cisagov/kev-data` GitHub mirror, not `cisa.gov`
 directly**. Direct fetches have been rate-limited and IP-blocked. The mirror is the
 registered origin; the probe verdict must be measured against it.
+
+**2. disease.sh + WHO — the two halves measured differently, 2026-08-14.**
+
+They entered the gate together and could not stay together.
+
+| Half | State |
+| --- | --- |
+| **WHO Disease Outbreak News** | **Live.** OData, `ACAO: *`, newest entry dated the day it was checked. Registered, probed, fixtured, contract-tested, adapted. |
+| **disease.sh** | **Frozen.** Cumulative COVID series ends **2023-03-09**; `todayCases` is `0` for all 231 countries at once; `updated` reports "0 hours ago" regardless; advertised influenza endpoints 404. **Not registered** — see `OPEN-QUESTIONS.md` 9 and `FOUND.md`. |
+
+The item's acceptance criterion — that "no reported cases" and "no surveillance data" render
+differently — **cannot land against disease.sh**, which has no true reported-zero state: its
+apparent zeros are absent updates, and its absent countries include territories aggregated
+into a parent rather than never measured. The criterion needs a source that genuinely
+distinguishes them; UNHCR and FEWS NET both do.
+
+Two constraints carried forward from WHO regardless:
+
+- **Headlines are WHO's wording, rendered verbatim or not at all.** `$select` keeps the full
+  report body (`Overview`, `Epidemiology`, `Assessment`, `Advice`) off the wire entirely, which
+  is both the licence posture and the no-authored-content rule.
+- **No country is parsed out of a DON title.** The payload publishes no country field and
+  titles include "Multi-locations" entries, so attaching one would assert a link WHO did not
+  make.
 
 **5. NASA FIRMS — critical labelling rule.**
 

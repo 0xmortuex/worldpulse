@@ -1,11 +1,11 @@
 {
-  "probedAt": "2026-08-14T17:01:37.581Z",
+  "probedAt": "2026-08-14T17:34:24.778Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "portwatch-chokepoints"
+    "who-don"
   ],
   "counts": {
-    "CLIENT-FETCH": 24,
+    "CLIENT-FETCH": 25,
     "INCONCLUSIVE": 1,
     "WORKER-REQUIRED": 16,
     "KEY-GATED": 6,
@@ -1480,6 +1480,39 @@
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
       "probedAt": "2026-08-14T17:01:37.581Z"
+    },
+    {
+      "id": "who-don",
+      "name": "WHO Disease Outbreak News",
+      "panel": "risk",
+      "url": "https://www.who.int/api/news/diseaseoutbreaknews?%24orderby=PublicationDateAndTime+desc&%24top=10&%24select=Id%2CDonId%2CTitle%2CPublicationDateAndTime%2CItemDefaultUrl",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "share-alike",
+      "preflight": {
+        "status": 400,
+        "ms": 525,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-expose-headers": "Request-Context"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 342,
+        "contentType": "application/json; odata.metadata=minimal",
+        "bytes": 2411,
+        "truncated": false,
+        "contentLength": "1017",
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-expose-headers": "Request-Context"
+        },
+        "cacheControl": "public, max-age=0, s-maxage=900"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T17:34:24.778Z"
     }
   ]
 }

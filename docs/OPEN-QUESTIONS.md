@@ -21,13 +21,18 @@ is an entry I have written badly.
 
 ## What stops work immediately
 
-Three things, and only three. Everything else gets appended and the work continues.
+Four things, and only four. Everything else gets appended and the work continues.
 
 | # | Emergency | Why it cannot wait |
 | --- | --- | --- |
 | 1 | **Destructive or irreversible** | Deleting data, force-pushing over history, dropping a source's only copy. The cost of asking is a pause; the cost of proceeding cannot be undone. |
 | 2 | **Licence violation** | Redistributing data a licence forbids, or shipping content whose terms we have not read. This project's non-commercial standing (decision 3) and its per-feed restrictions are load-bearing, and a violation is not fixed by a later commit — it has already happened. |
 | 3 | **The app would assert a false fact to a user** | A wrong value rendered with confidence. Rule 7's category: absent provenance is loud and self-correcting, wrong provenance is silent and self-justifying. This is the failure the whole project is built to prevent, so it outranks finishing the task it was found during. |
+| 4 | **A fix that would change specced behaviour** | **Upgraded from append-and-continue on 2026-08-14.** Shipping it means the app no longer does what a decision said it should, and a spec silently overtaken by a fix is a spec nobody can trust to describe the app. It stops instead of being recorded — the decision to change what was specced belongs to whoever specced it. |
+
+> Item 4 previously sat in the append-and-continue list above and was moved here by explicit
+> instruction. Both lists are kept in sync deliberately: a protocol that lives in one
+> conversation while the file says something else is the failure this file exists to prevent.
 
 A defect that is *latent* — real but not reachable by a user today, like the form-of-government
 coin flip while the app makes no runtime fetches — is **not** an emergency. It is recorded
@@ -35,11 +40,17 @@ here or fixed in place, and the work continues.
 
 ## Status
 
-**Six open.** Surfaced during the queue run and the fetch-layer build of 2026-08-12.
+**Eight open, one answered.** Questions 1, 2, 3, 5 and 6 remain open from the queue run and
+the fetch-layer build of 2026-08-12. **Question 4 (P3) was answered on 2026-08-14** and is
+kept with its answer rather than deleted. **Questions 7, 8 and 9 were raised on 2026-08-14**
+during the overnight run: the goal statement that arrived without its content, whether to
+register disease.sh with data frozen since March 2023, and the absence of a licence class
+expressing non-commercial *and* share-alike together.
 
 *(This line said "Five" while six were listed below it — a document asserting a false fact
 about itself, which is the same category of defect as a panel asserting a false fact about a
-country, in the one file whose job is to be read instead of the code.)*
+country, in the one file whose job is to be read instead of the code. It is now written as a
+breakdown rather than a single number, because a bare count is the thing that drifts.)*
 
 ---
 
@@ -180,3 +191,105 @@ every panel and the queue's rule is that a finding does not become a silent beha
 **My recommendation:** keep it, and clarify `Fact.asOf`'s contract to say it dates the source
 release rather than the individual value — which makes the current behaviour correct and the
 other three suppressions still correct, since in those cases there was no release consulted.
+
+---
+
+## 7. The overnight goal was set without its content
+
+**Raised 2026-08-14, overnight run.** The instruction establishing the overnight protocol —
+no human available, judgement calls recorded here and worked past, four emergency stops —
+did not state the goal itself.
+
+**Assumption taken, so work could continue rather than stall until morning:** the standing
+approved sequence from `SPEC-EXPANSION.md`,
+
+> disease.sh/WHO → UNHCR → KEV → Ember → batched `Fact`-model migration (B1+B3+B4+P3) →
+> FIRMS → rest of Phase A
+
+which was approved explicitly and was the next item when the instruction arrived.
+
+**Why this is the safe reading.** It continues work already sanctioned rather than opening
+anything new, every item passes the same gate, and nothing in it touches the four emergency
+categories. If a different goal was intended, the cost is one night on approved work rather
+than a night on the wrong thing.
+
+**What would change it:** any statement of the intended goal. Recorded here rather than
+assumed silently, because a session that invents its own objective and reports progress
+against it is indistinguishable from one that was told to do it.
+
+---
+
+## 8. disease.sh: register a source whose data froze in March 2023?
+
+**Raised 2026-08-14, overnight run.** `SPEC-EXPANSION.md` Phase A2 pairs disease.sh with WHO
+Disease Outbreak News as "the foundation of biohazard mode". Measured, the two are in
+completely different states, so they cannot enter the gate as one item.
+
+**WHO DON is live** — OData, `ACAO: *`, newest entry dated the day it was checked. Taken
+through the gate on its own.
+
+**disease.sh is frozen.** Its cumulative COVID series ends **2023-03-09**; `todayCases` is `0`
+for all 231 countries simultaneously; its `updated` field reports "0 hours ago" regardless;
+and the influenza endpoints its homepage advertises return 404. Full measurement in
+`FOUND.md`.
+
+**Why this needs you rather than a judgement call.** It is a question about what the app is
+for, not about parsing:
+
+| Option | Cost |
+| --- | --- |
+| **(a) Do not register it.** | Loses nothing that is current, but the spec named it, so declining is a spec change. |
+| **(b) Register with hard staleness labelling** — every value carries `as of 2023-03-09` and renders through the existing stale treatment, `todayCases` never rendered at all. | Honest, and the app already has the machinery. But it ships a panel of three-year-old numbers whose only honest reading is "this is history", which may not be what "biohazard mode" was meant to be. |
+| **(c) Register as historical-only**, explicitly framed as the 2020–2023 pandemic record rather than current surveillance. | Truthful and possibly useful, but it is a different feature from the one specced. |
+
+**My recommendation: (b) or (c), not (a)** — the data is real and the app's staleness
+treatment exists precisely so old data can be shown honestly rather than hidden. But **the
+`updated` field must never reach a badge**, under any option: it is a fresh timestamp over
+frozen data, which is the wrong-provenance failure rule 7 calls worse than no provenance.
+
+**What I did in the meantime:** took WHO DON through the gate alone and left disease.sh
+unregistered. Registering a source is cheap to do later and expensive to undo once a panel
+depends on it.
+
+**Also unresolved by this question:** the item's acceptance criterion — that "no reported
+cases" and "no surveillance data" render differently — was written for disease.sh, and this
+source cannot express a true reported zero. If disease.sh is dropped, that criterion needs a
+different source to land against (UNHCR and FEWS NET both have genuine zero-versus-absent
+distinctions).
+
+---
+
+## 9. No licence class expresses "non-commercial AND share-alike"
+
+**Raised 2026-08-14, overnight run, while registering WHO Disease Outbreak News.**
+
+WHO publications are **CC BY-NC-SA 3.0 IGO** — attribution, non-commercial, and share-alike
+together. The registry's classes treat two of those as alternatives:
+
+| Class | Meaning |
+| --- | --- |
+| `nc` | Non-commercial only. Must be isolated behind its own adapter so a change in project status means swapping one module. |
+| `share-alike` | Copyleft. Derived datasets inherit the licence. Must be stored separately and never merged into a general-purpose derived table. |
+
+**Both constraints are real for this source and each class drops one.** `nc` loses the
+copyleft obligation on derived tables; `share-alike` loses the isolation requirement that
+exists so a change in the project's commercial standing is a one-module swap.
+
+**What I did:** classified `who-don` as `share-alike`, because that is the constraint that
+shapes *code* — where derived data may live — while non-commercial is currently satisfied by
+the project's standing (decision 3) rather than by any structure. The non-commercial term is
+recorded in the `license` string and in `notes`, so it is not lost, only unenforced.
+
+**Why it needs you.** This is the same shape as the `restricted` split decided earlier today:
+one name covering two postures means neither can be checked. The options:
+
+| Option | Cost |
+| --- | --- |
+| **(a) Add `nc-share-alike`** | Consistent with the `restricted` split; a fourth class to keep straight, and it will want its own guard. |
+| **(b) Make classes composable** — a list rather than one value | Correct in principle, and a schema change touching every source and every consumer of `licenseClass`. |
+| **(c) Leave it** — classify by the stricter structural constraint, record the rest in prose | Cheapest; the isolation requirement for NC sources becomes documentation rather than a check, which is how `restricted` drifted in the first place. |
+
+**My recommendation: (a)**, on the precedent set today — but not taken unilaterally, because
+adding classes is a schema decision and the last one came with an enforcing guard, which this
+would also need. Cloudflare Radar (CC BY-NC) and CIVICUS (CC BY-SA) in Phase A will land on
+the same question, so it is worth settling before they arrive rather than after.

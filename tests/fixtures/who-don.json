@@ -1,0 +1,75 @@
+{
+  "@odata.context": "https://www.who.int/api/news/$metadata#diseaseoutbreaknews(Id,DonId,Title,PublicationDateAndTime,ItemDefaultUrl)",
+  "value": [
+    {
+      "Id": "3a950a6c-8e9a-4d58-b8db-6840bd02db92",
+      "ItemDefaultUrl": "/2026-DON615",
+      "PublicationDateAndTime": "2026-08-14T15:38:29Z",
+      "Title": "Ebola disease caused by Bundibugyo virus - Democratic Republic of the Congo",
+      "DonId": "2026-DON615"
+    },
+    {
+      "Id": "19668b4d-5e4f-45bf-94d5-4e2ebcb5a67d",
+      "ItemDefaultUrl": "/2026-DON614",
+      "PublicationDateAndTime": "2026-08-01T10:13:28Z",
+      "Title": "Ebola disease caused by Bundibugyo virus - Democratic Republic of the Congo",
+      "DonId": "2026-DON614"
+    },
+    {
+      "Id": "a06665c4-2ff2-411b-8767-25e299dac63f",
+      "ItemDefaultUrl": "/2026-DON613",
+      "PublicationDateAndTime": "2026-07-17T16:13:00Z",
+      "Title": "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo & Uganda",
+      "DonId": "2026-DON613"
+    },
+    {
+      "Id": "608d728d-b078-4614-9ccf-682229ebfee8",
+      "ItemDefaultUrl": "/2026-DON612",
+      "PublicationDateAndTime": "2026-07-03T15:13:57Z",
+      "Title": "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo & Uganda",
+      "DonId": "2026-DON612"
+    },
+    {
+      "Id": "b4022b8d-0ad5-4022-b1ac-1d6661578e74",
+      "ItemDefaultUrl": "/2026-DON611",
+      "PublicationDateAndTime": "2026-07-02T18:00:00Z",
+      "Title": "Hantavirus outbreak linked to cruise ship travel, Multi-locations",
+      "DonId": "2026-DON611"
+    },
+    {
+      "Id": "ff0edd89-ede9-4566-8196-6fd2e302637c",
+      "ItemDefaultUrl": "/2026-DON609",
+      "PublicationDateAndTime": "2026-06-25T18:00:00Z",
+      "Title": "Nipah virus disease - India",
+      "DonId": "2026-DON609"
+    },
+    {
+      "Id": "10a3727f-44e6-48dd-9655-1ecd02e8e6fd",
+      "ItemDefaultUrl": "/2026-DON610",
+      "PublicationDateAndTime": "2026-06-24T18:00:00Z",
+      "Title": "Yellow fever - Global",
+      "DonId": "2026-DON610"
+    },
+    {
+      "Id": "fb4b241b-9a51-4098-ac84-3a6b74469487",
+      "ItemDefaultUrl": "/2026-DON608",
+      "PublicationDateAndTime": "2026-06-19T12:10:23Z",
+      "Title": "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo & Uganda",
+      "DonId": "2026-DON608"
+    },
+    {
+      "Id": "375711fd-e6fe-4251-8cd5-ebc3ef02d9fe",
+      "ItemDefaultUrl": "/2026-DON607",
+      "PublicationDateAndTime": "2026-06-13T08:06:15Z",
+      "Title": "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo & Uganda",
+      "DonId": "2026-DON607"
+    },
+    {
+      "Id": "3325c520-37a9-4d24-8b30-18ebe5bf202d",
+      "ItemDefaultUrl": "/2026-DON606",
+      "PublicationDateAndTime": "2026-06-08T12:35:09Z",
+      "Title": "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo & Uganda",
+      "DonId": "2026-DON606"
+    }
+  ]
+}

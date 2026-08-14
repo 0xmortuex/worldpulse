@@ -258,3 +258,45 @@ the three failures" is uninterpretable as evidence.
 fresh hover to be observed, which `measure-frame-profile.mjs` already implements as its
 `cleared` mode — then measure the read race on its own under a stated harness configuration
 per rule 20a. Two defects, fixed and measured in the order that lets each be seen.
+
+---
+
+## disease.sh reports a fresh timestamp over data frozen in March 2023
+
+**Found while taking disease.sh + WHO through the gate (SPEC-EXPANSION Phase A2), 2026-08-14.**
+
+| Check | Result |
+| --- | --- |
+| `/v3/covid-19/countries` | 231 countries, HTTP 200, `ACAO: *` |
+| `updated` field on every row | **0 hours ago** |
+| `todayCases` on every row | **0, for all 231** |
+| `/v3/covid-19/historical/USA?lastdays=all` | 1143 points, `1/22/20` → **`3/9/23`** |
+| `/v3/influenza`, `/v3/influenza/countries` | **404**, though the homepage advertises influenza |
+
+**The `updated` field is the API's own refresh time, not the date the data refers to.** It
+reads "0h ago" on a cumulative series that has not moved since **9 March 2023** — three and a
+half years. Rule 4's "as of" is the date the DATA refers to, and `updated` is not it.
+
+**`todayCases: 0` is not a reported zero.** All 231 countries report it simultaneously, which
+is not 231 countries observing no cases; it is the absence of any new figure. Rendering it as
+"no new cases reported today" would assert a false fact to a user — the emergency category
+this project stops for — and it would do so with a fresh-looking timestamp beside it, which is
+rule 7's *wrong provenance is worse than absent provenance* exactly.
+
+**Consequence for the rule 30 acceptance criterion.** The criterion for this item was that
+"no reported cases" and "no surveillance data" must render differently. Against this source
+the distinction is not the one it looks like:
+
+| Apparent state | What it actually is |
+| --- | --- |
+| `todayCases: 0` | no new figure published since 2023-03-09 — **not** a reported zero |
+| country absent from the 231 | no row in this source at all — 21 ISO3 codes, including `PRI` and `GUM`, which are folded into `USA` rather than unmeasured |
+
+So this source has **no true "reported zero" state at all**, and its "absent" state conflates
+"never covered" with "aggregated into a parent". Neither maps cleanly onto the criterion, and
+building the distinction on top of it would encode a third meaning it cannot support.
+
+**The WHO half is unaffected and live.** `https://www.who.int/api/news/diseaseoutbreaknews` —
+OData, `ACAO: *`, newest entry dated the day it was checked. The two halves of this Phase A
+item are in completely different states, which is why they are separated in
+`OPEN-QUESTIONS.md` question 8 rather than registered together.

@@ -1121,6 +1121,26 @@
       "transport": "direct",
       "notes": "LICENCE READING, 2026-08-14 — the terms could not be read from this machine and were NOT accepted. The dataset item states \"© 2022 INTERNATIONAL MONETARY FUND. ALL RIGHTS RESERVED\" with no reuse grant. The licence URL in PortWatch own metadata (imf.org/external/terms.htm) is DEAD — it redirects into a 404 handler — and the live terms page (imf.org/en/About/copyright-and-terms) returns 403 from Akamai. Both are walls, not evidence: no answer about the terms is not an answer that they are permissive (rule 30). Treated like the RSS feeds — render figures with attribution and link out, never redistribute the dataset. UNITS (rule 22) — capacity* are trade volumes in METRIC TONS. The authority for that is the catalogue item description, NOT the service field metadata, which carries empty descriptions and aliases that merely echo field names. The contract test asserts the two do not disagree rather than silently preferring either. TIER SPLIT — n_* are COUNTED transit calls (OFFICIAL). capacity* are payload ESTIMATES the IMF itself describes as modelled from vessel length, width, draft, capacity and block coefficient times deadweight tonnage (Arslanalp, Koepke & Verschuur, IMF WP/2021/225). Rendering capacity as OFFICIAL would assert a measured tonnage the source calls an estimate. CAVEATS — whether the IMF documents the GPS-jamming / AIS-spoofing / dark-vessel limitations could not be established: the site is a JS-rendered ArcGIS Hub app that did not hydrate under the checking browser, so the result is inconclusive, not negative. The panel caveat therefore renders as OUR statement about AIS-derived data with its basis cited, never as theirs.",
       "schemaVersion": 1
+    },
+    {
+      "id": "who-don",
+      "name": "WHO Disease Outbreak News",
+      "panel": "risk",
+      "homepage": "https://www.who.int/emergencies/disease-outbreak-news",
+      "probeUrl": "https://www.who.int/api/news/diseaseoutbreaknews?%24orderby=PublicationDateAndTime+desc&%24top=10&%24select=Id%2CDonId%2CTitle%2CPublicationDateAndTime%2CItemDefaultUrl",
+      "license": "CC BY-NC-SA 3.0 IGO — WHO publications are open access under this licence (who.int/about/policies/publishing/copyright, read 2026-08-14).",
+      "licenseClass": "share-alike",
+      "attribution": "Disease Outbreak News, World Health Organization (CC BY-NC-SA 3.0 IGO).",
+      "cadence": "continuous",
+      "ttlMs": 3600000,
+      "tier": "OFFICIAL",
+      "keyRequired": false,
+      "keyEnv": null,
+      "verifiedAgainst": "live",
+      "origin": "https://www.who.int",
+      "transport": "direct",
+      "notes": "LICENCE READ 2026-08-14 — CC BY-NC-SA 3.0 IGO. Non-commercial suits decision 3; attribution is mandatory; share-alike binds derivative works. Classified share-alike rather than nc because the share-alike constraint is the one that shapes code (derived tables must stay separate), while non-commercial is satisfied by the project standing. NO REGISTRY CLASS EXPRESSES BOTH — see OPEN-QUESTIONS 9. WHAT IS INGESTED — headline, publication date and a link back, requested via  so WHO full text (Overview, Epidemiology, Assessment, Advice) never crosses the network. Headlines are WHO wording, never rewritten. NO COUNTRY IS PARSED FROM A TITLE. The payload carries no structured country field and titles include \"Multi-locations\" entries, so attaching a country would assert a link WHO did not publish. See src/sources/who-don.ts. ORDERING IS EXPLICIT — the unordered default returned a page whose newest entry was 18 months stale while the true newest was published that morning.",
+      "schemaVersion": 1
     }
   ],
   "verifiedAgainstValues": {

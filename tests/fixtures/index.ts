@@ -6,6 +6,7 @@ import eonetEvents from './eonet-events.json';
 import wikipediaSummaryLive from './wikipedia-summary-live.json';
 import commonsImageinfoLive from './commons-imageinfo-live.json';
 import portwatchChokepoints from './portwatch-chokepoints.json';
+import whoDon from './who-don.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -13,6 +14,7 @@ import { summaryUrl as wikipediaSummaryUrl } from '../../src/sources/wikipedia';
 import { commonsImageinfoUrl } from '../../src/dossier/portrait';
 import { buildCountryQueryUrl } from '../../src/sources/wikidata-dossier';
 import { buildChokepointQueryUrl } from '../../src/sources/portwatch';
+import { buildDonQueryUrl } from '../../src/sources/who-don';
 import type { FetchContext } from '../../src/sources/adapter';
 
 /**
@@ -97,6 +99,19 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'portwatch-chokepoints',
     requestUrl: buildChokepointQueryUrl({ chokepointId: 'chokepoint1', year: 2026, month: 8, throughDay: 7 }),
     body: portwatchChokepoints,
+  },
+  /**
+   * A real capture, like PortWatch's — but deliberately NOT reproducible.
+   *
+   * This query means "the ten most recent reports", so re-capturing returns
+   * different ones. That is correct for a news source: pinning it would make the
+   * fixture describe a request the app never makes. The contract test is written
+   * to survive the drift, which rule 4 requires of it regardless.
+   */
+  'who-don': {
+    sourceId: 'who-don',
+    requestUrl: buildDonQueryUrl({ count: 10 }),
+    body: whoDon,
   },
   worldbank: {
     sourceId: 'worldbank',
