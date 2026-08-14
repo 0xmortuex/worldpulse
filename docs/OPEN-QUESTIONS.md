@@ -356,3 +356,32 @@ in the Refugee Data Finder's own download UI. If CC BY 4.0 holds, change `licens
 Cloudflare Radar, CC BY-NC) arrive with the same shape of claim. It is worth deciding once
 whether a spec-asserted licence may be trusted when the terms page is unreachable, rather
 than three times separately.
+
+---
+
+## 11. Ember needs an API key that cannot be provisioned autonomously
+
+**Raised 2026-08-14, overnight run.** `SPEC-EXPANSION.md` Phase A7 records Ember as "CC BY 4.0,
+free key, 215 countries". Everything about that is accurate, and the key is the block.
+
+**What was completed without it:** registered with the licence **read and verified** (CC BY
+4.0, from `ember-energy.org/creative-commons/` — a genuine reading, not a spec claim and not
+rule-derived per L15), probed with a verdict (**KEY-GATED**, HTTP 403 `{"detail":"No API key
+set"}`), transport declared `worker`, and the shape hazards documented in `FOUND.md`.
+
+**What could not be completed:** a live fixture, a contract test against real bytes, and an
+adapter. `verifiedAgainst` is therefore **`documentation`**, which blocks deployment by design
+(A6) and is the honest state — no response from this source has ever been seen by this repo.
+
+**Why the keyless path does not rescue it.** Ember publishes bulk CSVs without a key, but
+neither sends `access-control-allow-origin`, so a browser cannot read them, and they are 16.0MB
+and 4.1MB. Worker-required, and the Worker does not exist. Full measurement in `FOUND.md`.
+
+**What is needed from you:** a key at `api.ember-energy.org`, placed in `EMBER_API_KEY`. The
+registry entry already names that variable, so the remaining gate steps are mechanical once it
+exists.
+
+**One judgement inside this, if you would rather not issue a key:** the app could take Ember
+through the Worker from the public CSVs instead, which needs no key but does need the Worker
+built and a 16MB file handled server-side. That is a different piece of work from "register a
+source", and it is not obviously the right trade for a generation-mix row.

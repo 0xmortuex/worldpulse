@@ -328,3 +328,39 @@ not carry returns:
 have any cases". Any app propagating that as a zero would assert a false fact on the source's
 behalf. It is a clean statement of why rule 30's distinction has to be enforced by the
 consumer: the producer here cannot make it, and says so.
+
+---
+
+## Ember's keyless bulk CSVs cannot be read by a browser
+
+**Found while taking Ember through the gate (SPEC-EXPANSION Phase A7), 2026-08-14.**
+
+The spec records Ember as "CC BY 4.0, free key". The key is genuinely free and genuinely
+blocking: `api.ember-energy.org` returns `403 {"detail":"No API key set"}` and issuing one
+needs a signup. But Ember also publishes bulk CSVs with no key at all, which looked like a way
+round it. Measured:
+
+| File | Size | `access-control-allow-origin` |
+| --- | --- | --- |
+| `release_generation_yearly_global.csv` | **16.0 MB** | **absent** |
+| `release_generation_yearly_lower.csv` | **4.1 MB** | **absent** |
+
+**Neither is browser-readable.** No ACAO header means a page cannot read the response, so both
+are worker-required — and the Worker does not exist yet. Their size independently rules them
+out as fixtures.
+
+So the keyless path is real, is not a shortcut, and the block stands. Recorded because the
+next session will find those URLs too and should not spend the discovery twice.
+
+**Two shape hazards in the CSV, for whoever eventually lands it:**
+
+- **Regional aggregates share the table with countries.** `Area type` is `Region` for rows
+  like `ASEAN`, whose `ISO 3 code` is blank. Reading the file as a country table files
+  ASEAN's generation under nothing, or worse, under whatever the parser defaults to. Same
+  shape as UNHCR's world-aggregate row.
+- **`Is aggregated source` marks rows that already total other rows.** Summing the column
+  without respecting the flag double-counts generation.
+- **An empty cell is not a zero.** `Generation (TWh)` is `0.0` for Solar in 2000 — a reported
+  zero — while `Generation YoY change (TWh)` is empty in the same row, because there is no
+  prior year to compare. The third instance tonight of the distinction UNHCR and CISA KEV both
+  required.

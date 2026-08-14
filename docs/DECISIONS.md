@@ -573,3 +573,15 @@ run that registered them.
 Proving it at the fact layer is what makes the eventual panel unable to get it wrong, and
 `tests/unhcr-contract.test.ts` plants the cases so the distinction does not depend on this
 year's response containing a dash.
+
+## CISA KEV is adapter-only and global — 2026-08-14
+
+| # | Decision |
+| --- | --- |
+| P6 | **`cisa-kev` is registered, probed, fixtured, contract-tested and adapted, and renders nowhere.** Its spec'd home is a cyber row in Risk & Stability, which is step 10 work and does not exist. Same terms as P4/P5. |
+| P7 | **KEV is a global figure and carries no country dimension, and none will be inferred.** The catalogue lists vulnerabilities, not victims or jurisdictions. Attributing an entry to a country by vendor headquarters, or by where exploitation was observed, would be this app inventing a fact CISA did not publish. Asserted by contract test, not merely avoided. |
+| P8 | **`knownRansomwareCampaignUse` is three-valued and must never become a boolean.** `Unknown` means CISA has no evidence either way; 1,316 of 1,665 entries carry it. A `=== 'Known'` coercion would have the app assert, about the majority of the catalogue, that these vulnerabilities are not used by ransomware — which CISA has never said. The caveat is attached to the fact so the value cannot render bare. |
+
+**The mirror is mandatory.** `cisagov/kev-data` on GitHub, never `cisa.gov` directly, which has
+rate-limited and IP-blocked direct fetches. The contract test asserts the request URL is the
+mirror and is not cisa.gov, so the constraint survives someone "simplifying" the URL later.

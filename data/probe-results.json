@@ -1,14 +1,14 @@
 {
-  "probedAt": "2026-08-14T17:50:56.966Z",
+  "probedAt": "2026-08-14T18:04:26.359Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "unhcr-population"
+    "ember-electricity"
   ],
   "counts": {
-    "CLIENT-FETCH": 26,
+    "CLIENT-FETCH": 27,
     "INCONCLUSIVE": 1,
     "WORKER-REQUIRED": 16,
-    "KEY-GATED": 6,
+    "KEY-GATED": 7,
     "UNREACHABLE": 1
   },
   "results": [
@@ -1542,6 +1542,73 @@
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
       "probedAt": "2026-08-14T17:50:56.966Z"
+    },
+    {
+      "id": "cisa-kev",
+      "name": "CISA Known Exploited Vulnerabilities catalogue (cisagov mirror)",
+      "panel": "risk",
+      "url": "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 403,
+        "ms": 615,
+        "cors": {
+          "access-control-allow-origin": "*"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 547,
+        "contentType": "text/plain; charset=utf-8",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "180799",
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "max-age=300"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T17:58:11.982Z"
+    },
+    {
+      "id": "ember-electricity",
+      "name": "Ember — yearly electricity generation",
+      "panel": "economy",
+      "url": "https://api.ember-energy.org/v1/electricity-generation/yearly?entity_code=DEU&limit=2",
+      "keyRequired": true,
+      "keyEnv": "EMBER_API_KEY",
+      "licenseClass": "open",
+      "preflight": {
+        "status": 200,
+        "ms": 866,
+        "cors": {
+          "access-control-allow-origin": "https://worldpulse.pages.dev",
+          "access-control-allow-methods": "GET",
+          "access-control-allow-headers": "content-type",
+          "access-control-allow-credentials": "true",
+          "access-control-max-age": "600"
+        }
+      },
+      "get": {
+        "status": 403,
+        "ms": 604,
+        "contentType": "application/json",
+        "bytes": 27,
+        "truncated": false,
+        "contentLength": "27",
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-credentials": "true"
+        },
+        "cacheControl": null
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key EMBER_API_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
+      "probedAt": "2026-08-14T18:04:26.359Z"
     }
   ]
 }

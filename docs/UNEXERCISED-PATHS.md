@@ -389,3 +389,15 @@ whole argument is that passing assertions are not the same as a working panel.
 
 **What would close it:** the step-10 Risk & Stability panel, with a browser assertion that a
 counted zero and a no-data field render distinguishably.
+
+### 12a. CISA KEV, on the same terms
+
+`cisa-kev` joins §12: registry → request → parse → `Fact` is exercised by
+`tests/cisa-kev-contract.test.ts` and the fixture manifest; **no browser check renders it**,
+because its cyber row in Risk & Stability is step 10 work that does not exist
+(`DECISIONS.md` P6).
+
+**What is therefore unproven:** that `Unknown` renders visibly differently from `Known`. The
+three-state is enforced in the adapter and asserted in tests, and its caveat travels on the
+fact — but no reader has yet seen the two side by side, and a panel that renders `Unknown` as
+a bare dash or an empty cell would undo the whole point at the last step.
