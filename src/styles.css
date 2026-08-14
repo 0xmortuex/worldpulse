@@ -396,6 +396,18 @@ button.badge { cursor: pointer; }
   background: #1a1024;
   font-style: italic;
 }
+/* A fourth tier, below ESTIMATE. Distinguished on THREE channels, not colour
+   alone: a desaturated slate hue, a `double` border (solid/dashed/dotted are
+   already spoken for by official/estimate/derived), and the '?' glyph. Low
+   chroma is the point — an uncorroborated claim should read as quiet, not as an
+   alarm. The alarm treatment belongs to .badge--broken, which is our defect
+   rather than the world's missing evidence. */
+.badge--unverified {
+  color: #8fa3b5;
+  border: 3px double #4a5b6b;
+  background: #10161c;
+  font-style: italic;
+}
 .badge--unconfigured {
   color: var(--text-faint);
   border: 1px solid var(--border);

@@ -55,6 +55,9 @@ const TIER_GLYPH: Record<Tier, string> = {
   OFFICIAL: '✓',
   ESTIMATE: '≈',
   DERIVED: 'ƒ',
+  // '?' rather than a warning mark: this is an absence of corroboration, not an
+  // alarm. The alarm glyph belongs to UNTRACEABLE, which is our defect.
+  UNVERIFIED: '?',
 };
 
 export interface FactOptions {

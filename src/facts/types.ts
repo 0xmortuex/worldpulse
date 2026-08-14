@@ -4,7 +4,19 @@ import { assertNever } from './exhaustive';
  * Confidence tiers. Rendered visually distinct at a glance; ESTIMATE and
  * DERIVED must never be mistakable for OFFICIAL.
  */
-export type Tier = 'OFFICIAL' | 'ESTIMATE' | 'DERIVED';
+/**
+ * `UNVERIFIED` sits BELOW `ESTIMATE`, and is not a failure state.
+ *
+ * An estimate is someone credible publishing an approximation. `UNVERIFIED` is a
+ * value this app could not corroborate at all — a single uncorroborated report, a
+ * figure from a source with no verification status. It is still a value, it still
+ * has provenance, and it still renders; what it lacks is anyone standing behind it.
+ *
+ * It must not be confused with `UNTRACEABLE`, which is a defect: a value that
+ * reached the UI with no provenance. That one is our bug and shouts. This one is
+ * an honest statement about the world's evidence, and is merely quiet.
+ */
+export type Tier = 'OFFICIAL' | 'ESTIMATE' | 'DERIVED' | 'UNVERIFIED';
 
 export type CacheState = 'hit' | 'miss' | 'stale-revalidating';
 
@@ -316,4 +328,6 @@ export const TIER_EXPLANATIONS: Record<Tier, string> = {
     'From a credible third party, but inherently approximate. Different analysts publish different figures.',
   DERIVED:
     'Computed by this app from other data, or extracted from news text. Not reported by any source in this form.',
+  UNVERIFIED:
+    'Reported, but not corroborated. No second source confirms this and the publisher states no verification. Weaker than an estimate: an estimate is someone credible approximating, this is a claim standing alone.',
 };
