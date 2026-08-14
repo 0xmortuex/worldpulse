@@ -585,3 +585,42 @@ year's response containing a dash.
 **The mirror is mandatory.** `cisagov/kev-data` on GitHub, never `cisa.gov` directly, which has
 rate-limited and IP-blocked direct fetches. The contract test asserts the request URL is the
 mirror and is not cisa.gov, so the constraint survives someone "simplifying" the URL later.
+
+## The P3 disclosure caveat was decided, recorded, and never rendered — 2026-08-15
+
+Established before starting the batched `Fact`-model migration, because the migration's
+commit 5 was specified as "the relations panel's disclosure caveat comes off". It could not
+come off. **It was never on.**
+
+**How it was established**, since absence is only evidence if you look in the right place
+(rule 10): `singleView` in `src/ui/panel.ts` — the entire relations panel — was read in full,
+not grepped for guessed wording. Then `git log -S` across all branches for five candidate
+phrasings, and the harness for any assertion naming it.
+
+| Search | Result |
+| --- | --- |
+| `src/ui/panel.ts` read in full | no P3 disclosure of any wording |
+| `git log --all -S` × 5 phrasings over `src/` | one hit: the **code comment** in `provenanceState` added by `3be3c99` saying P3 "is NOT implemented here and cannot be" |
+| `scripts/verify-render.mjs` | no assertion mentions a relations disclosure |
+
+So the disclosure of the P3 gap has lived, for its whole life, in a **code comment and this
+decision log** — two places a reader never sees.
+
+### The finding, stated precisely rather than inflated
+
+**The panel is not undisclosed.** It renders a `DERIVED` badge on the "Classified relations"
+heading, a `low conf.` tag per row for stale evidence (decision 8a), and a per-row score fact
+whose badge opens the provenance inspector. P1, P2 and P9 all propagate, so an input that is
+broken, unconfigured or whose fetch failed **does** surface and is visible today.
+
+**What is invisible is exactly the P3 case and nothing else:** an input that was asked and came
+back *empty*. `DerivedProvenance.inputs` holds provenances, and "no data" is a property of a
+value, so a `nodata` input vanishes into a confident score with no trace — while every other
+defective input state is caught. The gap is narrow, and it is the sharpest one: it is the only
+input state that can be absorbed silently.
+
+| # | Decision |
+| --- | --- |
+| P10 | **Recorded as a false-visibility defect: a disclosure that was decided, written down, and never shipped.** For four days every reference to "the caveat on the panel" described something that did not exist. This is the doc-versus-tree class at its most user-facing — the documentation was not merely stale, it asserted a user-visible behaviour that had never been built. |
+| P11 | **It is not retro-added.** Commit 5 of the migration replaces it with the real propagation, so adding it now buys four commits of lifespan for a message that is about to become untrue. Motion, not honesty. |
+| P12 | **A decision that specifies user-visible behaviour needs an assertion, or it is a note.** The rule 6 principle — a rule that has never failed is not a rule — applied to decisions: nothing failed when this was never built, because nothing ever checked. The propagation landing in commit 5 ships with a browser assertion, so the same gap cannot reopen silently. |
