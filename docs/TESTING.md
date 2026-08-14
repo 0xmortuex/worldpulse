@@ -387,7 +387,42 @@ every swiftshader run on the same box completed. No GPU driver or TDR events app
 Windows system log for those windows and no Playwright process was left orphaned, so the
 cause is recorded as unidentified rather than guessed at.
 
-#### This configuration has TWO frame-rate flakes, not one
+#### CORRECTED — the second "flake" was a harness defect, and it is fixed
+
+**What this section said, and why it was wrong.** It recorded `… : clickable` as a second
+frame-rate flake, concluded that "this machine cannot run the browser suite to a clean sheet",
+and declined to fix it on the grounds that any fix would convert a measured environmental limit
+into a green tick. **The first two claims were false and the third was a way of not looking.**
+
+Instrumenting the click showed the element was neither slow nor covered: it was being
+**replaced**. Re-selecting a country swaps `[data-tab="economy"]` — measured at 18 mutations
+and 2 replacements in the 3s after a scenario switch, with `elementFromPoint` returning the tab
+itself, unobstructed. Playwright's actionability wait handles an element that moves or is
+covered; it cannot help with one that is replaced, because every retry re-resolves the selector
+and starts over. The 15s was spent re-resolving a moving target, not waiting for a slow frame.
+
+**The cause was fixed durations, which rule 15 already forbade.** `selectCountry` parked for
+250ms and 500ms — both under one frame at 750ms/frame — and returned mid-rebuild. The rule was
+written and then not applied to the one helper that most needed it.
+
+**Fixed by conditions, not by relaxation.** `waitForStableNode` requires a selector to resolve
+to the same node for three consecutive frames before `clickOrFail` clicks; `waitForDomQuiet`
+requires a subtree to stop mutating for three frames before a caller reads it. Both are
+frame-based, so they scale with the machine instead of assuming one. No timeout was raised, no
+retry added, no check skipped, no tolerance widened.
+
+**Result on this configuration: 273 assertions, 0 failures** — the marker click included, which
+had failed in the two runs before the fix. The claim that this machine could not produce a
+clean sheet was wrong, and it was wrong because a harness defect had been filed as an
+environmental one.
+
+**The lesson worth keeping.** "Environmental" is the most comfortable explanation available for
+a flaky check, and it is unfalsifiable until someone instruments it. Two runs' worth of evidence
+were read as confirming it when they were equally consistent with DOM churn. A flake attributed
+to the machine should carry the measurement that rules out the code, or it is a guess wearing a
+configuration table.
+
+#### Superseded: the original two-flake reading
 
 Recorded because "the known marker-click check" is the sandbox's flake list, and on this box it
 is incomplete. Two `npm run verify` runs on the same machine, same swiftshader configuration,
@@ -413,10 +448,15 @@ with an unchanged box. It is the same fault surfacing at a different call site.
 totals are not comparable between runs on this configuration — worth knowing before reading a
 count drop as lost coverage.
 
-**Not fixed, and deliberately not worked around.** Raising the timeout, retrying the click, or
-skipping the check would each convert a measured environmental limit into a green tick. The
-honest statement is that this machine cannot run the browser suite to a clean sheet, and that
-is a property of the machine.
+**Superseded 2026-08-14 — see the correction above.** This paragraph originally declared the
+failure unfixable and a property of the machine. It was a harness defect: fixed durations in
+`selectCountry` returning mid-rebuild, and `clickOrFail` handing Playwright a node that was
+being replaced. The suite now runs to 273 assertions and 0 failures on this configuration.
+
+The reasoning is kept rather than deleted because it was wrong in an instructive way: every
+sentence in it is a correct general principle — do not raise timeouts, do not retry to green,
+do not skip — deployed to justify not investigating. The principles are right; using them as a
+reason to stop looking was not.
 
 #### What this configuration says about the mechanism
 

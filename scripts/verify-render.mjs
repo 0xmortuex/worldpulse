@@ -142,6 +142,79 @@ async function waitFor(page, fn, timeoutMs = 6000) {
   }
 }
 
+/**
+ * Wait until a subtree stops changing, measured in ANIMATION FRAMES.
+ *
+ * Rule 15 says waits in this harness must be conditions, never durations, and
+ * `selectCountry` was still parking for 250ms and 500ms. On the sandbox those
+ * were several frames; on a 750ms/frame box they are each under one, so the
+ * function returned while the dossier was still rebuilding.
+ *
+ * What that costs is not a slow test — it is a FLAKY one. Re-selecting a country
+ * replaces the tab strip: measured, 18 mutations and 2 replacements of
+ * `[data-tab="economy"]` in the 3s after a scenario switch. Playwright resolves
+ * the locator, waits for the element to be stable, the node is swapped underneath
+ * it, and it retries — until 15s runs out and reports `locator.click: Timeout`.
+ * The element was never unclickable; it kept being a different element.
+ *
+ * Frames rather than milliseconds because the thing being waited for is renders,
+ * and a machine that renders slowly needs to wait longer for the same number of
+ * them. This is the same reason the frame profile is recorded per configuration.
+ */
+async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15_000 } = {}) {
+  return page.evaluate(
+    ({ sel, frames, timeout }) =>
+      new Promise((resolve) => {
+        /**
+         * NO FALLBACK TO document.body — that was a bug, and an expensive one.
+         *
+         * An earlier version observed `body` when the selector was absent. The
+         * globe rewrites its tooltip container continuously, so `body` never
+         * goes quiet: every call burned its full timeout, the suite slowed by
+         * 270s, and step 7 went from one failure to five because the globe had
+         * moved on by the time anything clicked.
+         *
+         * A missing subtree is not a busy one. There is nothing to wait for, so
+         * this returns immediately and lets the caller's own assertions speak.
+         */
+        const target = document.querySelector(sel);
+        if (target === null) {
+          resolve(true);
+          return;
+        }
+        let dirty = true;
+        const observer = new MutationObserver(() => {
+          dirty = true;
+        });
+        observer.observe(target, { childList: true, subtree: true, attributes: true });
+
+        const started = performance.now();
+        let quiet = 0;
+        const tick = () => {
+          if (dirty) {
+            quiet = 0;
+            dirty = false;
+          } else {
+            quiet += 1;
+          }
+          if (quiet >= frames) {
+            observer.disconnect();
+            resolve(true);
+            return;
+          }
+          if (performance.now() - started > timeout) {
+            observer.disconnect();
+            resolve(false);
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+    { sel: selector, frames: quietFrames, timeout: timeoutMs },
+  );
+}
+
 const failures = [];
 
 /**
@@ -303,7 +376,58 @@ for (const event of ['uncaughtException', 'unhandledRejection']) {
  * still counts as a failure, and it still fails the run. What changes is that a
  * failure in one step stops invalidating measurements of unrelated steps.
  */
+/**
+ * Wait until a selector resolves to the SAME node for several frames running.
+ *
+ * This measures the thing that actually breaks clicks here. Playwright's own
+ * actionability wait handles an element that moves or is covered; it cannot help
+ * with an element that is *replaced*, because each retry re-resolves the
+ * selector and starts again. Measured on this app: re-selecting a country
+ * swapped `[data-tab="economy"]` twice within 3s, and the click burned its full
+ * 15s retrying a node that kept becoming a different node.
+ *
+ * Scoped to the element, never to `document.body` — the globe rewrites its
+ * tooltip container continuously, so a body-wide wait never returns. That
+ * mistake cost a whole verify run earlier tonight.
+ *
+ * Frames, not milliseconds: what is being waited on is renders, and a slow
+ * machine needs longer to produce the same number of them.
+ */
+async function waitForStableNode(page, selector, { quietFrames = 3, timeoutMs = 10_000 } = {}) {
+  return page.evaluate(
+    ({ sel, frames, timeout }) =>
+      new Promise((resolve) => {
+        let last = document.querySelector(sel);
+        let stable = 0;
+        const started = performance.now();
+        const tick = () => {
+          const now = document.querySelector(sel);
+          if (now !== null && now === last) {
+            stable += 1;
+          } else {
+            stable = 0;
+            last = now;
+          }
+          if (stable >= frames) {
+            resolve(true);
+            return;
+          }
+          if (performance.now() - started > timeout) {
+            resolve(false);
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+    { sel: selector, frames: quietFrames, timeout: timeoutMs },
+  );
+}
+
 async function clickOrFail(page, selector, label) {
+  // Stop handing Playwright a moving target. This does not relax the click's own
+  // 15s budget — it stops that budget being spent re-resolving a replaced node.
+  await waitForStableNode(page, selector);
   try {
     await page.locator(selector).click({ timeout: 15_000 });
     return true;
@@ -712,9 +836,33 @@ step('3 — dossier header, leader resolution');
 
 async function selectCountry(name) {
   await page.locator('.search-input').fill(name);
-  await page.waitForTimeout(250);
+  /**
+   * A condition on CONTENT, not on quiescence.
+   *
+   * The old 250ms park was under half a frame here. Quiescence is the wrong
+   * instrument for this half: the results list is absent until the filter runs,
+   * and "absent" quiets instantly, which would wait for nothing at all. What
+   * Enter actually needs is a result to select.
+   */
+  await waitFor(page, () => (document.querySelector('.search-results')?.children.length ?? 0) > 0, 10_000);
   await page.keyboard.press('Enter');
-  await page.waitForTimeout(500);
+
+  /**
+   * The dossier rebuild has to FINISH before anything clicks into it.
+   *
+   * The old 500ms park was under one frame here, so a caller could click a tab
+   * that was about to be replaced — which is precisely how `economy tab:
+   * clickable` timed out while every assertion after it passed.
+   *
+   * Reported on failure only, matching `clickOrFail`: a healthy run adds no
+   * assertions, and a dossier that never settles says so instead of failing
+   * something later and unrelated.
+   */
+  const settled = await waitForDomQuiet(page, '.dossier');
+  if (!settled) {
+    check(`${name}: dossier settled after selection`, false, 'the dossier kept mutating for 15s');
+  }
+  return settled;
 }
 
 // Rule 2 — presidential, one portrait.
