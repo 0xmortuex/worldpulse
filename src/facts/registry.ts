@@ -6,7 +6,7 @@ import type { Tier } from './types';
  * registry is JSON, and a union alone cannot check JSON — it can only be
  * asserted over it. See `parseRegistry` below.
  */
-const LICENSE_CLASSES = ['open', 'nc', 'share-alike', 'restricted'] as const;
+const LICENSE_CLASSES = ['open', 'nc', 'share-alike', 'restricted', 'restricted-minimal'] as const;
 const VERIFIED_AGAINST = ['documentation', 'live', 'bundled'] as const;
 const TIERS = ['OFFICIAL', 'ESTIMATE', 'DERIVED'] as const;
 const TRANSPORTS = ['direct', 'worker'] as const;
@@ -162,7 +162,17 @@ export function verifiedAgainstNote(verified: VerifiedAgainst): string {
  * registry file nobody opens.
  */
 export function licenseIsConstrained(licenseClass: LicenseClass): boolean {
-  return licenseClass === 'nc' || licenseClass === 'share-alike' || licenseClass === 'restricted';
+  // `restricted-minimal` is listed explicitly rather than folded in by "not
+  // open": it grants nothing in general and permits only minimal attributed
+  // elements, which is a constraint the reader must see at the point of use.
+  // Deriving this from the absence of `open` would silently reclassify any
+  // future class someone adds.
+  return (
+    licenseClass === 'nc' ||
+    licenseClass === 'share-alike' ||
+    licenseClass === 'restricted' ||
+    licenseClass === 'restricted-minimal'
+  );
 }
 
 /**

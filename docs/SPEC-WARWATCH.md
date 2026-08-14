@@ -111,7 +111,40 @@ Vessel and aircraft positions. AIS via a free-tier provider; ADS-B via OpenSky.
 
 ### Hormuz Strait monitor
 
-A regional view of the same broadcast traffic through a named chokepoint, with transit
+> **AMENDED 2026-08-14 — the data source is now IMF PortWatch, not raw broadcast traffic.**
+> `SPEC-EXPANSION.md` Phase A6 replaces the AIS-based monitor with PortWatch's aggregated
+> chokepoint data: methodologically rigorous, published by an IGO, and aggregated rather than
+> per-vessel, which retires most of what made the original version dangerous to build.
+> `portwatch-chokepoints` is **already registered, probed, fixtured, contract-tested and
+> adapted** (`src/sources/portwatch.ts`). Only the surface is missing, and it lands here.
+
+#### Requirements this panel inherits, and must not be built without
+
+These are **rendering requirements**, in the same class as the FIRMS labelling rule. They are
+recorded here because a requirement that lives only in a conversation is a requirement the
+session that builds the panel will not have. `UNEXERCISED-PATHS.md` §11 tracks them as
+unexercised until this panel exists.
+
+1. **The AIS caveat must render, and a browser assertion must prove it renders.** The text is
+   `AIS_CAVEAT`, exported from `src/sources/portwatch.ts` so the panel and the assertion share
+   one source of truth. It states that the figures derive from AIS broadcasts, which can be
+   jammed or spoofed and which a vessel can switch off, and that transits by vessels not
+   broadcasting are not counted.
+2. **The caveat renders as OURS, with its basis inline.** Whether the IMF documents these
+   limitations could not be established, so it must not be attributed to them. Its basis —
+   Arslanalp, Koepke & Verschuur, IMF WP/2021/225 — appears **on the rendered surface**, not
+   only in the provenance inspector: a reader who never opens the inspector still learns whose
+   claim it is and where it comes from.
+3. **The tier split must survive to the badge.** Transit counts render `OFFICIAL`; trade
+   volumes render `ESTIMATE` with `unit: "metric tons"`. Rendering a volume as `OFFICIAL`
+   asserts a measured tonnage the IMF calls an estimate.
+4. **Transit counts are counts of transits, labelled as such** — the surviving half of the
+   original rule below. PortWatch counts a vessel crossing the chokepoint boundary, once per
+   transit, with a 48-hour re-count threshold. That is not "traffic through the strait".
+5. **The licence is `restricted-minimal`**: figures with attribution and a link back, never
+   bulk redistribution of the dataset.
+
+A regional view of transit activity through a named chokepoint, with transit
 counts over time and relevant commodity prices alongside.
 
 - **The Tracking-mode disclosure appears verbatim, not softened for a focused view.** A

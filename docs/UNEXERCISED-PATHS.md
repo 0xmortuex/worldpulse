@@ -343,3 +343,29 @@ which is exactly the claim rule 20a says to record with its configuration.
 Note that even with egress the scenario mechanism would remain necessary: the four states
 are each reachable only through a specific remote failure, and demonstrating them against a
 live origin means waiting for it to break.
+
+## 11. PortWatch's adapter is proven; its rendering path does not exist
+
+| Path | Exercised by | NOT exercised by |
+| --- | --- | --- |
+| registry → request → parse → `Fact`, for `portwatch-chokepoints` | `tests/portwatch-contract.test.ts` against a **real captured fixture**, and the fixture manifest, which builds its URL from `buildChokepointQueryUrl` | any browser check — **nothing renders it** |
+
+**This is deliberate, not an omission.** PortWatch replaces the AIS-based Hormuz monitor in
+`SPEC-WARWATCH.md`, which schedules that monitor **last** of its eight items "because its
+disclosure requirements are the strictest and it must not be built under time pressure".
+Building an interim surface to satisfy the gate would rush exactly that. Recorded in
+`DECISIONS.md` as P1/P2.
+
+**What is therefore unproven.** The tier split reaches no badge; the `metric tons` unit
+reaches no rendered value; and **the AIS caveat reaches no reader**. The caveat is the one
+that matters most, because a figure rendered without it is a claim we did not intend to make
+— so its browser assertion is written into SPEC-WARWATCH's item-8 requirements rather than
+left to be remembered.
+
+**What would close it:** the item-8 panel, with the assertions listed in that spec. Until
+then this row stays, on the same terms as §10: the environmental blocker is gone and the
+check is simply not written.
+
+> The distinction §10 draws applies here too. `verifiedAgainst: "live"` says the **data
+> path** is proven. It does not say a user can see any of it, and it must never be read that
+> way.

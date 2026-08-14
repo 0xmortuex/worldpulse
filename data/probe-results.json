@@ -1,11 +1,11 @@
 {
-  "probedAt": "2026-08-14T16:43:20.193Z",
+  "probedAt": "2026-08-14T17:01:37.581Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "camara-br"
+    "portwatch-chokepoints"
   ],
   "counts": {
-    "CLIENT-FETCH": 23,
+    "CLIENT-FETCH": 24,
     "INCONCLUSIVE": 1,
     "WORKER-REQUIRED": 16,
     "KEY-GATED": 6,
@@ -1444,6 +1444,42 @@
       "verdict": "KEY-GATED",
       "reason": "Key EIA_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
       "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "portwatch-chokepoints",
+      "name": "IMF PortWatch — daily chokepoint transit data",
+      "panel": "layers",
+      "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0/query?where=portid%3D'chokepoint1'+AND+year%3D2026+AND+month%3D8+AND+day%3C%3D7&outFields=*&returnGeometry=false&orderByFields=date+ASC&f=json",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 1407,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-headers": "Content-Type, Authorization, X-Esri-Authorization",
+          "access-control-allow-credentials": "true"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 459,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 5818,
+        "truncated": false,
+        "contentLength": "940",
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-headers": "Content-Type, Authorization, X-Esri-Authorization",
+          "access-control-allow-credentials": "true",
+          "access-control-expose-headers": "Request-Context"
+        },
+        "cacheControl": "public, max-age=30, s-maxage=30"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T17:01:37.581Z"
     }
   ]
 }

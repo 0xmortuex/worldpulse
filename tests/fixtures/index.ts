@@ -5,12 +5,14 @@ import gdeltDoc from './gdelt-doc.json';
 import eonetEvents from './eonet-events.json';
 import wikipediaSummaryLive from './wikipedia-summary-live.json';
 import commonsImageinfoLive from './commons-imageinfo-live.json';
+import portwatchChokepoints from './portwatch-chokepoints.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
 import { summaryUrl as wikipediaSummaryUrl } from '../../src/sources/wikipedia';
 import { commonsImageinfoUrl } from '../../src/dossier/portrait';
 import { buildCountryQueryUrl } from '../../src/sources/wikidata-dossier';
+import { buildChokepointQueryUrl } from '../../src/sources/portwatch';
 import type { FetchContext } from '../../src/sources/adapter';
 
 /**
@@ -78,6 +80,24 @@ function isNetworkFailure(error: unknown): boolean {
 }
 
 export const FIXTURES: Record<string, Fixture> = {
+  /**
+   * THE FIRST REAL CAPTURE IN THIS DIRECTORY.
+   *
+   * Every other fixture here was hand-authored from published documentation,
+   * because the container this project was built in could not reach a live
+   * origin. This machine can, so this body is the bytes the service actually
+   * returned — fetched from `buildChokepointQueryUrl` itself, not from a URL
+   * written out by hand beside it.
+   *
+   * The query is pinned to one chokepoint and a closed date window so re-running
+   * it returns the same rows. A fixture whose query means "the last seven days"
+   * is a fixture that silently changes what it proves.
+   */
+  'portwatch-chokepoints': {
+    sourceId: 'portwatch-chokepoints',
+    requestUrl: buildChokepointQueryUrl({ chokepointId: 'chokepoint1', year: 2026, month: 8, throughDay: 7 }),
+    body: portwatchChokepoints,
+  },
   worldbank: {
     sourceId: 'worldbank',
     requestUrl: worldbankUrl('USA', 'NY.GDP.MKTP.CD', 3),

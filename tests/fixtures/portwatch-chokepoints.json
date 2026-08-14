@@ -1,0 +1,357 @@
+{
+  "objectIdFieldName": "ObjectId",
+  "uniqueIdField": {
+    "name": "ObjectId",
+    "isSystemMaintained": true
+  },
+  "globalIdFieldName": "",
+  "fields": [
+    {
+      "name": "date",
+      "type": "esriFieldTypeDateOnly",
+      "alias": "date",
+      "sqlType": "sqlTypeDate",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "year",
+      "type": "esriFieldTypeInteger",
+      "alias": "year",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "month",
+      "type": "esriFieldTypeInteger",
+      "alias": "month",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "day",
+      "type": "esriFieldTypeInteger",
+      "alias": "day",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "portid",
+      "type": "esriFieldTypeString",
+      "alias": "portid",
+      "sqlType": "sqlTypeNVarchar",
+      "length": 4000,
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "portname",
+      "type": "esriFieldTypeString",
+      "alias": "portname",
+      "sqlType": "sqlTypeNVarchar",
+      "length": 4000,
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_container",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_container",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_dry_bulk",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_dry_bulk",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_general_cargo",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_general_cargo",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_roro",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_roro",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_tanker",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_tanker",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_cargo",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_cargo",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "n_total",
+      "type": "esriFieldTypeInteger",
+      "alias": "n_total",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity_container",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity_container",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity_dry_bulk",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity_dry_bulk",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity_general_cargo",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity_general_cargo",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity_roro",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity_roro",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity_tanker",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity_tanker",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity_cargo",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity_cargo",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "capacity",
+      "type": "esriFieldTypeInteger",
+      "alias": "capacity",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "ObjectId",
+      "type": "esriFieldTypeOID",
+      "alias": "ObjectId",
+      "sqlType": "sqlTypeInteger",
+      "domain": null,
+      "defaultValue": null
+    }
+  ],
+  "features": [
+    {
+      "attributes": {
+        "date": "2026-08-01",
+        "year": 2026,
+        "month": 8,
+        "day": 1,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 7,
+        "n_dry_bulk": 12,
+        "n_general_cargo": 6,
+        "n_roro": 2,
+        "n_tanker": 15,
+        "n_cargo": 27,
+        "n_total": 42,
+        "capacity_container": 118756,
+        "capacity_dry_bulk": 362260,
+        "capacity_general_cargo": 18590,
+        "capacity_roro": 0,
+        "capacity_tanker": 554575,
+        "capacity_cargo": 499607,
+        "capacity": 1054183,
+        "ObjectId": 2370
+      }
+    },
+    {
+      "attributes": {
+        "date": "2026-08-02",
+        "year": 2026,
+        "month": 8,
+        "day": 2,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 5,
+        "n_dry_bulk": 7,
+        "n_general_cargo": 2,
+        "n_roro": 1,
+        "n_tanker": 16,
+        "n_cargo": 15,
+        "n_total": 31,
+        "capacity_container": 192905,
+        "capacity_dry_bulk": 163080,
+        "capacity_general_cargo": 25937,
+        "capacity_roro": 0,
+        "capacity_tanker": 863398,
+        "capacity_cargo": 381923,
+        "capacity": 1245322,
+        "ObjectId": 2371
+      }
+    },
+    {
+      "attributes": {
+        "date": "2026-08-03",
+        "year": 2026,
+        "month": 8,
+        "day": 3,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 11,
+        "n_dry_bulk": 15,
+        "n_general_cargo": 1,
+        "n_roro": 0,
+        "n_tanker": 17,
+        "n_cargo": 27,
+        "n_total": 44,
+        "capacity_container": 661589,
+        "capacity_dry_bulk": 485379,
+        "capacity_general_cargo": 2279,
+        "capacity_roro": 0,
+        "capacity_tanker": 480499,
+        "capacity_cargo": 1149248,
+        "capacity": 1629747,
+        "ObjectId": 2372
+      }
+    },
+    {
+      "attributes": {
+        "date": "2026-08-04",
+        "year": 2026,
+        "month": 8,
+        "day": 4,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 9,
+        "n_dry_bulk": 11,
+        "n_general_cargo": 6,
+        "n_roro": 0,
+        "n_tanker": 9,
+        "n_cargo": 26,
+        "n_total": 35,
+        "capacity_container": 492231,
+        "capacity_dry_bulk": 664393,
+        "capacity_general_cargo": 56130,
+        "capacity_roro": 0,
+        "capacity_tanker": 513181,
+        "capacity_cargo": 1212755,
+        "capacity": 1725936,
+        "ObjectId": 2373
+      }
+    },
+    {
+      "attributes": {
+        "date": "2026-08-05",
+        "year": 2026,
+        "month": 8,
+        "day": 5,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 6,
+        "n_dry_bulk": 11,
+        "n_general_cargo": 2,
+        "n_roro": 2,
+        "n_tanker": 22,
+        "n_cargo": 21,
+        "n_total": 43,
+        "capacity_container": 63132,
+        "capacity_dry_bulk": 505876,
+        "capacity_general_cargo": 18562,
+        "capacity_roro": 4660,
+        "capacity_tanker": 530128,
+        "capacity_cargo": 592232,
+        "capacity": 1122360,
+        "ObjectId": 2374
+      }
+    },
+    {
+      "attributes": {
+        "date": "2026-08-06",
+        "year": 2026,
+        "month": 8,
+        "day": 6,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 10,
+        "n_dry_bulk": 8,
+        "n_general_cargo": 3,
+        "n_roro": 2,
+        "n_tanker": 16,
+        "n_cargo": 23,
+        "n_total": 39,
+        "capacity_container": 433478,
+        "capacity_dry_bulk": 240924,
+        "capacity_general_cargo": 34345,
+        "capacity_roro": 3609,
+        "capacity_tanker": 511538,
+        "capacity_cargo": 712357,
+        "capacity": 1223896,
+        "ObjectId": 2375
+      }
+    },
+    {
+      "attributes": {
+        "date": "2026-08-07",
+        "year": 2026,
+        "month": 8,
+        "day": 7,
+        "portid": "chokepoint1",
+        "portname": "Suez Canal",
+        "n_container": 8,
+        "n_dry_bulk": 9,
+        "n_general_cargo": 7,
+        "n_roro": 5,
+        "n_tanker": 14,
+        "n_cargo": 29,
+        "n_total": 43,
+        "capacity_container": 133821,
+        "capacity_dry_bulk": 356656,
+        "capacity_general_cargo": 48971,
+        "capacity_roro": 16245,
+        "capacity_tanker": 536672,
+        "capacity_cargo": 555695,
+        "capacity": 1092368,
+        "ObjectId": 2376
+      }
+    }
+  ]
+}

@@ -501,3 +501,43 @@ sources: the `rss-*` feeds were added with the news tab and never re-probed. The
 gate skips any source with no probe row, so it read green over 16 of 54 — green because it
 was not looking. The gate now fails on a registered, probeable source with no row, which is
 the fix; the declarations above are the cleanup.
+
+## PortWatch is live without a surface — 2026-08-14
+
+| # | Decision |
+| --- | --- |
+| P1 | **`portwatch-chokepoints` is registered, probed, fixtured, contract-tested and adapted, and renders nowhere.** `verifiedAgainst: "live"` means the data path is proven — registry → request → parse → `Fact` — not that a panel shows it. |
+| P2 | **Its panel lands with SPEC-WARWATCH item 8, and not before.** PortWatch replaces that spec's AIS-based Hormuz monitor, which that spec deliberately schedules **last** "because its disclosure requirements are the strictest and it must not be built under time pressure". Inventing an interim surface to satisfy the gate's "then live" step would rush precisely what the spec says not to rush. |
+| P3b | **The AIS caveat assertion is bound to that panel** and is recorded in SPEC-WARWATCH's item-8 requirements, not only here. A rendering requirement that exists only in a conversation is the missing-handoff failure again. |
+
+**The tier split is load-bearing and is commented at the adapter.** `n_*` are counted transit
+calls (`OFFICIAL`); `capacity_*` are payload estimates the IMF itself describes as modelled
+from vessel dimensions × deadweight tonnage (Arslanalp, Koepke & Verschuur, IMF WP/2021/225),
+so they are `ESTIMATE` carrying `unit: "metric tons"`. Collapsing both families to one tier
+would assert a measured tonnage the source calls an estimate.
+
+**The caveat is ours, not the IMF's.** Whether PortWatch documents the jamming/spoofing/
+dark-vessel limitations could not be established — its site is a JS-rendered ArcGIS Hub app
+that did not hydrate under the checking browser, so the result is **inconclusive, not
+negative**. Attribution is asymmetric: ours can be re-attributed upward if IMF wording is
+later found; our wording laundered as theirs cannot be walked back. It carries its basis
+inline on the rendered surface, not only in the inspector.
+
+## The licence class `restricted` was covering two postures — 2026-08-14
+
+`restricted` was defined as "No licence grant for reuse. **Not ingested.** Link-out only."
+Fifteen RSS feeds carried it while being ingested every render, and `exchangerate-host` and
+`comtrade` carried it while declaring a `worker` transport. The definition was strictly
+correct; the practice was defensible; **one name covering both is what made neither
+checkable.**
+
+| # | Decision |
+| --- | --- |
+| L12 | **Split, do not reword.** Rewording `restricted` to fit the practice would destroy the strict posture, and a future source will need exactly it — a licence that grants nothing and a source we must not ingest at all. |
+| L13 | **`restricted-minimal`**: no general grant; minimal attributed elements ingested (a headline, outlet, timestamp and link; or a numeric value with its source named); never bulk redistribution; link-out for everything else. |
+| L14 | **The distinction is enforced, not documented.** `scripts/licence-posture.mjs` fails a strict `restricted` source that declares a `transport` — the licence saying "not ingested" while the transport says how we fetch it is a contradiction inside the registry. Planted cases in `tests/licence-posture.test.ts`. |
+
+18 sources reclassified to `restricted-minimal`: the 15 `rss-*` feeds, `exchangerate-host`,
+`comtrade`, and `portwatch-chokepoints`. **Strict `restricted` now has no members**, which is
+the intended state — the class is available and honest rather than stretched to cover work it
+was never meant to describe.
