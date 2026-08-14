@@ -329,9 +329,11 @@ async function clickOrFail(page, selector, label) {
  * 10s — the element is not there — while costing 80 seconds of a run that is
  * already the slowest thing in this project.
  */
-async function textOrFail(page, selector, label) {
+async function textOrFail(page, selector, label, kind = 'innerText') {
   try {
-    return await page.locator(selector).innerText({ timeout: 15_000 });
+    return kind === 'innerHTML'
+      ? await page.locator(selector).innerHTML({ timeout: 15_000 })
+      : await page.locator(selector).innerText({ timeout: 15_000 });
   } catch (error) {
     check(`${label}: present to read`, false, String(error?.message ?? error).split('\n')[0].slice(0, 120));
     return '';
@@ -1400,7 +1402,7 @@ check(
 );
 check(
   'no failed indicator is worded as the country having no data',
-  !/>\s*no data\s*</i.test(await page.locator('.econ').innerHTML()),
+  !/>\s*no data\s*</i.test(await textOrFail(page, '.econ', 'unavailable panel markup', 'innerHTML')),
 );
 await shot(page, `${SHOTS}/17c-economy-unavailable.png`);
 
