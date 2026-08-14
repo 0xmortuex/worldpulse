@@ -5,6 +5,7 @@ import {
   anchorProblem,
   assertionsRun,
   classifyMutation,
+  namedAssertionRan,
   stepWasExercised,
 } from '../scripts/mutation-verdict.mjs';
 
@@ -45,6 +46,7 @@ const CAUGHT_OUT = `
 
 /** A healthy run in which something else fired, but not the named assertion. */
 const ELSEWHERE_OUT = `
+  ok   party legend rows have non-zero height
   FAIL dossier header renders a portrait
 
   262 assertions across 9 steps, 0 skipped
@@ -52,6 +54,8 @@ const ELSEWHERE_OUT = `
 
 /** A healthy run in which nothing failed: the mutation went unnoticed. */
 const SURVIVED_OUT = `
+  ok   party legend rows have non-zero height
+
   262 assertions across 9 steps, 0 skipped
 
 all checks passed
@@ -110,6 +114,7 @@ describe('mutation verdict classification', () => {
 
   it('ignores the self-test, which fails by design on every healthy run', () => {
     const out = `
+  ok   party legend rows have non-zero height
   FAIL self-test (expected to fail) {"rows":1}
 
   262 assertions across 9 steps, 0 skipped
@@ -126,6 +131,7 @@ describe('regression — self-tests are never evidence, whatever they are called
     // which startsWith('self-test') does not match, so it was being counted as
     // evidence about the mutation. It fails on EVERY run by design.
     const out = `
+  ok   party legend rows have non-zero height
   FAIL collapse self-test (expected to fail): no overlap or overflow LI clips its content vertically
 
   262 assertions across 9 steps, 0 skipped
@@ -260,5 +266,46 @@ describe('a mutation whose own step never ran has no verdict', () => {
 
   it('does not regress the global zero-assertion guard', () => {
     assert.equal(assertionsRun(ABORTED_MIDWAY), 141);
+  });
+});
+
+describe('the named assertion must have run', () => {
+  const PARTIAL = `
+  ok   a panel whose every request failed renders unavailable
+  FAIL clicking a marker moved the camera at all
+
+per-step results
+  step                                         assert  pass  fail  skipped
+  7b — economy fetch states                         3     2     1  -
+
+  152 assertions across 10 steps, 2 skipped
+`;
+
+  it('scores a mutation NOT-EXERCISED when its named check never ran', () => {
+    // Step-level counting says "exercised" at 3 of 11 assertions. Being inside
+    // an exercised step is not the same as having been exercised.
+    const { verdict } = classifyMutation({
+      exit: 1,
+      out: PARTIAL,
+      expect: /worded as the country having no data/i,
+      step: '7b — economy fetch states',
+    });
+    assert.equal(verdict, 'NOT-EXERCISED');
+  });
+
+  it('counts a check that ran and PASSED as having run', () => {
+    // Otherwise a mutation the suite failed to notice would read NOT-EXERCISED
+    // instead of SURVIVED — hiding the one verdict that matters most.
+    assert.equal(namedAssertionRan(PARTIAL, /renders unavailable/i), true);
+  });
+
+  it('still scores a genuine catch', () => {
+    const { verdict } = classifyMutation({
+      exit: 1,
+      out: PARTIAL,
+      expect: /clicking a marker/i,
+      step: '7b — economy fetch states',
+    });
+    assert.equal(verdict, 'CAUGHT');
   });
 });

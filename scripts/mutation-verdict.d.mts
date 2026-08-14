@@ -14,6 +14,8 @@ export interface MutationVerdict {
 }
 
 export function assertionsRun(out: string): number | null;
+export function executedLabels(out: string): string[];
+export function namedAssertionRan(out: string, expect: RegExp | undefined): boolean | null;
 export function stepWasExercised(out: string, step: string | undefined): boolean | null;
 export function failingLabels(out: string): string[];
 export function classifyMutation(outcome: MutationOutcome): MutationVerdict;

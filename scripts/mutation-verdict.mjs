@@ -115,9 +115,31 @@ export function stepWasExercised(out, step) {
  * @param {{exit: number, out: string, expect: RegExp, step?: string}} outcome
  * @returns {{verdict: string, evidence: string[], matched: string[], assertions: number|null}}
  */
+/**
+ * Every check the run actually EXECUTED, passing or failing.
+ *
+ * `failingLabels` sees only failures, and step-level counting says "exercised"
+ * when a step ran 3 of its 11 assertions before aborting. Neither answers the
+ * question rule 34 asks: did the assertion this mutation names get the chance to
+ * fire? A mutation can only be evidence about a check that ran.
+ */
+export function executedLabels(out) {
+  const ok = [...out.matchAll(/^ {2}ok {3}(.+)$/gm)].map((m) => m[1].trim());
+  return [...ok, ...failingLabels(out)];
+}
+
+/** Did the assertion this mutation names actually run? */
+export function namedAssertionRan(out, expect) {
+  if (!expect) return null;
+  return executedLabels(out).some((label) => expect.test(label));
+}
+
 export function classifyMutation({ exit, out, expect, step }) {
   const assertions = assertionsRun(out);
   const exercised = stepWasExercised(out, step);
+  // The finest of the three: a step can run partially, so being in an exercised
+  // step is not the same as having been exercised.
+  const namedRan = namedAssertionRan(out, expect);
   const evidence = failingLabels(out).filter(isEvidence);
   const matched = evidence.filter((label) => expect.test(label));
 
@@ -126,7 +148,7 @@ export function classifyMutation({ exit, out, expect, step }) {
   // never looked. Ordering this after the exit check would restore the original
   // bug for any future abort that happens to exit clean.
   const verdict =
-    assertions === null || assertions === 0 || exercised === false
+    assertions === null || assertions === 0 || exercised === false || namedRan === false
       ? 'NOT-EXERCISED'
       : exit === 0
         ? 'SURVIVED'
