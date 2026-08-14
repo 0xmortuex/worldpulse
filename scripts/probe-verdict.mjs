@@ -41,7 +41,31 @@ export const VERDICT = {
   KEY: 'KEY-GATED',
   INCONCLUSIVE: 'INCONCLUSIVE',
   UNREACHABLE: 'UNREACHABLE',
+  /**
+   * The measuring network could not reach the host at all, so this run produced
+   * no evidence about the source.
+   *
+   * `UNREACHABLE` conflates two different facts: *the host is down* and *we
+   * could not get to it*. The first is about the source, the second about us,
+   * and rule 30 says those are different answers. `riksdagen` resets at the TCP
+   * layer from one network and answers 200 from another; `smartraveller` times
+   * out from both. They are indistinguishable from a single failed request.
+   *
+   * **This verdict is never inferred.** The probe cannot tell the two apart, so
+   * it keeps recording `UNREACHABLE` and a human records this instead, with the
+   * evidence, when they have grounds. Inferring it would convert a genuinely
+   * dead source into one that reports its last good verdict forever — failing
+   * toward optimism, which is the direction every false report in this project
+   * has failed toward.
+   */
+  UNMEASURABLE: 'UNMEASURABLE',
 };
+
+/**
+ * Verdicts that decide a transport. Everything else says nothing about the
+ * success path (rule 3), and a carry-forward annotation survives them.
+ */
+export const CONCLUSIVE = new Set([VERDICT.CLIENT, VERDICT.WORKER, VERDICT.KEY]);
 
 /**
  * Does the observed Access-Control-Allow-Origin let OUR origin read the body?

@@ -40,6 +40,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VERDICT, verdictForResponse } from './probe-verdict.mjs';
+import { isCarried, mergeResults, refreshedIds } from './probe-merge.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -226,6 +227,24 @@ function markdownTable(results, refreshed) {
     // When did THIS row's verdict come from? A merged table without per-row
     // dating reads as though every row was measured together.
     const when = r.probedAt ? r.probedAt.replace('T', ' ').slice(0, 16) : 'unknown';
+
+    /**
+     * A carried verdict is marked in the table, not only in the JSON.
+     *
+     * Provenance that exists only in the data file is provenance the reader does
+     * not have — the same argument the confidence tiers rest on. Someone
+     * scanning this table has to be able to tell "measured here" from "measured
+     * somewhere else and carried" without opening `probe-results.json`.
+     */
+    if (isCarried(r)) {
+      const c = r.carriedForward;
+      const seen = c.thisRun ? `, this run ${c.thisRun}` : '';
+      return (
+        `| \`${r.id}\` | ${r.panel} | — | \`—\` | **${r.verdict}** ⤳ carried | — | ` +
+        `↩ ${c.measuredFrom}, ${c.measuredAt}${seen} |`
+      );
+    }
+
     const mark = refreshed.includes(r.id) ? '**this run**' : when;
     return `| \`${r.id}\` | ${r.panel} | ${status} | \`${acao}\` | **${r.verdict}** | ${ms}ms | ${mark} |`;
   });
@@ -282,17 +301,34 @@ async function main() {
     .then((raw) => JSON.parse(raw).results ?? [])
     .catch(() => []);
 
-  const merged = new Map(previous.map((result) => [result.id, result]));
-  for (const result of fresh) merged.set(result.id, result);
-  const results = registry.sources
-    .map((source) => merged.get(source.id))
-    .filter((result) => result !== undefined);
+  /**
+   * Merging lives in `probe-merge.mjs` so the carry-forward rules are callable
+   * without a network (rule 32). Two of them decide whether a displayed verdict
+   * came from this run at all, which is not something to verify by hand once.
+   */
+  const results = mergeResults(
+    previous,
+    fresh,
+    registry.sources.map((source) => source.id),
+  );
 
-  const refreshed = fresh.map((result) => result.id);
-  const carried = results.filter((result) => !refreshed.includes(result.id));
-  if (carried.length > 0) {
+  const refreshed = refreshedIds(
+    results,
+    fresh.map((result) => result.id),
+  );
+  const notRefreshed = results.filter((result) => !refreshed.includes(result.id));
+  if (notRefreshed.length > 0) {
     console.error(
-      `refreshed ${refreshed.length}, carried forward ${carried.length} from earlier runs`,
+      `refreshed ${refreshed.length}, carried forward ${notRefreshed.length} from earlier runs`,
+    );
+  }
+
+  const annotated = results.filter(isCarried);
+  for (const row of annotated) {
+    console.error(
+      `  CARRIED  ${row.id} — ${row.verdict} measured from ${row.carriedForward.measuredFrom} ` +
+        `on ${row.carriedForward.measuredAt}` +
+        (row.carriedForward.thisRun ? `; this run saw ${row.carriedForward.thisRun}` : ''),
     );
   }
 
@@ -315,7 +351,15 @@ Probed as \`Origin: ${ORIGIN}\`
 
 Verdicts: **CLIENT-FETCH** the browser can read it directly · **WORKER-REQUIRED** it
 must go through the edge proxy · **KEY-GATED** needs a key first · **UNREACHABLE**
-network or policy failure.
+network or policy failure · **UNMEASURABLE** this network could not reach the host, so
+the run says nothing about the source.
+
+A row marked **⤳ carried** was NOT measured by this run. Its verdict was measured from
+another network, and the Probed column names which one and when. The carry expires the
+first time a network that can reach the host returns a conclusive verdict — a measurement
+always beats an annotation. \`UNREACHABLE\` is never promoted to \`UNMEASURABLE\`
+automatically: the probe cannot tell a dead host from an unreachable one, so a human
+records the difference with their evidence.
 
 Summary: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(' · ')}
 

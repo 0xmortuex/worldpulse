@@ -55,8 +55,32 @@ export function transportProblems(registry, probeResults) {
     }
 
     if (verdict === undefined) {
-      // Never probed. Absent transport is the correct state; a declared one is
-      // a value nobody measured.
+      /**
+       * Coverage, not only consistency.
+       *
+       * This branch used to complain ONLY when a transport was declared, which
+       * made a registered-but-unprobed source invisible: no row, no verdict, no
+       * problem, gate green. That is how 15 `rss-*` feeds and `howtheyvote-data`
+       * sat unchecked while this gate reported clean — it was green because it
+       * was not looking, which is rule 10 (absence is not evidence unless you
+       * looked in the right place) and rule 16 ("nothing matched" is not
+       * "nothing wrong") in one place. It is the same shape as a mutation run
+       * scoring a clean table over zero executed assertions.
+       *
+       * A source with no `probeUrl` is exempt on principle rather than by name:
+       * there is nothing to probe. Bundled datasets arrive through npm and never
+       * cross the network at runtime.
+       */
+      if (source.probeUrl) {
+        problems.push(
+          `${source.id}: registered with a probeUrl but has no probe row — ` +
+            'this gate cannot see the source at all; run `npm run probe`',
+        );
+        continue;
+      }
+
+      // Nothing to probe. Absent transport is the correct state; a declared one
+      // is a value nobody measured.
       if (declared !== undefined && !keyIsSecret) {
         problems.push(
           `${source.id}: transport is "${declared}" but the source has no probe verdict — ` +

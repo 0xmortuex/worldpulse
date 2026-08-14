@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { lockDecision, type LockRecord } from '../scripts/run-lock.mjs';
 
 /**
@@ -74,7 +76,14 @@ describe('signal handling does not cut short a caller with its own teardown', ()
     // earlier can finish — which is how a git worktree got leaked the first time
     // this lock met a SIGTERM.
     const { acquireRunLock } = await import('../scripts/run-lock.mjs');
-    const path = `${process.env['TMPDIR'] ?? '/tmp'}/worldpulse-locktest-${process.pid}.lock`;
+    // `os.tmpdir()`, not `TMPDIR ?? '/tmp'`. Windows sets TEMP/TMP and never
+    // TMPDIR, so the fallback resolved to `C:\tmp\` — a directory that does not
+    // exist — and this test failed with ENOENT on every Windows run while
+    // passing everywhere else. `run-lock.mjs` itself already resolves its own
+    // default this way; only the test hardcoded a POSIX path. Second instance
+    // of the class behind `test: the render-helper planted control never ran on
+    // Windows`.
+    const path = join(tmpdir(), `worldpulse-locktest-${process.pid}.lock`);
 
     const before = process.listenerCount('SIGTERM');
     const release = acquireRunLock('test', 'commit', path, { exitOnSignal: false });

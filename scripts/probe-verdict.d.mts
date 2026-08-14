@@ -4,7 +4,10 @@ export declare const VERDICT: {
   KEY: string;
   INCONCLUSIVE: string;
   UNREACHABLE: string;
+  UNMEASURABLE: string;
 };
+
+export declare const CONCLUSIVE: ReadonlySet<string>;
 
 export interface ProbeSourceFacts {
   keyRequired?: boolean;

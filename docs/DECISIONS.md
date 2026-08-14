@@ -475,3 +475,29 @@ names `git fetch` as the operator's move.
 Seven planted cases, including the ahead/behind ordering — `--left-right --count` prints
 ahead first, and reversing them would invert the whole check, letting a behind branch read
 as ahead and pass.
+
+## The Worker is load-bearing for the news tab — 2026-08-14
+
+Recorded because it changes what the app depends on to work, not just how a file is
+configured.
+
+Sixteen sources reached the registry without a `transport` declaration, and the first
+probe run that covered them measured what they need. **Twelve of the fifteen `rss-*` feeds
+are `WORKER-REQUIRED`** — they return a usable body but no `Access-Control-Allow-Origin`
+this origin can read, so a browser cannot fetch them directly. Only three can:
+
+| Transport | Feeds |
+| --- | --- |
+| `direct` | `rss-dw`, `rss-cna`, `rss-agenciabrasil` |
+| `worker` | `rss-npr` (ACAO pinned to `apps.npr.org`), `rss-voa`, `rss-bbc`, `rss-guardian`, `rss-france24`, `rss-aljazeera`, `rss-abc-au`, `rss-thehindu`, `rss-japantimes`, `rss-rnz`, `rss-rte`, `rss-yonhap` |
+
+| # | Decision |
+| --- | --- |
+| F8 | **The edge Worker is a runtime dependency of a shipped panel, not an edge case.** The news tab renders 12 of its 15 feeds through it. A Worker outage is a news tab outage, and the tab's degraded and unavailable states must be reachable through Worker failure specifically, not only through origin failure. |
+| F9 | **Worker rate limits are now a product constraint.** Twelve feeds at the news tab's cadence is a traffic figure to size against, not an afterthought — the same argument that made an unnecessary proxy hop a defect worth a gate. |
+
+**How this was hidden.** `data/probe-results.json` held 32 rows against a registry of 54
+sources: the `rss-*` feeds were added with the news tab and never re-probed. The transport
+gate skips any source with no probe row, so it read green over 16 of 54 — green because it
+was not looking. The gate now fails on a registered, probeable source with no row, which is
+the fix; the declarations above are the cleanup.

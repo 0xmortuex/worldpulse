@@ -85,9 +85,33 @@ describe('transport check', () => {
     assert.match(problems[0] ?? '', /no transport is declared/);
   });
 
-  it('leaves an unprobed, undeclared source alone', () => {
-    // Absent is the correct state for a source nobody has measured. Demanding a
-    // value here would push someone to invent one.
+  it('refuses a registered, probeable source that has no probe row', () => {
+    /**
+     * INVERTED 2026-08-14, and the old case is quoted here rather than deleted.
+     *
+     * It read `leaves an unprobed, undeclared source alone`, reasoning that
+     * "absent is the correct state for a source nobody has measured. Demanding a
+     * value here would push someone to invent one."
+     *
+     * That reasoning is correct about the TRANSPORT and wrong about the SOURCE.
+     * It encoded the gate's blindness as intended behaviour — and the blindness
+     * was load-bearing: 15 `rss-*` feeds and `howtheyvote-data` were registered,
+     * never re-probed, and therefore never checked. The gate read green over 16
+     * of 54 sources for as long as the probe file stayed stale.
+     *
+     * Demanding a probe row does not push anyone to invent a value; it pushes
+     * them to run the probe, which is the one action that produces a real one.
+     */
+    const problems = check([source({ probeUrl: 'https://example.test/feed.xml' })], []);
+    assert.equal(problems.length, 1, 'a registered, probeable source with no row must be named');
+    assert.match(problems[0] ?? '', /no probe row/);
+  });
+
+  it('leaves a source with nothing to probe alone', () => {
+    // What survives from the inverted case above. A bundled dataset arrives
+    // through npm and never crosses the network at runtime, so there is no
+    // request to make and no verdict to want. Exempt on the absence of a
+    // probeUrl — a principle — never by id.
     assert.deepEqual(check([source({})], []), []);
   });
 

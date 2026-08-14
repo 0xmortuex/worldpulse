@@ -220,6 +220,7 @@
       "notes": "Headline, link and summary only. NPR permits feed display with attribution. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://feeds.npr.org",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -240,6 +241,7 @@
       "notes": "US federal work, no rights reserved. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.voanews.com",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -260,6 +262,7 @@
       "notes": "Non-commercial only, which decision 3 satisfies. Link back is mandatory. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://feeds.bbci.co.uk",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -280,6 +283,7 @@
       "notes": "Headline and link only; do not render the full article body. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.theguardian.com",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -300,6 +304,7 @@
       "notes": "Attribution required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://rss.dw.com",
+      "transport": "direct",
       "schemaVersion": 1
     },
     {
@@ -320,6 +325,7 @@
       "notes": "Attribution required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.france24.com",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -340,6 +346,7 @@
       "notes": "Non-commercial only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.aljazeera.com",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -360,6 +367,7 @@
       "notes": "Attribution and link back required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.abc.net.au",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -380,6 +388,7 @@
       "notes": "Headline and link only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.thehindu.com",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -400,6 +409,7 @@
       "notes": "Non-commercial only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.channelnewsasia.com",
+      "transport": "direct",
       "schemaVersion": 1
     },
     {
@@ -420,6 +430,7 @@
       "notes": "Headline and link only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.japantimes.co.jp",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -440,6 +451,7 @@
       "notes": "NC and ND: display headline and link, never a modified excerpt. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.rnz.co.nz",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -460,6 +472,7 @@
       "notes": "Attribution and link back required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://www.rte.ie",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -480,6 +493,7 @@
       "notes": "The most permissive feed in the set; attribution still required. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://agenciabrasil.ebc.com.br",
+      "transport": "direct",
       "schemaVersion": 1
     },
     {
@@ -500,6 +514,7 @@
       "notes": "Headline and link only. Verified responding with a well-formed feed on 2026-08-12. licenseClass is 'restricted' because none of these grants redistribution: the app renders headline, outlet, timestamp and link ONLY, never article text.",
       "verifiedAgainst": "documentation",
       "origin": "https://en.yna.co.kr",
+      "transport": "worker",
       "schemaVersion": 1
     },
     {
@@ -699,6 +714,7 @@
       "notes": "Stable path. The live howtheyvote.eu API is self-described as experimental with no availability guarantee; use it only as a freshness layer.",
       "verifiedAgainst": "documentation",
       "origin": "https://api.github.com",
+      "transport": "direct",
       "schemaVersion": 1
     },
     {

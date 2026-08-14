@@ -1,15 +1,15 @@
 {
-  "probedAt": "2026-08-12T15:29:42.187Z",
+  "probedAt": "2026-08-14T16:43:20.193Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "wikimedia-commons"
+    "camara-br"
   ],
   "counts": {
-    "CLIENT-FETCH": 19,
-    "UNREACHABLE": 2,
-    "WORKER-REQUIRED": 4,
+    "CLIENT-FETCH": 23,
+    "INCONCLUSIVE": 1,
+    "WORKER-REQUIRED": 16,
     "KEY-GATED": 6,
-    "INCONCLUSIVE": 1
+    "UNREACHABLE": 1
   },
   "results": [
     {
@@ -22,23 +22,26 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 336,
+        "ms": 787,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 436,
+        "ms": 111,
         "contentType": "application/json;charset=utf-8",
         "bytes": 513,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET",
           "access-control-allow-headers": "X-Requested-With"
         },
-        "cacheControl": "public, max-age=86400"
+        "cacheControl": "public, max-age=55753"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "worldbank-milex",
@@ -50,14 +53,16 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 874,
+        "ms": 735,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 76,
+        "ms": 117,
         "contentType": "application/json;charset=utf-8",
         "bytes": 539,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET",
@@ -66,7 +71,8 @@
         "cacheControl": "public, max-age=86400"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "usgs-quakes",
@@ -78,7 +84,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 200,
-        "ms": 960,
+        "ms": 721,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, OPTIONS",
@@ -88,9 +94,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 818,
+        "ms": 607,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 203025,
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "21037",
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, OPTIONS",
@@ -100,7 +108,8 @@
         "cacheControl": "public, max-age=60"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "nasa-eonet",
@@ -112,7 +121,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 704,
+        "ms": 1447,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET",
@@ -122,16 +131,19 @@
       },
       "get": {
         "status": 200,
-        "ms": 1096,
+        "ms": 1105,
         "contentType": "application/rss+xml; charset=utf-8",
-        "bytes": 4004,
+        "bytes": 6173,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": "no-cache, private"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "wikidata-sparql",
@@ -143,7 +155,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 200,
-        "ms": 668,
+        "ms": 1297,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-headers": "accept, content-type, content-length, user-agent, api-user-agent"
@@ -151,7 +163,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 830,
+        "ms": 1054,
         "contentType": "application/sparql-results+json;charset=utf-8",
         "bytes": 196,
         "truncated": false,
@@ -164,7 +176,7 @@
       },
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
-      "probedAt": "2026-08-12T15:16:17.798Z"
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "wikipedia-rest",
@@ -176,7 +188,7 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 200,
-        "ms": 503,
+        "ms": 616,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET,HEAD",
@@ -186,9 +198,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 661,
+        "ms": 302,
         "contentType": "application/json; charset=utf-8; profile=\"https://www.mediawiki.org/wiki/Specs/Summary/1.5.0\"",
         "bytes": 2298,
+        "truncated": false,
+        "contentLength": "780",
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET,HEAD",
@@ -198,7 +212,8 @@
         "cacheControl": "s-maxage=1209600, max-age=300"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "wikimedia-commons",
@@ -210,7 +225,7 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 200,
-        "ms": 549,
+        "ms": 564,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "POST, GET, HEAD",
@@ -220,11 +235,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 609,
+        "ms": 576,
         "contentType": "application/json; charset=utf-8",
         "bytes": 2704,
         "truncated": false,
-        "contentLength": null,
+        "contentLength": "1086",
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-credentials": "false",
@@ -234,7 +249,7 @@
       },
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
-      "probedAt": "2026-08-12T15:29:42.187Z"
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "gdelt-doc",
@@ -245,19 +260,448 @@
       "keyEnv": null,
       "licenseClass": "nc",
       "preflight": {
+        "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
+        "ms": 10320
+      },
+      "get": {
+        "status": 429,
+        "ms": 13501,
+        "contentType": null,
+        "bytes": 444,
+        "truncated": false,
+        "contentLength": "444",
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "INCONCLUSIVE",
+      "reason": "Upstream returned HTTP 429; an error response is not evidence about the success path (ACAO observed on it: none). Re-probe with a request that succeeds.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-npr",
+      "name": "NPR News (RSS)",
+      "panel": "news",
+      "url": "https://feeds.npr.org/1001/rss.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 403,
+        "ms": 1003,
+        "cors": {
+          "access-control-allow-origin": "https://apps.npr.org"
+        }
+      },
+      "get": {
         "status": 200,
-        "ms": 15197,
+        "ms": 158,
+        "contentType": "text/xml;charset=UTF-8",
+        "bytes": 14413,
+        "truncated": false,
+        "contentLength": "4150",
+        "cors": {
+          "access-control-allow-origin": "https://apps.npr.org"
+        },
+        "cacheControl": "max-age=268"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "ACAO present but does not match our origin: https://apps.npr.org",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-voa",
+      "name": "Voice of America (RSS)",
+      "panel": "news",
+      "url": "https://www.voanews.com/api/zq$omekvi_",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 400,
+        "ms": 340,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 288,
+        "contentType": "text/xml; charset=utf-8",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "21509",
+        "cors": {},
+        "cacheControl": "private, max-age=712"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-bbc",
+      "name": "BBC News (RSS)",
+      "panel": "news",
+      "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 405,
+        "ms": 752,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 480,
+        "contentType": "text/xml; charset=utf-8",
+        "bytes": 21090,
+        "truncated": false,
+        "contentLength": "5053",
+        "cors": {},
+        "cacheControl": "public, max-age=5"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-guardian",
+      "name": "The Guardian (RSS)",
+      "panel": "news",
+      "url": "https://www.theguardian.com/world/rss",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 529,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 395,
+        "contentType": "text/xml; charset=UTF-8",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "31604",
+        "cors": {},
+        "cacheControl": "max-age=60, stale-while-revalidate=6, stale-if-error=864000, private"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-dw",
+      "name": "Deutsche Welle (RSS)",
+      "panel": "news",
+      "url": "https://rss.dw.com/rdf/rss-en-world",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 858,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
-        "error": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
-        "ms": 11119
+        "status": 200,
+        "ms": 307,
+        "contentType": "text/xml; charset=UTF-8",
+        "bytes": 11157,
+        "truncated": false,
+        "contentLength": "2803",
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "private, max-age=8"
       },
-      "verdict": "UNREACHABLE",
-      "reason": "Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms)",
-      "probedAt": "2026-08-12T15:17:03.020Z"
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-france24",
+      "name": "France 24 (RSS)",
+      "panel": "news",
+      "url": "https://www.france24.com/en/rss",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 463,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 175,
+        "contentType": "application/rss+xml; charset=utf-8",
+        "bytes": 28417,
+        "truncated": false,
+        "contentLength": "7152",
+        "cors": {},
+        "cacheControl": "public, max-age=300"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-aljazeera",
+      "name": "Al Jazeera (RSS)",
+      "panel": "news",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 1427,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 303,
+        "contentType": "application/rss+xml; charset=UTF-8",
+        "bytes": 16925,
+        "truncated": false,
+        "contentLength": "4109",
+        "cors": {},
+        "cacheControl": "max-age=300, must-revalidate"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-abc-au",
+      "name": "ABC News (Australia) (RSS)",
+      "panel": "news",
+      "url": "https://www.abc.net.au/news/feed/51120/rss.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 958,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 600,
+        "contentType": "application/rss+xml",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "9855",
+        "cors": {},
+        "cacheControl": "public, max-age=29"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-thehindu",
+      "name": "The Hindu (RSS)",
+      "panel": "news",
+      "url": "https://www.thehindu.com/news/international/feeder/default.rss",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 405,
+        "ms": 121,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 856,
+        "contentType": "application/xml",
+        "bytes": 50131,
+        "truncated": false,
+        "contentLength": "13866",
+        "cors": {},
+        "cacheControl": "public, max-age=300"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-cna",
+      "name": "Channel NewsAsia (RSS)",
+      "panel": "news",
+      "url": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 204,
+        "ms": 777,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET",
+          "access-control-allow-headers": "content-type",
+          "access-control-max-age": "0"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 394,
+        "contentType": "application/rss+xml; charset=utf-8",
+        "bytes": 18142,
+        "truncated": false,
+        "contentLength": "4247",
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "public, max-age=163"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-japantimes",
+      "name": "The Japan Times (RSS)",
+      "panel": "news",
+      "url": "https://www.japantimes.co.jp/feed/",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 200,
+        "ms": 1625,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 531,
+        "contentType": "application/rss+xml; charset=utf-8",
+        "bytes": 39514,
+        "truncated": false,
+        "contentLength": null,
+        "cors": {},
+        "cacheControl": "no-cache, private"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-rnz",
+      "name": "RNZ (RSS)",
+      "panel": "news",
+      "url": "https://www.rnz.co.nz/rss/world.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 204,
+        "ms": 890,
+        "cors": {
+          "access-control-allow-origin": "https://worldpulse.pages.dev",
+          "access-control-allow-methods": "HEAD, GET, OPTIONS",
+          "access-control-max-age": "86400"
+        }
+      },
+      "get": {
+        "status": 200,
+        "ms": 394,
+        "contentType": "application/xml; charset=utf-8",
+        "bytes": 430,
+        "truncated": false,
+        "contentLength": "234",
+        "cors": {},
+        "cacheControl": "max-age=1200, public"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-rte",
+      "name": "RTÉ News (RSS)",
+      "panel": "news",
+      "url": "https://www.rte.ie/feeds/rss/?index=/news/world/",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 405,
+        "ms": 115,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 857,
+        "contentType": "application/rss+xml; charset=utf-8",
+        "bytes": 32129,
+        "truncated": false,
+        "contentLength": null,
+        "cors": {},
+        "cacheControl": "max-age=0, s-maxage=120, must-revalidate, public, stale-if-error=1800, stale-while-revalidate=30"
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-agenciabrasil",
+      "name": "Agência Brasil (RSS)",
+      "panel": "news",
+      "url": "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 405,
+        "ms": 1522,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 650,
+        "contentType": "application/rss+xml; charset=utf-8",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "18829",
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "max-age=0, no-cache, no-store"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "rss-yonhap",
+      "name": "Yonhap News (RSS)",
+      "panel": "news",
+      "url": "https://en.yna.co.kr/RSS/news.xml",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted",
+      "preflight": {
+        "status": 400,
+        "ms": 2361,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 512,
+        "contentType": "application/xml;charset=UTF-8",
+        "bytes": 63267,
+        "truncated": false,
+        "contentLength": "63267",
+        "cors": {},
+        "cacheControl": null
+      },
+      "verdict": "WORKER-REQUIRED",
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "ucdp-ged",
@@ -269,12 +713,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 1260,
+        "ms": 1072,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 1225,
+        "ms": 697,
         "contentType": "application/x-zip-compressed",
         "bytes": 65536,
         "truncated": true,
@@ -284,7 +728,7 @@
       },
       "verdict": "WORKER-REQUIRED",
       "reason": "No Access-Control-Allow-Origin on the response.",
-      "probedAt": "2026-08-12T15:19:36.796Z"
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "ucdp-candidate",
@@ -296,12 +740,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 1129,
+        "ms": 176,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 1631,
+        "ms": 540,
         "contentType": "text/csv",
         "bytes": 65536,
         "truncated": true,
@@ -311,7 +755,7 @@
       },
       "verdict": "WORKER-REQUIRED",
       "reason": "No Access-Control-Allow-Origin on the response.",
-      "probedAt": "2026-08-12T15:20:56.223Z"
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "iptv-org-channels",
@@ -323,21 +767,24 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 642,
+        "ms": 509,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 269,
+        "ms": 380,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 10329293,
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "1274245",
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": "max-age=600"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "iptv-org-streams",
@@ -349,21 +796,24 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 547,
+        "ms": 376,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 245,
+        "ms": 376,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 3464466,
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "548960",
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": "max-age=600"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "frankfurter",
@@ -374,14 +824,23 @@
       "keyEnv": null,
       "licenseClass": "open",
       "preflight": {
-        "error": "The operation was aborted due to timeout",
-        "ms": 20001
+        "status": 200,
+        "ms": 595,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, OPTIONS",
+          "access-control-allow-headers": "content-type",
+          "access-control-max-age": "7200",
+          "access-control-expose-headers": ""
+        }
       },
       "get": {
         "status": 200,
-        "ms": 1372,
+        "ms": 341,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 436,
+        "bytes": 430,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, OPTIONS",
@@ -391,7 +850,8 @@
         "cacheControl": "public, max-age=86400"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "exchangerate-host",
@@ -403,7 +863,7 @@
       "licenseClass": "restricted",
       "preflight": {
         "status": 200,
-        "ms": 701,
+        "ms": 1004,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
@@ -411,9 +871,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 654,
+        "ms": 816,
         "contentType": "application/json; Charset=UTF-8",
         "bytes": 193,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
@@ -421,7 +883,8 @@
         "cacheControl": "no-cache"
       },
       "verdict": "KEY-GATED",
-      "reason": "Public key VITE_EXCHANGERATE_HOST_KEY; ACAO observed: *."
+      "reason": "Public key VITE_EXCHANGERATE_HOST_KEY; ACAO observed: *.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "comtrade",
@@ -433,19 +896,22 @@
       "licenseClass": "restricted",
       "preflight": {
         "status": 200,
-        "ms": 1742,
+        "ms": 2482,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 1545,
+        "ms": 617,
         "contentType": null,
         "bytes": 0,
+        "truncated": false,
+        "contentLength": "0",
         "cors": {},
         "cacheControl": null
       },
       "verdict": "KEY-GATED",
-      "reason": "Key COMTRADE_KEY is server-side; routed through the Worker regardless of ACAO (observed: none)."
+      "reason": "Key COMTRADE_KEY is server-side; routed through the Worker regardless of ACAO (observed: none).",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "congress-gov",
@@ -457,23 +923,26 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1183,
+        "ms": 1716,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
         "status": 403,
-        "ms": 956,
+        "ms": 1285,
         "contentType": "application/json",
         "bytes": 133,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": null
       },
       "verdict": "KEY-GATED",
-      "reason": "Key CONGRESS_GOV_KEY is server-side; routed through the Worker regardless of ACAO (observed: *)."
+      "reason": "Key CONGRESS_GOV_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "uk-commons-votes",
@@ -485,7 +954,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 200,
-        "ms": 772,
+        "ms": 1270,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-headers": "content-type",
@@ -494,9 +963,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 2506,
+        "ms": 1204,
         "contentType": "application/json",
         "bytes": 1051,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-expose-headers": "Request-Context"
@@ -504,7 +975,8 @@
         "cacheControl": "public, max-age=60"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "howtheyvote-data",
@@ -515,23 +987,32 @@
       "keyEnv": null,
       "licenseClass": "open",
       "preflight": {
-        "status": 405,
-        "ms": 344,
-        "cors": {}
+        "status": 204,
+        "ms": 297,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, POST, PATCH, PUT, DELETE",
+          "access-control-allow-headers": "Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, Accept-Encoding, X-GitHub-OTP, X-Requested-With, User-Agent, GraphQL-Features, X-Github-Next-Global-ID, X-GitHub-Api-Version, X-Fetch-Nonce, Copilot-Integration-Id",
+          "access-control-max-age": "86400",
+          "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, X-GitHub-Edge-Region, Deprecation, Sunset"
+        }
       },
       "get": {
-        "status": 403,
-        "ms": 346,
+        "status": 200,
+        "ms": 337,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 378,
+        "bytes": 50188,
         "truncated": false,
-        "contentLength": "378",
-        "cors": {},
-        "cacheControl": null
+        "contentLength": null,
+        "cors": {
+          "access-control-allow-origin": "*",
+          "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, Deprecation, Sunset, Warning"
+        },
+        "cacheControl": "public, max-age=60, s-maxage=60"
       },
-      "verdict": "INCONCLUSIVE",
-      "reason": "Upstream returned HTTP 403; an error response is not evidence about the success path (ACAO observed on it: none). Re-probe with a request that succeeds.",
-      "probedAt": "2026-08-12T15:18:18.960Z"
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "openparliament-ca",
@@ -543,12 +1024,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 405,
-        "ms": 908,
+        "ms": 484,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 668,
+        "ms": 449,
         "contentType": "application/json",
         "bytes": 1140,
         "truncated": false,
@@ -560,7 +1041,7 @@
       },
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
-      "probedAt": "2026-08-12T15:16:17.798Z"
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "camara-br",
@@ -572,16 +1053,18 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1777,
+        "ms": 3454,
         "cors": {
           "access-control-expose-headers": "Link, X-Total-Count, X-Validation-Error"
         }
       },
       "get": {
         "status": 200,
-        "ms": 11477,
+        "ms": 9955,
         "contentType": "application/json",
         "bytes": 1034,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-expose-headers": "Link, X-Total-Count, X-Validation-Error"
@@ -589,7 +1072,8 @@
         "cacheControl": "public, max-age=360"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T16:43:20.193Z"
     },
     {
       "id": "abgeordnetenwatch",
@@ -601,7 +1085,7 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 204,
-        "ms": 879,
+        "ms": 631,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "POST, GET, OPTIONS",
@@ -611,9 +1095,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 1031,
+        "ms": 1033,
         "contentType": "application/json",
         "bytes": 6235,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET"
@@ -621,7 +1107,8 @@
         "cacheControl": "must-revalidate, no-cache, private"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "nosdeputes",
@@ -633,23 +1120,26 @@
       "licenseClass": "share-alike",
       "preflight": {
         "status": 200,
-        "ms": 990,
+        "ms": 1293,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
         "status": 200,
-        "ms": 964,
+        "ms": 421,
         "contentType": "text/plain; charset=utf-8",
-        "bytes": 813950,
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": "no-store, no-cache, must-revalidate"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "tweedekamer",
@@ -661,7 +1151,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 697,
+        "ms": 986,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET",
@@ -670,16 +1160,19 @@
       },
       "get": {
         "status": 200,
-        "ms": 1072,
+        "ms": 597,
         "contentType": "application/json; odata.metadata=minimal; odata.streaming=true; charset=utf-8",
         "bytes": 835,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": null
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "riksdagen",
@@ -705,7 +1198,16 @@
         "cacheControl": "private"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: https://worldpulse.pages.dev"
+      "reason": "ACAO: https://worldpulse.pages.dev",
+      "probedAt": "2026-08-12T15:29:42.187Z",
+      "carriedForward": {
+        "measuredFrom": "cloud sandbox — Linux container whose network reaches data.riksdagen.se",
+        "measuredAt": "2026-08-12T15:29:42.187Z",
+        "reason": "This network cannot reach data.riksdagen.se: the TCP connection is reset (curl 56, ~1.6s) although DNS resolves. The failure is a property of the measuring network, not the source, so this run cannot produce a verdict about it.",
+        "thisRun": "UNMEASURABLE",
+        "thisRunReason": "read ECONNRESET",
+        "thisRunAt": "2026-08-14T12:36:19.729Z"
+      }
     },
     {
       "id": "theyvoteforyou",
@@ -717,19 +1219,22 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 383,
+        "ms": 562,
         "cors": {}
       },
       "get": {
         "status": 403,
-        "ms": 369,
+        "ms": 82,
         "contentType": "text/html; charset=UTF-8",
-        "bytes": 5582,
+        "bytes": 5795,
+        "truncated": false,
+        "contentLength": null,
         "cors": {},
         "cacheControl": null
       },
       "verdict": "KEY-GATED",
-      "reason": "Key THEYVOTEFORYOU_KEY is server-side; routed through the Worker regardless of ACAO (observed: none)."
+      "reason": "Key THEYVOTEFORYOU_KEY is server-side; routed through the Worker regardless of ACAO (observed: none).",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "ofac-sdn",
@@ -741,7 +1246,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 999,
+        "ms": 1240,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "POST,GET,PUT,HEAD",
@@ -750,14 +1255,17 @@
       },
       "get": {
         "status": 200,
-        "ms": 2114,
+        "ms": 3410,
         "contentType": "text/xml",
-        "bytes": 28809039,
+        "bytes": 68157,
+        "truncated": true,
+        "contentLength": "28809039",
         "cors": {},
         "cacheControl": null
       },
       "verdict": "WORKER-REQUIRED",
-      "reason": "No Access-Control-Allow-Origin on the response."
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "eu-sanctions",
@@ -769,21 +1277,24 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 1024,
+        "ms": 313,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 856,
+        "ms": 261,
         "contentType": "application/json",
-        "bytes": 153862,
+        "bytes": 72709,
+        "truncated": true,
+        "contentLength": "153872",
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": null
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "opensanctions",
@@ -795,7 +1306,7 @@
       "licenseClass": "nc",
       "preflight": {
         "status": 200,
-        "ms": 652,
+        "ms": 542,
         "cors": {
           "access-control-allow-origin": "https://worldpulse.pages.dev",
           "access-control-allow-methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
@@ -806,9 +1317,11 @@
       },
       "get": {
         "status": 200,
-        "ms": 759,
+        "ms": 571,
         "contentType": "application/json",
         "bytes": 15,
+        "truncated": false,
+        "contentLength": "15",
         "cors": {
           "access-control-allow-origin": "https://worldpulse.pages.dev",
           "access-control-allow-credentials": "true"
@@ -816,7 +1329,8 @@
         "cacheControl": null
       },
       "verdict": "KEY-GATED",
-      "reason": "Key OPENSANCTIONS_KEY is server-side; routed through the Worker regardless of ACAO (observed: https://worldpulse.pages.dev)."
+      "reason": "Key OPENSANCTIONS_KEY is server-side; routed through the Worker regardless of ACAO (observed: https://worldpulse.pages.dev).",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "state-dept-advisories",
@@ -828,7 +1342,7 @@
       "licenseClass": "open",
       "preflight": {
         "status": 204,
-        "ms": 715,
+        "ms": 1198,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST",
@@ -838,14 +1352,17 @@
       },
       "get": {
         "status": 200,
-        "ms": 795,
+        "ms": 895,
         "contentType": "text/xml",
-        "bytes": 728858,
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": null,
         "cors": {},
         "cacheControl": null
       },
       "verdict": "WORKER-REQUIRED",
-      "reason": "No Access-Control-Allow-Origin on the response."
+      "reason": "No Access-Control-Allow-Origin on the response.",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "fcdo-advisories",
@@ -857,21 +1374,24 @@
       "licenseClass": "open",
       "preflight": {
         "status": 404,
-        "ms": 662,
+        "ms": 755,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 582,
+        "ms": 431,
         "contentType": "application/json; charset=utf-8",
-        "bytes": 298600,
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "26443",
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": "max-age=10, public"
       },
       "verdict": "CLIENT-FETCH",
-      "reason": "ACAO: *"
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "smartraveller",
@@ -883,16 +1403,16 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1245,
+        "ms": 827,
         "cors": {}
       },
       "get": {
         "error": "The operation was aborted due to timeout",
-        "ms": 20007
+        "ms": 20012
       },
       "verdict": "UNREACHABLE",
       "reason": "The operation was aborted due to timeout",
-      "probedAt": "2026-08-12T15:23:50.035Z"
+      "probedAt": "2026-08-14T12:36:19.729Z"
     },
     {
       "id": "eia",
@@ -904,23 +1424,26 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1129,
+        "ms": 1508,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
         "status": 403,
-        "ms": 712,
+        "ms": 1030,
         "contentType": "application/json",
         "bytes": 163,
+        "truncated": false,
+        "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
         "cacheControl": null
       },
       "verdict": "KEY-GATED",
-      "reason": "Key EIA_KEY is server-side; routed through the Worker regardless of ACAO (observed: *)."
+      "reason": "Key EIA_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
+      "probedAt": "2026-08-14T12:36:19.729Z"
     }
   ]
 }
