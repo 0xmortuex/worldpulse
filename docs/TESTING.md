@@ -1230,3 +1230,74 @@ So, when converting a panel:
 5. **Prove the live path separately**, under `PROBE_LIVE=1`, against invariants rather than
    values: a live figure that changes yearly must not be pinned, or the test fails every
    spring for the wrong reason.
+
+## 35. Before recording an environmental limitation, prove the mechanism is environmental
+
+**A limitation written down without a mechanism is a reason to stop looking, wearing the
+authority of a finding.**
+
+Where this came from: `economy tab: clickable` failed twice on this machine and was recorded
+in §15 as a second frame-rate flake, with the conclusion that "this machine cannot run the
+browser suite to a clean sheet". Two runs of evidence appeared to confirm it. One commit
+later it would have been a permanent fact about the repository.
+
+It was a replaced DOM node. `selectCountry` parked for 250ms and 500ms — each under one frame
+at 750ms/frame, and each already forbidden by rule 15 — so it returned mid-rebuild and
+`clickOrFail` handed Playwright a selector whose node was about to be swapped. Playwright's
+actionability wait handles an element that moves or is covered; it cannot help with one that
+is replaced, because every retry re-resolves the selector and starts again. Instrumenting the
+click took minutes and produced the answer immediately: 18 mutations, 2 node replacements,
+`elementFromPoint` returning the tab itself, unobstructed.
+
+**The evidence that "confirmed" the environmental reading was equally consistent with the real
+cause**, which is what makes this failure mode dangerous rather than merely wrong. Both
+readings predict an intermittent click timeout on a slow machine.
+
+### The test to apply
+
+Before attributing a failure to the environment, answer:
+
+1. **What is the mechanism, stated concretely enough to be wrong?** "Low frame rate" is not a
+   mechanism. "Playwright's stability check needs two consecutive frames with an unchanged
+   box, and at 750ms/frame only 20 frames fit in the timeout" is.
+2. **What measurement would distinguish it from a code defect?** If none exists, the
+   attribution is a guess.
+3. **Has that measurement been taken?**
+
+An environmental attribution that cannot answer 3 is recorded as *unexplained*, not as
+environmental. `UNEXERCISED-PATHS.md` has a register for exactly that state.
+
+### Why the superseded reasoning is kept in §15 rather than deleted
+
+Every principle in it was correct — do not raise timeouts, do not retry to green, do not skip
+a failing check. That is precisely why it was persuasive. **Sound principles deployed as a
+reason not to investigate produce a conclusion that looks rigorous and is false**, and the
+next session needs to see what that looks like from the inside.
+
+### 21a. One clean run is not a closed flake — L9 stays open
+
+Recorded 2026-08-14, immediately after the marker-click check passed on its first attempt in a
+273-assertion, zero-failure run — the first clean sheet this machine has produced.
+
+**That is one data point, and it does not close L9.** The harness waits changed in the same
+run, so the clean result is confounded by design: it is equally consistent with "the new
+condition-based waits removed a source of churn that was also starving the raycast" and with
+"this run happened to go well". Rule 21's principle applies to closing a flake as much as to
+opening one — **a flake is closed with numbers, not with a good day.**
+
+What stands unchanged:
+
+- **L9 remains open.** The mechanism — globe.gl failing to resolve a click at low frame rate —
+  was located but never explained, and nothing in this run explains it. `DECISIONS.md` L9/L10/L11
+  are untouched.
+- **The first-attempt assertion stays.** `check('the marker click worked on the first attempt',
+  attempts === 1, …)` is what made the retry visible in the first place; removing it because a
+  run was green would restore exactly the blindness §15 was written about.
+- **This run is recorded with its configuration**, per 20a: swiftshader, `cf62bcd`+, i3-10110U,
+  750ms/frame idle, under the new `waitForStableNode` / `waitForDomQuiet` waits.
+
+**What a closure case would look like:** ten consecutive runs clean under the new waits, or a
+`measure-frame-profile.mjs` rate measured under them and compared against the 20%/50%/30%
+recorded above. Either produces a number. Until then this is a single encouraging observation,
+and writing it up as a fix would be the same error as writing the click timeout up as
+environmental — a conclusion outrunning its evidence, in the friendlier direction.

@@ -364,3 +364,44 @@ next session will find those URLs too and should not spend the discovery twice.
   zero — while `Generation YoY change (TWh)` is empty in the same row, because there is no
   prior year to compare. The third instance tonight of the distinction UNHCR and CISA KEV both
   required.
+
+---
+
+## Reachable-and-stale is a distinct failure class from unreachable
+
+Generalised 2026-08-14 from the disease.sh finding above, because the shape will recur and the
+next instance will not look like this one.
+
+**A source that is reachable, fast, well-formed and three years out of date passes every check
+this project currently runs.** disease.sh answered HTTP 200 with `ACAO: *` in 400ms, returned
+231 well-shaped country rows, and reported `updated: 0 hours ago` on every one of them. The
+probe scored it CLIENT-FETCH. A contract test asserting shape and range would have passed. Its
+cumulative series had not moved since **2023-03-09**.
+
+| Failure class | How it presents | What catches it today |
+| --- | --- | --- |
+| Unreachable | connection error, timeout, 4xx/5xx | the probe, immediately |
+| Shape drift | fields renamed, types changed | contract tests |
+| **Reachable-and-stale** | **200, fast, correct shape, current-looking timestamp** | **nothing** |
+
+**The dangerous part is the timestamp, not the staleness.** Old data honestly labelled is
+useful — the app has a whole stale treatment for it. What makes this a distinct class is that
+`updated` describes *the API's own refresh*, not the data, so the source actively reports
+freshness it does not have. A panel built on it would render a live-looking badge over frozen
+figures: rule 7's wrong-provenance failure, arriving through a source that never errored.
+
+**The systematic answer is already specced.** `SPEC-EXPANSION.md` Phase C5, the **freshness
+monitor** — every source's last successful fetch against its declared cadence, generated from
+the registry. This class is precisely what it exists to surface, and disease.sh is its first
+concrete test case: a source whose fetch succeeds on schedule while its *content* has not
+changed in three years.
+
+**Two things that would strengthen it, noted rather than built:**
+
+- **Cadence is declared but never checked against observed change.** Every source carries a
+  `cadence` field. Nothing compares it to when the data last actually moved, which is the
+  measurement that separates this class from a healthy source.
+- **A source's own freshness field must be treated as a claim, not as provenance.** `updated`,
+  `lastModified`, `generated` are the source describing itself. Where a dated series exists,
+  the last dated observation is the honest "as of" — which is how the PortWatch and WHO
+  adapters take theirs.

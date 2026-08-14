@@ -176,6 +176,13 @@ async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15
          *
          * A missing subtree is not a busy one. There is nothing to wait for, so
          * this returns immediately and lets the caller's own assertions speak.
+         *
+         * WHICH MAKES QUIESCENCE THE WRONG INSTRUMENT FOR AN ELEMENT THAT DOES
+         * NOT EXIST YET. "Absent" quiets instantly, so waiting for a list that
+         * has not rendered waits for nothing at all. Use `waitFor` on content —
+         * as `selectCountry` does for `.search-results` having children — when
+         * the question is "has it appeared", and this only when the question is
+         * "has it stopped changing".
          */
         const target = document.querySelector(sel);
         if (target === null) {
