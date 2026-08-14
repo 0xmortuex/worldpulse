@@ -1,7 +1,7 @@
 import { absentValueWording, escapeHtml, getRegisteredFact, stateCarriesAsOf } from './badge';
 import { getSource, licenseClassNote, licenseIsConstrained, verifiedAgainstNote } from './registry';
 import { assertNever } from './exhaustive';
-import { factState, TIER_EXPLANATIONS, type AnyFact, type Provenance } from './types';
+import { factState, resolutionClaim, TIER_EXPLANATIONS, type AnyFact, type Provenance } from './types';
 
 /**
  * The provenance inspector: click any badge, see exactly where the value came
@@ -99,6 +99,24 @@ function renderInspector(fact: AnyFact): string {
         stateCarriesAsOf(state)
           ? `<dt>As of</dt><dd>${escapeHtml(fact.asOf || '—')} <span class="inspector-hint">(the date the data refers to)</span></dd>`
           : '<dt>As of</dt><dd><em>not applicable</em> <span class="inspector-hint">(no data was received for this date to describe)</span></dd>'
+      }
+      ${
+        /**
+         * Rendered only for facts that carry a resolution — a GDP figure has
+         * none and a "Resolution: not applicable" row on every number would be
+         * noise. The undeclared case is not silent: it is decided by
+         * `resolutionClaim` wherever a fact becomes a coordinate, and says so.
+         */
+        fact.resolution === undefined
+          ? ''
+          : (() => {
+              const claim = resolutionClaim(fact.resolution);
+              return `<dt>Resolution</dt><dd>${escapeHtml(claim.label)}${
+                claim.centroid
+                  ? ' <span class="inspector-hint">(plotted as a centroid, not a measured position)</span>'
+                  : ''
+              }</dd>`;
+            })()
       }
       ${fact.note ? `<dt>Note</dt><dd>${escapeHtml(fact.note)}</dd>` : ''}
     </dl>

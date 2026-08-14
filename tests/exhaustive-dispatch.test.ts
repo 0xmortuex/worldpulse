@@ -107,7 +107,7 @@ describe('the compile-time guard is present in the source', () => {
   const DISPATCHES: Array<[string, string[]]> = [
     ['src/facts/badge.ts', ['sourceName', 'badgeMarkup', 'valueMarkup', 'stateCarriesAsOf', 'absentValueWording']],
     ['src/facts/inspector.ts', ['renderProvenance']],
-    ['src/facts/types.ts', ['provenanceState']],
+    ['src/facts/types.ts', ['provenanceState', 'resolutionClaim']],
   ];
 
   for (const [file, dispatches] of DISPATCHES) {

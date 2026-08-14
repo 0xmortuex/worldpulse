@@ -401,3 +401,25 @@ because its cyber row in Risk & Stability is step 10 work that does not exist
 three-state is enforced in the adapter and asserted in tests, and its caveat travels on the
 fact — but no reader has yet seen the two side by side, and a panel that renders `Unknown` as
 a bare dash or an empty cell would undo the whole point at the last step.
+
+## 13. B4's resolution row renders nothing, because no fact declares a resolution yet
+
+| Path | Exercised by | NOT exercised by |
+| --- | --- | --- |
+| `resolutionClaim` — all four states including undeclared | `tests/resolution.test.ts`, planted | — |
+| The inspector's **Resolution** row | nothing | any browser check, because no fact sets `resolution` |
+
+**This is commit 1 of the batched migration being honestly additive.** The field, the claim
+function and its fail-closed default all exist and are planted; the row that renders them is
+reachable only once a source declares a resolution, which no source does yet. Asserting it in
+the browser today would mean constructing a fact purely to prove the assertion can pass —
+which proves the assertion, not the app.
+
+**Recorded rather than skipped, per P12**: a decision specifying user-visible behaviour needs
+an assertion or it is a note. This *is* the note, and it names what would convert it: the first
+source to plot a coordinate — FIRMS, which is gated behind this migration and whose thermal
+anomalies are precisely the case where false precision reads as a strike location.
+
+**What would close it:** a browser assertion that a fact carrying `resolution: 'country'`
+renders the centroid wording, and one carrying `'point'` does not. It lands with the first
+plotted source, not before.

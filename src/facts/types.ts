@@ -129,6 +129,14 @@ export interface Fact<T> {
   provenance: Provenance | null;
   /** Caveat rendered alongside the value. */
   note?: string;
+  /**
+   * How precisely the SOURCE located this, for facts that get plotted.
+   *
+   * Optional because it is meaningless for most facts — a GDP figure has no
+   * resolution. Set it on anything that becomes a coordinate, and read the
+   * claim through `resolutionClaim`, which handles the undeclared case.
+   */
+  resolution?: Resolution;
   /** Formatter for the value. Defaults to String(). */
   format?: (value: T) => string;
 }
@@ -239,6 +247,67 @@ function isTraceable(provenance: FetchProvenance): boolean {
     provenance.requestUrl.length > 0 &&
     provenance.fetchedAt.length > 0
   );
+}
+
+/**
+ * How precisely a source located something: a country, an admin-1 area, or a point.
+ */
+export type Resolution = 'country' | 'admin1' | 'point';
+
+export interface ResolutionClaim {
+  /** What the popover states. */
+  label: string;
+  /** Whether the plotted marker is a centroid this app manufactured. */
+  centroid: boolean;
+  /** True when nothing was declared and the coarsest reading was assumed. */
+  assumed: boolean;
+}
+
+/**
+ * What may honestly be claimed about a coordinate's precision.
+ *
+ * **A 6-decimal coordinate from a country-level source is a lie told in the
+ * units of accuracy.** Rendering a country-level figure at point precision does
+ * not merely look overconfident — it tells the reader the source knew something
+ * it never knew, in the one notation where readers count the digits.
+ *
+ * UNDECLARED FAILS CLOSED TO THE COARSEST CLAIM (rule 29's polarity). A source
+ * that says nothing about its resolution has not said "point"; defaulting to the
+ * finest precision would manufacture exactly the lie above, and would do it
+ * silently for every source nobody had got round to annotating. Assuming
+ * country-level is wrong in the direction that under-claims, which is
+ * recoverable — the marker is visibly a centroid and says so.
+ *
+ * Exhaustive by construction: a new `Resolution` member breaks this dispatch
+ * rather than falling through to a default that would quietly over-claim.
+ */
+export function resolutionClaim(resolution: Resolution | undefined): ResolutionClaim {
+  if (resolution === undefined) {
+    return {
+      label: 'Resolution not declared; treated as country-level.',
+      centroid: true,
+      assumed: true,
+    };
+  }
+
+  switch (resolution) {
+    case 'point':
+      return { label: 'Point location, as published.', centroid: false, assumed: false };
+    case 'admin1':
+      return {
+        label: "Admin-1 area; the marker is the area's centroid, not the event location.",
+        centroid: true,
+        assumed: false,
+      };
+    case 'country':
+      return {
+        label: 'Country-level; the marker is the country centroid, not a location.',
+        centroid: true,
+        assumed: false,
+      };
+    default:
+      return assertNever(resolution, 'resolutionClaim');
+  }
 }
 
 export const TIER_EXPLANATIONS: Record<Tier, string> = {
