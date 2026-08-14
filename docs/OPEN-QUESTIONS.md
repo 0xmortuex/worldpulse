@@ -115,6 +115,26 @@ large uninstructed refactor.
 **Recommendation:** leave until step 12 forces it, as recorded. Raised here only so the
 deferral is a decision rather than an omission.
 
+### ANSWERED — 2026-08-14
+
+**`DerivedProvenance.inputs` changes from `Provenance[]` to `Fact[]`**, as part of the
+batched `Fact`-model migration in `SPEC-EXPANSION.md` Phase B.
+
+The recommendation above was right about the trade and wrong about the moment. The
+objection was that this is a large uninstructed refactor mid-build — but B3 (the
+`UNVERIFIED` tier) and B4 (coordinate precision binding) each migrate the same model, and
+**three migrations of one model batched into one is precisely when the trade flips.** One
+migration, one test sweep, all three gaps closed. Shipping B3 alone would migrate the model
+twice.
+
+**The rule as originally written stands:** missing data propagates through required inputs;
+a shortfall among contributing inputs renders as a **caveat, never silently absorbed**.
+
+**The relations panel's disclosure caveat comes off only when the propagation actually
+works**, not when the code lands. The **San Marino** case (question 2 above) and the
+relations-score cases become its **first test fixtures** — so the caveat's removal is
+evidence-gated rather than asserted.
+
 ---
 
 ## 5. The marker-click mechanism is located but unexplained
