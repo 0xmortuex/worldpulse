@@ -387,6 +387,37 @@ every swiftshader run on the same box completed. No GPU driver or TDR events app
 Windows system log for those windows and no Playwright process was left orphaned, so the
 cause is recorded as unidentified rather than guessed at.
 
+#### This configuration has TWO frame-rate flakes, not one
+
+Recorded because "the known marker-click check" is the sandbox's flake list, and on this box it
+is incomplete. Two `npm run verify` runs on the same machine, same swiftshader configuration,
+bracketing a night of source registrations that touched no rendering code:
+
+| Run | Assertions | Failures |
+| --- | --- | --- |
+| `cf62bcd`, before | 276 | **6** — marker click (2 attempts), `stale toggle: clickable`, `economy tab: clickable` ×2, and two step-7b cascades |
+| `c5d50f7`, after | 274 | **2** — marker click (2 attempts), `economy tab: clickable` ×1 |
+
+**`… : clickable` is `locator.click: Timeout 15000ms exceeded`** — Playwright's actionability
+wait giving up, not the app refusing a click. In the later run the assertions immediately
+after it all passed: the degraded panel rendered, named what was missing, and showed the
+indicators that answered. **The click timed out and the scenario still worked**, which is what
+distinguishes this from a defect.
+
+The mechanism is the one §15 already describes for the marker click: at 750ms per frame there
+are ~20 frames inside a 15s timeout, and Playwright's stability check needs consecutive frames
+with an unchanged box. It is the same fault surfacing at a different call site.
+
+**The assertion count moves with the failures** (276 → 274) because `clickOrFail` emits a
+`clickable` check per failed click. A run with fewer timeouts reports fewer assertions, so the
+totals are not comparable between runs on this configuration — worth knowing before reading a
+count drop as lost coverage.
+
+**Not fixed, and deliberately not worked around.** Raising the timeout, retrying the click, or
+skipping the check would each convert a measured environmental limit into a green tick. The
+honest statement is that this machine cannot run the browser suite to a clean sheet, and that
+is a property of the machine.
+
 #### What this configuration says about the mechanism
 
 Two results do not fit "globe.gl fails to resolve a click at a low frame rate":
