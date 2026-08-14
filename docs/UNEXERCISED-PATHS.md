@@ -369,3 +369,23 @@ check is simply not written.
 > The distinction §10 draws applies here too. `verifiedAgainst: "live"` says the **data
 > path** is proven. It does not say a user can see any of it, and it must never be read that
 > way.
+
+## 12. WHO DON and UNHCR adapters are proven; nothing renders them
+
+| Path | Exercised by | NOT exercised by |
+| --- | --- | --- |
+| registry → request → parse → `Fact`, for `who-don` | `tests/who-don-contract.test.ts` + the fixture manifest | any browser check |
+| registry → request → parse → `Fact`, for `unhcr-population` | `tests/unhcr-contract.test.ts` + the fixture manifest | any browser check |
+
+Same terms as §11 (PortWatch). Both were specced into **Risk & Stability**, which is step 10
+work and does not exist, so there is no surface to render into and none was invented
+(`DECISIONS.md` P4/P5).
+
+**What is therefore unproven.** For WHO DON: that headlines render as WHO's wording with a
+link back. For UNHCR: **that a reported zero and an absence look different to a reader.** The
+second is the one that matters — the distinction is enforced in the fact layer and asserted in
+tests, but no human has yet seen `0` and *no data* side by side on a screen, and rule 8's
+whole argument is that passing assertions are not the same as a working panel.
+
+**What would close it:** the step-10 Risk & Stability panel, with a browser assertion that a
+counted zero and a no-data field render distinguishably.

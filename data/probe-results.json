@@ -1,11 +1,11 @@
 {
-  "probedAt": "2026-08-14T17:34:24.778Z",
+  "probedAt": "2026-08-14T17:50:56.966Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "who-don"
+    "unhcr-population"
   ],
   "counts": {
-    "CLIENT-FETCH": 25,
+    "CLIENT-FETCH": 26,
     "INCONCLUSIVE": 1,
     "WORKER-REQUIRED": 16,
     "KEY-GATED": 6,
@@ -1513,6 +1513,35 @@
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
       "probedAt": "2026-08-14T17:34:24.778Z"
+    },
+    {
+      "id": "unhcr-population",
+      "name": "UNHCR Refugee Data Finder — population statistics",
+      "panel": "risk",
+      "url": "https://api.unhcr.org/population/v1/population/?year=2023&limit=500&coa_all=true",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "restricted-minimal",
+      "preflight": {
+        "status": 405,
+        "ms": 801,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 798,
+        "contentType": "application/json",
+        "bytes": 48395,
+        "truncated": false,
+        "contentLength": null,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "no-cache, private"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "probedAt": "2026-08-14T17:50:56.966Z"
     }
   ]
 }

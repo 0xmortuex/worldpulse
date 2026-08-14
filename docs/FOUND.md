@@ -300,3 +300,31 @@ building the distinction on top of it would encode a third meaning it cannot sup
 OData, `ACAO: *`, newest entry dated the day it was checked. The two halves of this Phase A
 item are in completely different states, which is why they are separated in
 `OPEN-QUESTIONS.md` question 8 rather than registered together.
+
+### disease.sh's data licence is unestablished, and the API's GPL-3.0 is not it
+
+Measured 2026-08-14, alongside the frozen-data finding above.
+
+| Where a licence would be | What is there |
+| --- | --- |
+| `github.com/disease-sh/API` | **GPL-3.0** — the licence of the API's *source code* |
+| `disease.sh/docs/` | JS-rendered; 15 characters of text without a browser. Not read. |
+| the data itself | aggregated from third parties (JHU CSSE, Worldometers), which disease.sh may have no standing to relicense |
+
+**GPL-3.0 on the server code says nothing about the terms of the data it serves**, and
+treating it as the data licence would be a reading I did not do. Combined with the frozen
+series, disease.sh has two independent blocks, either of which is enough to hold it:
+registering it would ingest content whose terms are unread, which this project treats as an
+emergency rather than a note.
+
+**The 404 body is the most useful thing this source produced.** Asking for a country it does
+not carry returns:
+
+```
+{"message":"Country not found or doesn't have any cases"}
+```
+
+**The source conflates the two states in its own error message** — "not found *or* doesn't
+have any cases". Any app propagating that as a zero would assert a false fact on the source's
+behalf. It is a clean statement of why rule 30's distinction has to be enforced by the
+consumer: the producer here cannot make it, and says so.

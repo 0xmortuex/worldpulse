@@ -7,6 +7,7 @@ import wikipediaSummaryLive from './wikipedia-summary-live.json';
 import commonsImageinfoLive from './commons-imageinfo-live.json';
 import portwatchChokepoints from './portwatch-chokepoints.json';
 import whoDon from './who-don.json';
+import unhcrPopulation from './unhcr-population.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -15,6 +16,7 @@ import { commonsImageinfoUrl } from '../../src/dossier/portrait';
 import { buildCountryQueryUrl } from '../../src/sources/wikidata-dossier';
 import { buildChokepointQueryUrl } from '../../src/sources/portwatch';
 import { buildDonQueryUrl } from '../../src/sources/who-don';
+import { buildPopulationUrl } from '../../src/sources/unhcr';
 import type { FetchContext } from '../../src/sources/adapter';
 
 /**
@@ -112,6 +114,17 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'who-don',
     requestUrl: buildDonQueryUrl({ count: 10 }),
     body: whoDon,
+  },
+  /**
+   * Carries BOTH of rule 30's states in real captured data: reported zeros as
+   * the string `"0"` and no-data as the string `"-"`, in the same rows. The
+   * contract test asserts they parse differently, and plants the cases too so
+   * the distinction survives a year in which UNHCR publishes no dashes.
+   */
+  'unhcr-population': {
+    sourceId: 'unhcr-population',
+    requestUrl: buildPopulationUrl({ year: 2023, breakdown: 'asylum', limit: 500 }),
+    body: unhcrPopulation,
   },
   worldbank: {
     sourceId: 'worldbank',

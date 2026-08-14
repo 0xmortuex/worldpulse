@@ -1141,6 +1141,26 @@
       "transport": "direct",
       "notes": "LICENCE READ 2026-08-14 — CC BY-NC-SA 3.0 IGO. Non-commercial suits decision 3; attribution is mandatory; share-alike binds derivative works. Classified share-alike rather than nc because the share-alike constraint is the one that shapes code (derived tables must stay separate), while non-commercial is satisfied by the project standing. NO REGISTRY CLASS EXPRESSES BOTH — see OPEN-QUESTIONS 9. WHAT IS INGESTED — headline, publication date and a link back, requested via  so WHO full text (Overview, Epidemiology, Assessment, Advice) never crosses the network. Headlines are WHO wording, never rewritten. NO COUNTRY IS PARSED FROM A TITLE. The payload carries no structured country field and titles include \"Multi-locations\" entries, so attaching a country would assert a link WHO did not publish. See src/sources/who-don.ts. ORDERING IS EXPLICIT — the unordered default returned a page whose newest entry was 18 months stale while the true newest was published that morning.",
       "schemaVersion": 1
+    },
+    {
+      "id": "unhcr-population",
+      "name": "UNHCR Refugee Data Finder — population statistics",
+      "panel": "risk",
+      "homepage": "https://www.unhcr.org/refugee-statistics/",
+      "probeUrl": "https://api.unhcr.org/population/v1/population/?year=2023&limit=500&coa_all=true",
+      "license": "Not established from this machine. SPEC-EXPANSION asserts CC BY 4.0; that assertion is UNVERIFIED here.",
+      "licenseClass": "restricted-minimal",
+      "attribution": "UNHCR Refugee Data Finder (unhcr.org/refugee-statistics).",
+      "cadence": "annual",
+      "ttlMs": 86400000,
+      "tier": "OFFICIAL",
+      "keyRequired": false,
+      "keyEnv": null,
+      "verifiedAgainst": "live",
+      "origin": "https://api.unhcr.org",
+      "transport": "direct",
+      "notes": "LICENCE READING ATTEMPTED 2026-08-14 AND FAILED — recorded per L15 as a conservative class, not a verified one. unhcr.org/refugee-statistics/insights/explainers/terms-of-use.html and unhcr.org/terms-and-conditions both return 403 from this network. The API docs at api.unhcr.org/docs/refugee-statistics.html were fetched and searched in full (293KB of text): they contain no CC BY, no Creative Commons, no copyright statement — only the Apache licence of the OpenAPI generator that built the page, which is the tooling and not the data. SPEC-EXPANSION Phase A3 asserts CC BY 4.0; a spec claim is not a reading. Classified restricted-minimal deliberately: it permits exactly what this app does (figures with attribution and a link back) and over-claims nothing. UPGRADE TO open IF CC BY 4.0 IS VERIFIED — under-claiming rights is recoverable, over-claiming is the violation. See OPEN-QUESTIONS 10. THREE-STATE ENCODING — a single row mixes types and the types carry meaning: a number is a reported figure, the STRING \"0\" is a reported zero, and the STRING \"-\" is no data. Number(\"-\") is NaN, so Number(v) || 0 would render no-data as a counted zero. Measured on the 2023 asylum breakdown: 662 numbers, 778 reported zeros, 162 dashes. A country with NO ROW (73 ISO3 codes) is a fourth state and renders as no data, never as zeros. BREAKDOWN IS MANDATORY — without coa_all/coo_all the API returns one world-aggregate row whose codes are both \"-\", which reads like a per-country response until inspected. The adapter drops that row rather than filing a global total under a country.",
+      "schemaVersion": 1
     }
   ],
   "verifiedAgainstValues": {

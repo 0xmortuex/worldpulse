@@ -555,3 +555,21 @@ against a licence**, and those are different states.
 This is the same distinction the probe draws between a measured verdict and a carried one:
 consistency and verification are not the same claim, and the weaker one must not be displayed
 as the stronger.
+
+## WHO DON and UNHCR are adapter-only — 2026-08-14
+
+Both were specced into **Risk & Stability**, which does not exist: `src/ui/government.ts`
+names it as "the risk and stability work in step 10", and step 10 is out of scope for the
+run that registered them.
+
+| # | Decision |
+| --- | --- |
+| P4 | **`who-don` and `unhcr-population` are registered, probed, fixtured, contract-tested and adapted, and render nowhere** — the PortWatch precedent (P1/P2). `verifiedAgainst: "live"` states that the data path is proven, never that a reader can see it. |
+| P5 | **No interim surface was invented for either.** Inventing one would put displacement figures and outbreak headlines somewhere the spec did not put them, and the cost of moving them later is paid by whoever builds step 10. |
+
+**The rule 30 distinction is proven at the adapter, not at a panel.** UNHCR's reported zeros
+(`"0"`) and no-data (`"-"`) parse to `0` and `null`, which `factState` reports as `ok` and
+`nodata` — different badges and different sentences when a panel eventually renders them.
+Proving it at the fact layer is what makes the eventual panel unable to get it wrong, and
+`tests/unhcr-contract.test.ts` plants the cases so the distinction does not depend on this
+year's response containing a dash.

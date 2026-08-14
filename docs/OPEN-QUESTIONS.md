@@ -293,3 +293,66 @@ one name covering two postures means neither can be checked. The options:
 adding classes is a schema decision and the last one came with an enforcing guard, which this
 would also need. Cloudflare Radar (CC BY-NC) and CIVICUS (CC BY-SA) in Phase A will land on
 the same question, so it is worth settling before they arrive rather than after.
+
+### Update 2026-08-14, later the same night — a second, independent block
+
+disease.sh's **data licence could not be established**. `github.com/disease-sh/API` is
+GPL-3.0, but that is the API's source code, not the data it serves; `disease.sh/docs/` is
+JS-rendered and was not read; and the data is aggregated from third parties (JHU CSSE,
+Worldometers) that disease.sh may have no standing to relicense. Full measurement in
+`FOUND.md`.
+
+So the question above now has **two independent blocks**, either sufficient on its own:
+
+1. the series has been frozen since 2023-03-09 while the API reports a fresh timestamp
+2. the terms of the data are unread
+
+Block 2 is the harder one. Registering would ingest content whose licence nobody has read,
+which this file's own emergency table calls a stop rather than a note.
+
+**Action taken:** disease.sh remains unregistered, and the item's rule 30 acceptance
+criterion — that "no reported cases" and "no surveillance data" render differently, with a
+country that never reported rendering as the second — **has been moved to UNHCR**, which has
+a read CC BY 4.0 licence and a genuine zero-versus-absent distinction in its own data.
+
+**Why moving it is faithful rather than convenient.** The criterion describes a behaviour of
+the app's fact layer, not of one vendor: an absence must never render as a zero. disease.sh
+would have been a poor place to prove it anyway, since it has no true reported-zero state to
+contrast against. What disease.sh *did* contribute is the clearest possible statement of why
+the rule exists — its own 404 body reads "Country not found or doesn't have any cases",
+conflating the two states at the source.
+
+**To un-block:** a reading of the data terms (not the code licence), plus a decision on
+whether three-year-old figures belong in the app at all.
+
+---
+
+## 10. UNHCR's licence could not be read; the spec's CC BY 4.0 is unverified
+
+**Raised 2026-08-14, overnight run.** `SPEC-EXPANSION.md` Phase A3 records UNHCR Refugee Data
+Finder as "keyless JSON, CC BY 4.0". That is a spec claim, and per **L15** a claim is not a
+reading. The reading was attempted and failed:
+
+| Where | Result |
+| --- | --- |
+| `unhcr.org/refugee-statistics/insights/explainers/terms-of-use.html` | **403** from this network |
+| `unhcr.org/terms-and-conditions` | **403** |
+| `api.unhcr.org/docs/refugee-statistics.html` | 200, 293KB of text, searched in full: **no `CC BY`, no `Creative Commons`, no copyright statement** — only the Apache licence of the OpenAPI generator that rendered the page, which is the tooling, not the data |
+
+**What I did:** registered as **`restricted-minimal`**, not `open`. That class permits exactly
+what this app does with the data — figures rendered with attribution and a link back, never
+bulk redistribution — so it costs nothing today while over-claiming nothing.
+
+**The asymmetry is the argument.** Under-claiming rights is recoverable: if CC BY 4.0 is
+confirmed the class is upgraded and more becomes permissible. Over-claiming is a licence
+violation that has already happened by the time anyone notices. Same reasoning as the
+PortWatch reading, and the same as attributing a caveat to ourselves rather than to the IMF.
+
+**What would settle it:** reading the terms from a network UNHCR does not 403, or a statement
+in the Refugee Data Finder's own download UI. If CC BY 4.0 holds, change `licenseClass` to
+`open` and drop the `restricted-minimal` note — nothing else in the adapter depends on it.
+
+**Note for whoever answers this:** two of Phase A's remaining sources (Ember, CC BY 4.0; and
+Cloudflare Radar, CC BY-NC) arrive with the same shape of claim. It is worth deciding once
+whether a spec-asserted licence may be trusted when the terms page is unreachable, rather
+than three times separately.
