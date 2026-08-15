@@ -22,6 +22,8 @@ import { buildPopulationUrl } from '../../src/sources/unhcr';
 import { buildCatalogUrl } from '../../src/sources/cisa-kev';
 import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
 import type { FetchContext } from '../../src/sources/adapter';
+import registry from '../../data/sources.json';
+import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
 
 /**
  * Fixture manifest.
@@ -256,7 +258,32 @@ export async function loadSample(sourceId: string): Promise<{ body: unknown; ctx
    * variables come back. The same assertions were running against two different
    * contracts, and only one of them was the app's.
    */
-  const url = fixture.requestUrl;
+  /**
+   * A KEY-GATED SOURCE NEEDS ITS KEY HERE, exactly as the Worker supplies it.
+   *
+   * The fixture's `requestUrl` comes from the app's own builder, and for a
+   * source like Ember that builder deliberately emits NO key — the key is a
+   * query parameter, so putting it in a browser-built URL would ship it to every
+   * visitor. This test process stands in for the Worker: it applies the key from
+   * the registry's declared `keyParam`, using the same pure function the prober
+   * uses, so there is one place that knows how a key reaches a request.
+   *
+   * A missing key is INCONCLUSIVE, never a contract failure. It answers "could
+   * we ask" rather than "has the shape drifted" — the same distinction the
+   * 4xx branch below already makes, and the reason `verifiedAgainst: live` does
+   * not silently decay into "passed because nothing ran".
+   */
+  const record = (registry as { sources: Array<Record<string, unknown>> }).sources.find(
+    (source) => source['id'] === sourceId,
+  );
+  const auth = record ? keyedProbeUrl({ ...record, probeUrl: fixture.requestUrl }, process.env) : null;
+  if (auth && auth.reason !== null) {
+    throw new InconclusiveLiveFetch(
+      `live fetch of ${sourceId} needs a key: ${auth.reason} — inconclusive, not a contract failure`,
+    );
+  }
+  const url = auth ? auth.url : fixture.requestUrl;
+
   // Rule 20: identify the client. Node's default User-Agent is rejected by
   // Wikimedia's UA policy, so without this the live contract test would fail
   // with a 403 that describes our own anonymity rather than the source. The
@@ -277,7 +304,15 @@ export async function loadSample(sourceId: string): Promise<{ body: unknown; ctx
   return {
     body: await response.json(),
     ctx: {
-      requestUrl: url,
+      /**
+       * THE UNKEYED URL, deliberately — `url` above may carry a key.
+       *
+       * `requestUrl` flows into `FetchProvenance` and is rendered in the
+       * inspector, so recording the keyed form would put a secret on screen and
+       * into any provenance a test writes out. The keyed URL exists only for the
+       * duration of the fetch call above.
+       */
+      requestUrl: fixture.requestUrl,
       httpStatus: response.status,
       fetchedAt: new Date().toISOString(),
       cache: 'miss',

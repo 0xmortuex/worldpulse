@@ -795,3 +795,66 @@ about the process.
 
 **The rule:** a run records its own pid and its own done marker, and those are what get
 believed. Process inspection, not wrapper status, answers "is it still going".
+
+---
+
+## Four sources have claimed "live" without live coverage, and the gate has been saying so
+
+**Found 2026-08-15** while taking Ember to `verifiedAgainst: live`. The deploy gate refused, and
+naming Ember was the least of what it said:
+
+```
+[ BLOCK] portwatch-chokepoints  LIVE WITHOUT COVERAGE — no contract test names it
+[ BLOCK] who-don                LIVE WITHOUT COVERAGE — no contract test names it
+[ BLOCK] unhcr-population       LIVE WITHOUT COVERAGE — no contract test names it
+[ BLOCK] cisa-kev               LIVE WITHOUT COVERAGE — no contract test names it
+```
+
+**My first hypothesis was that the guard was looking in the wrong place** — it scans only
+`tests/contracts.test.ts`, while these four have their own per-source test files. That would
+have made it a bookkeeping failure and the fix a wider glob.
+
+**It is not.** `liveOrInconclusive` appears in exactly one test file and names seven sources,
+none of them these four. Their per-source tests read the COMMITTED FIXTURE and never fetch. So
+each of them asserts `verifiedAgainst: "live"` — "confirmed against a live response" — while
+nothing re-confirms it, and a schema drift upstream would be invisible until a panel rendered
+wrong.
+
+**The guard is right and has been right since they were flipped.** Deployment is blocked, which
+is the gate working exactly as designed: nothing ships while a source claims more than its
+evidence supports.
+
+**Recorded, not fixed, and not reprioritised.** Giving four sources live contract checks is its
+own piece of work; folding it into an Ember commit would bury four decisions inside one. Ember
+is not made a fifth instance — it got a real live contract check in `contracts.test.ts` before
+its flag was flipped.
+
+**What the fix needs, beyond adding calls:** `who-don` and `cisa-kev` are keyless and
+straightforward. `portwatch-chokepoints` and `unhcr-population` need the same treatment Ember
+just got if their fixture URLs are parameterised, and `unhcr-population`'s fixture is a
+500-row page whose live equivalent is large. None of that is hard; all of it is decisions.
+
+---
+
+## A key-gated source needed the key in three places, and the third was a leak
+
+Ember is the first key-gated source with a live contract test, which surfaced that
+`loadSample` fetches `fixture.requestUrl` directly. For Ember that URL deliberately carries no
+key — the builder omits it because the key is a query parameter and would otherwise ship in the
+bundle — so the live fetch would have received `403 {"detail":"No API key set"}` and reported a
+contract failure that was really an authentication failure.
+
+`loadSample` now applies the key through the same pure function the prober uses, so one place
+knows how a key reaches a request. A missing key is **INCONCLUSIVE**, never a contract failure:
+"could we ask" is a different question from "has the shape drifted", and conflating them is how
+`verifiedAgainst: live` decays into "passed because nothing ran".
+
+**The leak was in the return value, not the fetch.** The first version recorded the keyed URL in
+`ctx.requestUrl` — which flows into `FetchProvenance` and is RENDERED IN THE INSPECTOR. A secret
+would have been put on screen by the subsystem whose entire job is showing where a number came
+from. The keyed URL now exists only for the duration of the fetch call; `ctx` keeps the unkeyed
+form.
+
+Worth recording because the two guards that were written first — refuse if the builder emits a
+key, refuse if the response echoes one — both passed. They guarded the request and the response
+and had nothing to say about what was written down afterwards.

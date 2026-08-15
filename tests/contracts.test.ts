@@ -7,6 +7,8 @@ import * as worldbank from '../src/sources/worldbank';
 import * as wikidata from '../src/sources/wikidata';
 import * as usgs from '../src/sources/usgs';
 import * as gdelt from '../src/sources/gdelt';
+import * as ember from '../src/sources/ember';
+import type { GenerationRow } from '../src/sources/ember';
 import { factState } from '../src/facts/types';
 
 /**
@@ -342,5 +344,56 @@ describe('Wikimedia Commons imageinfo contract', () => {
     const page = Object.values(body.query?.pages ?? {})[0] as Record<string, unknown>;
     assert.equal('missing' in page, true, 'an absent file did not carry the missing key');
     assert.equal('imageinfo' in page, false, 'an absent file carried imageinfo');
+  });
+
+  /**
+   * Ember — the live contract, and the first key-gated source to have one.
+   *
+   * `loadSample` applies the key from the registry's declared `keyParam`,
+   * standing in for the Worker. Without a key this reports INCONCLUSIVE rather
+   * than failing: "could we ask" is a different question from "has the shape
+   * drifted", and conflating them would make `verifiedAgainst: live` decay into
+   * "passed because nothing ran".
+   *
+   * The assertions pin the two things an adapter built from the CSV notes would
+   * have got wrong — the aggregate flags are booleans here, and flows share the
+   * `series` field with generation sources.
+   */
+  it('ember: rows carry both aggregate flags, and flows are not generation', async () => {
+    const sample = await liveOrInconclusive('ember-electricity');
+    if (!sample) return;
+    const { body } = sample;
+    const parsed = ember.parse(body);
+
+    assert.ok(parsed.rows.length > 0, 'no rows came back');
+
+    for (const row of parsed.rows) {
+      // The flags this adapter refuses to default. Their absence would make a
+      // sum double-count while looking correct.
+      assert.equal(typeof row.isAggregateSeries, 'boolean');
+      assert.equal(typeof row.isAggregateEntity, 'boolean');
+      assert.match(String(row.year), /^\d{4}$/);
+      assert.match(row.entityCode, /^[A-Z]{3}$/);
+    }
+
+    // A share above 100% is real, and only ever on a flow. If a generation
+    // source ever exceeds 100 this must fail rather than be clamped.
+    for (const row of ember.generationOnly(parsed.rows)) {
+      assert.ok(
+        (row.shareOfGenerationPct ?? 0) <= 100,
+        `${row.series} reports ${row.shareOfGenerationPct}% of generation while in the mix`,
+      );
+      assert.ok(
+        (row.generationTwh ?? 0) >= 0,
+        `${row.series} reports ${row.generationTwh} TWh while in the mix — a source went negative`,
+      );
+    }
+
+    // The aggregates must still be present, or the double-count guard is
+    // guarding nothing.
+    assert.ok(
+      parsed.rows.some((row: GenerationRow) => row.isAggregateSeries),
+      'no aggregate series in the response — the filter has nothing to remove',
+    );
   });
 });
