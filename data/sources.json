@@ -633,10 +633,10 @@
       "keyRequired": true,
       "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
       "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode. AUTH MEASURED 2026-08-15: ?access_key=. THIS SOURCE RETURNS HTTP 200 FOR ERRORS -- unauthenticated gives {success,error}, keyed gives {success,terms,privacy,timestamp,source}. Same status, different shape. Any check that scores success on the status code will read a working key as a broken one, and an adapter must key on the body. VITE_-prefixed and therefore PUBLIC by design: this key is inlined into the bundle, so it must never be one that grants anything beyond the free tier.",
-      "verifiedAgainst": "documentation",
+      "verifiedAgainst": "live",
       "origin": "https://api.exchangerate.host",
       "transport": "worker",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "keyParam": "access_key"
     },
     {

@@ -13,6 +13,7 @@ import emberYearlyAut from './economy/ember-yearly-aut.json';
 import congressBills from './congress-bills.json';
 import eiaElectricity from './economy/eia-electricity-2023.json';
 import comtradeUsa from './economy/comtrade-usa-2023-exports.json';
+import exchangerateUsd from './economy/exchangerate-usd.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -27,6 +28,7 @@ import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
 import { buildRecentBillsUrl } from '../../src/sources/congress';
 import { buildAnnualUrl as eiaAnnualUrl } from '../../src/sources/eia';
 import { buildAnnualTradeUrl } from '../../src/sources/comtrade';
+import { buildQuotesUrl } from '../../src/sources/exchangerate';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -214,6 +216,20 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'comtrade',
     requestUrl: buildAnnualTradeUrl({ reporterCode: 842, year: 2023, flowCode: 'X' }),
     body: comtradeUsa,
+  },
+
+  /**
+   * USD against five currencies, captured live 2026-08-15 through
+   * `buildQuotesUrl` (rule 26).
+   *
+   * Small on purpose: this source's hazard is not volume, it is that **failure
+   * arrives as HTTP 200**. The planted cases carry the `success:false`
+   * envelopes, because a captured success can never demonstrate them.
+   */
+  'exchangerate-host': {
+    sourceId: 'exchangerate-host',
+    requestUrl: buildQuotesUrl({ source: 'USD', currencies: ['EUR', 'GBP', 'JPY', 'CHF', 'CNY'] }),
+    body: exchangerateUsd,
   },
 
   'cisa-kev': {

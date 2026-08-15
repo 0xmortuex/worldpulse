@@ -11,6 +11,7 @@ import * as ember from '../src/sources/ember';
 import * as congress from '../src/sources/congress';
 import * as eia from '../src/sources/eia';
 import * as comtrade from '../src/sources/comtrade';
+import * as fx from '../src/sources/exchangerate';
 import type { GenerationRow } from '../src/sources/ember';
 import { factState } from '../src/facts/types';
 
@@ -504,5 +505,33 @@ describe('Wikimedia Commons imageinfo contract', () => {
       assert.equal(fact.tier, expected, `${row.partnerCode} tier does not follow its flags`);
       if (expected === 'ESTIMATE') assert.ok((fact.note ?? '').length > 0, 'an estimate with no reason');
     }
+  });
+
+  /**
+   * exchangerate.host — the source that made rule 37 necessary.
+   *
+   * Unauthenticated it answers HTTP 200 with `success:false`. `parse` decides
+   * from the body, so a live run with a broken key raises an
+   * ExchangeRateApiError rather than silently producing no rates.
+   */
+  it('fx: the body decides success, and every pair carries the declared base', async () => {
+    const sample = await liveOrInconclusive('exchangerate-host');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const quotes = fx.parse(body);
+
+    assert.equal(quotes.source.length, 3);
+    assert.ok(quotes.rates.size > 0, 'no rates came back');
+    assert.ok(Number.isFinite(Date.parse(quotes.asOf)), 'timestamp did not become an instant');
+
+    for (const [currency, rate] of quotes.rates) {
+      assert.equal(currency.length, 3, `"${currency}" still carries the base`);
+      assert.ok(rate > 0, `${currency} quoted at ${rate}`);
+    }
+
+    const first = [...quotes.rates.keys()][0] as string;
+    const fact = fx.rateFact(quotes, first, ctx);
+    assert.equal(fact.tier, 'OFFICIAL');
+    assert.match(fact.note ?? '', /not a central bank/i);
   });
 });

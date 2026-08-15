@@ -896,3 +896,23 @@ primary source.
 `TOTAL` row against the sum of that reporter's HS lines for the same year. The second is
 measurable here and costs two API calls against a 500/day budget with a burst limit that
 already returned 429 today — worth doing deliberately rather than as part of this pass.
+
+### Disposition, 2026-08-15 — ESTIMATE stands until one deliberate experiment decides it
+
+**The experiment, to run when the Comtrade budget resets** (500/day, and a burst limit that
+returned 429 today): pick a reporter-year where a major reporter certainly submitted HS lines,
+fetch the `TOTAL` row and the HS lines, and compare.
+
+| Outcome | What it means | Tier |
+| --- | --- | --- |
+| The HS lines sum to `TOTAL` within rounding | `isReported:false` describes the aggregated ROW — the UN did the addition, the data beneath is the reporter's own | `OFFICIAL` at source, with a note that the total is UN-aggregated from reported lines |
+| They do not match | `ESTIMATE` was right, and the discrepancy is its own finding | `ESTIMATE` |
+
+**Two calls, run deliberately as one experiment — not inside a conversion pass.** Verdict
+recorded here either way.
+
+**Why ESTIMATE is correct in the meantime, and it is not just caution:** the badge is
+**reversible in only one direction**. A badge that under-claims can be upgraded on evidence; one
+that over-claims has already told the reader something false, and no later correction reaches
+the person who read it. "Who did this arithmetic" is exactly what a tier should say, so the
+answer must be measured rather than assumed in the direction that flatters the data.

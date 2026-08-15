@@ -1499,3 +1499,50 @@ beneath it meant nothing.
 **A repaired symptom relocates the defect.** The repair is cheap, local and satisfying, and it
 converts a loud failure at the boundary into a quiet one in the middle — which is rule 7's
 distinction between absent provenance and wrong provenance, arriving at a different door.
+
+---
+
+## 38. A source whose rows mix granularities must have its aggregate discriminator identified at registration
+
+**Three consecutive sources, same shape, same week.**
+
+| Source | Discriminator | What a naive sum produces |
+| --- | --- | --- |
+| Ember | `is_aggregate_series` (and `is_aggregate_entity`) | `Renewables` and `Total generation` summed beside `Solar` and `Coal` |
+| EIA | `countryRegionTypeId` = `c` / `r` | regional aggregates summed beside their own member countries |
+| Comtrade | `cmdCode` `999999` / `TOTAL`, plus `isAggregate` | 100,000 HS lines summed beside the all-commodities row |
+
+**In every case the source flags its own aggregates and a naive sum ignores the flag.**
+
+### Why this needs a rule rather than care
+
+**Double-counting does not look wrong. It looks big.** A total that is roughly twice a plausible
+total is still a plausible total — it has the right units, the right order of magnitude, the
+right shape on a chart, and it moves correctly year over year. There is no rendering artefact,
+no null, no exception. Nothing in the pipeline objects, because nothing is malformed.
+
+That is what separates this from an ordinary parsing bug: the failure has no symptom until
+someone independently knows the right answer.
+
+### The rule
+
+1. **At registration**, a source whose rows can mix granularities has its aggregate
+   discriminator identified and written into the registry notes — the field name, its values,
+   and which value means "this row sums other rows".
+2. **The contract test asserts the discriminator is present and populated**, before any code
+   sums anything. If the field vanishes upstream, that must fail loudly rather than silently
+   flatten every aggregate into a leaf.
+3. **The filter keys on the source's own flag, never on a hand-written list of aggregate
+   names.** A name list is a second source of truth that rots the first time the source adds a
+   grouping — and it will read as correct until it does.
+
+### The trap inside the rule
+
+**A discriminator that happens to work is not a discriminator.** Ember's `is_aggregate_series`
+is `true` for `Demand` and `false` for `Net imports`, because it means "sum of other series" —
+not "not a generation source". Filtering flows on that flag removes `Demand` **by accident**
+and keeps `Net imports`. Two different questions were being answered by one field, and only one
+of the answers was right.
+
+So the discriminator must be checked against what it *means*, not against whether the output
+currently looks correct.
