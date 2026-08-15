@@ -121,7 +121,15 @@ export function renderGovernmentTab(iso3: string, countryName: string, today: Da
 
 /* ------------------------------------------------------------------ cabinet */
 
-function cabinetSection(source: { value: Cabinet; ctx: FetchContext } | null): string {
+/**
+ * Exported so the truncation notice can be asserted directly (rule 32).
+ *
+ * The alternative was reaching it through `renderGovernmentTab`, which loads a
+ * country fixture — and no fixture has a truncated cabinet, because truncation
+ * happens at the live row cap. A test that cannot construct the state it is
+ * checking is a test of the fixture set.
+ */
+export function cabinetSection(source: { value: Cabinet; ctx: FetchContext } | null): string {
   if (!source) {
     return pending('Cabinet', 'No cabinet fixture for this country.', 'the live Wikidata ingest');
   }
@@ -141,6 +149,27 @@ function cabinetSection(source: { value: Cabinet; ctx: FetchContext } | null): s
   const collapsed = total > CABINET_PREVIEW;
 
   const caveats: string[] = [];
+
+  /**
+   * TRUNCATION FIRST, because it changes what every number below it means.
+   *
+   * The vacancy and untranslated caveats are counts *of the rows we have*. If
+   * the response was cut off at the row cap, those denominators describe a
+   * partial list, and a reader who takes "3 of 47 posts are vacant" at face
+   * value has been told something false about a cabinet that may have 80.
+   *
+   * Measured: the United Kingdom returns exactly 300 rows against `LIMIT 300`.
+   * The count shown is a floor, not a total, and this says so before any other
+   * figure is read.
+   */
+  if (cabinet.truncated) {
+    caveats.push(
+      'This list is INCOMPLETE. The query returned the maximum number of rows it asks for, so ' +
+        'this cabinet has at least this many posts and probably more — the true number is not ' +
+        'known here. Every count below describes the posts shown, not the cabinet.',
+    );
+  }
+
   if (cabinet.vacantCount > 0) {
     caveats.push(
       `${n(cabinet.vacantCount, 'count of positions rendered below with no officeholder; each row shows its own state')} of ` +
@@ -161,7 +190,19 @@ function cabinetSection(source: { value: Cabinet; ctx: FetchContext } | null): s
     .join('');
 
   return `<section class="gov-block">
-    <h3>Cabinet <span class="gov-count">${n(total, 'count of ministry rows rendered immediately below')} posts</span></h3>
+    <h3>Cabinet <span class="gov-count">${
+      /**
+       * The heading count carries the qualifier too.
+       *
+       * A caveat paragraph below a bare "300 posts" is a correction someone has
+       * to read to be corrected by. "at least 300 posts" is right on its own,
+       * and the two together are not redundant: the heading is what gets
+       * skimmed, and the paragraph is what explains it.
+       */
+      cabinet.truncated
+        ? `at least ${n(total, 'count of ministry rows rendered below; the response was truncated at the row cap, so this is a floor')} posts`
+        : `${n(total, 'count of ministry rows rendered immediately below')} posts`
+    }</span></h3>
     ${caveats.map((caveat) => `<p class="gov-caveat">${caveat}</p>`).join('')}
     <ul class="ministry-list">${rows}</ul>
     ${
