@@ -1340,3 +1340,88 @@ history someone will read.
 **A guard would settle it either way** — the goal's Part 3 already proposes one: every shipped
 SPARQL query completes within a stated budget under `PROBE_LIVE`. That converts "is it safe" from
 a judgement into a check that fires when the luck runs out.
+
+### 28 — ANSWERED BY MEASUREMENT, 2026-08-15. Both, and the mechanism says which is which.
+
+The question was "unblocked, or lucky?" and it was posed without the numbers that decide it. Here
+they are, with the headroom test applied: **unblocked means the measured worst case clears the
+60s ceiling by more than run-to-run variance can eat.**
+
+#### The cabinet query — UNBLOCKED, by mechanism and by margin
+
+| Country | run 1 | run 2 | variance |
+| --- | --- | --- | --- |
+| Vatican City | 2374ms | 2507ms | 133ms |
+| Iceland | 3237ms | 2817ms | 420ms |
+| **United Kingdom** | **8398ms** | **5300ms** | **3098ms** |
+| India | 5249ms | 2969ms | 2280ms |
+
+**Worst case 8398ms against a 60000ms ceiling: 51.6 seconds of headroom.** Largest observed
+variance 3098ms. **Headroom is ~16× the largest variance measured.** That is not a coin flip; it
+is a different order of magnitude, unlike the mutation-timeout case where five minutes of margin
+faced minutes of variance and was rightly called a toss-up.
+
+And the margin is *explained*: `wdt:P279*` was measured at 24 of the 52 seconds, and it is gone.
+
+#### The legislature query — LUCKY, and now provably so
+
+It was never redesigned, and it **still contains the exact construct**:
+
+```
+line 264:  ?chamber wdt:P31/wdt:P279* ?chamberType     ← legislature
+line 347:  ?court   wdt:P31/wdt:P279* wd:Q1513611      ← judiciary
+```
+
+So its speed needs no mysterious explanation. **It carries the known-expensive construct and is
+currently not paying for it** — which is precisely what "lucky" means, and it is now a statement
+about a named clause rather than a hunch about a service.
+
+Its chamber walk saturates at **two hops** for every country measured (VAT 1, ISL 1, GBR 3,
+IND 3, USA 3), so it can be bounded on the same evidence the cabinet query was.
+
+#### The disposition, therefore
+
+**Treat step 9 as unblocked and bound the remaining closures.** Not because the query is fast
+today, but because the clause that made its sibling slow is still in it and can be removed on
+measured evidence rather than hope.
+
+---
+
+## 29. The judiciary query's fallback branch cannot ever match anything
+
+**Found 2026-08-15** while measuring the third `wdt:P279*`.
+
+```
+country   P209 (primary)   fallback class   instances of the class
+GBR            1 (916ms)      0 (6724ms)                        0
+IND           1 (5988ms)       0 (768ms)                        0
+USA            1 (353ms)      0 (1319ms)                        0
+FRA            5 (697ms)      0 (1454ms)                        0
+VAT           0 (1559ms)      0 (1656ms)                        0
+```
+
+**`?x wdt:P31 wd:Q1513611` returns zero instances anywhere in Wikidata.** Nothing is an instance
+of that class, so the UNION's second branch cannot match for any country — not merely the six
+measured.
+
+**The entity table already said so.** `data/wikidata-entities.json` carries
+`"verified": false` on `courtOfLastResort`, with the note that it is "a fallback class when
+P209 is absent". The doubt was recorded; nobody measured it.
+
+**And it is not free.** The branch carries `wdt:P31/wdt:P279*` — the construct measured at 24 of
+the cabinet query's 52 seconds — so the query pays an unbounded closure for a branch that
+returns nothing. For the United Kingdom that branch alone took **6724ms**.
+
+**The decision is yours because it changes behaviour**, and there are two defensible readings:
+
+| Option | Argument |
+| --- | --- |
+| **Remove the branch** | it cannot match; deleting it removes a cost and no capability |
+| **Fix the class** | the fallback was *intended* to catch countries where P209 is absent, and Vatican City is exactly such a country — 0 from P209 and 0 from the fallback. The intent was sound and the QID is wrong |
+
+**My reading: the second.** P209 returns nothing for Vatican City, which is the case the fallback
+exists to cover, so removing it would abandon an intent rather than a dead branch. The right fix
+is a verified class QID — at which point the branch also needs bounding, like the other two.
+
+**Not acted on.** Both options change what the app can find, and `verified: false` means the
+original choice was never confirmed either.
