@@ -32,7 +32,7 @@ update when the state changes.
 | 7 | Globe event layers, occlusion, clustering, staleness | done |
 | 7b | Economy fetch states — loading, unavailable, degraded, stale | done |
 | 8 | **Military tab** | scheduled |
-| 9 | **Legislature tab** | **blocked** — see below |
+| 9 | **Legislature tab** | done |
 | 10 | **Live data pipeline** — ingests replace the seed set | scheduled |
 | 11 | **Live TV** | scheduled |
 | 12 | **Coverage-gap choropleth** | scheduled |
@@ -58,17 +58,37 @@ no-equipment-data card.
 
 That last one is rule 30 in its sharpest form: no answer is not an answer of no.
 
-## Step 9 — Legislature tab · BLOCKED
+## Step 9 — Legislature tab · DONE
 
-**`buildLegislatureQuery` never completes against live WDQS for any country tried** — a
-query defect, not a slow source. It fails at the ~60s mark (WDQS's server-side timeout) for
-Vatican City and Iceland alike, so it is not data volume. `FOUND.md` records the full
-measurement.
+**The blocker was real and is fixed.** `buildLegislatureQuery` never completed against live
+WDQS for any country tried — 504 for GBR, 500 after 60.6s for Iceland, 504 after 65.5s for
+Vatican City. The cause was not slowness: a `BIND` in its own UNION branch left `?chamber`
+unbound, so `OPTIONAL { ?chamber wdt:P1342 ?seats }` matched every entity in Wikidata with a
+seat count. That is the timeout AND the reason a query for the United Kingdom returned Swiss
+cantons.
 
-**The redesign is its own item and belongs before step 9 starts, not inside it** —
-narrowing the OPTIONAL clauses that produce the cross-product, splitting the round trip per
-chamber, or precomputing at build time the way UCDP is. The sibling cabinet query is on
-notice at 52.6s against the same 60s ceiling.
+**Two further defects were found while building the tab, both of which had been recorded as
+successes:**
+
+- **The parent body was returned as a chamber of itself.** GBR rendered as tricameral with a
+  third seat count that was the other two added together; NZL rendered the same 120 seats
+  twice. Fixed with a relational guard — keep a body only when no child of it is itself a
+  chamber — chosen over two structural repairs that measurement showed would drop Germany
+  and every unicameral country respectively.
+- **`P527` is "has part(s)", and the party clause read it as "has party".** Across eight
+  countries it returned the Monarch of the United Kingdom, the Bundesrat Library, committees
+  and bare Q-ids, and **not one political party**. The clause now constrains to real parties,
+  which returns nothing — so the panel states the absence. Sourcing is `OPEN-QUESTIONS` 30.
+
+**What the tab does.** Chambers and seat counts as badged facts; the shape (unicameral /
+bicameral / "at least N"); a combined total withheld when any chamber's count is missing; and
+status — sitting, dissolved, suspended, contested, appointed-consultative, unrecorded — seeded
+from `data/legislature-seed.json` because no query answers it.
+
+**The rule-30 pair is the point:** an empty chamber list renders as a gap in *our source*,
+never as the country having no legislature. Saudi Arabia is the measured case — its `P194`
+points at "Government of Saudi Arabia", which reaches no chamber type at any depth, while the
+Consultative Assembly exists unlinked with 150 seats.
 
 ## Step 10 — Live data pipeline
 

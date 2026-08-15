@@ -1,0 +1,71 @@
+{
+  "_comment": [
+    "Legislature status, which no query in this app can answer.",
+    "",
+    "The Wikidata queries return chambers and seat counts. They do not say whether a",
+    "legislature is currently sitting, dissolved ahead of an election, suspended by a",
+    "coup, or absent by constitutional design — and those four states are the whole",
+    "difference between 'no chambers listed' meaning 'we have no data' and meaning",
+    "'this country has no legislature'. Rule 30: no answer is not an answer of no.",
+    "",
+    "So status is seeded and cited, exactly as military-seed.json seeds the facts FAS",
+    "publishes and Wikidata does not. Citations live in data/ rather than src/ because",
+    "registry-coverage.test.ts requires every host appearing in src/ to be a registered",
+    "fetch target, and a citation is not a fetch target.",
+    "",
+    "Step 10 replaces this with an ingest. What it must NOT do is collapse the four",
+    "states into two, which is the same warning UNEXERCISED-PATHS records for",
+    "forcesSummary."
+  ],
+  "sources": {
+    "ipu-parline": {
+      "name": "IPU Parline",
+      "url": "https://data.ipu.org/"
+    },
+    "wikidata": {
+      "name": "Wikidata",
+      "url": "https://www.wikidata.org/"
+    },
+    "constitute": {
+      "name": "Constitute Project",
+      "url": "https://www.constituteproject.org/"
+    }
+  },
+  "profiles": {
+    "GBR": {
+      "status": "sitting",
+      "source": "ipu-parline",
+      "asOf": "2026-08",
+      "upperChamberSelection": "appointed",
+      "note": "The House of Lords is appointed and hereditary rather than elected. A seat count beside an elected chamber's implies a comparability that does not exist, so the selection method is stated rather than left for the reader to assume."
+    },
+    "ISL": {
+      "status": "sitting",
+      "source": "ipu-parline",
+      "asOf": "2026-08",
+      "upperChamberSelection": null,
+      "note": "Unicameral. Wikidata models the Althing as the legislative body itself rather than as a chamber of one, which is why the chamber query keeps a body that has no chamber children."
+    },
+    "SAU": {
+      "status": "appointed-consultative",
+      "source": "constitute",
+      "asOf": "2026-08",
+      "upperChamberSelection": "appointed",
+      "note": "The Consultative Assembly is appointed and advisory. MEASURED 2026-08-15: Saudi Arabia's Wikidata P194 points at 'Government of Saudi Arabia' (P31 government), which reaches no chamber type at any depth including an unbounded walk; the Assembly exists as Q818708 with 150 seats and nothing links it to the country. So the live query returns zero chambers for a reason that is upstream data, not our query."
+    },
+    "LBY": {
+      "status": "contested",
+      "source": "ipu-parline",
+      "asOf": "2026-08",
+      "upperChamberSelection": null,
+      "note": "Rival bodies have claimed legislative authority. A single chamber row rendered without that context asserts a settled legislature, which is the confident-falsehood failure this project exists to prevent."
+    },
+    "VAT": {
+      "status": "no-elected-legislature",
+      "source": "constitute",
+      "asOf": "2026-08",
+      "upperChamberSelection": "appointed",
+      "note": "The Pontifical Commission is appointed and exercises delegated authority. It is returned by the chamber query because Wikidata types it as a legislative body; calling it a parliament without qualification would be wrong."
+    }
+  }
+}

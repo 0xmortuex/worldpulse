@@ -476,6 +476,7 @@ const ALL_STEPS = [
   '5 — economy tab',
   '6 — news tab',
   '6b — military tab',
+  '6c — legislature tab',
   '7 — globe event layers',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
@@ -1644,6 +1645,100 @@ check('a country with personnel but no expenditure shows the half it has',
   eritrea.replace(/\s+/g, ' ').slice(0, 160));
 check('and never renders the missing half as zero',
   /Expenditure[^]{0,40}\b0\b/i.test(eritrea) === false, eritrea.replace(/\s+/g, ' ').slice(0, 160));
+
+step('6c — legislature tab');
+// ---- step 6c: legislature tab (step 9's hard cases, in a browser) ----
+
+/**
+ * P12 again. Step 9's whole point is a set of SENTENCES that keep four
+ * different facts apart, and a unit test on the function that builds them
+ * cannot see whether the panel still calls it.
+ */
+await selectCountry('United Kingdom');
+await clickOrFail(page, '[data-tab="legislature"]', 'legislature tab');
+await page.waitForTimeout(300);
+
+const gbrLeg = ((await page.locator('.legislature').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('a bicameral legislature is described as bicameral', /Bicameral/i.test(gbrLeg), gbrLeg.slice(0, 140));
+
+/**
+ * THE DEFECT THIS STEP FIXED, ASSERTED WHERE A READER WOULD SEE IT.
+ *
+ * The query used to return the parent body as a chamber of itself, so the
+ * United Kingdom rendered three chambers with a third seat count that was the
+ * other two added together. The unit test now asserts the chamber set; this
+ * asserts that the panel a person looks at does not show it.
+ */
+check('the parent parliament is not listed as a chamber of itself',
+  /Parliament of the United Kingdom/i.test(gbrLeg) === false, gbrLeg.slice(0, 200));
+check('both real chambers are present',
+  /House of Commons/i.test(gbrLeg) && /House of Lords/i.test(gbrLeg), gbrLeg.slice(0, 200));
+
+check('an appointed upper chamber says it is appointed, not merely smaller',
+  /appointed rather than elected/i.test(gbrLeg), gbrLeg.slice(0, 200));
+
+/**
+ * The party breakdown states its own absence rather than drawing a bar from
+ * committees and offices. Measured across eight countries: the source records
+ * chamber membership in a form containing no political parties at all.
+ */
+check('the missing party composition is explained, not silently omitted',
+  /not currently sourced/i.test(gbrLeg), gbrLeg.slice(0, 240));
+check('and no party bar is drawn from unsourced data',
+  (await page.locator('.legislature .party-bar').count()) === 0);
+
+/**
+ * RULE 30, THE PAIR THAT MAKES IT MEAN SOMETHING.
+ *
+ * Saudi Arabia has zero chambers because its source's country link points at
+ * the government rather than at a legislature — measured, including against an
+ * unbounded walk. The panel must say the gap is OURS, and must not report that
+ * the country has no legislature.
+ */
+await selectCountry('Saudi Arabia');
+await clickOrFail(page, '[data-tab="legislature"]', 'legislature tab');
+await page.waitForTimeout(300);
+const sauLeg = ((await page.locator('.legislature').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('an empty chamber list names the gap as our source\'s',
+  /gap in our source/i.test(sauLeg), sauLeg.slice(0, 200));
+
+/**
+ * THIS ASSERTION WAS WRONG FIRST, AND FINDING OUT WHY FOUND A REAL BUG.
+ *
+ * It read `/\bhas no legislature\b/.test(text) === false` and failed — because
+ * the panel's own sentence is "…a gap in our source, **not a finding that the
+ * country has no legislature**". The phrase appears inside its own denial, so
+ * the check was matching a substring rather than a claim.
+ *
+ * Chasing it surfaced a genuine defect one line away: Saudi Arabia was
+ * rendering "…The body listed below exercises delegated authority" with **zero
+ * chambers below**. A sentence promising something the page does not contain.
+ * The status strings are now self-contained so they cannot dangle.
+ *
+ * The claim, stated so it cannot be satisfied by a denial: the phrase must
+ * appear ONLY as part of the explicit disclaimer.
+ */
+const noLegislatureClaims = (sauLeg.match(/has no legislature/gi) ?? []).length;
+const disclaimed = (sauLeg.match(/not a finding that the country has no legislature/gi) ?? []).length;
+check('the words "has no legislature" appear only inside their own disclaimer',
+  noLegislatureClaims === disclaimed, `${noLegislatureClaims} occurrence(s), ${disclaimed} disclaimed`);
+check('and nothing promises a body that is not rendered',
+  /listed below/i.test(sauLeg) === false, sauLeg.slice(0, 200));
+check('an empty chamber list is not described as unicameral',
+  /unicameral/i.test(sauLeg) === false, sauLeg.slice(0, 200));
+
+/**
+ * The positive control for the pair above: a country that HAS chambers must
+ * not carry the missing-source sentence. A disclosure that appears everywhere
+ * discloses nothing (rule 42).
+ */
+await selectCountry('Iceland');
+await clickOrFail(page, '[data-tab="legislature"]', 'legislature tab');
+await page.waitForTimeout(300);
+const islLeg = ((await page.locator('.legislature').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('a unicameral legislature is described as unicameral', /Unicameral/i.test(islLeg), islLeg.slice(0, 140));
+check('and does NOT carry the missing-chambers sentence',
+  /gap in our source/i.test(islLeg) === false, islLeg.slice(0, 200));
 
 step('7 — globe event layers');
 // ---- step 7: globe layers ----

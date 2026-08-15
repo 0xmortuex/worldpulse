@@ -1,4 +1,5 @@
 import type { Country } from '../countries';
+import { renderLegislatureTab } from './legislature';
 import { renderMilitaryTab } from './military';
 import { factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
@@ -28,7 +29,7 @@ export interface PanelContext {
 
 const TABS: Array<{ id: TabId; label: string; step: string | null }> = [
   { id: 'government', label: 'Government', step: null },
-  { id: 'legislature', label: 'Legislature', step: 'step 9' },
+  { id: 'legislature', label: 'Legislature', step: null },
   { id: 'military', label: 'Military', step: 'step 8' },
   { id: 'economy', label: 'Economy', step: null },
   { id: 'news', label: 'News', step: null },
@@ -198,6 +199,7 @@ function tabBody(subject: Country, tab: TabId, context: PanelContext): string {
   if (tab === 'economy') return renderEconomyTab(subject.code, subject.name, context.today);
   if (tab === 'news') return renderNewsTab(subject.code, subject.name);
   if (tab === 'military') return renderMilitaryTab(subject.code, subject.name);
+  if (tab === 'legislature') return renderLegislatureTab(subject.code, subject.name);
   const entry = TABS.find((candidate) => candidate.id === tab);
   return `<div class="gov"><p class="gov-pending"><strong>Not built yet.</strong>
     The ${escapeHtml(entry?.label ?? tab)} tab arrives with ${escapeHtml(entry?.step ?? 'a later step')}.
