@@ -1174,3 +1174,38 @@ that appears after the failures will be read as superseding them.
 appears, nothing else in the output matters until it is resolved — and no commit happens.
 Recorded rather than resolved with a tooling change, because the tooling reported this
 perfectly and the reader was the defect.
+
+---
+
+## The spec said Feodo Tracker was CC0. Its terms say all rights reserved, non-commercial
+
+**Read 2026-08-15** at `abuse.ch/terms-and-conditions/`, taking the Phase A batch through the
+gate. `SPEC-EXPANSION.md` and `NEXT-GOAL.md` both carry "abuse.ch Feodo | CC0, keyless".
+
+**CC0 appears nowhere in the terms.** What they actually say:
+
+> **8.1** …protected by copyright laws and treaties around the world. **All such rights are
+> reserved.**
+> **8.2** Our status (and that of any identified contributors) as the authors of content on our
+> site **must always be acknowledged**.
+> **8.3** You **must not use any part of the content on our site for commercial purposes**
+> without obtaining a licence to do so from us or our licensors.
+
+Copyright reserved, attribution mandatory, commercial use prohibited without a separate licence.
+That is close to the opposite of CC0, which waives all three.
+
+**The phrase that would have confirmed a careless read is present, and it is about something
+else.** Clause 5.6 says content is treated as "in the public domain" — and 5.6 governs **content
+USERS UPLOAD to abuse.ch**, not the datasets abuse.ch publishes. A search for "public domain"
+finds it; only reading the surrounding clause shows it is about submissions.
+
+**This is the Ember-notes class again, one level up.** There, registry notes described a
+different artefact (the CSV) than the adapter consumed (the API). Here a *plan document*
+described a different licence than the source has. Both are inherited claims that were never
+measured — the class recorded earlier this session, arriving in a spec rather than in a report.
+
+**Nothing was built on it.** The licence was read before registration, which is L15's whole
+point and the reason the error cost a fetch rather than a retraction.
+
+**Consequence for the batch:** every "licence" cell in the Phase A table is now an unverified
+claim until read. The plan's licence notes are a research lead, not a record.

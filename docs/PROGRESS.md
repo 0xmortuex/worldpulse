@@ -76,3 +76,38 @@ question 14 as its amendment record.
 19a (verdict ladder orders `keyRequired` before reachability) and 18 (`npm run probe` on
 Windows) are both shaped and both change behaviour beyond their own source, so each waits for
 its own commit rather than riding along.
+
+## 2026-08-15 — Phase A survey, and the first gate table
+
+FIRMS is through (`3d094d6`). The batch was surveyed before any adapter was written, because
+five consecutive sources this session had a hazard that was cheaper to find with one request
+than with an adapter.
+
+### Per-source gate table — Phase A, as surveyed
+
+| Source | Reachable | Auth | Licence read | State |
+| --- | --- | --- | --- | --- |
+| Cloudflare Radar | 400 without a token | token, **not in `.env`** | not yet | **blocked on a credential** — Ember precedent |
+| IODA | 200 | keyless | not yet | convertible |
+| OONI | 200 | keyless | not yet | convertible |
+| IOM DTM | not surveyed | — | — | queued |
+| **ReliefWeb** | **410 Gone** | keyless | not yet | **endpoint stale in the plan**: *"API version 'v1' has been decommissioned. Please use version 'v2'"* — a version bump, not a dead source |
+| HDX HAPI | **429** rate limited | keyless | not yet | retry later |
+| FEWS NET | **timeout** | — | not yet | unreachable from this machine; needs a second attempt before it is called blocked (rule 35) |
+| IFES ElectionGuide | not surveyed | credentials requested | — | queued |
+| UN voting data | not surveyed | — | — | queued |
+| **Feodo Tracker** | 200, no ACAO → Worker | keyless | **READ** | **held on `OPEN-QUESTIONS` 22** — the plan said CC0; the terms say all rights reserved, attribution mandatory, no commercial use |
+
+### What the survey changed about the plan
+
+**The licence column in `NEXT-GOAL.md` is a research lead, not a record.** Feodo was the first
+one read and it was wrong — CC0 in the plan, copyright-reserved and non-commercial in the terms.
+Every remaining source's terms get read before its adapter.
+
+**Two sources are cheaper than they look**: ReliefWeb needs `v2` rather than `v1`, and HDX HAPI
+answered 429 rather than anything structural. Neither is a blocker.
+
+**One needs a second measurement before any verdict**: FEWS NET timed out once, and rule 35
+requires proving a mechanism is environmental before recording it as such.
+
+**740 tests / 150 suites, typecheck exit 0, tree clean.**

@@ -949,3 +949,33 @@ a real loss of resolution and a clustering feature would need the unrounded valu
 **What is needed from you:** whether `Resolution` should gain a `footprint` member carrying its
 size, at the cost of a migration across every consumer — or whether the numeric binding is the
 whole answer and the enum stays a three-way coarse classification.
+
+---
+
+## 22. Which class does abuse.ch's licence actually fall into?
+
+**Raised 2026-08-15.** Feodo Tracker's terms (read at `abuse.ch/terms-and-conditions/`) are:
+copyright reserved (8.1), attribution mandatory (8.2), no commercial use without a separate
+licence (8.3). **Not CC0**, which the plan documents claimed — see `FOUND.md`.
+
+**The classification is a judgement, and it changes how the source may be used:**
+
+| Class | Argument for | Argument against |
+| --- | --- | --- |
+| `nc` | 8.3 is exactly a non-commercial term, and this project is non-commercial (decision 3), so it is satisfiable | understates 8.1's "all rights reserved" — there is no affirmative grant of reuse anywhere in the terms |
+| `restricted-minimal` | matches "no general grant; minimal attributed elements ingested"; the blocklist is published FOR blocking, which is an implied grant for that use and no wider | may understate what abuse.ch actually intends, since the dataset exists to be consumed |
+| `restricted` | strictly correct on 8.1 alone | would mean not ingesting it at all, which is hard to square with a blocklist published as a JSON download |
+
+**My reading is `nc`**, because 8.3 names the constraint that actually binds this project and the
+licence-posture guard reads the licence string for exactly that term. But 8.1 has no affirmative
+grant, and this project has been careful that "published for use" is not the same as "licensed
+for use".
+
+**Not converted pending your answer.** The data is reachable and the adapter would be
+straightforward; what is not straightforward is asserting a licence class the terms do not state
+outright. Emergency stop 2 covers shipping content whose terms we have not read — these have now
+been read, and what they say needs a decision rather than a guess.
+
+**Note for the rest of the batch:** the plan's licence column is now treated as a research lead
+rather than a record. Each source's terms get read before its adapter, and any that disagree
+with the plan get recorded the way this one was.
