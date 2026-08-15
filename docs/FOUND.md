@@ -1492,3 +1492,56 @@ typechecks as an unused-variable error only because this project has that check 
 **The rule: file mutation goes through Edit or Write. The shell is for running things, not for
 writing them.** Where a heredoc is genuinely convenient, it must contain no backticks, and the
 result gets read back before it is committed.
+
+---
+
+## Over-correction: I treated a published index as a guess
+
+**2026-08-15.** FEWS NET's IPC endpoints failed three ways — `ipcphase` timed out, `ipcphasemap`
+404'd, `ipcpackage` 500'd. I stopped and wrote:
+
+> After three distinct failures, a fourth guess is inference… guessing a fourth after three
+> distinct failures would be inference where the answer is documented somewhere.
+
+**The answer was not "documented somewhere". It was documented in a response I had already
+fetched.** `/api/` returns a self-documenting index of 141 endpoint names, and I had printed it.
+Trying `ipcpopulation` — a name from that index — is not a guess; it is reading the source's own
+documentation.
+
+```
+ipcpopulation      200 in 3290ms   array(207)   real IPC classification data
+ipcpopulationsize  200 in 2792ms   array(4925)  real population figures
+```
+
+**FEWS NET was never blocked.** It was two requests away, and I stopped because a rule against
+inference fired on a case that was not inference.
+
+**This is the opposite of every other error in this session**, and worth recording precisely
+because of that. The others were over-reach: a GL flag assumed to work, a status code read as a
+reason, a rule stretched to a case it did not cover. This one was over-caution — a discipline
+against guessing, applied to an act of reading.
+
+**The distinction the rule needed and did not have:** a guess invents a value the source never
+gave you. Trying `ipcpopulation` used a value the source published, in an index fetched for that
+purpose. Both feel like "trying another one"; only one of them is inference.
+
+**Calibration is not a direction.** Having been wrong four times toward optimism does not make
+pessimism correct — it makes *measurement* correct, and I substituted a posture for a
+measurement that cost 3 seconds.
+
+---
+
+## FEWS NET's IPC data carries four hazards, all visible before an adapter
+
+Measured on the now-working `ipcpopulation` endpoint, 207 rows:
+
+| Field | Observed | Hazard |
+| --- | --- | --- |
+| `data_usage_policy` | `{"Public": 207}` | **per-record licence.** All Public here, but `Restricted` exists in the policy table — an adapter must filter, not assume |
+| `scenario` | `{"ML": 57, "CS": 57, "PN": 93}` | **most rows are FORECASTS.** `CS` is current status; `ML` (most likely) and `PN` are projections. Rendering a projection as present conditions would be the worst error this source permits |
+| `phase` | `{"3+": 207}` | **a THRESHOLD, not a phase.** "3+" means phase 3 or above — a population count at or above crisis, not a population in phase 3 |
+| `admin_0…admin_4` | all `admin_0` in this slice | the geographic hierarchy is rule 38's discriminator: country rows and sub-national rows share one response shape |
+
+**`scenario` is the one that would ship wrong.** 150 of 207 rows are projections, and nothing in
+the field name says so — `ML` and `PN` are codes, and `scenario_name` renders as "Most Likely",
+which reads like a qualifier on a current figure rather than a label on a forecast.
