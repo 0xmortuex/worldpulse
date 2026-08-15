@@ -1301,3 +1301,42 @@ entirely).
 
 **Recorded as a research task, not a defect.** No adapter was written against a guessed
 endpoint, which is the outcome L15 and rule 3 both point at.
+
+---
+
+## 28. Step 9's blocker no longer reproduces — is it unblocked, or lucky?
+
+**Raised 2026-08-15** after re-measuring the blocker the current goal was drafted to fix.
+
+`buildLegislatureQuery` now completes for **every country measured** — Vatican City 1371ms,
+Iceland 1765ms, the United Kingdom 734ms, India 879ms — where the recorded finding says it
+completed for none. Tested by GET and POST, same result. Full table in `FOUND.md`.
+
+**Nothing in this app changed.** The query is byte-for-byte what it was.
+
+**The decision this needs:**
+
+| Reading | Consequence |
+| --- | --- |
+| **Unblocked** — WDQS improved, step 9 can proceed on the existing query | the redesign goal is void, and step 9 drafts next |
+| **Lucky** — the failure mode is intact and this query is currently escaping it | the redesign still matters, and the goal continues with a different justification |
+
+**The evidence leans "lucky", and the sibling query is why.** `buildCabinetQuery` reproduced its
+recorded numbers to within half a second — 52.18s against 52.6s — and still 504s for the United
+Kingdom. The endpoint has not stopped spending 60 seconds on queries of this shape; the
+legislature query is simply not one it spends them on today.
+
+A query that ran at 60s+ and now runs at 1s did not become well-designed. **It became lucky, and
+the same optimizer decision that helped it can be withdrawn without notice.**
+
+**My recommendation: treat it as unblocked for step 9 AND keep the redesign**, on the cabinet
+query, where the defect provably still lives. That gets step 9 moving without recording a
+"fixed" that nobody fixed, and it fixes the query that is actually broken.
+
+**What is NOT recommended:** deleting the blocker note from `BUILD-ORDER` as though the problem
+were solved. It was not solved; it stopped occurring, and those are different entries in a
+history someone will read.
+
+**A guard would settle it either way** — the goal's Part 3 already proposes one: every shipped
+SPARQL query completes within a stated budget under `PROBE_LIVE`. That converts "is it safe" from
+a judgement into a check that fires when the luck runs out.

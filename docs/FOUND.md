@@ -1545,3 +1545,61 @@ Measured on the now-working `ipcpopulation` endpoint, 207 rows:
 **`scenario` is the one that would ship wrong.** 150 of 207 rows are projections, and nothing in
 the field name says so — `ML` and `PN` are codes, and `scenario_name` renders as "Most Likely",
 which reads like a qualifier on a current figure rather than a label on a forecast.
+
+---
+
+## The legislature query is not broken any more. The cabinet query is, exactly as recorded.
+
+**Measured 2026-08-15T20:12Z**, characterising before redesigning, per the goal that was drafted
+to fix it.
+
+| Query | Country | Recorded earlier | **Measured now** |
+| --- | --- | --- | --- |
+| `buildLegislatureQuery` | VAT | 504 after 65.5s | **200 — 1371ms**, 1 row |
+| `buildLegislatureQuery` | ISL | 500 after 60.6s | **200 — 1765ms**, 1 row |
+| `buildLegislatureQuery` | GBR | 504 | **200 — 734ms**, 5 rows |
+| `buildLegislatureQuery` | IND | not measured | **200 — 879ms**, 4 rows |
+| `buildCabinetQuery` | TUV | 200, fast | 200 — 10453ms, 17 rows |
+| `buildCabinetQuery` | ISL | **200 — 52.6s** | **200 — 52181ms**, 33 rows |
+| `buildCabinetQuery` | GBR | **504** | **504 after 65659ms** |
+
+**The cabinet query reproduces to within half a second** — 52.18s against 52.6s recorded, and the
+same 504 for the United Kingdom. That precision is what makes the other half trustworthy: same
+method, same sitting, same endpoint, one query unchanged and one transformed.
+
+### The transport hypothesis, tested and eliminated
+
+A long query in a GET URL is a documented rejection path, and the original measurement may have
+used one. So both methods were tried on the same query in the same sitting:
+
+```
+VAT  GET  200  1052ms      GBR  GET  200   926ms
+     POST 200  1194ms           POST 200  1358ms
+```
+
+Both succeed. The query is **557 characters** — nowhere near any URL limit. **It is not the
+transport.**
+
+### What this means, stated carefully
+
+**Something upstream changed** — WDQS's optimizer, the underlying data, or service capacity.
+This app changed nothing: the query is byte-for-byte what it was.
+
+**It does NOT mean the query is safe.** The same endpoint still spends 52 seconds on the sibling
+cabinet query and 504s it for the United Kingdom, so the failure mode is present and this query
+simply is not triggering it today. A query that ran at 60s+ and now runs at 1s did not become
+well-designed; it became lucky, and the same optimizer decision that helped it can be withdrawn.
+
+### The finding that matters more than either result
+
+**The goal was drafted to fix a query that is not currently broken.** Its Part 1 said
+"characterise before redesigning… a fix without the mechanism named is the flake lesson again",
+and that instruction is the only reason this was caught: a redesign would have been written,
+measured against a working baseline, and recorded as a success.
+
+**The stale-measurement class, applied to a blocker rather than to data.** `BUILD-ORDER` marks
+step 9 BLOCKED on this, and the block has been carried forward across sessions as settled fact.
+Nobody re-measured it because it had been measured — which is exactly the reasoning this project
+refuses about licences, endpoints and flake rates, arriving about a defect.
+
+**A blocker is a measurement, and measurements expire.**
