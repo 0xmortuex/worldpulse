@@ -2188,6 +2188,34 @@ for (const breakpoint of BREAKPOINTS) {
   await assertTextFits(page, '.econ-block .fact-value', `${breakpoint.name} economy values`);
   await assertSvgTextFits(page, '.econ-block .chart-axis', 42, `${breakpoint.name} economy axis`);
 
+  /**
+   * Military tab: long prose in a panel built for short rows.
+   *
+   * Every other panel here is figures and names. This one carries three
+   * multi-sentence explanations — the none-recorded reasoning, the
+   * undeclared-arsenal wording and the no-equipment card — and each exists
+   * precisely because its shorter form would be a false statement. **They cannot
+   * be truncated to fit**, so 360px is where the panel either wraps or clips a
+   * qualifier off the end of a sentence.
+   */
+  await selectCountry('France');
+  await page.locator('[data-tab="military"]').click();
+  await page.waitForTimeout(300);
+  await assertLayout(page, '.gov', ':scope > .gov-block', `${breakpoint.name} military sections`);
+  await assertTextFits(page, '.mil-warheads', `${breakpoint.name} warhead sentence`);
+  await assertTextFits(page, '.mil-command', `${breakpoint.name} command line`);
+  await assertTextFits(page, '.mil-no-equipment', `${breakpoint.name} no-equipment card`);
+  await assertLayout(page, '.mil-deployments', ':scope > li', `${breakpoint.name} deployment rows`);
+
+  // The none-recorded reasoning is the longest string in the tab and the one a
+  // clip would damage most: losing its tail turns a careful qualifier into a
+  // bare claim.
+  await selectCountry('Costa Rica');
+  await page.locator('[data-tab="military"]').click();
+  await page.waitForTimeout(300);
+  await assertTextFits(page, '.mil-overseas', `${breakpoint.name} none-recorded line`);
+  await assertTextFits(page, '.mil-abolished', `${breakpoint.name} abolished-forces sentence`);
+
   // News at every breakpoint: the multiscript feed is where a Latin-calibrated
   // layout fails, and 360px is where nobody screenshots.
   await openNews('Iran');

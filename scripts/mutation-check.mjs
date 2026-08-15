@@ -215,6 +215,26 @@ const MUTATIONS = [
     expect: /syndicat|outlet/i,
   },
   {
+    /**
+     * The no-equipment card is the natural step-8 target because it is the one
+     * disclosure in the tab defined by BOTH where it appears and where it must
+     * not. Making it render everywhere is the failure a single-sided assertion
+     * would miss: the card would show on Costa Rica, implying an equipment
+     * inventory we are missing from a country that abolished its military.
+     */
+    step: '6b — military tab',
+    what: 'the no-equipment card renders for a country that abolished its military',
+    nonVacuity:
+      'The early return in renderMilitaryTab is the only thing that withholds the card, and it ' +
+      'withholds nothing else — the abolished panel still renders its own sentence and its ' +
+      'overseas block, so the row count and every other assertion in the step are unchanged. ' +
+      'Only the card-absence half of the pair can see this.',
+    file: 'src/ui/military.ts',
+    from: '      ${overseasBlock(profile)}\n    </div>`;\n  }',
+    to: '      ${overseasBlock(profile)}\n      ${equipmentBlock()}\n    </div>`;\n  }',
+    expect: /equipment card/i,
+  },
+  {
     step: '7 — globe event layers',
     what: 'back-facing markers become pickable through the planet',
     nonVacuity:

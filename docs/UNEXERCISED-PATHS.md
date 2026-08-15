@@ -498,3 +498,45 @@ better than two.
 **Where to look for other instances.** Any rule specified ahead of the data that motivates it:
 §11, §12 and §13 above are all "adapter proven, nothing renders it", which is this class seen
 from the other end. The question to ask of each is not "is it tested" but "what calls it".
+
+---
+
+## 15. The Military tab renders six countries; every other country is honestly blank
+
+**Added 2026-08-15 with step 8.** The economy tab's precedent, applied deliberately rather than
+by accident.
+
+| Path | Exercised by | NOT exercised by |
+| --- | --- | --- |
+| Every rendering branch | six hand-checked profiles in `data/military-seed.json` | live data — there is none |
+| `loadMilitary` returning null | the 190-odd countries with no fixture | anything that proves the null branch is *rare* rather than typical |
+
+**The six exist because each carries a specced hard case**, not because they are representative:
+Costa Rica (no armed forces, zero recorded presence), Iceland (expenditure without personnel),
+Eritrea (personnel without expenditure), Israel (non-NPT undeclared), New Zealand (ceremonial
+command, a recorded deployment), France (operational command, NPT state, basing).
+
+**Every other country renders "No military data … while the ingest is unconnected."** That is
+honest and it is thin, and the thinness is the point: the rendering is proven against the shapes
+that break it before any pipeline exists to feed it.
+
+### What step 10 inherits, as a checklist
+
+1. **`hasArmedForces` has no source.** It is hand-set per fixture. A live ingest must decide
+   where it comes from — a constitutional fact, not a figure, and absent from every statistical
+   source this app uses.
+2. **The abolished/absent distinction must survive the pipeline.** `forcesSummary` returns three
+   states and a naive ingest collapses two: a country with no rows looks identical to a country
+   with no forces.
+3. **`overseasPresence` null versus `[]` must survive it too.** The provider preserves the
+   distinction today; an ingest that maps "no rows returned" to `[]` would convert *not
+   consulted* into *consulted and empty*, and the panel would say "None recorded" about a
+   question nobody asked.
+4. **Tier follows the source, per row.** FAS figures are `ESTIMATE` because FAS says so. A live
+   ingest must carry that per source rather than tiering the whole tab.
+5. **The no-equipment card becomes per-country** the moment any equipment source is connected,
+   and its signature changes with it — deliberately, so the change is visible rather than a
+   string quietly starting to lie.
+
+> Kept rather than deferred: the hard cases are the specification, and they are provable now.
+> What is unexercised is breadth, not correctness.
