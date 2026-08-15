@@ -145,6 +145,7 @@
   "the fixtures cover every specced hard case": 2,
   "the four flags that claimed live without live coverage": 7,
   "the named assertion must have run": 3,
+  "the no-equipment-data card": 2,
   "the unavailable fact state": 4,
   "transport — failure becomes a fact state, not an exception": 5,
   "transport — stale rescue and its bound (F2, F3)": 2,

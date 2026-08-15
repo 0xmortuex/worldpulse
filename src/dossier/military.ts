@@ -162,6 +162,29 @@ export function describeCommand(command: Command | null): string | null {
 }
 
 /**
+ * The no-equipment-data card, from `BUILD-ORDER.md` step 8.
+ *
+ * **This app holds no equipment inventories for any country, and the card says
+ * so as a property of the APP rather than of the country.** That distinction is
+ * the whole reason it is generated rather than omitted: a Military tab with
+ * personnel, expenditure and command but no equipment reads as though the
+ * country has no equipment worth listing — an absence the reader fills in
+ * themselves, wrongly, because nothing told them the gap is ours.
+ *
+ * Omitting the card would be the quieter failure, which is why it exists. Rule
+ * 30's principle applied to a whole category rather than to one figure: no
+ * answer is not an answer of no, including when the question was never asked.
+ *
+ * It takes no argument because it depends on nothing about the country. If a
+ * source is ever connected, this becomes per-country and the signature changes
+ * with it — a change that will be visible rather than silent.
+ */
+export const NO_EQUIPMENT_DATA =
+  'This app holds no equipment inventories — no aircraft, vessels, or vehicle counts for any ' +
+  'country. That is a gap in what this app has ingested, not a statement about this country’s ' +
+  'forces.';
+
+/**
  * What may be claimed about warheads.
  *
  * An undeclared state's figure is an outside estimate and nothing more, and the

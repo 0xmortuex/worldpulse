@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   NONE_RECORDED,
+  NO_EQUIPMENT_DATA,
   describeCommand,
   describeOverseasPresence,
   describeWarheads,
@@ -239,5 +240,29 @@ describe('the fixtures cover every specced hard case', () => {
     // An empty profile would render as a country with no armed forces, which is
     // a claim. Null is the absence of one.
     assert.equal(loadMilitary('ZZZ'), null);
+  });
+});
+
+describe('the no-equipment-data card', () => {
+  /**
+   * BUILD-ORDER step 8 names it as "the generated no-equipment-data card". It is
+   * generated rather than omitted because omission is the quieter failure: a tab
+   * showing personnel, expenditure and command with no equipment section invites
+   * the reader to conclude the country has none, and they would be concluding it
+   * about the wrong subject.
+   */
+  it('says the gap belongs to the app, not to the country', () => {
+    assert.match(NO_EQUIPMENT_DATA, /this app holds no equipment/i);
+    assert.match(NO_EQUIPMENT_DATA, /not a statement about this country/i);
+  });
+
+  it('never phrases the absence as a fact about the country’s forces', () => {
+    for (const wrong of ['has no equipment', 'possesses no', 'no aircraft or vessels.']) {
+      assert.equal(
+        NO_EQUIPMENT_DATA.toLowerCase().includes(wrong.toLowerCase()),
+        false,
+        `the card asserts "${wrong}" about the country`,
+      );
+    }
   });
 });

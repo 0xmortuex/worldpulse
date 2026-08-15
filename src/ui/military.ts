@@ -1,6 +1,7 @@
 import { escapeHtml, factHtml } from '../facts/badge';
 import {
   NONE_RECORDED,
+  NO_EQUIPMENT_DATA,
   describeCommand,
   describeOverseasPresence,
   describeWarheads,
@@ -35,6 +36,14 @@ export function renderMilitaryTab(iso3: string, countryName: string): string {
    * THE ABOLISHED CASE, rendered as a fact about the country rather than a gap
    * in our data. A wall of "no data" here would report our ignorance and
    * attribute it to them.
+   *
+   * **It deliberately omits the no-equipment card.** For a country with armed
+   * forces, that card corrects a false impression: the absence of an equipment
+   * section would otherwise read as the country having none. For a country that
+   * abolished its military, the card would CREATE one — "we hold no equipment
+   * inventories" implies there is an inventory we are missing. The card exists
+   * to stop a reader inferring absence from silence; here silence is the
+   * accurate answer and the card would talk them out of it.
    */
   if (summary === 'abolished') {
     return `<div class="gov">
@@ -91,7 +100,23 @@ export function renderMilitaryTab(iso3: string, countryName: string): string {
     }
 
     ${overseasBlock(profile)}
+    ${equipmentBlock()}
   </div>`;
+}
+
+/**
+ * The no-equipment-data card.
+ *
+ * Rendered for every country with armed forces, because the gap is the app's and
+ * not the country's. A tab showing personnel, expenditure and command with no
+ * equipment section invites the reader to conclude there is nothing to show —
+ * and they would be concluding it about the wrong subject.
+ */
+function equipmentBlock(): string {
+  return `<section class="gov-block">
+    <h3>Equipment</h3>
+    <p class="mil-no-equipment">${escapeHtml(NO_EQUIPMENT_DATA)}</p>
+  </section>`;
 }
 
 /**

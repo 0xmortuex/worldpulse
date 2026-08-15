@@ -1612,6 +1612,26 @@ check('positive control: a recorded deployment does not say none recorded',
 check('and reports the host country', (await page.locator('.mil-deployments li').count()) > 0);
 
 /**
+ * The no-equipment-data card, and the country it must NOT appear on.
+ *
+ * For a country with forces the card corrects a false impression: an absent
+ * equipment section would read as the country having none. For a country that
+ * abolished its military it would CREATE one, implying an inventory we are
+ * missing. The pair is what makes either assertion mean anything.
+ */
+const nzEquipment = ((await page.locator('.mil-no-equipment').textContent().catch(() => '')) ?? '');
+check('the no-equipment card says the gap belongs to the app',
+  /this app holds no equipment/i.test(nzEquipment), nzEquipment.slice(0, 120));
+check('and says it is not a statement about the country',
+  /not a statement about this country/i.test(nzEquipment), nzEquipment.slice(0, 120));
+
+await selectCountry('Costa Rica');
+await clickOrFail(page, '[data-tab="military"]', 'military tab');
+await page.waitForTimeout(300);
+check('a country that abolished its military gets no equipment card',
+  (await page.locator('.mil-no-equipment').count()) === 0);
+
+/**
  * Independent absence. Eritrea has personnel and no expenditure; the panel must
  * render the half it has rather than hiding both or inventing a zero.
  */
