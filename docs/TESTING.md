@@ -1448,3 +1448,54 @@ on recording the configuration mattered more than anyone realised at the time.
 assertion stays as its canary, and MITIGATED still waits on S3's keyboard path. A failure that
 reproduces every time is far more tractable than one that reproduces one time in five — which
 is what makes the timeboxed diagnostic worth doing now and not before.
+
+---
+
+## 37. Success is a property of the body, and a parameter that shapes the response must be verified
+
+**Three instances in one day, which is this project's threshold for a rule.**
+
+| Instance | What the status said | What was true |
+| --- | --- | --- |
+| `exchangerate.host` unauthenticated | **200** | `{success: false, error}` — the key was missing |
+| My own auth sweep, scoring on `res.ok` | **accepted** | it reported NO MECHANISM ACCEPTED for a source whose mechanism worked |
+| `congress.gov` with `sort=bogus` | **200** | the sort was silently ignored; the order was arbitrary |
+
+**A status code answers a question about transport. Every question worth asking here is
+about content.** "Did the host answer" is not "did it answer what I asked for", and the gap
+between them is where a panel renders confidently wrong.
+
+### The rule, in two halves
+
+1. **Establish success from the response body against the request's intent, never from
+   transport status alone.** A 200 carrying `{success: false}` is a failure. A 403 carrying a
+   documented "no data for this region" is not necessarily one.
+
+2. **For any parameter that SHAPES the response — sort, filter, pagination, projection,
+   units — the adapter verifies the shaping happened.** An API that ignores an unknown
+   parameter rather than rejecting it will answer 200 to a request it did not honour, and that
+   response is indistinguishable from a correct one unless something checks.
+
+### Worked example: the congress.gov ordering check
+
+`sort=updateDate+desc` is load-bearing — the default order returns bills from 2007 — and
+`sort=bogus` returns 200 with arbitrary order and no error. There is a second route to the same
+failure that looks *more* correct than the working code: the sort value contains a `+` meaning
+"space", and `URLSearchParams` percent-encodes it to `%2B`, which makes the sort invalid, which
+the API ignores. **Correct percent-encoding produces the broken request.**
+
+So the builder constructs that parameter by hand with a test asserting `%2B` never appears, and
+`parse` asserts the ordering it asked for.
+
+### Detect and throw, never repair and conceal
+
+`parse` does **not** re-sort locally, and this is the half to hold hardest.
+
+Sorting the rows ourselves would hide the fact that the API ignored the request, and the next
+symptom would surface somewhere harder to see: **page 2 of an unsorted result set is not the
+continuation of page 1**, so a locally-sorted page 1 would look perfect while the sequence
+beneath it meant nothing.
+
+**A repaired symptom relocates the defect.** The repair is cheap, local and satisfying, and it
+converts a loud failure at the boundary into a quiet one in the middle — which is rule 7's
+distinction between absent provenance and wrong provenance, arriving at a different door.

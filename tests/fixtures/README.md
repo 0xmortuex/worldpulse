@@ -55,3 +55,7 @@ cannot be mistaken for real records:
 3. Register it in `index.ts` with its `sourceId` and the URL it would have come from.
 4. Do not add metadata keys to the JSON itself. The fixture must be byte-identical in
    shape to a real response, or it is not testing the real shape.
+5. **Run a live capture through the adapter's own `parse` before writing it.** A fixture that
+   violates an invariant the adapter enforces makes the contract test pass against data the
+   adapter would reject live — the fixture lying in the adapter's favour. The congress.gov
+   capture is checked for descending order this way before it is committed.
