@@ -1,4 +1,5 @@
 {
+  ".env.example keeps up with the registry": 8,
   "a mutation whose own step never ran has no verdict": 5,
   "an inconclusive verdict is not a decision": 3,
   "axis labels fit their gutter": 2,

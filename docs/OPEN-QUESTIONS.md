@@ -632,3 +632,47 @@ for a fixture that was nearly moved.
 **Interim cover:** the keyboard/list path (S3/L12), which reaches every event without a click
 and therefore without a raycast. One more reason the promotion was right — it covers L9 and
 this defect with the same work.
+
+---
+
+## 16. The commit-4 verify diff: halted, pending one experiment
+
+**Raised 2026-08-15.** The migration goal says: *"If commit 4 produces any verify diff, stop the
+sequence, report the diff as a finding, and do not proceed to commit 5 until it is explained and
+resolved."*
+
+**Commit 4 produced a diff, so the sequence is HALTED at that instruction.** Commit 5's verify
+is not being run until this resolves. Recorded here rather than decided quietly, because
+"proceed anyway, the diff looks like flake" is precisely the judgement the instruction exists to
+prevent someone making alone.
+
+**The diff:** 282 assertions / 5 failures at commit 3 against 279 / 1 at commit 4. Seven of ten
+steps identical; the three that differ are exactly the three where a click flake fired, each by
+precisely its flake count. Full table in `FOUND.md`.
+
+**Both readings are live:**
+
+| Reading | What it would mean |
+| --- | --- |
+| The count is flake-driven | The refactor is clean and rule 36's criterion is mis-specified, not the commit |
+| The count tracks the commit | A genuine behavioural diff in a refactor that promised none — a bug, per the instruction |
+
+**The experiment that separates them:** run commit 3 **against itself**. A commit compared to
+itself has no refactor between the runs, so any difference in count can only be flake. If run 2
+of commit 3 differs from run 1, the count is proven unstable and the commit-4 comparison
+resolves in the refactor's favour. If it reproduces 282/5 exactly, the difference tracks the
+commit and commit 4 has a real diff to explain.
+
+**Why this experiment and not another.** The alternative — re-running under the GPU harness,
+where L9 is deterministic — would measure a configuration neither commit ever ran under. That is
+rule 20a's trap pointed backwards in time, and it would answer a question about a third
+configuration rather than about these two commits.
+
+**Status: running.** Whatever it returns, the disposition gets recorded here before anything
+proceeds to commit 5.
+
+**Standing regardless of the outcome:** rule 36 needs amending. "Per-step assertion identity"
+assumes the assertion count is a property of the commit. Under a flaky configuration it is a
+property of the commit AND the run, because a dropped click changes what executes next. The
+criterion cannot currently distinguish a behavioural change from a dropped click, which is the
+one distinction it exists to make.

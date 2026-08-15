@@ -710,3 +710,88 @@ its opposite so neither can pass alone.
 source. That guard was right and the entry was rebuilt over a source the app knows. Worth
 recording because the fixture was being written *to demonstrate honesty about data*, and it
 still needed a check to stop it inventing sources.
+
+---
+
+## Rule 36's assertion count is not deterministic, because a dropped click changes control flow
+
+**Measured 2026-08-15**, comparing migration commit 4 (`540f5c7`, P3 mechanical) against commit
+3 (`f5ce92e`) as the goal required. Both re-run from worktrees under each commit's OWN harness —
+they predate the GPU default, so both ran SwiftShader, the configuration they were written
+under.
+
+| Step | commit 3 | commit 4 |
+| --- | --- | --- |
+| 1–6, layout (rule 8) | 17, 19, 23, 24, 20, 17, 80 | **identical** |
+| 7 — globe event layers | **34** / 31 / 3 | **33** / 32 / 1 |
+| 7b — economy fetch states | **12** / 11 / 1 | **11** / 11 / 0 |
+| text fidelity (rule 9) | **36** / 35 / 1 | **35** / 35 / 0 |
+| total | **282**, 5 failed | **279**, 1 failed |
+
+**The failure-set half of rule 36 passes.** Every failure on both sides is the documented L9
+click-drop class — dropped clicks and their downstream consequences. The difference excluding
+documented flakes is empty.
+
+**The assertion-identity half fails, and the reason is the finding.** The three steps that
+differ are exactly the three where a click flake fired, and each differs by precisely the number
+of flakes in it. A dropped click changes what the harness does next, so **it changes how many
+assertions run.** The count is not a stable property of the commit under a flaky configuration.
+
+**Rule 36 assumed the count was deterministic and only pass/fail moved.** That assumption held
+while it was written — on a machine where the flake happened to leave counts alone — and it does
+not hold here. A criterion that cannot distinguish "the refactor changed behaviour" from "a
+click was dropped" is not usable as stated.
+
+**Deliberately unresolved as of this entry.** The decisive experiment is commit 3 against
+ITSELF: if a second run of the same commit yields a different count, the count is flake-driven
+and the comparison resolves in the refactor's favour. If commit 3 reproduces 282/5 exactly, the
+difference tracks the commit and is a real diff to stop on. Running; disposition in
+`OPEN-QUESTIONS.md` 16.
+
+**What is deterministic, and worth stating beside it:** commits 3 and 4 produce identical unit
+results — 571 tests, 119 suites, both green. Whatever the browser count does, the two commits
+agree everywhere the measurement is stable.
+
+---
+
+## Two reporting rules, both earned the same afternoon
+
+### A results table may contain only what the measurement produced
+
+A key-inventory table reported `OPENSANCTIONS_KEY` as "empty by choice". The check that produced
+the table read **names only** — it discarded everything after the `=` — so it had measured no
+value at all. The phrase came from the request that asked for the table, and acquired measured
+status by sitting in a column beside measured things. The key was in fact filled.
+
+**This is not the stale-data class.** Stale data is a wrong answer to a question that was asked;
+this was an answer to a question never asked at all. The `.env` file was current and correctly
+parsed for what it was asked.
+
+**The rule:** anything inherited from the request is measured before it is printed, or is marked
+as the requester's claim. It needs to be a rule rather than vigilance because the unmeasured
+claim came from the reviewer — the class catches whoever is trusted most, which is exactly the
+input least likely to be checked.
+
+**Second instance, same day, worse:** a report stated a background run had been launched when no
+such run existed — no worktree created, no process started. Same class, self-inflicted: an
+assertion about an action, printed without the action. Caught by a checker asking where the
+result was.
+
+### A wrapper reports the wrapper; only the process reports the process
+
+Three background runs were reported **killed** while both their shells and their
+`verify-render.mjs` children kept running. One shell reached its second loop iteration and
+checked out a different commit in the MAIN repository; one child held the harness run lock for
+25 minutes and refused the two runs that followed it.
+
+The lock behaved perfectly — it refused a second measuring run and named its holder by pid and
+age. The `0 assertions, 10 skipped` table it produced was the honest output of a refused run,
+not a broken one.
+
+**Second instance of a misdiagnosis this project already recorded, in the opposite direction.**
+The earlier one read a live detached process as dead; this one read dead wrapper statuses as
+covering dead processes. Both are the same mistake: treating the wrapper's summary as evidence
+about the process.
+
+**The rule:** a run records its own pid and its own done marker, and those are what get
+believed. Process inspection, not wrapper status, answers "is it still going".
