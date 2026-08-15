@@ -1032,3 +1032,58 @@ One thing NOT established, and worth testing before the source is written off: a
 Worker fetching a Cloudflare-fronted origin may not receive the same challenge. That is a
 question about where the fetch runs, and this app already routes this source through the
 Worker.
+
+---
+
+## EIA echoes the API key in every response body, and the capture guard caught it
+
+**2026-08-15.** The first attempt to capture an EIA fixture stopped with
+`REFUSING: response echoed the key`. EIA reflects the credential at
+`response.request.params.api_key` in **every** response.
+
+Without that guard the key would have been written into `tests/fixtures/` and committed. Two
+independent checks would have caught it — the capture's refusal, and the secret scan over every
+registered fixture body — and the capture caught it first, which is the earlier and cheaper of
+the two.
+
+**The fixture keeps the field and replaces only the value** with `REDACTED-AT-CAPTURE`. Dropping
+it would have made the fixture shape-different from a real response *and* hidden the echo from
+anyone reading it. The echo is the thing worth knowing.
+
+**The wider hazard this creates for any EIA adapter:** a `FetchProvenance` whose `raw` is the
+whole response body would carry the key into the provenance inspector. This adapter stores only
+the single row it read, which is right for other reasons too, but here it is load-bearing.
+
+**Second confirmation of the three-lifecycle model in one day.** The RECEIVED guard was written
+after the RECORDED leak was found by hand; it then caught a real leak on the very next source.
+
+---
+
+## EIA publishes the per-row provenance Ember does not, and it changes tiers
+
+**2026-08-15.** `OPEN-QUESTIONS` 17 recorded that Ember's tier is `OFFICIAL` at source level and
+cannot be narrowed per row, because the API exposes no reported-versus-modelled flag. **EIA
+exposes exactly that**, and eight distinctions besides:
+
+| flag | meaning | how the adapter renders it |
+| --- | --- | --- |
+| 10 | derived by STEO estimation methodology | **`ESTIMATE`, because the source says so** |
+| 3 | the country did not exist in this period | absent, with that reason |
+| 4 | included elsewhere this period | absent, with that reason |
+| 6 | exists but cannot be published | absent, with that reason |
+| 5 | **a real value that rounds to zero** | the value, noted as not exactly zero |
+| 1, 2 | unavailable permanently / temporarily | absent, with that reason |
+
+**The values are strings, and several are non-numeric sentinels** — `"--"`, `"ie"`, `"w"`,
+`"NA"`. The idiom that usually meets a string number is `Number(v) || 0`, and it turns *this
+country did not exist* into **0 billion kilowatt-hours**. Czechoslovakia has rows for 2023; so
+does every other state that stopped existing, and each one would have rendered a confident zero.
+
+`parseValue` returns `null` for a known sentinel and **throws for an unrecognised token**,
+because a new sentinel that silently became zero is the same defect arriving later. The flag
+map is closed for the same reason: an unmapped flag id throws rather than rendering as an
+ordinary value.
+
+**A tier set by the source's own flag is the only kind this project accepts.** Marking a row
+`ESTIMATE` because EIA says it is modelled is reporting; marking it `ESTIMATE` because we
+suspect it would be authoring uncertainty — the sin named when 17 was answered.

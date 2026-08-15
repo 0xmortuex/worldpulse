@@ -9,6 +9,7 @@ import * as usgs from '../src/sources/usgs';
 import * as gdelt from '../src/sources/gdelt';
 import * as ember from '../src/sources/ember';
 import * as congress from '../src/sources/congress';
+import * as eia from '../src/sources/eia';
 import type { GenerationRow } from '../src/sources/ember';
 import { factState } from '../src/facts/types';
 
@@ -428,5 +429,42 @@ describe('Wikimedia Commons imageinfo contract', () => {
     const fact = congress.totalBillsFact(list, ctx);
     assert.equal(fact.tier, 'OFFICIAL');
     assert.match(fact.note ?? '', /all Congresses/i);
+  });
+
+  /**
+   * EIA — the flags are the contract.
+   *
+   * The values are strings and several are non-numeric sentinels; the flag says
+   * which kind of absence a blank is. If EIA introduces a flag id this adapter
+   * does not know, `parse` throws — which is the behaviour worth having live,
+   * because an unmapped flag would otherwise render as an ordinary figure.
+   */
+  it('eia: rows parse, sentinels are absences, and flags stay known', async () => {
+    const sample = await liveOrInconclusive('eia');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const series = eia.parse(body);
+
+    assert.ok(series.rows.length > 0, 'no rows came back');
+
+    for (const row of series.rows) {
+      assert.match(String(row.year), /^\d{4}$/);
+      assert.ok(row.countryRegionId.length > 0);
+      assert.ok(['c', 'r'].includes(row.countryRegionTypeId));
+      // A value is a finite number or a declared absence. Never NaN — which is
+      // what a naive Number() on "--" or "ie" would produce.
+      assert.ok(row.value === null || Number.isFinite(row.value), `${row.countryRegionId} value is not finite`);
+    }
+
+    assert.ok(eia.countriesOnly(series.rows).length > 0, 'no country rows at all');
+
+    // Any flagged row must carry a note explaining the flag, or the distinction
+    // the flag exists for never reaches a reader.
+    for (const row of series.rows) {
+      if (row.flag === null) continue;
+      const fact = eia.valueFact(row, ctx);
+      assert.ok((fact.note ?? '').length > 0, `flag ${row.flag} produced no note`);
+      if (row.flag === 'steo-estimate') assert.equal(fact.tier, 'ESTIMATE');
+    }
   });
 });

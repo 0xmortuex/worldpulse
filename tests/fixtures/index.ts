@@ -11,6 +11,7 @@ import unhcrPopulation from './unhcr-population.json';
 import cisaKev from './cisa-kev.json';
 import emberYearlyAut from './economy/ember-yearly-aut.json';
 import congressBills from './congress-bills.json';
+import eiaElectricity from './economy/eia-electricity-2023.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -23,6 +24,7 @@ import { buildPopulationUrl } from '../../src/sources/unhcr';
 import { buildCatalogUrl } from '../../src/sources/cisa-kev';
 import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
 import { buildRecentBillsUrl } from '../../src/sources/congress';
+import { buildAnnualUrl as eiaAnnualUrl } from '../../src/sources/eia';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -166,6 +168,27 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'congress-gov',
     requestUrl: buildRecentBillsUrl({ limit: 20 }),
     body: congressBills,
+  },
+
+  /**
+   * Electricity consumption, every country and region, 2023 — captured live
+   * 2026-08-15 through `buildAnnualUrl` (rule 26), then run through `parse`
+   * before being written.
+   *
+   * CARRIES THE FLAGS, which is why it is 260 rows rather than a handful: 7
+   * `country-did-not-exist` (Czechoslovakia still has rows in 2023), 4
+   * `included-elsewhere`, 13 `rounds-to-zero`, and 35 regional aggregates beside
+   * 225 countries. A ten-row sample would have contained none of them.
+   *
+   * **ONE FIELD IS REDACTED AND THE SHAPE IS NOT.** EIA echoes the API key back
+   * at `request.params.api_key`, so the value — and only the value — is replaced
+   * with `REDACTED-AT-CAPTURE`. Dropping the field would have hidden the echo
+   * from anyone reading the fixture, and the echo is the thing worth knowing.
+   */
+  eia: {
+    sourceId: 'eia',
+    requestUrl: eiaAnnualUrl({ productId: '2', activityId: '2', startYear: 2023, endYear: 2023, length: 300 }),
+    body: eiaElectricity,
   },
 
   'cisa-kev': {
