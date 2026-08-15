@@ -1141,3 +1141,36 @@ The UNHCR check has a property worth copying: when a live sample happens to cont
 absences, it **says so on stderr** rather than passing quietly. A rule-30 assertion that runs
 against data containing only one of the two states has not been exercised, and a test that
 cannot tell you that is a test that will eventually stop meaning anything.
+
+---
+
+## I committed a red suite because I read the counts instead of the failure
+
+**2026-08-15**, registering FIRMS. The output said:
+
+```
+✖ the shipped registry agrees with the shipped probe results
+ℹ tests 718   pass 717   fail 1
+```
+
+I read `718` and `pass`, saw numbers in the shape I expected, and committed. The commit was
+pushed with a failing test in it.
+
+**The guard was right and was doing exactly its job**: a newly registered source declared no
+`transport`, and `transport` is derived from the probe verdict — so the registry claimed nothing
+about how a source it had just probed would be fetched. One line: `transport: "worker"`.
+
+**The defect worth recording is not the missing field, it is how I read the output.** My grep
+pattern was `^ℹ (tests|pass|fail|suites)|not ok|✖`, which DID print the failing line — it was on
+screen, first in the output, before the counts. I skipped it because the counts came last and
+looked like the answer.
+
+**This is rule 17's failure from the other side.** That rule says a check that did not run must
+not look like one that passed. Here a check that ran and FAILED was reported honestly and read
+as a pass, because the reader was scanning for a summary rather than for a verdict. A summary
+that appears after the failures will be read as superseding them.
+
+**What changes:** the failure line is the verdict; the counts are commentary. When any `✖`
+appears, nothing else in the output matters until it is resolved — and no commit happens.
+Recorded rather than resolved with a tooling change, because the tooling reported this
+perfectly and the reader was the defect.

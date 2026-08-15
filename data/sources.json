@@ -1234,7 +1234,8 @@
       "rateLimit": {
         "perMinute": 500,
         "burst": 50
-      }
+      },
+      "transport": "worker"
     }
   ],
   "verifiedAgainstValues": {
