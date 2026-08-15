@@ -1753,3 +1753,72 @@ FRA      3          3       3    3
 Courts are direct instances. The bound allows one hop as margin that costs nothing measurable —
 the third and last unbounded closure in this file, all three now bounded on their own
 measurements rather than by analogy with each other.
+
+---
+
+## I contaminated a measurement by working during it, and the harness said so
+
+**2026-08-15.** A mutation run was launched in the background, and I kept editing the primary
+checkout while it ran — correcting an entity QID and re-recording the suite census. The harness
+finished and refused to stand behind its own output:
+
+```
+PRIMARY CHECKOUT NOT CLEAN after finishing:
+M data/wikidata-entities.json
+ M tests/suite-census.json
+
+The worktree was supposed to absorb every write. Something leaked into the real
+checkout — treat the results above as suspect and inspect the diff.
+```
+
+**The results were discarded and the suite re-run on a verified-clean tree.** The replacement
+run measured `a223ad1` and reported 12 caught by the named assertion, 0 survived.
+
+### Why this is rule 20a and not merely untidiness
+
+A mutation run measures whether the suite catches a defect *in a specific tree*. Changing that
+tree mid-run means the twelve mutations were not all measured against the same code — the early
+ones saw one tree, the later ones another. **The number would still have looked like a result**:
+twelve rows, twelve verdicts, a timing table.
+
+It is the same error as comparing a commit against a flaky baseline, or timing a query while
+another query saturated the endpoint: **the instrument was not measuring one thing.**
+
+### The part worth keeping is why it felt safe
+
+The mutation harness works in a git worktree, which I knew, and that is exactly what made
+editing the main checkout feel harmless. It IS harmless to the mutation's own writes. What it is
+not harmless to is the harness's ability to *prove* nothing leaked — and the guard it uses for
+that proof is a diff of the primary checkout, which my edits made dirty.
+
+**Background work does not stop the tree from being the subject of a measurement.** Launching
+something long and then treating the repository as free is the specific habit, and it is
+attractive precisely because the run is elsewhere.
+
+### The follow-on, which is the same lesson pointed the other way
+
+Later in the same session a file needed committing while the replacement run was still in
+flight. The reflex from the incident above says *never touch the tree*. That reflex is a
+heuristic, and heuristics do not know mechanisms, so the harness was read instead:
+
+| Fact, from `scripts/mutation-check.mjs` | Consequence |
+| --- | --- |
+| `requireCleanCheckout` is called at exactly two points (577, 700) | there is no mid-run check to trip |
+| `trackedDirt` passes `--untracked-files=no` | a new file is invisible until it is staged |
+| `makeWorktree` is called once (579), `--detach … HEAD` | the measured tree is pinned; later commits cannot move it |
+| `rev-parse HEAD` is read at 563, before the worktree | the reported commit is captured at the start |
+
+So committing a **new** file mid-run is safe by mechanism, and the commit went in; the run
+finished with no cleanliness complaint, which is the confirmation. Modifying a **tracked** file
+would still have tripped it.
+
+Recorded because the pair is the actual lesson. The first half is *do not assume it is safe*.
+The second half is *do not assume it is unsafe either* — **read the guard.** An unexamined
+caution costs real work and feels like diligence while it does it.
+
+### A third instance of the wrapper/process confusion, same session
+
+The background waiter watching the log was killed. That is a fact about the waiter. Twice now
+the correct response has been to ask the process's own artifacts — 5 node processes alive, the
+log advancing through mutation 1 of 12 — rather than to infer from the wrapper's status. **A
+wrapper reports the wrapper; only the process reports the process.**
