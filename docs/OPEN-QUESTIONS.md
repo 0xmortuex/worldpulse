@@ -830,3 +830,31 @@ the prober's. It should be answered when the adapter is written, not before.
 **Recorded rather than worked around** because a plausible `keyParam` on either source would
 look identical to a measured one in the registry, and the whole point of declaring the
 mechanism was that it be measured.
+
+### 19a. ANSWERED BY MEASUREMENT — 2026-08-15: the request never reached the API
+
+`theyvoteforyou`'s ten 403s were **Cloudflare's JS challenge**, not the application.
+
+The reviewer's encoding hypothesis was tested and eliminated first: the key does contain a
+literal `/`, and both the percent-encoded (`%2F`) and hand-built literal forms were sent. Both
+403. **So did the keyless control**, which is the fact that had been present in every
+measurement and unread — along with `server: cloudflare` and `<title>Just a moment...</title>`,
+identical across a custom User-Agent, a browser-like one, curl, and none.
+
+**The key has never been evaluated.** Not a wrong mechanism, not an invalid credential, not an
+encoding fault — an access block at the edge.
+
+**Disposition: parked, with the reason corrected.** It is an access problem, not a credential
+problem, and the two need different things from you. Nothing about the key needs checking.
+
+**One thing worth testing before writing the source off:** a Cloudflare Worker fetching a
+Cloudflare-fronted origin may not get the same challenge, and this app already routes this
+source through the Worker. That is a question about *where the fetch runs*, and it cannot be
+answered from this machine. If the Worker gets through, the source is fine and only the local
+probe is blind to it.
+
+**A separate decision this exposed** — recorded here because it changes how every key-gated row
+reads: `verdictForResponse` checks `keyRequired` before looking at the response, so a source
+that is completely unreachable records as `KEY-GATED`, identical to six healthy ones. Either
+`UNREACHABLE` should be evaluated first, or the record should carry both. I have not changed it,
+because it alters the meaning of every key-gated row in the table.

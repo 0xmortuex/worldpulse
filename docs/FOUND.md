@@ -971,3 +971,64 @@ perfect while the sequence beneath it meant nothing.
 `res.ok` in my own auth sweep, and now this. The pattern is not "APIs lie"; it is that **a
 status code answers a question about transport, and every question worth asking here is about
 content.**
+
+---
+
+## A 403 that was never the API: ten auth mechanisms tested against a bot challenge
+
+**Measured 2026-08-15.** `theyvoteforyou` refused ten candidate authentication mechanisms —
+five query parameter names, four header schemes, and unauthenticated — every one a 403 with an
+HTML body. Recorded as `OPEN-QUESTIONS` 19 with two competing explanations: wrong mechanism, or
+invalid key.
+
+**Both were wrong. So was the third hypothesis.**
+
+A reviewer noticed the key contains a literal `/` and proposed that `URLSearchParams` was
+percent-encoding it to `%2F` — the congress.gov `%2B` trap in mirror image, where correct
+encoding corrupts a valid value. A good hypothesis, and testable: send the documented `?key=`
+parameter both percent-encoded and with the slash hand-built into the URL.
+
+Both forms returned 403. **So did the keyless control** — and that is the fact that had been
+sitting in every one of the eleven measurements, unread.
+
+```
+server: cloudflare
+<title>Just a moment...</title>
+```
+
+**It is Cloudflare's JS challenge interstitial.** Identical for a custom User-Agent, a
+browser-like one, curl, and no User-Agent at all. **None of the ten mechanisms ever reached the
+application. The key has never been evaluated.**
+
+**This is rule 37 catching its author.** I wrote that rule this morning — a status code answers
+a question about transport, and every question worth asking is about content — and then read
+eleven 403s as an answer about authentication. The body said `Just a moment...` every time. The
+rule was in the repository before the mistake was finished.
+
+### The verdict ladder makes this invisible for key-required sources
+
+`verdictForResponse` checks `source.keyRequired` **first** and returns `KEY-GATED` regardless
+of what came back, because a secret key beats a permissive ACAO — correct reasoning for the
+transport question it is answering. But it means a key-required source that is **completely
+unreachable** records as `KEY-GATED`, exactly like six healthy sources, and its unreachability
+never appears.
+
+`theyvoteforyou`'s probe row reads `403 KEY-GATED` — which parses as "needs a key, obviously",
+and is really "blocked at the edge, key irrelevant". A source that cannot be fetched at all is
+a different problem from a source that needs a credential, and the table cannot currently say
+which.
+
+**Not fixed here.** The fix is a decision about the ladder: either `UNREACHABLE` should be
+evaluated before `KEY-GATED`, or the record should carry both. Both change how every key-gated
+row reads, which is not a change to make while reporting a different finding.
+
+### What it means for the source
+
+`theyvoteforyou` cannot be fetched from a server without solving a JS challenge, so it cannot
+be converted. **Parked with the correct reason**, which is materially different from the one
+recorded an hour ago: not a credential problem, an access problem.
+
+One thing NOT established, and worth testing before the source is written off: a Cloudflare
+Worker fetching a Cloudflare-fronted origin may not receive the same challenge. That is a
+question about where the fetch runs, and this app already routes this source through the
+Worker.
