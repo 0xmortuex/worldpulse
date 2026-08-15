@@ -1344,3 +1344,31 @@ reading even when the status looks conclusive.
 
 **Nothing was forced.** Every one is recorded with its blocker per the riksdagen and Ember
 precedents, and each remains one human action from convertible.
+
+---
+
+## The experiment that corrected a tier on every trade figure in the app
+
+**2026-08-15.** `OPEN-QUESTIONS` 20 asked whether Comtrade's `isReported: false` on a `TOTAL`
+row meant the figure was not the reporter's, or only that the ROW was the UN's arithmetic. Three
+API calls settled it.
+
+`isReported` is **true on all 5,226 HS6 leaves and false on every one of the 1,310 aggregate
+rows above them.** The leaves sum to 352,760,090,331 — the `TOTAL` exactly.
+
+**The flag describes the row, not the data.** Every Comtrade country total in the app was
+rendering `ESTIMATE` on a primary source.
+
+**No test would have caught this.** The code did precisely what it was written to do; the tests
+asserted precisely what the code did; the fixture agreed with both. Only a question about what
+the field MEANT, answered against the source, could reach it. That is the difference between a
+suite that checks behaviour and a measurement that checks a belief.
+
+**And the experiment found a second defect on the way.** `legacyEstimationFlag` is a code —
+measured `0, 2, 4, 6` — which the adapter treated as a boolean, marking 1,768 of 6,536 rows
+estimated on an inference. Plus a category error: `isNetWgtEstimated` was feeding a MONETARY
+value's tier, and the `TOTAL` row carries it while its value is exact. An estimated weight says
+nothing about a trade value.
+
+**Both defects were mine, both were in shipped code, and both were invisible to a green suite.**
+The cost of finding them was three requests against a 500/day budget.

@@ -508,7 +508,9 @@ describe('Wikimedia Commons imageinfo contract', () => {
     // The tier must follow the flags rather than be assumed.
     for (const row of report.rows) {
       const fact = comtrade.tradeValueFact(row, ctx);
-      const expected = !row.isReported || row.isEstimated ? 'ESTIMATE' : 'OFFICIAL';
+      // Corrected by the OPEN-QUESTIONS 20 experiment: an aggregate is the UN's
+      // arithmetic over the reporter's own lines, not doubt about them.
+      const expected = !row.isReported && !row.isAggregate ? 'ESTIMATE' : 'OFFICIAL';
       assert.equal(fact.tier, expected, `${row.partnerCode} tier does not follow its flags`);
       if (expected === 'ESTIMATE') assert.ok((fact.note ?? '').length > 0, 'an estimate with no reason');
     }

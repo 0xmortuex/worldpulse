@@ -1106,3 +1106,57 @@ reading this week has been wrong, always in the same direction.
 
 **What would settle it:** the licence or acceptable-use text as the SPA renders it in a browser,
 or a citation policy from the IODA team at Georgia Tech.
+
+### 20 — ANSWERED BY EXPERIMENT, 2026-08-15. Reading two was right.
+
+**Three calls: one `TOTAL` row, and the HS lines beneath it.** USA exports to Canada, 2023.
+
+| Level | rows | `isReported` | `isAggregate` |
+| --- | --- | --- | --- |
+| **HS6 leaves** | 5,226 | **all true** | none |
+| HS4 | 1,212 | all false | all true |
+| HS2 | 97 | all false | all true |
+| `TOTAL` | 1 | false | true |
+
+**And the arithmetic is exact.** The 5,226 reported HS6 lines sum to **352,760,090,331** — the
+`TOTAL` to the dollar, 0.0000%. HS4 and HS2 partition to the same figure.
+
+**So `isReported` is true at the leaf and false at every aggregation level.** It describes the
+ROW, not the data beneath it: the UN did the addition, and the lines being added are the
+reporter's own submissions.
+
+**Verdict, per the criterion set when this was raised: `OFFICIAL` at source with a
+UN-aggregation note.** The adapter is corrected. `ESTIMATE` is now reserved for a row that is
+neither reported nor an aggregate — mirror data the reporter never submitted and nobody totalled.
+
+**What the correction was worth:** every Comtrade country total in the app was rendering
+`ESTIMATE`. That understated a primary source on every trade figure, and no test would ever have
+caught it, because the code did exactly what it was written to do.
+
+---
+
+## 25. `legacyEstimationFlag` is a code and I do not know its values
+
+**Found 2026-08-15 during question 20's experiment.** My Comtrade adapter treated
+`legacyEstimationFlag !== 0` as "this row is estimated". Measured across one response:
+
+```
+legacyEstimationFlag: {"0": 4768, "2": 8, "4": 1013, "6": 747}
+```
+
+**It is a code with at least four values, not a boolean.** Treating non-zero as "estimated"
+lumped three distinct meanings together and marked **1,768 of 6,536 rows** as estimates on an
+inference — and one of them was the `TOTAL` row whose value is provably the exact sum of
+reported lines.
+
+**Now carried verbatim and not interpreted.** The field is preserved on every row so nothing is
+lost, and no tier keys on it.
+
+**What would settle it:** Comtrade's documentation of the legacy estimation codes, or a
+comparison of flagged against unflagged rows against a known-good source. Until then, a code
+whose meanings we do not know cannot honestly drive a confidence badge.
+
+**Related and already fixed:** `isQtyEstimated` and `isNetWgtEstimated` describe quantities and
+weights. `primaryValue` is money. The USA→Canada `TOTAL` carries `isNetWgtEstimated: true` and
+`isQtyEstimated: false` while its value is exact — so folding weight-estimation into a value's
+tier was a category error, now disclosed in a note rather than driving the badge.

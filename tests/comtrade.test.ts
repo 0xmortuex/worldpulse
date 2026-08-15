@@ -71,12 +71,19 @@ describe('Comtrade — the captured response', () => {
     );
   });
 
-  it('an unreported figure renders ESTIMATE and says why', () => {
+  /**
+   * CORRECTED by the OPEN-QUESTIONS 20 experiment. This asserted that the
+   * captured rows render `ESTIMATE`, which was the behaviour the experiment
+   * disproved: every row in this capture is `cmdCode=TOTAL`, so every one is a
+   * UN aggregate over the reporter's own reported HS lines.
+   */
+  it('an aggregate total is OFFICIAL, with the aggregation disclosed', () => {
     const row = LIVE.rows[0]!;
+    assert.equal(row.isAggregate, true, 'the capture should be TOTAL rows');
     const fact = tradeValueFact(row, CTX);
-    assert.equal(fact.tier, 'ESTIMATE');
-    assert.match(fact.note ?? '', /did not submit|estimated/i);
-    assert.equal(factState(fact), 'ok', 'the value is present; only the tier is qualified');
+    assert.equal(fact.tier, 'OFFICIAL');
+    assert.match(fact.note ?? '', /UN-computed total/i);
+    assert.equal(factState(fact), 'ok', 'the value is present and unqualified in state');
   });
 });
 
@@ -126,16 +133,52 @@ describe('Comtrade — planted cases (rule 27)', () => {
     assert.equal(fact.note, undefined, 'an unqualified figure must not carry a caveat');
   });
 
-  it('any single estimation flag makes the row an estimate', () => {
-    // Comtrade splits estimation across quantity, weight and a legacy marker.
-    // For a VALUE fact they all mean the same thing, and missing one would let
-    // an estimated figure render as official.
+  /**
+   * CORRECTED 2026-08-15 by the OPEN-QUESTIONS 20 experiment.
+   *
+   * This test used to assert that any estimation flag made the row an estimate.
+   * Both halves of that were wrong: an estimated WEIGHT says nothing about a
+   * monetary VALUE, and `legacyEstimationFlag` is a code (measured 0, 2, 4, 6)
+   * rather than a boolean.
+   */
+  it('quantity and weight estimation do not change a VALUE tier', () => {
     for (const flagField of ['isQtyEstimated', 'isNetWgtEstimated', 'isGrossWgtEstimated']) {
       const parsed = parse(payload([row({ [flagField]: true })]));
-      assert.equal(tradeValueFact(parsed.rows[0]!, CTX).tier, 'ESTIMATE', `${flagField} was ignored`);
+      const fact = tradeValueFact(parsed.rows[0]!, CTX);
+      assert.equal(fact.tier, 'OFFICIAL', `${flagField} wrongly downgraded a reported value`);
+      // Disclosed, not ignored — the reader is told which quantity is estimated.
+      assert.match(fact.note ?? '', /quantity or weight/i);
     }
-    const legacy = parse(payload([row({ legacyEstimationFlag: 1 })]));
-    assert.equal(tradeValueFact(legacy.rows[0]!, CTX).tier, 'ESTIMATE', 'legacyEstimationFlag was ignored');
+  });
+
+  it('carries legacyEstimationFlag verbatim rather than interpreting it', () => {
+    // Measured values are 0, 2, 4 and 6. Their meanings are not documented to
+    // us, so the code is preserved and nothing keys a tier on it.
+    for (const code of [0, 2, 4, 6]) {
+      const parsed = parse(payload([row({ legacyEstimationFlag: code })]));
+      assert.equal(parsed.rows[0]!.legacyEstimationFlag, code);
+      assert.equal(tradeValueFact(parsed.rows[0]!, CTX).tier, 'OFFICIAL');
+    }
+  });
+
+  it('an aggregate is OFFICIAL with its aggregation disclosed', () => {
+    /**
+     * The experiment's verdict: `isReported` is true at the leaf and false at
+     * every aggregation level, and the reported leaves sum to the total exactly.
+     * So an aggregate row is the UN's arithmetic over the reporter's own data.
+     */
+    const parsed = parse(payload([row({ isReported: false, isAggregate: true })]));
+    const fact = tradeValueFact(parsed.rows[0]!, CTX);
+    assert.equal(fact.tier, 'OFFICIAL');
+    assert.match(fact.note ?? '', /UN-computed total/i);
+  });
+
+  it('a row that is neither reported nor an aggregate is still ESTIMATE', () => {
+    // Mirror data: the reporter never submitted it and nobody aggregated it.
+    const parsed = parse(payload([row({ isReported: false, isAggregate: false })]));
+    const fact = tradeValueFact(parsed.rows[0]!, CTX);
+    assert.equal(fact.tier, 'ESTIMATE');
+    assert.match(fact.note ?? '', /did not submit/i);
   });
 
   it('an absent value is absent, never zero', () => {
@@ -159,7 +202,7 @@ describe('Comtrade — planted cases (rule 27)', () => {
 
   it('accepts 0/1 in place of booleans, which this API mixes', () => {
     const parsed = parse(payload([row({ isQtyEstimated: 1, isReported: 0 })]));
-    assert.equal(parsed.rows[0]!.isEstimated, true);
+    assert.equal(parsed.rows[0]!.quantityEstimated, true);
     assert.equal(parsed.rows[0]!.isReported, false);
   });
 });

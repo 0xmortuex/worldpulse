@@ -84,8 +84,15 @@ export interface TradeRow {
   isReported: boolean;
   /** Comtrade's own flag that this row sums other rows. */
   isAggregate: boolean;
-  /** Any of Comtrade's estimation flags being set. */
-  isEstimated: boolean;
+  /** Comtrade estimated the QUANTITY. Says nothing about the monetary value. */
+  quantityEstimated: boolean;
+  /** Comtrade estimated a WEIGHT. Says nothing about the monetary value. */
+  weightEstimated: boolean;
+  /**
+   * A CODE whose meanings are undocumented to us — measured values 0, 2, 4, 6.
+   * Carried verbatim and deliberately not interpreted (`OPEN-QUESTIONS` 25).
+   */
+  legacyEstimationFlag: number;
 }
 
 export interface TradeReport {
@@ -145,14 +152,35 @@ export function parse(payload: unknown): TradeReport {
       primaryValue: optionalNumber(row['primaryValue'], `data[${index}].primaryValue`),
       isReported: flag(row['isReported'], `data[${index}].isReported`),
       isAggregate: flag(row['isAggregate'], `data[${index}].isAggregate`),
-      // Any estimation flag set makes the row estimated. Comtrade splits these
-      // across quantity, weight and a legacy marker; for a value fact they all
-      // mean the same thing.
-      isEstimated:
-        flag(row['isQtyEstimated'], `data[${index}].isQtyEstimated`) ||
+      /**
+       * QUANTITY AND WEIGHT ESTIMATION ARE NOT VALUE ESTIMATION.
+       *
+       * **Corrected 2026-08-15** by the OPEN-QUESTIONS 20 experiment. The first
+       * version folded `isQtyEstimated`, `isNetWgtEstimated`,
+       * `isGrossWgtEstimated` and `legacyEstimationFlag` into one boolean, with
+       * the comment "for a value fact they all mean the same thing". That was
+       * wrong twice over:
+       *
+       * 1. An estimated WEIGHT says nothing about whether the monetary VALUE is
+       *    estimated. Measured: the USA→Canada 2023 TOTAL carries
+       *    `isNetWgtEstimated: true` and `isQtyEstimated: false`, while its
+       *    `primaryValue` is the exact sum of 5,226 reported HS6 lines.
+       * 2. `legacyEstimationFlag` IS A CODE, NOT A BOOLEAN — measured values
+       *    0, 2, 4 and 6 across one response. Treating non-zero as "estimated"
+       *    lumped three distinct meanings together and marked 1,768 of 6,536
+       *    rows as estimates on an inference. See OPEN-QUESTIONS 25.
+       *
+       * These are kept as they arrive so a caller can qualify a QUANTITY fact
+       * with them, and nothing here is interpreted into a value's tier.
+       */
+      quantityEstimated: flag(row['isQtyEstimated'], `data[${index}].isQtyEstimated`),
+      weightEstimated:
         flag(row['isNetWgtEstimated'], `data[${index}].isNetWgtEstimated`) ||
-        flag(row['isGrossWgtEstimated'], `data[${index}].isGrossWgtEstimated`) ||
-        requiredNumber(row['legacyEstimationFlag'] ?? 0, `data[${index}].legacyEstimationFlag`) !== 0,
+        flag(row['isGrossWgtEstimated'], `data[${index}].isGrossWgtEstimated`),
+      legacyEstimationFlag: requiredNumber(
+        row['legacyEstimationFlag'] ?? 0,
+        `data[${index}].legacyEstimationFlag`,
+      ),
     };
   });
 
@@ -162,27 +190,54 @@ export function parse(payload: unknown): TradeReport {
 /**
  * A trade value as a Fact, with the tier taken from Comtrade's own flags.
  *
- * ## Why `isReported: false` is not OFFICIAL
+ * ## `isReported: false` on an AGGREGATE row is not doubt — measured
  *
- * Comtrade fills gaps with the partner's mirror data and with estimation. A
- * figure the reporting country never submitted is not that country's official
- * statistic, however good an estimate it is — so `isReported: false` renders as
- * `ESTIMATE` and says why.
+ * **Corrected 2026-08-15 by the `OPEN-QUESTIONS` 20 experiment.** The first
+ * version read `isReported: false` as "the reporting country never submitted
+ * this figure" and rendered every Comtrade country total as `ESTIMATE`. The
+ * experiment — one `TOTAL` row against the HS lines beneath it — showed
+ * otherwise:
  *
- * This is the same principle as EIA's flag 10 and Ember's absence of any flag:
- * **the tier follows what the source declares about the row.** Where the source
- * says nothing, the tier stays at source level; where it declares a row derived,
- * the row carries it. See `OPEN-QUESTIONS` 17.
+ * | Level | rows | `isReported` | `isAggregate` |
+ * | --- | --- | --- | --- |
+ * | HS6 leaves | 5,226 | **all true** | none |
+ * | HS4 | 1,212 | all false | all true |
+ * | HS2 | 97 | all false | all true |
+ * | TOTAL | 1 | false | true |
+ *
+ * And the arithmetic is exact: the 5,226 reported HS6 lines sum to
+ * **352,760,090,331**, the TOTAL to the dollar — 0.0000%.
+ *
+ * So `isReported` is true at the leaf and false at every aggregation level. It
+ * describes **the row**, not the data beneath it: the UN did the addition, and
+ * the lines being added are the reporter's own. An aggregate is therefore
+ * `OFFICIAL` with the aggregation disclosed, because "who did this arithmetic"
+ * is exactly what a tier should say — and saying `ESTIMATE` would have
+ * understated a primary source across every country total in the app.
+ *
+ * ## What still earns ESTIMATE
+ *
+ * A row that is NEITHER reported NOR an aggregate: Comtrade fills gaps with the
+ * partner's mirror data, and a figure the reporter never submitted and nobody
+ * aggregated is genuinely not that country's statistic.
+ *
+ * Quantity and weight estimation flags do **not** feed this. They describe
+ * quantities and weights; `primaryValue` is money.
  */
 export function tradeValueFact(row: TradeRow, ctx: FetchContext): Fact<number> {
-  const derived = !row.isReported || row.isEstimated;
-  const tier: Tier = derived ? 'ESTIMATE' : 'OFFICIAL';
+  const mirrored = !row.isReported && !row.isAggregate;
+  const tier: Tier = mirrored ? 'ESTIMATE' : 'OFFICIAL';
 
   const reasons: string[] = [];
-  if (!row.isReported) {
+  if (mirrored) {
     reasons.push('The reporting country did not submit this figure; Comtrade derived it.');
   }
-  if (row.isEstimated) reasons.push('Comtrade flags part of this record as estimated.');
+  if (row.isAggregate) {
+    reasons.push('A UN-computed total of the reporting country’s own commodity lines.');
+  }
+  if (row.quantityEstimated || row.weightEstimated) {
+    reasons.push('Comtrade estimated the quantity or weight; the trade value is unaffected.');
+  }
 
   return {
     value: row.primaryValue,
