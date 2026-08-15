@@ -1087,3 +1087,57 @@ ordinary value.
 **A tier set by the source's own flag is the only kind this project accepts.** Marking a row
 `ESTIMATE` because EIA says it is modelled is reporting; marking it `ESTIMATE` because we
 suspect it would be authoring uncertainty — the sin named when 17 was answered.
+
+---
+
+## The adapter's own comment caught the mistake it predicted
+
+**2026-08-15**, giving PortWatch the live contract check it had been missing. The first draft
+asserted that a chokepoint's transit count was `ESTIMATE`, reasoning that AIS-derived figures
+are inferred rather than measured. It failed, and the adapter had already explained why:
+
+> Rendering `capacity` as OFFICIAL would assert a measured tonnage the source itself calls an
+> estimate — the false-confidence failure the tier system exists to prevent. **A future session
+> tempted to "simplify" both families to one tier is reading two different kinds of number as
+> one.**
+
+PortWatch publishes two families in one row. A **counted transit** is an observation: vessels
+were counted, so `OFFICIAL`. An **estimated payload tonnage** is one the source itself labels an
+estimate, so `ESTIMATE`. The AIS caveat applies to both and changes neither tier — it is a
+caveat about coverage, not about whether the number was observed.
+
+I was the future session, one day later, and the comment was waiting.
+
+**The assertion now pins both**, which is stronger than the version that failed: the defect
+worth catching is not either tier individually but the two families drifting into one.
+
+**Worth recording for what it says about comments.** This one did not explain what the code
+does — that was readable. It named a specific wrong change someone would later be tempted to
+make, and it was right about who and about what. A comment that predicts a future mistake is
+doing work no test can do, because there is no test for a change nobody has made yet.
+
+---
+
+## Every live flag in the registry now means the same thing
+
+**Closed 2026-08-15.** Four sources — `portwatch-chokepoints`, `who-don`, `unhcr-population`,
+`cisa-kev` — carried `verifiedAgainst: "live"` while nothing fetched them live. Each had a
+per-source test file, and every one read the committed fixture. The deploy gate had been
+refusing since they were flipped.
+
+Each now has a `liveOrInconclusive` contract check that asserts something the source could
+actually break:
+
+| Source | What the live check pins |
+| --- | --- |
+| `portwatch-chokepoints` | counts are `OFFICIAL`, tonnages are `ESTIMATE`, and the two do not merge |
+| `who-don` | WHO's own headline and a link back — the only things the licence permits |
+| `unhcr-population` | reported zeros stay distinct from absences (rule 30), and reports when a live sample exercises only one of the two |
+| `cisa-kev` | CISA's published count equals the entries delivered — the assertion that catches a truncated download |
+
+**`LIVE WITHOUT COVERAGE` count in the deploy gate: 0.**
+
+The UNHCR check has a property worth copying: when a live sample happens to contain no
+absences, it **says so on stderr** rather than passing quietly. A rule-30 assertion that runs
+against data containing only one of the two states has not been exercised, and a test that
+cannot tell you that is a test that will eventually stop meaning anything.

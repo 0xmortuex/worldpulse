@@ -12,6 +12,10 @@ import * as congress from '../src/sources/congress';
 import * as eia from '../src/sources/eia';
 import * as comtrade from '../src/sources/comtrade';
 import * as fx from '../src/sources/exchangerate';
+import * as portwatch from '../src/sources/portwatch';
+import * as whoDon from '../src/sources/who-don';
+import * as unhcr from '../src/sources/unhcr';
+import * as cisaKevSource from '../src/sources/cisa-kev';
 import type { GenerationRow } from '../src/sources/ember';
 import { factState } from '../src/facts/types';
 
@@ -533,5 +537,138 @@ describe('Wikimedia Commons imageinfo contract', () => {
     const fact = fx.rateFact(quotes, first, ctx);
     assert.equal(fact.tier, 'OFFICIAL');
     assert.match(fact.note ?? '', /not a central bank/i);
+  });
+});
+
+/**
+ * The four sources that claimed `verifiedAgainst: "live"` with nothing checking
+ * them live.
+ *
+ * Found 2026-08-15 when the deploy gate refused Ember's flip and named these
+ * four alongside it. Each had a per-source test file, and every one of those
+ * read the COMMITTED FIXTURE and never fetched — so each asserted "confirmed
+ * against a live response" while nothing re-confirmed it, and an upstream schema
+ * drift would have stayed invisible until a panel rendered wrong.
+ *
+ * The gate was right and had been right since they were flipped.
+ */
+describe('the four flags that claimed live without live coverage', () => {
+  it('portwatch: chokepoint days parse, and the AIS caveat travels with them', async () => {
+    const sample = await liveOrInconclusive('portwatch-chokepoints');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const days = portwatch.parse(body, ctx);
+
+    assert.ok(days.length > 0, 'no chokepoint days came back');
+    for (const day of days) {
+      assert.ok(day.chokepointId.length > 0);
+      assert.match(day.date, /^\d{4}-\d{2}-\d{2}/);
+      // Transit counts are counts: non-negative integers or a declared absence.
+      for (const [name, fact] of Object.entries(day.transits)) {
+        assert.ok(
+          fact.value === null || (Number.isFinite(fact.value) && fact.value >= 0),
+          `${name} is ${fact.value}`,
+        );
+      }
+      /**
+       * TWO FAMILIES, TWO TIERS, and they must not be collapsed.
+       *
+       * A counted transit is an observation — PortWatch counted vessels, so
+       * `OFFICIAL`. An estimated payload tonnage is one the source itself calls
+       * an estimate, so `ESTIMATE`. The adapter says so in a comment warning
+       * against exactly this simplification, and the first draft of this
+       * assertion made the mistake it predicted: it asserted `ESTIMATE` for the
+       * transit counts and failed.
+       *
+       * Asserting BOTH is stronger than asserting either, because the defect
+       * worth catching is the two families drifting into one tier.
+       */
+      assert.equal(day.transits.total.tier, 'OFFICIAL', 'a counted transit is an observation');
+      assert.equal(day.volume.total.tier, 'ESTIMATE', 'an estimated tonnage must not read as measured');
+
+      for (const [name, fact] of Object.entries(day.volume)) {
+        assert.ok(
+          fact.value === null || Number.isFinite(fact.value),
+          `volume.${name} is ${fact.value}`,
+        );
+      }
+    }
+  });
+
+  it('who-don: reports carry WHO’s own headline and a link back', async () => {
+    const sample = await liveOrInconclusive('who-don');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const reports = whoDon.parse(body, ctx);
+
+    assert.ok(reports.length > 0, 'no outbreak reports came back');
+    for (const report of reports) {
+      assert.ok(report.id.length > 0);
+      // The licence permits the headline and a link, and nothing else. A
+      // summarised or rewritten title would be both a licence problem and a
+      // standing prohibition.
+      assert.ok((report.title.value ?? '').length > 0, 'a report arrived with no title');
+      assert.match(report.url, /^https?:\/\//, 'a report arrived with no link back to WHO');
+      assert.ok(Number.isFinite(Date.parse(report.published.value ?? '')), 'unparseable publication date');
+    }
+  });
+
+  it('unhcr: figures keep reported zeros distinct from absences', async () => {
+    const sample = await liveOrInconclusive('unhcr-population');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const countries = unhcr.parse(body, ctx);
+
+    assert.ok(countries.length > 0, 'no countries came back');
+    for (const country of countries) {
+      assert.match(country.iso3, /^[A-Z]{3}$/);
+      for (const field of unhcr.POPULATION_FIELDS) {
+        const fact = country.figures[field];
+        assert.ok(
+          fact.value === null || (Number.isInteger(fact.value) && fact.value >= 0),
+          `${country.iso3}.${field} is ${fact.value}`,
+        );
+      }
+    }
+
+    /**
+     * Rule 30 on live data. UNHCR publishes a reported zero as `"0"` and an
+     * absence as `"-"`, and the whole point of this adapter is that they do not
+     * collapse. If a live response ever contains only one of the two states this
+     * cannot be checked, so it reports rather than silently passing.
+     */
+    const values = countries.flatMap((c) => unhcr.POPULATION_FIELDS.map((f) => c.figures[f].value));
+    const zeros = values.filter((v) => v === 0).length;
+    const absent = values.filter((v) => v === null).length;
+    if (zeros === 0 || absent === 0) {
+      process.stderr.write(
+        `unhcr: live sample had ${zeros} reported zeros and ${absent} absences — ` +
+          'the zero-versus-absent distinction was not exercised this run\n',
+      );
+    }
+  });
+
+  it('cisa-kev: the published count matches what arrived', async () => {
+    const sample = await liveOrInconclusive('cisa-kev');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const catalog = cisaKevSource.parse(body, ctx);
+
+    assert.ok(catalog.entries.length > 0, 'no KEV entries came back');
+    assert.match(catalog.version, /\d/, 'no catalogue version');
+
+    // CISA publishes its own count. The parser checks it against what was
+    // received, which is the one assertion that catches a truncated download.
+    assert.equal(
+      catalog.count.value,
+      catalog.entries.length,
+      'CISA’s published count disagrees with the entries delivered',
+    );
+
+    for (const entry of catalog.entries.slice(0, 50)) {
+      assert.match(entry.cveId, /^CVE-\d{4}-\d+$/);
+      assert.ok(entry.vulnerabilityName.length > 0);
+      assert.ok(Number.isFinite(Date.parse(entry.dateAdded.value ?? '')));
+    }
   });
 });
