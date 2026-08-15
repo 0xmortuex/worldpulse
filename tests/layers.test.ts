@@ -308,7 +308,11 @@ describe('position provenance', () => {
     // this app's arithmetic as something NASA reported.
     assert.match(provenance.formula, /centroid of a 5-vertex polygon perimeter/);
     assert.equal(provenance.inputs.length, 1);
-    assert.equal(provenance.inputs[0]?.kind, 'fetch');
+    assert.equal(provenance.inputs[0]?.fact.provenance?.kind, 'fetch');
+    // The input now carries its VALUE as well as its origin — the vertex count
+    // the formula names. That is what lets a derivation see an empty input.
+    assert.equal(provenance.inputs[0]?.fact.value, 5);
+    assert.equal(provenance.inputs[0]?.required, true);
   });
 
   it('keeps a reported EONET point measured rather than derived', () => {

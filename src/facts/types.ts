@@ -43,6 +43,29 @@ export interface FetchProvenance {
 }
 
 /** A value this app computed. Its inputs carry their own provenance. */
+/**
+ * One value a derivation consumed, and whether the derivation needs it.
+ *
+ * `fact`, not `provenance`. A provenance records how a value was obtained; "no
+ * data" is a property of the VALUE, so a derivation holding only provenances
+ * cannot see that an input came back empty — which is why P3 was unimplementable
+ * for as long as `inputs` was `Provenance[]`.
+ *
+ * `required` distinguishes an input the derivation cannot be computed without
+ * from one that merely contributes to it. **Undeclared is treated as required**
+ * (fail closed, rule 29's polarity): forgetting the declaration makes a
+ * derivation more cautious, never less, and the opposite default would let every
+ * un-migrated derivation silently absorb missing data — P3's own failure,
+ * reintroduced by the migration meant to end it.
+ *
+ * A wrapper rather than a parallel array, because two structures that can drift
+ * will.
+ */
+export interface DerivedInput {
+  fact: AnyFact;
+  required: boolean;
+}
+
 export interface DerivedProvenance {
   kind: 'derived';
   /** Module that computed it, e.g. "relations/score.ts". */
@@ -50,7 +73,7 @@ export interface DerivedProvenance {
   /** The arithmetic, shown verbatim: "+3 +2 = 5". */
   formula: string;
   computedAt: string;
-  inputs: Provenance[];
+  inputs: DerivedInput[];
 }
 
 /**
@@ -242,7 +265,18 @@ function provenanceState(provenance: Provenance): FactState {
   // is the actionable one — a failed fetch may recover or may need
   // investigating, where a missing key is a known, stable state someone has
   // already decided not to configure.
-  const states = provenance.inputs.map(provenanceState);
+  //
+  // Recursion is through `factState`, not `provenanceState`, so an input's VALUE
+  // is now visible here for the first time — that is the whole point of the
+  // `Provenance[]` → `DerivedInput[]` change.
+  //
+  // **`nodata` is deliberately NOT handled in this commit.** `factState` can now
+  // return it, and it falls through to `ok` exactly as an empty input did when
+  // this function could not see values at all. That keeps this commit a pure
+  // refactor: same behaviour, new shape. P3's semantics — `nodata` entering the
+  // ladder, and `required` being consulted — land in the next commit, alone,
+  // where a regression cannot hide inside a type change.
+  const states = provenance.inputs.map((input) => factState(input.fact));
   if (states.includes('broken')) return 'broken';
   if (states.includes('unavailable')) return 'unavailable';
   if (states.includes('unconfigured')) return 'unconfigured';

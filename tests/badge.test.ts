@@ -50,7 +50,17 @@ function derivedFrom(inputs: Provenance[]): Fact<number> {
       computedBy: 'src/relations/score.ts',
       formula: '+3 +2 = 5',
       computedAt: '2026-01-01',
-      inputs,
+      /**
+       * Inputs are Facts now, not provenances. Each is given a NON-NULL value
+       * deliberately: these cases test that brokenness, unavailability and
+       * unconfiguredness propagate, and a null value would introduce `nodata`
+       * into the same assertions and stop them measuring what they were written
+       * for. The `nodata` path gets its own cases when P3's semantics land.
+       */
+      inputs: inputs.map((provenance) => ({
+        fact: { value: 1, asOf: '2026', tier: 'OFFICIAL' as const, provenance },
+        required: true,
+      })),
     },
   };
 }
@@ -88,7 +98,11 @@ describe('provenance propagation', () => {
       computedBy: 'src/relations/score.ts',
       formula: 'inner',
       computedAt: '2026-01-01',
-      inputs: [seed('')],
+      // A seed with no citation, one level further down: the case that proves
+      // propagation does not stop at the first derivation it meets.
+      inputs: [
+        { fact: { value: 1, asOf: '2026', tier: 'OFFICIAL' as const, provenance: seed('') }, required: true },
+      ],
     };
     assert.equal(factState(derivedFrom([inner])), 'broken', 'propagation must not stop at the first level');
   });

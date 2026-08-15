@@ -479,3 +479,46 @@ twenty-four" is marginal by construction. It was measuring a proxy rather than t
 the failure being a node replaced under a click, which `waitForStableNode` asserts directly.
 The wait was kept and the failure report dropped: a check that goes red over something that
 breaks nothing teaches people that red means "run it again" (rule 15).
+
+---
+
+## A byte-identical verify comparison needs a deterministic baseline, and this machine has none
+
+**Found while gating commit 4 of the Fact-model migration on "verify must be byte-identical
+to commit 3", 2026-08-15.** The criterion is the right idea — a behaviour change hiding inside
+a type refactor is how a regression becomes archaeology — but it cannot be evaluated as
+written on this configuration.
+
+**Measured. Identical code, repeated runs:**
+
+| Commit | Runs | Failure counts |
+| --- | --- | --- |
+| 3 (unchanged across all four) | 4 | **2, 7, 2, 4** |
+| 4 (unchanged across both) | 2 | **7, 1** |
+
+Commit 3's own baseline moved by a factor of three and a half without a line changing. Commit
+4's first run showed 7 failures and its second showed 1 — better than the baseline it was
+being compared against.
+
+**So a single run against a single run cannot separate "this commit regressed" from "the
+harness varied".** The noise floor is larger than the signal the criterion exists to detect.
+Concluding "regression" from run 1 would have been wrong; concluding "fine" from run 2 alone
+would have been luck.
+
+**What the comparison has to be instead**, and what was used here:
+
+- **per-step assertion counts identical** — these are structural and did not vary at all across
+  six runs (279 both sides, step by step)
+- **every assertion outside the known-open check passing**
+- **the failure set minus the known-open cluster empty**
+
+That is decidable, and it caught nothing false in either direction.
+
+**Why the counts are stable while the failures are not.** `clickOrFail` emits a `clickable`
+check only when a click fails, so a flaky run inflates the total — 279 becomes 281 or 283. The
+count is therefore a *derived* signal, not an independent one: comparing totals without
+comparing failure sets would read a flaky run as a structural change.
+
+**The two variable classes are both known and both open**: L9's marker click (`DECISIONS.md`
+L9, still unexplained) and the click-actionability class documented in rule 15's second
+configuration section. Neither is introduced by this migration.

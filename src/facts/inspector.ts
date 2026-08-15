@@ -207,7 +207,14 @@ function renderProvenance(provenance: Provenance, depth: number): string {
         provenance.inputs.length === 0
           ? '<p class="inspector-hint">No inputs recorded — this derivation cannot be audited.</p>'
           : `<div class="inspector-inputs">${provenance.inputs
-              .map((input) => renderProvenance(input, depth + 1))
+              .map((input) =>
+                input.fact.provenance === null
+                  ? `<section class="inspector-block"><h3>Input — untraceable</h3>
+                     <div class="inspector-warn">This input reached the derivation with no
+                     provenance at all, which is a defect in this app rather than a gap in the
+                     data.</div></section>`
+                  : renderProvenance(input.fact.provenance, depth + 1),
+              )
               .join('')}</div>`
       }
     </section>`;

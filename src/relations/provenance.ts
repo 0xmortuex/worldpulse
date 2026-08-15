@@ -38,7 +38,27 @@ export function scoreFact(result: RelationResult, compiledAt: string): Fact<numb
     // date rather than the wall clock — otherwise every render would look like
     // a fresh computation with new information behind it.
     computedAt: compiledAt,
-    inputs: result.inputs.map((input) => seedProvenance(input, compiledAt)),
+    /**
+     * Each input is now a Fact, so the derivation can see what the input WAS,
+     * not only where it came from. The value is the weight the finding
+     * contributed, which is exactly the quantity the formula above sums.
+     *
+     * `required: true` everywhere for now — fail closed. Which of these merely
+     * contribute rather than being load-bearing is a semantic judgement, and it
+     * lands with the semantics in the next commit rather than being guessed at
+     * here where it would change nothing and be forgotten.
+     */
+    inputs: result.inputs.map((input) => ({
+      fact: {
+        value: input.weight,
+        // coverageEnd is a year; asOf is a date string. The seed's compile date
+        // stands in when a finding records no coverage end of its own.
+        asOf: input.coverageEnd === undefined ? compiledAt : String(input.coverageEnd),
+        tier: 'OFFICIAL' as const,
+        provenance: seedProvenance(input, compiledAt),
+      },
+      required: true,
+    })),
   };
 
   return {

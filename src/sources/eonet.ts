@@ -125,7 +125,19 @@ function positionFact(
       computedBy: 'src/layers/events.ts ringCentroid',
       formula: `centroid of a ${vertices ?? 0}-vertex polygon perimeter — the mean of its vertices`,
       computedAt: ctx.fetchedAt,
-      inputs: [fetched],
+      /**
+       * The input is the polygon the centroid was computed from, and its value
+       * is the vertex count the formula names. `null` when the source sent no
+       * geometry — which is precisely the case a centroid must not be
+       * manufactured from, and which only becomes visible now that inputs carry
+       * values.
+       */
+      inputs: [
+        {
+          fact: { value: vertices ?? null, asOf: date, tier: 'OFFICIAL' as const, provenance: fetched },
+          required: true,
+        },
+      ],
     },
     note: 'Manufactured from a shape. The event covers an area; this point is only its centre.',
   };

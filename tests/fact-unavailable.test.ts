@@ -70,7 +70,12 @@ describe('P9 — unavailable propagates through derivations', () => {
     computedBy: 'test.ts',
     formula: 'a + b',
     computedAt: '2026-08-12T20:00:00.000Z',
-    inputs,
+    // Facts, not provenances, with non-null values so these cases keep testing
+    // P9 rather than accidentally testing P3's nodata path.
+    inputs: inputs.map((provenance) => ({
+      fact: { value: 1, asOf: '2026-08-12', tier: 'OFFICIAL' as const, provenance },
+      required: true,
+    })),
   });
 
   it('makes a derivation unavailable when any input failed to fetch', () => {

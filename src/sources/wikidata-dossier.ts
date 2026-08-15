@@ -302,7 +302,23 @@ export function ageFact(personRecord: PersonRecord, ctx: FetchContext, today: Da
       computedBy: 'src/sources/wikidata-dossier.ts',
       formula: `${today.toISOString().slice(0, 10)} − ${birth.slice(0, 10)} = ${age} years`,
       computedAt: today.toISOString(),
-      inputs: [fetchProvenance(SOURCE_ID, ctx, personRecord, 'P569 (date of birth)')],
+      /**
+       * The input is the birth date the age was computed from. An age with no
+       * birth date behind it is not an age, so this is required — and now that
+       * inputs carry values, a missing P569 is visible to the derivation rather
+       * than only to the code that guarded against it upstream.
+       */
+      inputs: [
+        {
+          fact: {
+            value: birth,
+            asOf: birth.slice(0, 10),
+            tier: 'OFFICIAL' as const,
+            provenance: fetchProvenance(SOURCE_ID, ctx, personRecord, 'P569 (date of birth)'),
+          },
+          required: true,
+        },
+      ],
     },
   };
 }
