@@ -1,4 +1,4 @@
-import type { Fact, DerivedProvenance, SeedProvenance } from '../facts/types';
+import { contributingShortfall, type Fact, type DerivedProvenance, type SeedProvenance } from '../facts/types';
 import type { RelationResult, ScoredInput } from './types';
 
 /**
@@ -39,14 +39,19 @@ export function scoreFact(result: RelationResult, compiledAt: string): Fact<numb
     // a fresh computation with new information behind it.
     computedAt: compiledAt,
     /**
-     * Each input is now a Fact, so the derivation can see what the input WAS,
-     * not only where it came from. The value is the weight the finding
-     * contributed, which is exactly the quantity the formula above sums.
+     * Each input is a Fact, so the derivation can see what the input WAS, not
+     * only where it came from. The value is the weight the finding contributed,
+     * which is exactly the quantity the formula above sums.
      *
-     * `required: true` everywhere for now — fail closed. Which of these merely
-     * contribute rather than being load-bearing is a semantic judgement, and it
-     * lands with the semantics in the next commit rather than being guessed at
-     * here where it would change nothing and be forgotten.
+     * **CONTRIBUTING, not required** — the semantic judgement P3 asks for. A
+     * relation score is a sum: losing one finding leaves the others summable, so
+     * the score is still a real number. Marking these required would make a
+     * single empty finding render the whole classification as "no data", which
+     * would be a bigger lie than the shortfall it was meant to disclose.
+     *
+     * What a shortfall earns instead is a caveat, attached below. Compare the
+     * centroid and age derivations, where the single input genuinely IS the
+     * computation and is therefore required.
      */
     inputs: result.inputs.map((input) => ({
       fact: {
@@ -57,9 +62,28 @@ export function scoreFact(result: RelationResult, compiledAt: string): Fact<numb
         tier: 'OFFICIAL' as const,
         provenance: seedProvenance(input, compiledAt),
       },
-      required: true,
+      required: false,
     })),
   };
+
+  /**
+   * P3's caveat: a shortfall among contributing inputs is disclosed, never
+   * silently absorbed.
+   *
+   * Both notes can apply at once — evidence can be stale AND incomplete — so
+   * they are joined rather than one winning. A reader told only the more
+   * dramatic of two problems has been told something incomplete about
+   * completeness, which is a poor joke to play in this particular panel.
+   */
+  const shortfall = contributingShortfall(provenance);
+  const notes = [
+    result.lowConfidence
+      ? `${Math.round(result.staleWeightShare * 100)}% of the evidence weight is over five years old. Treat as provisional.`
+      : null,
+    shortfall
+      ? `${shortfall.missing} of ${shortfall.contributing} contributing findings returned no value, so this score rests on fewer inputs than were consulted.`
+      : null,
+  ].filter((note): note is string => note !== null);
 
   return {
     // No inputs means no classification, not a score of zero.
@@ -67,11 +91,7 @@ export function scoreFact(result: RelationResult, compiledAt: string): Fact<numb
     asOf: compiledAt,
     tier: 'DERIVED',
     provenance,
-    ...(result.lowConfidence
-      ? {
-          note: `${Math.round(result.staleWeightShare * 100)}% of the evidence weight is over five years old. Treat as provisional.`,
-        }
-      : {}),
+    ...(notes.length === 0 ? {} : { note: notes.join(' ') }),
     format: (value: number) => (value > 0 ? `+${value}` : String(value)),
   };
 }

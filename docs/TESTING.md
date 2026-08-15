@@ -1301,3 +1301,47 @@ What stands unchanged:
 recorded above. Either produces a number. Until then this is a single encouraging observation,
 and writing it up as a fix would be the same error as writing the click timeout up as
 environmental — a conclusion outrunning its evidence, in the friendlier direction.
+
+## 36. Equivalence between commits is per-step identity, never failure-count equality
+
+**On a machine with a documented flake, two runs of the same code do not produce the same
+number.** So "byte-identical" cannot mean what it sounds like, and a comparison that samples a
+flake's distribution and calls the difference a diff will report a regression that is not
+there — or, worse, miss one that is, because the noise was large enough to hide it.
+
+Measured while gating a pure-refactor commit on exactly that criterion:
+
+| Commit | Runs of unchanged code | Failure counts |
+| --- | --- | --- |
+| 3 | 4 | **2, 7, 2, 4** |
+| 4 | 2 | **7, 1** |
+
+The baseline moved by a factor of three and a half with no line changed, and the commit under
+test scored *better* than its own baseline on one run and worse on another.
+
+### What equivalence means instead
+
+1. **Per-step assertion counts identical**, step by step. These are structural: across six runs
+   spanning two commits they did not vary once (279, per step, both sides).
+2. **Every assertion outside the documented flakes passing.**
+3. **The failure set minus the documented flake clusters is empty.**
+
+All three are decidable in the presence of a flake. Raw failure-count equality is not.
+
+**Why the totals move at all**: `clickOrFail` emits a `clickable` check only when a click
+fails, so a flaky run *inflates* the assertion total — 279 becomes 281 or 283. The count is a
+derived signal, not an independent one, and comparing totals without comparing failure sets
+reads a flaky run as a structural change.
+
+### This is 20a, applied to comparison rather than to a rate
+
+Rule 20a says a flake rate is a property of the app under a harness configuration. The same
+follows for any number the harness produces: **a comparison inherits the variance of the
+configuration it was measured on.** A criterion that assumes determinism is not wrong about
+the code; it is wrong about the instrument. The right response is to state the criterion in
+terms the instrument can actually decide — not to loosen it, and not to re-run until the
+numbers agree, which is rule 15's failure wearing a comparison's clothes.
+
+**Fix the comparison method before the deciding run, not after seeing its result.** That
+ordering is what separates a verdict from a rationalisation, and it is cheap: the method
+follows from the known flakes, which are already written down.

@@ -149,10 +149,25 @@ on a cited one.
 | P3 | **Missing data propagates through REQUIRED inputs only.** A derivation declares which inputs it needs and which merely contribute; a shortfall among contributing inputs renders as a caveat, never silently absorbed. |
 | P4 | **A derived fact is always tier DERIVED** and inherits the loudest caveat among its inputs. It can never present as more authoritative than what produced it. |
 
-Precedence when inputs disagree: **broken > unconfigured > nodata > ok**, and brokenness
+Precedence when inputs disagree: **broken > unavailable > unconfigured > nodata > ok**, and brokenness
 is checked before emptiness so a derivation that is both still shouts.
 
-**P3 is not implemented, and this is a modelling gap rather than an oversight.**
+*(Ladder updated 2026-08-15 when P3 landed. It read `broken > unconfigured > nodata > ok`,
+written before P9 existed, while the code implemented `broken > unavailable > unconfigured >
+ok` with P3 absent. The merged order above preserves both and is what `provenanceState` now
+does. A recorded ladder and an implemented ladder that disagree is how the next session
+re-derives the merge instead of reading it.)*
+
+**P3 IS NOW IMPLEMENTED — 2026-08-15.** `DerivedProvenance.inputs` is `DerivedInput[]`
+(`{ fact, required }`), so a derivation can see that an input came back empty. Missing data
+propagates through **required** inputs; a shortfall among **contributing** inputs renders as a
+caveat via `contributingShortfall`, never silently absorbed. **Undeclared means required**
+(`isRequired`) — fail closed, so forgetting the declaration makes a derivation more cautious.
+Planted cases in `tests/p3-propagation.test.ts`; browser assertion on the gallery card, per P12.
+
+The paragraph below is kept as the record of why it was deferred, and is superseded.
+
+**P3 was not implemented, and this was a modelling gap rather than an oversight.**
 `DerivedProvenance.inputs` is `Provenance[]`, not `Fact[]`. A provenance records how a
 value was obtained; "no data" is a property of the *value*, which it does not carry — so
 a derivation cannot currently see that an input came back empty. Closing it means
@@ -624,3 +639,15 @@ input state that can be absorbed silently.
 | P10 | **Recorded as a false-visibility defect: a disclosure that was decided, written down, and never shipped.** For four days every reference to "the caveat on the panel" described something that did not exist. This is the doc-versus-tree class at its most user-facing — the documentation was not merely stale, it asserted a user-visible behaviour that had never been built. |
 | P11 | **It is not retro-added.** Commit 5 of the migration replaces it with the real propagation, so adding it now buys four commits of lifespan for a message that is about to become untrue. Motion, not honesty. |
 | P12 | **A decision that specifies user-visible behaviour needs an assertion, or it is a note.** The rule 6 principle — a rule that has never failed is not a rule — applied to decisions: nothing failed when this was never built, because nothing ever checked. The propagation landing in commit 5 ships with a browser assertion, so the same gap cannot reopen silently. |
+| P13 | **A planned fixture is a prediction about the code, and earns a WATCHLIST prediction's treatment: checked against the tree before it is built, never assumed because several sessions repeated it.** P3's two named fixtures — a relations score with a `nodata` input, and San Marino rendering confident — were both asserted across sessions, including in the migration plan, and **neither exists**. `ScoredInput.weight: number` settles the first in one line that was there the whole time; San Marino already refuses via the multi-holder guard. **Repetition across sessions is how both acquired false authority** — which is the exact failure the watchlist exists to catch about the world, turned on ourselves. Verify the fixture is reachable before the commit that depends on it, not while writing it. |
+
+## Scope freeze and run discipline — 2026-08-15
+
+| # | Decision |
+| --- | --- |
+| S1 | **Core is: remaining Phase A + steps 8–14 + all panels live + the breaking-news board + Phase B leftovers.** That is the definition of "done" for v1. |
+| S2 | **WarWatch surfaces and Phase C are v2**, after core. Not deferred indefinitely — sequenced. The PortWatch adapter stays live-without-surface as recorded in P1/P2; its panel arrives with WarWatch in v2. |
+| S3 | **L9 closes as MITIGATED when the keyboard/list equivalent ships** (step 10 territory): every marker-reachable event reachable without a click, the first-attempt assertion retained as a canary, and the mechanism documented as globe.gl's rather than ours. **It does not gate "done".** A dependency defect we have routed around, with the route asserted, is closed — waiting on an upstream explanation that may never come would hold v1 hostage to someone else's raycast. |
+| S4 | **Run discipline.** Full `npm run verify` only at commit points; `--only` for the step under work. Full mutation suite only before a push or a goal close; per-step mutation during work. A twenty-minute full run after every edit is how a suite stops being run at all. |
+| S5 | **Goals are scoped to 8+ hours unattended.** Routine checkpoints go to `docs/PROGRESS.md`. Only OPEN-QUESTIONS items, the four emergency stops, and goal completion surface to the human — everything else is written down, not reported. |
+| S6 | **Every goal ends by drafting `docs/NEXT-GOAL.md`** — scope, order, acceptance criteria — so approving the next one is an edit rather than a reconstruction. |

@@ -822,6 +822,41 @@ await page.waitForTimeout(400);
 
 const tiers = await page.locator('.gallery .badge').allTextContents();
 check('gallery renders every badge state', tiers.length >= 6, tiers.join(' | '));
+
+/**
+ * P3, asserted in a browser — P12's requirement, that a decision specifying
+ * user-visible behaviour ships with an assertion or it is only a note.
+ *
+ * A derivation whose REQUIRED input came back empty must render as no data, not
+ * as a confident computed value. Before P3 the empty input was invisible to the
+ * derivation: `inputs` held provenances, and "no data" is a property of a value,
+ * so this fact would have rendered its arithmetic as though every term were
+ * present.
+ */
+const p3Card = page.locator('.gallery li', { hasText: 'a required input came back empty' });
+check('P3: a derivation with an empty required input is rendered', (await p3Card.count()) === 1);
+
+/**
+ * The claim is about the VALUE, not the badge.
+ *
+ * A `nodata` fact keeps its tier badge — `badgeMarkup` special-cases only
+ * broken, unconfigured and unavailable — and renders the absence in the value,
+ * via `valueMarkup`'s `.fact-value--nodata`. An earlier version of this check
+ * asserted on the badge text and failed reading `ƒ DERIVED`, which was the
+ * assertion being wrong about the design rather than the app being wrong.
+ *
+ * What P3 actually has to deliver is that the derivation does not print a
+ * computed number it had no complete inputs for.
+ */
+check('P3: the value renders as no data, not as a computed number',
+  (await p3Card.locator('.fact-value--nodata').count()) === 1,
+  await p3Card.locator('.fact-value').first().textContent() ?? '(no value element)');
+
+// Positive control: the ordinary DERIVED card in the same gallery still renders
+// its value, so the check above is detecting P3 rather than a broken gallery.
+const plainDerived = page.locator('.gallery li', { hasText: 'A count this app computed' });
+check('positive control: an ordinary derivation still shows its value',
+  (await plainDerived.locator('.badge--derived').count()) === 1);
 check('an untraceable value renders as broken', tiers.some((t) => t.includes('UNTRACEABLE')));
 check('a key-gated source renders as unconfigured', tiers.some((t) => t.includes('KEY NOT SET')));
 check(

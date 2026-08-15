@@ -410,3 +410,41 @@ information is not lost — it is one hover away — and (c) contradicts a stand
 **Why this is yours and not mine:** (c) would overturn decision 8a, and (b) trades a real
 amount of rendering work against a defect that only affects one of ten colour pairs for one of
 three dichromacies. Neither is a judgement I should make silently while implementing a palette.
+
+---
+
+## 13. The relations engine cannot represent "consulted and came back empty"
+
+**Raised 2026-08-15 while implementing P3.** P3's central case — missing data propagating
+through a derivation — is **structurally unreachable in the layer that motivated the whole
+migration.**
+
+`ScoredInput.weight` is `number`, never `null`, and a finding that has no value is simply
+absent from `result.inputs`. So the relations engine has one representation for two different
+facts:
+
+| Fact about the world | How the engine records it |
+| --- | --- |
+| We never consulted this finding | not in the array |
+| We consulted it and it had no value | **also not in the array** |
+
+**That is rule 30 conflated by omission** — no answer and an answer of none, stored
+identically. It is the same distinction the app enforces everywhere else and does not enforce
+in its own scoring engine.
+
+**Why it does not bite today:** relations run on a hand-checked seed table where every entry
+has a weight by construction. Nothing is fetched, so nothing can come back empty.
+
+**When it will bite: step 10**, when relations move to live ingests. At that point a source
+that answers with no value becomes possible, and the engine will silently score around it —
+producing a confident classification from fewer inputs than it consulted, which is precisely
+what P3 was written to prevent.
+
+**Shape of the fix, one line:** give `ScoredInput` (or the findings array) a representation for
+consulted-and-empty — either `weight: number | null` with the empty entries retained, or an
+explicit `consulted but no value` variant. Either makes the contributing-shortfall caveat
+reachable, and `contributingShortfall` already handles it.
+
+**Deliberately not fixed now.** Commit 5 is P3's semantics; changing the relations input model
+is a change to the scoring engine and belongs with the live-data work that makes it matter.
+Recorded so it is a decision waiting for you rather than a rediscovery at step 10.

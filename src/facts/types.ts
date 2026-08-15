@@ -63,7 +63,46 @@ export interface FetchProvenance {
  */
 export interface DerivedInput {
   fact: AnyFact;
-  required: boolean;
+  /**
+   * Optional, and its absence is not neutral: **undeclared means required.**
+   * Only an explicit `false` marks an input as merely contributing. See
+   * `isRequired`.
+   */
+  required?: boolean;
+}
+
+/**
+ * Is this input load-bearing for the derivation?
+ *
+ * **Fail closed** (rule 29's polarity): anything that is not explicitly `false`
+ * is required. Forgetting the declaration makes a derivation more cautious,
+ * never less — where the opposite default would let every un-migrated
+ * derivation silently absorb missing data, which is P3's own failure
+ * reintroduced by the migration meant to end it.
+ */
+export function isRequired(input: DerivedInput): boolean {
+  return input.required !== false;
+}
+
+/**
+ * How many merely-contributing inputs came back empty.
+ *
+ * A shortfall here does NOT change the derivation's state — the value is still
+ * computable, and calling it "no data" would be a bigger lie than the shortfall.
+ * It renders as a caveat instead, because a score computed from four of seven
+ * findings is a real number that a reader should not mistake for a complete one.
+ *
+ * Returns `null` when there is nothing to say, so callers can attach a note
+ * conditionally without testing counts themselves.
+ */
+export function contributingShortfall(
+  provenance: DerivedProvenance,
+): { missing: number; contributing: number } | null {
+  const contributing = provenance.inputs.filter((input) => !isRequired(input));
+  if (contributing.length === 0) return null;
+
+  const missing = contributing.filter((input) => factState(input.fact) === 'nodata').length;
+  return missing === 0 ? null : { missing, contributing: contributing.length };
 }
 
 export interface DerivedProvenance {
@@ -266,20 +305,36 @@ function provenanceState(provenance: Provenance): FactState {
   // investigating, where a missing key is a known, stable state someone has
   // already decided not to configure.
   //
-  // Recursion is through `factState`, not `provenanceState`, so an input's VALUE
-  // is now visible here for the first time — that is the whole point of the
-  // `Provenance[]` → `DerivedInput[]` change.
-  //
-  // **`nodata` is deliberately NOT handled in this commit.** `factState` can now
-  // return it, and it falls through to `ok` exactly as an empty input did when
-  // this function could not see values at all. That keeps this commit a pure
-  // refactor: same behaviour, new shape. P3's semantics — `nodata` entering the
-  // ladder, and `required` being consulted — land in the next commit, alone,
-  // where a regression cannot hide inside a type change.
+  // Recursion is through `factState`, so an input's VALUE is visible here — the
+  // whole point of the `Provenance[]` → `DerivedInput[]` change.
   const states = provenance.inputs.map((input) => factState(input.fact));
   if (states.includes('broken')) return 'broken';
   if (states.includes('unavailable')) return 'unavailable';
   if (states.includes('unconfigured')) return 'unconfigured';
+
+  /**
+   * P3, landing here: **missing data propagates through REQUIRED inputs.**
+   *
+   * `nodata` sits below `unconfigured` in the merged ladder
+   * (broken > unavailable > unconfigured > nodata > ok) — see `DECISIONS.md`,
+   * "Provenance propagation". It is last because it is the quietest failure: the
+   * pipeline ran, the source answered, and the answer was nothing.
+   *
+   * Only REQUIRED inputs reach this line. An empty input the derivation merely
+   * contributes from does not make the result "no data" — the value is still
+   * computable, and calling it no-data would be a bigger lie than the shortfall.
+   * That case renders as a caveat via `contributingShortfall`, never silently
+   * absorbed.
+   *
+   * The three loud states above are checked across ALL inputs, unchanged: P1
+   * says untraceability propagates unconditionally, and P2/P9 have never been
+   * conditioned on requiredness. P3 is the only rule this commit adds.
+   */
+  const requiredStates = provenance.inputs
+    .filter(isRequired)
+    .map((input) => factState(input.fact));
+  if (requiredStates.includes('nodata')) return 'nodata';
+
   return 'ok';
 }
 

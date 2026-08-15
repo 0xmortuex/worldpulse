@@ -522,3 +522,44 @@ comparing failure sets would read a flaky run as a structural change.
 **The two variable classes are both known and both open**: L9's marker click (`DECISIONS.md`
 L9, still unexplained) and the click-actionability class documented in rule 15's second
 configuration section. Neither is introduced by this migration.
+
+---
+
+## Neither of P3's two named fixtures exists in the code
+
+**Found while implementing P3 (commit 5 of the Fact-model migration), 2026-08-15.** The plan
+named two cases that would prove the rule: a relations score with a `nodata` input, and San
+Marino's six-versus-two discrepancy — "both currently confident, both caveated after".
+Neither holds against the code, and in opposite ways.
+
+**The relations shortfall cannot occur.** `ScoredInput.weight` is typed `number`, never
+`null`. A finding that is absent is simply not in `result.inputs` — there is no representation
+for an input that was consulted and came back empty. So a relations input can never reach
+`nodata`, and the contributing-shortfall caveat wired into `scoreFact` has **no reachable
+instance in production code**.
+
+**San Marino was never confident.** Its six-vs-two case is handled by the multi-holder guard
+in `resolve.ts`, which returns `class: 'undetermined'` with a rule label, a reason naming the
+ambiguity, and a warning that an override with a citation is needed. It is a leader-resolution
+refusal, not a derivation at all — no `DerivedProvenance` is involved, so P3 has no bearing on
+it. It already declines to choose, which is the behaviour the fixture wanted to produce.
+
+**So the plan's premise inverted itself in both directions**: relations scores are confident
+but cannot carry a shortfall, and San Marino carries a shortfall but was never confident.
+
+**What was done instead of manufacturing them.** The rule is implemented and planted
+(`tests/p3-propagation.test.ts`, twelve cases covering requiredness, the merged ladder and the
+shortfall counter), and the browser assertion attaches to the case that *is* reachable — a
+derivation whose **required** input came back empty, rendered in the component gallery and
+asserted with a positive control that an ordinary derivation still shows its value.
+
+**The contributing path stays, unexercised and recorded.** Removing it would mean deleting a
+specified rule because today's data cannot reach it; keeping it silent would mean shipping
+untestable code. It is kept with planted cases and listed in `UNEXERCISED-PATHS.md`, on the
+same terms as every other proven-but-unrendered path in this repo.
+
+**The general point, which is why this is a finding and not a note.** A fixture named in a
+plan is a hypothesis about the code, not a fact about it. Both of these had been asserted
+across several sessions — including by me, when I wrote the migration plan — without anyone
+checking whether the type system permitted them. `ScoredInput.weight: number` settles the
+first in one line, and it was there the whole time.

@@ -79,6 +79,54 @@ function entries(): Entry[] {
     fact: gdelt.articleCountFact(articles, { ...FIXTURE_CTX, requestUrl: 'https://api.gdeltproject.org/api/v2/doc/doc?query=sourcecountry%3AUS&mode=artlist&format=json' }, 'last 24h'),
   });
 
+  /**
+   * P3 made visible. A derivation whose REQUIRED input came back empty renders
+   * as no data rather than as a confident computed number.
+   *
+   * This is the gallery entry that satisfies P12 for P3: the rule specifies
+   * user-visible behaviour, so it owes a browser assertion, and this is the case
+   * that assertion can point at. Before P3 the empty input was invisible to the
+   * derivation and this fact would have rendered its arithmetic as though every
+   * term were present.
+   */
+  list.push({
+    title: 'DERIVED — a required input came back empty',
+    explain:
+      'P3: missing data propagates through required inputs. The source was asked for the ' +
+      'input, answered with nothing, and the derivation says so instead of computing around it.',
+    fact: {
+      value: null,
+      asOf: '2026',
+      tier: 'DERIVED',
+      provenance: {
+        kind: 'derived',
+        computedBy: 'src/dev/gallery.ts',
+        formula: 'population ÷ area',
+        computedAt: '2026-01-01T00:00:00Z',
+        inputs: [
+          {
+            fact: {
+              value: null,
+              asOf: '2026',
+              tier: 'OFFICIAL',
+              provenance: {
+                kind: 'fetch',
+                sourceId: 'worldbank',
+                requestUrl: 'https://api.worldbank.org/v2/country/XKX/indicator/SP.POP.TOTL?format=json',
+                httpStatus: 200,
+                fetchedAt: '2026-01-01T00:00:00Z',
+                cache: 'miss',
+                raw: '[{"page":1},null]',
+                extractedBy: 'value at [1][0].value',
+              },
+            },
+            required: true,
+          },
+        ],
+      },
+    },
+  });
+
   list.push({
     title: 'No data',
     explain: 'The source was asked and had nothing. Never a placeholder value.',

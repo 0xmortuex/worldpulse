@@ -423,3 +423,31 @@ anomalies are precisely the case where false precision reads as a strike locatio
 **What would close it:** a browser assertion that a fact carrying `resolution: 'country'`
 renders the centroid wording, and one carrying `'point'` does not. It lands with the first
 plotted source, not before.
+
+## 14. P3's contributing-shortfall caveat has no reachable instance
+
+| Path | Exercised by | NOT exercised by |
+| --- | --- | --- |
+| `contributingShortfall` — counting empty contributing inputs | `tests/p3-propagation.test.ts`, planted | any production derivation |
+| The caveat it produces on a relation score | — | nothing; it cannot currently fire |
+
+**Why.** `ScoredInput.weight` is `number`, never `null`, and an absent finding is absent from
+the array rather than present-and-empty. So the only derivation with contributing inputs
+cannot produce one that came back empty. Full measurement in `FOUND.md`.
+
+**The required-input path IS exercised**: `provenanceState` returns `nodata` when a required
+input is empty, planted in the same test file and asserted in the browser on the component
+gallery per P12.
+
+**What would close it:** a derivation whose inputs can legitimately be empty while the result
+stays computable. The economy panel's derived indicators are the likely first — a ratio over
+several series where one series has a gap is exactly the shape the rule was written for.
+
+**San Marino is not a candidate and should not be re-attempted.** Its six-versus-two case was
+named as a P3 fixture across several sessions, but the multi-holder guard in `resolve.ts`
+already returns `undetermined` with a reason and a warning — it refuses, and did so before P3
+existed. That is the system having worked without the rule, not a gap the rule fills. See
+`DECISIONS.md` P13.
+
+> Kept rather than deleted. Removing a specified rule because today's data cannot reach it
+> would mean re-deriving it the first time data can, and P3 took three sessions to specify.

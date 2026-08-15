@@ -1,7 +1,14 @@
 import { absentValueWording, escapeHtml, getRegisteredFact, stateCarriesAsOf } from './badge';
 import { getSource, licenseClassNote, licenseIsConstrained, verifiedAgainstNote } from './registry';
 import { assertNever } from './exhaustive';
-import { factState, resolutionClaim, TIER_EXPLANATIONS, type AnyFact, type Provenance } from './types';
+import {
+  contributingShortfall,
+  factState,
+  resolutionClaim,
+  TIER_EXPLANATIONS,
+  type AnyFact,
+  type Provenance,
+} from './types';
 
 /**
  * The provenance inspector: click any badge, see exactly where the value came
@@ -202,6 +209,22 @@ function renderProvenance(provenance: Provenance, depth: number): string {
         <dt>Arithmetic</dt><dd><code class="inspector-formula">${escapeHtml(provenance.formula)}</code></dd>
         <dt>Computed at</dt><dd>${escapeHtml(provenance.computedAt)}</dd>
       </dl>
+      ${
+        /**
+         * P3's shortfall, stated where the arithmetic is. The formula above
+         * shows what was summed; this says what was consulted and came back
+         * empty, which the formula cannot show because a missing term simply is
+         * not in it.
+         */
+        (() => {
+          const shortfall = contributingShortfall(provenance);
+          return shortfall === null
+            ? ''
+            : `<div class="inspector-warn">${shortfall.missing} of ${shortfall.contributing}
+               contributing inputs returned no value. The result is computed from the rest —
+               it is not a complete figure, and it is not "no data" either.</div>`;
+        })()
+      }
       <h4>Inputs (${provenance.inputs.length})</h4>
       ${
         provenance.inputs.length === 0
