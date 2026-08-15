@@ -676,3 +676,37 @@ assumes the assertion count is a property of the commit. Under a flaky configura
 property of the commit AND the run, because a dropped click changes what executes next. The
 criterion cannot currently distinguish a behavioural change from a dropped click, which is the
 one distinction it exists to make.
+
+### RESOLVED 2026-08-15 — the count is flake-driven, and commit 4 is clean
+
+The discriminating experiment returned. **Commit 3 differs from itself:**
+
+| Run | Total | Failures | Steps 7 / 7b / text |
+| --- | --- | --- | --- |
+| Commit 3, run 1 | 282 | 5 | 34 / 12 / 36 |
+| Commit 3, **run 2** | **279** | **0 — all checks passed** | **33 / 11 / 35** |
+| Commit 4, run 1 | **279** | 1 (documented L9) | **33 / 11 / 35** |
+
+Same commit, same harness, same configuration, nothing between the two runs but flake. The
+assertion count is therefore a property of the commit AND the run, exactly as diagnosed.
+
+**Commit 4 is equivalent to commit 3, on the strongest available footing.** Not "explicable
+given flake" — commit 3's flake-free run and commit 4 produce the *same vector* across all ten
+steps. The apparent diff came from using commit 3's flaky run as the baseline. A flaky
+configuration has a floor, and the floor is the only stable thing to compare against.
+
+**The halt lifts.** The sequence may proceed to commit 5.
+
+**The disposition is "rule 36 was mis-specified", NOT "diffs under flake are ignorable."** The
+amended rule is in `TESTING.md` 36 and retains failing power: a count change in a click-free
+step is not cascade-explicable, and neither is any reduction. Both remain genuine diffs. What is
+NOT established — and is written into the rule as not established — is that the cascade can
+never subtract assertions; three runs do not show that, so a reduction is treated as a real diff
+until measured otherwise.
+
+**One claim in rule 36 was falsified by this measurement** and has been struck rather than
+edited quietly: it asserted per-step counts "did not vary once (279, per step, both sides)"
+across six runs. They vary. The rule had already identified the mechanism — `clickOrFail` emits
+an extra `clickable` check when a click fails — and had not followed it through: that check has
+to land inside some step, so it inflates that step as well as the total. Six runs happened not
+to expose the inconsistency.

@@ -1321,12 +1321,76 @@ test scored *better* than its own baseline on one run and worse on another.
 
 ### What equivalence means instead
 
-1. **Per-step assertion counts identical**, step by step. These are structural: across six runs
-   spanning two commits they did not vary once (279, per step, both sides).
+**AMENDED 2026-08-15 — criterion 1 below was wrong, and its own evidence was wrong.**
+
+1. ~~**Per-step assertion counts identical**, step by step. These are structural: across six runs
+   spanning two commits they did not vary once (279, per step, both sides).~~
+   **False.** See the amendment below: per-step counts vary under flake, for the reason this
+   very rule gives two paragraphs down. `clickOrFail`'s extra `clickable` check has to land
+   inside *some* step, so it inflates that step's count as well as the total. The claim that
+   the totals move while the per-step counts hold was not consistent with the mechanism the
+   rule had already identified, and six runs happened not to expose it.
 2. **Every assertion outside the documented flakes passing.**
 3. **The failure set minus the documented flake clusters is empty.**
 
-All three are decidable in the presence of a flake. Raw failure-count equality is not.
+Criteria 2 and 3 are decidable in the presence of a flake. Raw failure-count equality is not,
+and neither is per-step count identity.
+
+### The amended criterion
+
+**Compare what is comparable under flake:**
+
+1. **The set of assertions that RAN in both runs must be identical**, and identical per step.
+   This is the load-bearing clause.
+2. **Any assertion present in one run and absent from the other must be explained by a
+   documented flake's cascade** — named, not waved at. If it cannot be, the comparison is
+   **inconclusive**, and the answer is to re-run, not to judge.
+3. **The failure set minus the documented flake clusters is empty**, as before.
+
+An inconclusive verdict is a real outcome, not a failure to reach one. It is the honest state
+when the instrument's noise is the same size as the signal being looked for.
+
+### Worked example: commit 3 against itself
+
+The case that forced the amendment. A pure-refactor commit (4) was gated against its
+predecessor (3), and produced what looked like a diff:
+
+| Run | Total | Failures | Steps 7 / 7b / text |
+| --- | --- | --- | --- |
+| Commit 3, run 1 | 282 | 5 | **34 / 12 / 36** |
+| Commit 3, **run 2** | **279** | **0 — all checks passed** | **33 / 11 / 35** |
+| Commit 4, run 1 | **279** | 1 (L9) | **33 / 11 / 35** |
+
+**Commit 3 differs from itself.** Same commit, same harness, same SwiftShader configuration,
+nothing between the two runs but the flake. That alone disposes of per-step identity as a
+criterion.
+
+And the comparison the diff was blocking resolves in the refactor's favour on the strongest
+possible footing: **commit 3's flake-free run and commit 4 are identical in all ten steps** —
+not "explicable given flake" but the same vector, 279 assertions each. The apparent diff was
+commit 3's *flaky* run being used as the baseline.
+
+**The lesson is about which run to compare against.** A flaky configuration has a floor — the
+run where nothing flaked — and that floor is the only stable baseline. Comparing against a run
+that happened to flake measures the flake.
+
+### What the cascade can and cannot explain
+
+The amendment is only worth having if it can still fail a real regression. Measured limits, from
+three runs — stated as measured, not as proven:
+
+- **Observed: the cascade only ADDS assertions**, +1 per dropped click, and only in
+  click-bearing steps (7, 7b, text fidelity). It did not alter a step with no click path.
+- **Therefore a count change in a click-free step is not cascade-explicable**, and neither is
+  any *reduction*. Both remain genuine diffs under the amended rule.
+- **NOT established: that the cascade can never subtract.** A dropped click causing a step to
+  bail out early would remove downstream assertions, and three runs do not rule that out. Until
+  it is measured, a reduction is treated as a real diff — which is the fail-closed direction.
+
+If a future measurement shows the cascade can explain an arbitrary difference on this
+configuration, then verify comparisons between SwiftShader commits are inconclusive **by
+construction**, and the honest disposition is to record them as such rather than pass them.
+That is a live possibility, not a rhetorical one.
 
 **Why the totals move at all**: `clickOrFail` emits a `clickable` check only when a click
 fails, so a flaky run *inflates* the assertion total — 279 becomes 281 or 283. The count is a
