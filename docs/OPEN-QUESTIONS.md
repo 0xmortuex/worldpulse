@@ -1045,3 +1045,64 @@ looked conclusive, and why my "rate limited" note for HDX was wrong for two turn
 **None of these is a defect and none needs a decision about the app.** They need credentials,
 endpoints, or a vantage point. The adapters are straightforward once each is supplied, and the
 gate discipline that took FIRMS and OONI through is the same one waiting for them.
+
+### 23b. ReliefWeb — exactly what you need to do, in one sitting
+
+**Parked 2026-08-15 per the Ember disposition.** Registered as `excluded: true` so no guard
+treats it as live, with `keyEnv: RELIEFWEB_APPNAME` declared and the line already in
+`.env.example` — the template carries it before the value exists, which is what the
+`env-template` guard was built for.
+
+**The one action:** request an approved appname at
+**`https://apidoc.reliefweb.int/parameters#appname`**, then put it in `.env` as
+`RELIEFWEB_APPNAME=`.
+
+**What is already established, so nothing needs re-deriving when it arrives:**
+
+- `v1` is decommissioned — *"The API version 'v1' has been decommissioned. Please use version
+  'v2' instead."* The registry points at `v2`.
+- `v2` reachable, `access-control-allow-origin: *`, refuses only on the appname.
+- The appname travels as a **query parameter**, so `keyParam: 'appname'` is declared and the
+  existing keyed-probe machinery will apply it with no new code.
+
+**One decision when it arrives:** an appname is an identifier, not a credential — it is sent in
+the clear and its purpose is to let ReliefWeb contact the operator. It is in `.env` for now
+because that is where the machinery looks, but it could equally live in the registry as plain
+text. Worth one minute's thought rather than inheriting the secret-handling by default.
+
+**The licence is NOT yet read.** `licenseClass` is `restricted` as a fail-closed placeholder,
+not a finding — it records that nothing has been established. It must be replaced by a real
+reading before anything is ingested, and given that the plan's licence column has been wrong
+four times out of four in the permissive direction, that reading is not optional.
+
+---
+
+## 24. IODA parks as reachable-but-licence-unreadable
+
+**2026-08-15**, after exhausting the machine-reachable routes at your direction.
+
+**Where I looked, so nobody repeats it:**
+
+| Route | Result |
+| --- | --- |
+| `/about`, `/acceptable-use` | 6 characters — SPA shell |
+| API root `/v2/` | 15 characters |
+| `InternetIntelligenceLab/ioda-ui` README | 404 |
+| GitHub org search | 422 |
+| **`/build/ioda.7dd34d99.js`, 3,988,051 bytes** | **searched: `creative commons`, `CC-BY`, `licensed under`, `acceptable use`, `terms of use`, `cite`, `citation`, `data policy`, `redistribut`, `CC0`, `open data` — all absent** |
+
+The only `copyright` in the bundle belongs to core-js; the only `attribution` is Leaflet's map
+control. The routes the bundle knows about are `/dashboard`, `/about`, `/reports`, `/resources`,
+`/help` — all served by the same shell.
+
+**Riksdagen shape: the data is reachable and keyless, and the block is purely the missing
+grant.** The API answers 200 without authentication and an adapter would be short.
+
+**Not inferred permissive from its academic origin.** That is the four-for-four optimistic error
+this batch has already made: Feodo's plan entry said CC0 and its terms reserve all rights;
+OONI's own page said "a Creative Commons license" and meant the most restrictive variant we can
+use; ReliefWeb's endpoint was decommissioned; HDX's 429 was a bot block. Every convenient
+reading this week has been wrong, always in the same direction.
+
+**What would settle it:** the licence or acceptable-use text as the SPA renders it in a browser,
+or a citation policy from the IODA team at Georgia Tech.
