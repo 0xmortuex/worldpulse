@@ -475,6 +475,7 @@ const ALL_STEPS = [
   '4 — government tab',
   '5 — economy tab',
   '6 — news tab',
+  '6b — military tab',
   '7 — globe event layers',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
@@ -1529,6 +1530,100 @@ check('filters are described as a convenience, not a classification',
   /not a classification/i.test(await page.locator('.news').innerText()));
 await page.locator('[data-topic=""]').click();
 await page.waitForTimeout(300);
+
+
+step('6b — military tab');
+// ---- step 6b: military tab (step 8's hard cases, in a browser) ----
+
+/**
+ * P12: a decision specifying user-visible behaviour ships with an assertion or
+ * it is a note. Step 8's acceptance criterion is a SENTENCE a reader sees, so a
+ * unit test on the function that builds it is necessary and not sufficient — the
+ * panel could stop calling that function tomorrow and every unit test would
+ * still pass.
+ */
+await selectCountry('Costa Rica');
+await clickOrFail(page, '[data-tab="military"]', 'military tab');
+await page.waitForTimeout(300);
+
+const milAbolished = await page.locator('.mil-abolished').textContent().catch(() => '');
+check('a country with no armed forces says so as a fact about the country',
+  /has no armed forces/i.test(milAbolished ?? ''), (milAbolished ?? '').slice(0, 120));
+check('and says explicitly that it is not missing data',
+  /not missing data/i.test(milAbolished ?? ''), (milAbolished ?? '').slice(0, 120));
+
+/**
+ * THE ACCEPTANCE CRITERION FOR STEP 8, asserted where a reader would see it.
+ *
+ * Costa Rica's overseas presence is an EMPTY LIST — consulted, nothing
+ * recorded — which must render "None recorded" and never the bare word "none".
+ */
+const overseas = ((await page.locator('.mil-overseas').textContent().catch(() => '')) ?? '').trim();
+check('zero recorded overseas presence renders as "None recorded"',
+  /none recorded/i.test(overseas), overseas.slice(0, 120));
+check('the bare word "none" is never the whole claim',
+  /\bnone\b(?!\s+recorded)/i.test(overseas) === false, overseas.slice(0, 120));
+
+/**
+ * Read the whole section rather than a sibling selector.
+ *
+ * The first draft used `.mil-overseas--none-recorded ~ .gov-note`, which matched
+ * nothing even though the markup was correct — the note IS a sibling and
+ * `.gov-note` resolves to exactly one node on this panel. Asserting on the
+ * section's text checks the same claim without depending on the two paragraphs
+ * staying siblings, which is a layout detail this assertion has no stake in.
+ */
+const overseasSection = ((await page
+  .locator('.gov-block', { hasText: 'Overseas presence' })
+  .textContent()
+  .catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('the panel explains that no records is not the same as none',
+  /not the same as there being none/i.test(overseasSection), overseasSection.slice(0, 140));
+
+/**
+ * The undeclared-arsenal case. For a state that has never declared one, the
+ * estimate is the entire claim, and the SENTENCE has to carry that rather than
+ * leaving a tier glyph to do it.
+ */
+await selectCountry('Israel');
+await clickOrFail(page, '[data-tab="military"]', 'military tab');
+await page.waitForTimeout(300);
+const warheads = ((await page.locator('.mil-warheads').textContent().catch(() => '')) ?? '').trim();
+check('an undeclared arsenal is named as an outside estimate',
+  /outside estimate/i.test(warheads), warheads.slice(0, 140));
+check('and says the state has never declared one',
+  /never declared/i.test(warheads), warheads.slice(0, 140));
+
+/**
+ * Ceremonial command. Rendering a constitutional figurehead as an operational
+ * commander asserts a chain of command that does not exist.
+ */
+await selectCountry('New Zealand');
+await clickOrFail(page, '[data-tab="military"]', 'military tab');
+await page.waitForTimeout(300);
+const command = ((await page.locator('.mil-command').textContent().catch(() => '')) ?? '').trim();
+check('a ceremonial commander-in-chief is marked ceremonial',
+  /ceremonial/i.test(command), command.slice(0, 140));
+
+// A recorded deployment must NOT read as "none recorded".
+const nzOverseas = ((await page.locator('.mil-overseas').textContent().catch(() => '')) ?? '').trim();
+check('positive control: a recorded deployment does not say none recorded',
+  /none recorded/i.test(nzOverseas) === false, nzOverseas.slice(0, 120));
+check('and reports the host country', (await page.locator('.mil-deployments li').count()) > 0);
+
+/**
+ * Independent absence. Eritrea has personnel and no expenditure; the panel must
+ * render the half it has rather than hiding both or inventing a zero.
+ */
+await selectCountry('Eritrea');
+await clickOrFail(page, '[data-tab="military"]', 'military tab');
+await page.waitForTimeout(300);
+const eritrea = ((await page.locator('.gov').textContent().catch(() => '')) ?? '');
+check('a country with personnel but no expenditure shows the half it has',
+  /Active personnel/i.test(eritrea) && /Expenditure: not recorded/i.test(eritrea),
+  eritrea.replace(/\s+/g, ' ').slice(0, 160));
+check('and never renders the missing half as zero',
+  /Expenditure[^]{0,40}\b0\b/i.test(eritrea) === false, eritrea.replace(/\s+/g, ' ').slice(0, 160));
 
 step('7 — globe event layers');
 // ---- step 7: globe layers ----
