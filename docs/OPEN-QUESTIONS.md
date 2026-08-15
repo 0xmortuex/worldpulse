@@ -916,3 +916,36 @@ recorded here either way.
 that over-claims has already told the reader something false, and no later correction reaches
 the person who read it. "Who did this arithmetic" is exactly what a tier should say, so the
 answer must be measured rather than assumed in the direction that flatters the data.
+
+---
+
+## 21. `Resolution` cannot express a sensor footprint
+
+**Raised 2026-08-15** taking FIRMS through the gate. `Resolution` is
+`'country' | 'admin1' | 'point'`. A FIRMS detection is none of them: it is a **pixel of measured
+size** — 380 m to 750 m across, and the size arrives in every row as `scan` and `track`.
+
+| Candidate | Why it is wrong |
+| --- | --- |
+| `point` | overstates. The sensor never had a point; it had a footprint, and for THIS source implying a point reads as a strike location |
+| `admin1` | understates by orders of magnitude. It would render a 400 m detection as a province-wide claim |
+
+**Not resolved by widening the enum**, because this goal forbids Fact-model changes and that is
+the right constraint: a fourth member changes every consumer's exhaustive dispatch, which is a
+migration rather than an adapter detail.
+
+**What was done instead, and it is not a workaround.** The binding is enforced as ARITHMETIC in
+the adapter: `decimalsForFootprint` derives the number of decimal places a footprint justifies,
+and every coordinate is rounded to it before it leaves `parse`. That is asserted against live
+data and holds regardless of what the enum eventually says. The published five decimals (≈1.1 m)
+become one or two (≈1.1 km) for a 400 m pixel.
+
+**The known cost, recorded rather than hidden:** decimal degrees come only in powers of ten, so
+a 380 m pixel gets `0.01°` ≈ 1113 m — about three times coarser than the sensor. Two genuinely
+distinct detections 500 m apart collapse to one coordinate. For a source under a standing
+prohibition against implying strike locations, erring coarse is the right direction, but it is
+a real loss of resolution and a clustering feature would need the unrounded value.
+
+**What is needed from you:** whether `Resolution` should gain a `footprint` member carrying its
+size, at the cost of a migration across every consumer — or whether the numeric binding is the
+whole answer and the enum stays a three-way coarse classification.

@@ -12,6 +12,7 @@ import * as congress from '../src/sources/congress';
 import * as eia from '../src/sources/eia';
 import * as comtrade from '../src/sources/comtrade';
 import * as fx from '../src/sources/exchangerate';
+import * as firms from '../src/sources/firms';
 import * as portwatch from '../src/sources/portwatch';
 import * as whoDon from '../src/sources/who-don';
 import * as unhcr from '../src/sources/unhcr';
@@ -670,5 +671,48 @@ describe('the four flags that claimed live without live coverage', () => {
       assert.ok(entry.vulnerabilityName.length > 0);
       assert.ok(Number.isFinite(Date.parse(entry.dateAdded.value ?? '')));
     }
+  });
+
+  /**
+   * FIRMS — the labelling rule and the precision binding are the contract.
+   *
+   * Both are acceptance criteria of the goal that registered this source, and
+   * both are asserted against LIVE data here rather than only against a
+   * fixture, because both describe what a reader will be shown.
+   */
+  it('firms: precision is bound to the footprint, and the label never drifts', async () => {
+    const sample = await liveOrInconclusive('nasa-firms');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const detections = firms.parse(String(body));
+
+    // An empty bbox is a real answer; only a malformed one is a contract failure.
+    for (const detection of detections) {
+      assert.ok(Number.isFinite(detection.latitude));
+      assert.ok(Number.isFinite(detection.longitude));
+      assert.ok(detection.footprintKm > 0, 'a detection arrived with no pixel size');
+
+      // B4, live: never finer than the sensor knew.
+      const decimals = (String(detection.latitude).split('.')[1] ?? '').length;
+      assert.ok(
+        decimals <= firms.decimalsForFootprint(detection.footprintKm),
+        `${detection.latitude} is finer than its ${detection.footprintKm} km pixel`,
+      );
+
+      assert.match(detection.acquiredAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+      assert.ok(['low', 'nominal', 'high', 'unknown'].includes(detection.confidence));
+      assert.ok(detection.frpMw === null || Number.isFinite(detection.frpMw));
+    }
+
+    /**
+     * THE STANDING PROHIBITION, asserted against what would actually render.
+     * A fire pixel is a fire pixel.
+     */
+    const fact = firms.detectionCountFact(detections, ctx, 'the last 24 hours');
+    const rendered = `${firms.LABEL} ${fact.note ?? ''}`.toLowerCase();
+    for (const term of firms.FORBIDDEN_TERMS) {
+      assert.equal(rendered.includes(term), false, `rendered text used "${term}"`);
+    }
+    assert.equal(fact.tier, 'DERIVED', 'a count of detections is not a count of fires');
   });
 });

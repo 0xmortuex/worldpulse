@@ -14,6 +14,7 @@ import congressBills from './congress-bills.json';
 import eiaElectricity from './economy/eia-electricity-2023.json';
 import comtradeUsa from './economy/comtrade-usa-2023-exports.json';
 import exchangerateUsd from './economy/exchangerate-usd.json';
+import { readFileSync as readFixture } from 'node:fs';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -29,6 +30,7 @@ import { buildRecentBillsUrl } from '../../src/sources/congress';
 import { buildAnnualUrl as eiaAnnualUrl } from '../../src/sources/eia';
 import { buildAnnualTradeUrl } from '../../src/sources/comtrade';
 import { buildQuotesUrl } from '../../src/sources/exchangerate';
+import { buildAreaUrl as firmsAreaUrl } from '../../src/sources/firms';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -46,6 +48,15 @@ export interface Fixture {
   /** The URL this body would have come from. */
   requestUrl: string;
   body: unknown;
+  /**
+   * The response is TEXT, not JSON — CSV, TSV, a feed.
+   *
+   * Declared rather than sniffed. Guessing from a content-type or from whether
+   * `JSON.parse` happens to succeed would make the live path and the fixture
+   * path disagree the first time a source returned something ambiguous, and a
+   * contract test whose input differs from the app's is testing the wrong thing.
+   */
+  bodyIsText?: boolean;
 }
 
 /**
@@ -232,6 +243,29 @@ export const FIXTURES: Record<string, Fixture> = {
     body: exchangerateUsd,
   },
 
+  /**
+   * Mediterranean basin, one day of VIIRS NOAA-20 detections — captured live
+   * 2026-08-15 through `buildAreaUrl` (rule 26) and run through `parse` first.
+   *
+   * CSV, so `bodyIsText`. Imported with `readFileSync` rather than a JSON import
+   * because the bytes are the contract: a CSV round-tripped through a JSON
+   * string would test a shape the source never sends.
+   *
+   * The window is busy on purpose. It carries all three VIIRS confidence
+   * categories, 39 distinct pixel footprints, and — the case a quiet capture
+   * would have missed — detections at 00:35, which is where `acq_time`'s missing
+   * leading zeros bite.
+   *
+   * The URL holds `{MAP_KEY}`, not a key. FIRMS puts its key in the PATH, so the
+   * placeholder is what gets recorded and only the fetch substitutes.
+   */
+  'nasa-firms': {
+    sourceId: 'nasa-firms',
+    requestUrl: firmsAreaUrl({ source: 'VIIRS_NOAA20_NRT', bbox: [-10, 30, 40, 46], dayRange: 1 }),
+    body: readFixture(new URL('./layers/firms-med.csv', import.meta.url), 'utf8'),
+    bodyIsText: true,
+  },
+
   'cisa-kev': {
     sourceId: 'cisa-kev',
     requestUrl: buildCatalogUrl(),
@@ -383,7 +417,7 @@ export async function loadSample(sourceId: string): Promise<{ body: unknown; ctx
     );
   }
   return {
-    body: await response.json(),
+    body: fixture.bodyIsText ? await response.text() : await response.json(),
     ctx: {
       /**
        * THE UNKEYED URL, deliberately — `url` above may carry a key.
