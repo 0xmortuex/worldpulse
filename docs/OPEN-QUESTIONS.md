@@ -1160,3 +1160,44 @@ whose meanings we do not know cannot honestly drive a confidence badge.
 weights. `primaryValue` is money. The USA→Canada `TOTAL` carries `isNetWgtEstimated: true` and
 `isQtyEstimated: false` while its value is exact — so folding weight-estimation into a value's
 tier was a category error, now disclosed in a note rather than driving the badge.
+
+---
+
+## 26. The Phase A goal's completion condition is externally blocked — marked amended per S7
+
+**Raised 2026-08-15**, using the goal's own instruction: *"if a decision of mine amends a
+criterion this goal depends on, raise it in OPEN-QUESTIONS and mark the affected condition
+amended rather than burning turns on an unsatisfiable conjunction."* The amending force here is
+not a decision but the world; the disposition is the same.
+
+**The goal contains two clauses that cannot both hold while the blockers stand:**
+
+1. *"The remaining Phase A batch… each through the full gate."*
+2. *"Sources that could not convert recorded with their blocker per the riksdagen/Ember
+   precedents rather than forced."*
+
+Clause 2 exists because clause 1 was never guaranteed. **Seven of ten sources are blocked on
+things this machine cannot supply**, and each is recorded under clause 2:
+
+| Source | Blocker | Who can clear it |
+| --- | --- | --- |
+| Cloudflare Radar | no token in `.env` | you — free registration |
+| IODA | licence unreadable; every route is a client-rendered shell, bundle searched | you — the text as a browser renders it (`24`) |
+| IOM DTM | 404 on the surveyed path | you or documentation — the correct endpoint |
+| ReliefWeb | 403; `v1` decommissioned, `v2` needs an approved appname | you — one form (`23b`) |
+| HDX HAPI | 429 **"Blocked due to bot activity"** | you — `hdx@un.org` |
+| FEWS NET | timeout twice, ~25s each | a different vantage point; rule 35 not satisfied on mechanism |
+| IFES ElectionGuide | 401, *"visit electionguide.org/request_access/"* | you — access request |
+| UN voting | 202 with an empty body — asynchronous | confirm the intended API |
+
+**Condition 2 is marked AMENDED to: every Phase A source is either through the gate or recorded
+with a named blocker and its remedy.** That is satisfied — 3 through, 7 recorded, none forced.
+
+**What is deliberately NOT claimed:** that the seven are impossible, or that the goal is
+complete as written. They are one human action each away, and the moment any credential or
+endpoint arrives, the gate discipline that took FIRMS, OONI and Feodo through applies unchanged
+— licence read, probe, adapter, capture through the app's own builder, contract test, flip.
+
+**Everything else in the goal is met:** items 1 and 3 complete, per-source gate tables in
+`PROGRESS.md`, `typecheck` exit 0, 777 tests with a clean census, a full `verify` table showing
+only the known L9 cluster, and a clean tree.
