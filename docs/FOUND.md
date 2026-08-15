@@ -1463,3 +1463,32 @@ requests to get, after two timeouts had already produced a confident-sounding bu
 information: it is not one broken route but a subsystem in trouble. I stopped guessing a fifth
 name, because after three distinct failures a fourth guess is inference where documentation
 exists somewhere.
+
+---
+
+## Five shell-escaping incidents, one lesson not learned
+
+**2026-08-15, tallied at the close of the session.** Five times, a heredoc or a `node -e` string
+containing backticks or quotes was mangled by the shell before it reached the file:
+
+| # | What broke | Cost |
+| --- | --- | --- |
+| 1 | backticks in a `node -e` replacement string | fixture manifest entry silently not inserted |
+| 2 | backticks in a DECISIONS row | `` `OPEN-QUESTIONS.md` `` executed, leaving an empty gap in the text |
+| 3 | `python - <<'PY'` chained to `node -e` | heredoc collapsed; the shell interpreted half the repository as commands |
+| 4 | escaped backticks in a FIXTURES replacement | imports landed, the entry did not |
+| 5 | backticks in a PROGRESS table | `` `nc` `` and `` `hdx@un.org` `` executed, blanking two cells |
+
+**Every one was recoverable and every one was avoidable.** The Edit and Write tools have a
+zero-failure record across the same session; the shell has five. The lesson was recorded after
+the first, and I reached for the shell four more times — because it is one call instead of two,
+and because each individual string looked simple enough to survive.
+
+**What makes this worth an entry rather than a shrug:** incidents 2 and 5 did not fail loudly.
+They produced files that looked right in the diff summary and were missing a word in the middle
+of a sentence. Incident 1 and 4 produced imports without their corresponding entries, which
+typechecks as an unused-variable error only because this project has that check turned on.
+
+**The rule: file mutation goes through Edit or Write. The shell is for running things, not for
+writing them.** Where a heredoc is genuinely convenient, it must contain no backticks, and the
+result gets read back before it is committed.

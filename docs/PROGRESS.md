@@ -197,3 +197,25 @@ intended check works.
 **Item 2 is not satisfied and is not being reinterpreted.** Seven sources are blocked on
 credentials, endpoints, licence text and a vantage point that do not exist on this machine; each
 is recorded with its blocker and the single action that clears it (`OPEN-QUESTIONS` 22–26).
+
+### Phase A final standing — 2026-08-15
+
+| Source | Licence | Gate state | Blocker |
+| --- | --- | --- | --- |
+| **FIRMS** | read: NASA open | **through** | — |
+| **OONI** | read: CC BY-NC-SA 4.0 | **through** | — |
+| **Feodo Tracker** | read: `nc`, not CC0 | **through** | — |
+| FEWS NET | **read from the API**: CC BY 3.0 IGO | registered, excluded | IPC endpoints time out / 404 / 500 |
+| ReliefWeb | not read | registered, excluded | approved appname (23b) |
+| Cloudflare Radar | not read | not registered | token |
+| IODA | **unreadable** | not registered | licence text (24) |
+| HDX HAPI | not read | not registered | bot block — email `hdx@un.org` |
+| IFES ElectionGuide | not read | not registered | access request |
+| IOM DTM | not read | not registered | **endpoint unknown — I inferred it (27)** |
+| UN voting | not read | not registered | **endpoint unknown — I inferred it (27)** |
+
+**3 through the gate. 2 registered and parked. 6 blocked before registration.**
+
+Five licences were read: three permitted conversion, one (FEWS NET) revealed a per-record
+policy the source-level licence does not cover, and one (IODA) could not be found at all.
+**Every licence read contradicted the plan document** — always in the permissive direction.

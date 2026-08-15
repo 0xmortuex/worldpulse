@@ -1218,3 +1218,45 @@ endpoint arrives, the gate discipline that took FIRMS, OONI and Feodo through ap
 **Everything else in the goal is met:** items 1 and 3 complete, per-source gate tables in
 `PROGRESS.md`, `typecheck` exit 0, 777 tests with a clean census, a full `verify` table showing
 only the known L9 cluster, and a clean tree.
+
+---
+
+## 27. Two Phase A endpoints were inferred by me, and that is the blocker
+
+**2026-08-15.** `SPEC-EXPANSION.md` names *"IOM DTM"* and *"UN General Assembly voting"* as
+sources. It names no endpoints. **I chose both URLs myself**, and both failed — which makes the
+failure mine rather than the sources'.
+
+### IOM DTM
+
+I tried `dtmapi.iom.int/api/common/GetAllCountryList`, then `/api/Common/GetAllCountryList`,
+`/api/IdpAdmin0Data/...`, the root `/`, and five conventional OpenAPI paths
+(`/swagger/v1/swagger.json`, `/swagger/index.html`, `/openapi.json`, `/api-docs`,
+`/api/swagger.json`).
+
+**Every one returns the same JSON envelope:** `{"statusCode":404,"message":"Resource not
+found"}`. The host is alive and serving a structured API; it exposes no discovery mechanism I
+can reach, and nothing I have tried is a documented path.
+
+### UN General Assembly voting
+
+I tried `digitallibrary.un.org/search?…&of=recjson`, which returns **202 with an empty body, no
+`Retry-After` and no `Location`** — accepted but not answered, with no exposed way to collect
+the result.
+
+### Why this is recorded rather than solved by more attempts
+
+**After three distinct failures, a fourth guess is inference.** That is the same discipline
+applied to FEWS NET's IPC endpoints and to Feodo's licence: when the convenient reading has been
+wrong repeatedly, guessing again is not persistence, it is the error the project keeps catching.
+
+Both sources are almost certainly reachable by someone holding the documentation. Neither is
+blocked by a credential, a rate limit or a wall — only by not knowing the address.
+
+**What would settle each:** the documented base path for the DTM API, and confirmation of which
+UN voting dataset is intended (the Digital Library's async search is one candidate; there are
+published voting datasets that are plain files, and those would be a different integration
+entirely).
+
+**Recorded as a research task, not a defect.** No adapter was written against a guessed
+endpoint, which is the outcome L15 and rule 3 both point at.
