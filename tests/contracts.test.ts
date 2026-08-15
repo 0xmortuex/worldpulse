@@ -13,6 +13,7 @@ import * as eia from '../src/sources/eia';
 import * as comtrade from '../src/sources/comtrade';
 import * as fx from '../src/sources/exchangerate';
 import * as firms from '../src/sources/firms';
+import * as ooni from '../src/sources/ooni';
 import * as portwatch from '../src/sources/portwatch';
 import * as whoDon from '../src/sources/who-don';
 import * as unhcr from '../src/sources/unhcr';
@@ -714,5 +715,43 @@ describe('the four flags that claimed live without live coverage', () => {
       assert.equal(rendered.includes(term), false, `rendered text used "${term}"`);
     }
     assert.equal(fact.tier, 'DERIVED', 'a count of detections is not a count of fires');
+  });
+
+  /**
+   * OONI — the partition and the three-way distinction are the contract.
+   *
+   * `measurement_count` is the total and its four components sit beside it with
+   * nothing flagging which is which. If OONI ever adds a category, `parse`
+   * throws rather than letting anything sum them wrongly.
+   */
+  it('ooni: categories partition the total, and cause is never asserted', async () => {
+    const sample = await liveOrInconclusive('ooni');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const buckets = ooni.parse(body);
+
+    for (const bucket of buckets) {
+      assert.match(bucket.bucketStart, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+      assert.equal(
+        bucket.ok + bucket.anomaly + bucket.confirmed + bucket.failure,
+        bucket.measurements,
+        `${bucket.bucketStart} does not partition`,
+      );
+    }
+
+    // Rolling up must conserve every count.
+    assert.deepEqual(ooni.totals(ooni.byDay(buckets)), ooni.totals(buckets));
+
+    /**
+     * The share reports only what OONI CONFIRMED. An anomaly is unconfirmed by
+     * OONI's own definition, and a failure says nothing either way — so the note
+     * must name all three or a reader takes one number for the whole picture.
+     */
+    const fact = ooni.confirmedShareFact(buckets, ctx);
+    if (buckets.length > 0) {
+      assert.equal(fact.tier, 'OFFICIAL');
+      assert.match(fact.note ?? '', /not confirmed/i);
+      assert.match(fact.note ?? '', /says nothing either way/i);
+    }
   });
 });

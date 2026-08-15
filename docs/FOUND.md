@@ -1239,3 +1239,52 @@ was a lie — both were incomplete in the direction that would have made the wor
 **The rule this batch is now run under:** a licence is read until it names a specific instrument.
 "Creative Commons", "open", "free to use" and "public domain" are leads. `CC BY-NC-SA 4.0` is a
 licence.
+
+---
+
+## `measurement_start_day` is hourly
+
+**Measured 2026-08-15.** OONI's aggregation endpoint, asked for a seven-day window with
+`axis_x=measurement_start_day`, returns **168 rows — 24 per date**. The values are full instants:
+`2026-08-08T00:00:00Z`, `…T01:00:00Z`, `…T02:00:00Z`.
+
+The field is named `day` and delivers hours.
+
+**The adapter's first draft did `day.slice(0, 10)`** — the obvious reading of the obvious name.
+That produces 24 rows sharing one `day` value, and a chart keyed on it draws 168 points labelled
+as seven days. Nothing throws; the numbers are all real; the axis is wrong by 24×.
+
+**The fix was not to rename the variable.** The field is now `bucketStart`, keeps its full
+instant, and any roll-up goes through a named `byDay` function — so a reader can tell whether
+they are looking at 168 hours or 7 days, and the aggregation is visible at the place it happens
+rather than implied by a truncation somewhere downstream.
+
+**Third instance this week of a field whose name is a claim.** Ember's `is_aggregate_series`
+means "sum of other series" rather than "not a source"; Comtrade's `isReported` describes the
+aggregated row rather than the data beneath it; now this. **A field name is documentation, and
+documentation drifts from its subject.** The measurement is what settles it.
+
+---
+
+## OONI's four categories partition a total that sits beside them
+
+Rule 38 asked for the aggregate discriminator. OONI's is real but unflagged: `measurement_count`
+is the total, and `ok_count`, `anomaly_count`, `confirmed_count` and `failure_count` are its
+components — in the same object, with nothing in the naming to say which is which.
+
+```
+143 anomaly + 219 confirmed + 35 failure + 324 ok = 721 = measurement_count
+```
+
+A consumer summing all five gets **exactly twice** the truth, which is the rule-38 signature: not
+wrong-looking, just big.
+
+`parse` asserts the partition on every row. That is stronger than filtering the total out,
+because it also catches the case that would otherwise be silent — OONI adding a fifth category,
+after which the four would no longer account for the whole and anything summing them would
+under-count without any field having changed name or type.
+
+**The three-way distinction is the other half.** `confirmed` is OONI's own finding of blocking,
+`anomaly` is explicitly unconfirmed, `failure` is a network error that says nothing either way.
+Flattening them into "blocked" would be this app asserting a cause the source declined to
+assert, and the rendered note names all three so one number cannot be read as the whole picture.

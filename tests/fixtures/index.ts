@@ -14,6 +14,7 @@ import congressBills from './congress-bills.json';
 import eiaElectricity from './economy/eia-electricity-2023.json';
 import comtradeUsa from './economy/comtrade-usa-2023-exports.json';
 import exchangerateUsd from './economy/exchangerate-usd.json';
+import ooniIr from './risk/ooni-ir.json';
 import { readFileSync as readFixture } from 'node:fs';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
@@ -31,6 +32,7 @@ import { buildAnnualUrl as eiaAnnualUrl } from '../../src/sources/eia';
 import { buildAnnualTradeUrl } from '../../src/sources/comtrade';
 import { buildQuotesUrl } from '../../src/sources/exchangerate';
 import { buildAreaUrl as firmsAreaUrl } from '../../src/sources/firms';
+import { buildAggregationUrl as ooniUrl } from '../../src/sources/ooni';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -264,6 +266,24 @@ export const FIXTURES: Record<string, Fixture> = {
     requestUrl: firmsAreaUrl({ source: 'VIIRS_NOAA20_NRT', bbox: [-10, 30, 40, 46], dayRange: 1 }),
     body: readFixture(new URL('./layers/firms-med.csv', import.meta.url), 'utf8'),
     bodyIsText: true,
+  },
+
+  /**
+   * Iran, seven days of HOURLY buckets — captured live 2026-08-15 through
+   * `buildAggregationUrl` (rule 26) and run through `parse` first.
+   *
+   * A high-volume country on purpose. The capture carries confirmed blocks,
+   * anomalies AND failures in every one of its 168 buckets, so the three-way
+   * distinction the adapter exists to preserve is exercised rather than assumed.
+   * A quiet country would have produced 168 rows of zeros and proved nothing.
+   *
+   * It is also what showed that `measurement_start_day` is hourly: 168 rows for
+   * a seven-day window, 24 per date.
+   */
+  ooni: {
+    sourceId: 'ooni',
+    requestUrl: ooniUrl({ countryCode: 'IR', since: '2026-08-08', until: '2026-08-15' }),
+    body: ooniIr,
   },
 
   'cisa-kev': {
