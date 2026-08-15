@@ -784,3 +784,49 @@ not to add a claim of our own in either direction.
 **Outstanding:** the methodology line has no home yet. Ember is adapter-only — no surface
 renders it (the PortWatch precedent) — so the line lands with the surface that first shows an
 Ember figure, and this entry is what that work is checked against.
+
+---
+
+## 19. Two key-gated sources whose authentication cannot be established from here
+
+**Raised 2026-08-15** while measuring auth mechanisms for the conversion queue. Four of six were
+settled by measurement. These two were not, for different reasons, and neither is fixable by
+guessing.
+
+### `theyvoteforyou` — every mechanism refused
+
+Ten candidates tried against the registered probe URL: `?api_key=`, `?apikey=`, `?key=`,
+`?access_key=`, `?subscription-key=`, `Authorization: Bearer`, `Authorization: ApiKey`,
+`X-Api-Key`, `Ocp-Apim-Subscription-Key`, and unauthenticated. **All ten returned 403 with an
+HTML body** — not a JSON error naming the problem, which would have distinguished them.
+
+**Two explanations fit equally and cannot be separated from here:**
+
+| | What it would mean |
+| --- | --- |
+| The mechanism is none of the ten | A different parameter name or header, or a path/host that differs from the probe URL |
+| **The key value is not valid** | Expired, mistyped, or issued for a different environment |
+
+**No `keyParam` is declared.** Guessing one would send the key wrongly and fail as a plain 403 —
+indistinguishable from having no key, which is the failure this project spent a day untangling
+in file form.
+
+**What would settle it:** confirmation that the key is currently valid, or the documented
+parameter name from the account page. Either collapses this to a one-line registry change.
+
+### `opensanctions` — the probe URL cannot measure authentication
+
+Its registered `probeUrl` answers **200 unauthenticated** with `{status}` — a health check. So
+every candidate mechanism "succeeds", and the sweep can prove nothing: an endpoint that never
+refuses cannot tell you what it accepts.
+
+**This is not a failure of the key.** The key is present and filled. The measurement is simply
+being taken at a URL that has no authentication to exercise.
+
+**What would settle it:** a real data endpoint to measure against, which is a decision about
+which OpenSanctions dataset this app actually wants — and that is the adapter's question, not
+the prober's. It should be answered when the adapter is written, not before.
+
+**Recorded rather than worked around** because a plausible `keyParam` on either source would
+look identical to a measured one in the registry, and the whole point of declaring the
+mechanism was that it be measured.

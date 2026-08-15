@@ -1,8 +1,13 @@
 {
-  "probedAt": "2026-08-15T12:58:18.822Z",
+  "probedAt": "2026-08-15T13:50:55.910Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "ember-electricity"
+    "exchangerate-host",
+    "comtrade",
+    "congress-gov",
+    "theyvoteforyou",
+    "opensanctions",
+    "eia"
   ],
   "counts": {
     "CLIENT-FETCH": 27,
@@ -860,10 +865,10 @@
       "url": "https://api.exchangerate.host/live?source=USD",
       "keyRequired": true,
       "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
-      "licenseClass": "restricted",
+      "licenseClass": "restricted-minimal",
       "preflight": {
         "status": 200,
-        "ms": 1004,
+        "ms": 868,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
@@ -871,20 +876,21 @@
       },
       "get": {
         "status": 200,
-        "ms": 816,
+        "ms": 803,
         "contentType": "application/json; Charset=UTF-8",
-        "bytes": 193,
+        "bytes": 3369,
         "truncated": false,
         "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*",
           "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
         },
-        "cacheControl": "no-cache"
+        "cacheControl": null
       },
       "verdict": "KEY-GATED",
       "reason": "Public key VITE_EXCHANGERATE_HOST_KEY; ACAO observed: *.",
-      "probedAt": "2026-08-14T12:36:19.729Z"
+      "keyed": true,
+      "probedAt": "2026-08-15T13:50:55.910Z"
     },
     {
       "id": "comtrade",
@@ -893,15 +899,15 @@
       "url": "https://comtradeapi.un.org/data/v1/get/C/A/HS?reporterCode=842&period=2023&flowCode=X",
       "keyRequired": true,
       "keyEnv": "COMTRADE_KEY",
-      "licenseClass": "restricted",
+      "licenseClass": "restricted-minimal",
       "preflight": {
         "status": 200,
-        "ms": 2482,
+        "ms": 2345,
         "cors": {}
       },
       "get": {
         "status": 200,
-        "ms": 617,
+        "ms": 545,
         "contentType": null,
         "bytes": 0,
         "truncated": false,
@@ -911,7 +917,8 @@
       },
       "verdict": "KEY-GATED",
       "reason": "Key COMTRADE_KEY is server-side; routed through the Worker regardless of ACAO (observed: none).",
-      "probedAt": "2026-08-14T12:36:19.729Z"
+      "keyed": true,
+      "probedAt": "2026-08-15T13:50:55.910Z"
     },
     {
       "id": "congress-gov",
@@ -923,26 +930,27 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1716,
+        "ms": 1737,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
-        "status": 403,
-        "ms": 1285,
+        "status": 200,
+        "ms": 1161,
         "contentType": "application/json",
-        "bytes": 133,
+        "bytes": 1985,
         "truncated": false,
         "contentLength": null,
         "cors": {
           "access-control-allow-origin": "*"
         },
-        "cacheControl": null
+        "cacheControl": "public, max-age=1800"
       },
       "verdict": "KEY-GATED",
       "reason": "Key CONGRESS_GOV_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
-      "probedAt": "2026-08-14T12:36:19.729Z"
+      "keyed": true,
+      "probedAt": "2026-08-15T13:50:55.910Z"
     },
     {
       "id": "uk-commons-votes",
@@ -1219,12 +1227,12 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 562,
+        "ms": 567,
         "cors": {}
       },
       "get": {
         "status": 403,
-        "ms": 82,
+        "ms": 101,
         "contentType": "text/html; charset=UTF-8",
         "bytes": 5795,
         "truncated": false,
@@ -1234,7 +1242,9 @@
       },
       "verdict": "KEY-GATED",
       "reason": "Key THEYVOTEFORYOU_KEY is server-side; routed through the Worker regardless of ACAO (observed: none).",
-      "probedAt": "2026-08-14T12:36:19.729Z"
+      "keyed": false,
+      "keyReason": "THEYVOTEFORYOU_KEY is set, but the registry does not declare HOW this source takes its key. Add \"keyParam\" with the query parameter name once the mechanism has been measured",
+      "probedAt": "2026-08-15T13:50:55.910Z"
     },
     {
       "id": "ofac-sdn",
@@ -1306,7 +1316,7 @@
       "licenseClass": "nc",
       "preflight": {
         "status": 200,
-        "ms": 542,
+        "ms": 549,
         "cors": {
           "access-control-allow-origin": "https://worldpulse.pages.dev",
           "access-control-allow-methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
@@ -1317,7 +1327,7 @@
       },
       "get": {
         "status": 200,
-        "ms": 571,
+        "ms": 507,
         "contentType": "application/json",
         "bytes": 15,
         "truncated": false,
@@ -1330,7 +1340,9 @@
       },
       "verdict": "KEY-GATED",
       "reason": "Key OPENSANCTIONS_KEY is server-side; routed through the Worker regardless of ACAO (observed: https://worldpulse.pages.dev).",
-      "probedAt": "2026-08-14T12:36:19.729Z"
+      "keyed": false,
+      "keyReason": "OPENSANCTIONS_KEY is set, but the registry does not declare HOW this source takes its key. Add \"keyParam\" with the query parameter name once the mechanism has been measured",
+      "probedAt": "2026-08-15T13:50:55.910Z"
     },
     {
       "id": "state-dept-advisories",
@@ -1424,26 +1436,29 @@
       "licenseClass": "open",
       "preflight": {
         "status": 403,
-        "ms": 1508,
+        "ms": 1746,
         "cors": {
           "access-control-allow-origin": "*"
         }
       },
       "get": {
-        "status": 403,
-        "ms": 1030,
+        "status": 200,
+        "ms": 16653,
         "contentType": "application/json",
-        "bytes": 163,
+        "bytes": 1471,
         "truncated": false,
-        "contentLength": null,
+        "contentLength": "631",
         "cors": {
-          "access-control-allow-origin": "*"
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
+          "access-control-allow-headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Params"
         },
         "cacheControl": null
       },
       "verdict": "KEY-GATED",
       "reason": "Key EIA_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
-      "probedAt": "2026-08-14T12:36:19.729Z"
+      "keyed": true,
+      "probedAt": "2026-08-15T13:50:55.910Z"
     },
     {
       "id": "portwatch-chokepoints",

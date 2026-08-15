@@ -632,11 +632,12 @@
       "tier": "ESTIMATE",
       "keyRequired": true,
       "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
-      "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode.",
+      "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode. AUTH MEASURED 2026-08-15: ?access_key=. THIS SOURCE RETURNS HTTP 200 FOR ERRORS -- unauthenticated gives {success,error}, keyed gives {success,terms,privacy,timestamp,source}. Same status, different shape. Any check that scores success on the status code will read a working key as a broken one, and an adapter must key on the body. VITE_-prefixed and therefore PUBLIC by design: this key is inlined into the bundle, so it must never be one that grants anything beyond the free tier.",
       "verifiedAgainst": "documentation",
       "origin": "https://api.exchangerate.host",
       "transport": "worker",
-      "schemaVersion": 1
+      "schemaVersion": 1,
+      "keyParam": "access_key"
     },
     {
       "id": "comtrade",
@@ -652,11 +653,12 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "COMTRADE_KEY",
-      "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor.",
+      "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor. AUTH MEASURED 2026-08-15: ?subscription-key= (200) and Ocp-Apim-Subscription-Key header (200) both accepted; unauthenticated 401. Azure API Management, so the parameter name is the gateway's rather than Comtrade's.",
       "verifiedAgainst": "documentation",
       "origin": "https://comtradeapi.un.org",
       "transport": "worker",
-      "schemaVersion": 1
+      "schemaVersion": 1,
+      "keyParam": "subscription-key"
     },
     {
       "id": "congress-gov",
@@ -676,7 +678,9 @@
       "verifiedAgainst": "documentation",
       "origin": "https://api.congress.gov",
       "transport": "worker",
-      "schemaVersion": 1
+      "schemaVersion": 1,
+      "keyParam": "api_key",
+      "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403. keyParam declares the query form because that is what the Worker appends and what the prober can apply."
     },
     {
       "id": "uk-commons-votes",
@@ -862,7 +866,8 @@
       "verifiedAgainst": "documentation",
       "origin": "https://theyvoteforyou.org.au",
       "transport": "worker",
-      "schemaVersion": 1
+      "schemaVersion": 1,
+      "notes": "AUTH UNDETERMINED 2026-08-15: every candidate mechanism returned 403 with an HTML body -- ?api_key=, ?apikey=, ?key=, ?access_key=, ?subscription-key=, Authorization: Bearer, Authorization: ApiKey, X-Api-Key, Ocp-Apim-Subscription-Key, and unauthenticated. No keyParam is declared, because guessing one would send the key wrongly and fail as a plain 403 -- indistinguishable from having no key. The key value may itself be invalid; that is not distinguishable from here. See OPEN-QUESTIONS 19."
     },
     {
       "id": "ofac-sdn",
@@ -916,7 +921,7 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "OPENSANCTIONS_KEY",
-      "notes": "Non-commercial only. Optional enrichment on top of OFAC and EU primary lists, isolated behind its own adapter.",
+      "notes": "Non-commercial only. Optional enrichment on top of OFAC and EU primary lists, isolated behind its own adapter. AUTH UNMEASURABLE FROM THE PROBE URL 2026-08-15: the registered probeUrl answers 200 unauthenticated with {status}, so it exercises no authentication and every mechanism appears to \"work\". Measuring this needs a real data endpoint, not a health check. No keyParam declared. See OPEN-QUESTIONS 19.",
       "verifiedAgainst": "documentation",
       "origin": "https://api.opensanctions.org",
       "transport": "worker",
@@ -995,7 +1000,9 @@
       "verifiedAgainst": "documentation",
       "origin": "https://api.eia.gov",
       "transport": "worker",
-      "schemaVersion": 1
+      "schemaVersion": 1,
+      "keyParam": "api_key",
+      "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403."
     },
     {
       "id": "globalfirepower",

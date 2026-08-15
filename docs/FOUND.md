@@ -914,3 +914,25 @@ output gets read as a measurement.
 The shape difference is what caught it, and only because the sweep printed shapes beside
 statuses. Had it printed the verdict alone, `exchangerate-host` would have been recorded as
 having no usable mechanism.
+
+---
+
+## A probe status of 200 is not evidence the key worked
+
+**2026-08-15.** Re-probing the conversion queue with keys applied, the table reads well:
+`congress-gov` 403 → **200**, `eia` 403 → **200**. Both are real: those APIs refuse
+unauthenticated requests and answer authenticated ones.
+
+**`exchangerate-host` also reads 200 — and read 200 before the key existed.** It returns HTTP
+200 for errors, so the probe's status column cannot distinguish a working key from a missing one
+for this source. Its row is not evidence about authentication in either direction.
+
+**The verdict is unaffected**, because `KEY-GATED` is a transport decision — a secret key beats a
+permissive ACAO — and is a property of the source rather than of the response. But anyone
+reading the probe table to answer "did the key work" will be right for five sources and wrong
+for this one, and nothing in the table says which.
+
+**Recorded rather than fixed**, because the fix is an adapter-level judgement: only something
+that knows the response shape can tell success from an error envelope, and the prober
+deliberately knows nothing about shapes. It is written into the source's registry notes so the
+adapter author meets it before they meet the bug.
