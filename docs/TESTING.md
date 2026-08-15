@@ -1546,3 +1546,69 @@ of the answers was right.
 
 So the discriminator must be checked against what it *means*, not against whether the output
 currently looks correct.
+
+---
+
+## 39. A comment that predicts a specific future mistake does work no test can do
+
+**Evidence: one day of latency between the prediction and the attempt.**
+
+`portwatch.ts` carried this beside its two tier decisions:
+
+> Rendering `capacity` as OFFICIAL would assert a measured tonnage the source itself calls an
+> estimate. **A future session tempted to "simplify" both families to one tier is reading two
+> different kinds of number as one.**
+
+The next day, writing PortWatch's missing live contract check, I asserted that a transit count
+was `ESTIMATE` — collapsing exactly those two families, for exactly the reason predicted. The
+comment was right about who, about what, and about why.
+
+**There is no test for a change nobody has made yet.** A test pins behaviour that exists; this
+kind of comment pins a *decision*, and decisions are what later sessions overwrite while
+believing they are simplifying. The comment is the only artefact that can address someone who
+has not arrived yet.
+
+### What makes such a comment work
+
+1. **Name the tempting change**, not the current behaviour. "These are different tiers" is
+   documentation. "Someone will want to merge these, and here is why they must not" is a guard.
+2. **Say who will be tempted and when.** A future session, mid-refactor, seeing two similar
+   fields.
+3. **Give the consequence in the reader's terms** — here, asserting a measured tonnage the
+   source itself calls an estimate.
+
+### And when the prediction fires, fix the invariant rather than the instance
+
+The failed draft asserted one tier. The correction asserts **both**, so what is now pinned is
+the *distinction* — the two families drifting into one — rather than either tier alone. That is
+rule 25 applied to one's own mistake: the fix should assert the thing that was really at stake,
+which is usually more general than what failed.
+
+---
+
+## 40. A two-state assertion must report which states its sample actually contained
+
+**Composes rule 10's positive control with rule 16's decaying check.**
+
+A check that reported zeros stay distinct from absences is only as exercised as its sample. If a
+live response happens to contain no absences, the assertion runs, passes, and has proven
+nothing — and nothing says so. Over time that check becomes a green tick with no content, which
+is rule 16's failure arriving slowly instead of at once.
+
+**The rule:** an assertion that distinguishes two states counts both in its sample, and **says
+so loudly when the sample is one-sided.** Not a failure — a one-sided sample is usually the
+world's fault, not the code's — but never silent.
+
+```
+unhcr: live sample had 412 reported zeros and 0 absences —
+the zero-versus-absent distinction was not exercised this run
+```
+
+**Applies to every rule-30 check as it is touched:** zeros versus empty, reported versus dash,
+known versus unknown. Each is only as exercised as its worst sample, and the worst sample
+arrives on a day nobody is watching.
+
+**Why stderr rather than a failure.** A source that legitimately reports no absences this week
+has not broken anything, and failing the run would train people to ignore it — rule 15's
+lesson. What must not happen is the check reporting success in a voice indistinguishable from a
+check that actually discriminated.
