@@ -718,3 +718,50 @@ across six runs. They vary. The rule had already identified the mechanism — `c
 an extra `clickable` check when a click fails — and had not followed it through: that check has
 to land inside some step, so it inflates that step as well as the total. Six runs happened not
 to expose the inconsistency.
+
+---
+
+## 17. Ember's tier is OFFICIAL at source level and cannot be narrowed per row
+
+**Raised 2026-08-15 while building the Ember adapter.** Ember compiles yearly electricity
+generation from national statistical publications and system operators — a primary chain, so
+`OFFICIAL` rather than `ESTIMATE`.
+
+**But the v1 API carries no per-row provenance flag.** Its rows expose `entity`, `entity_code`,
+`is_aggregate_entity`, `date`, `series`, `is_aggregate_series`, `generation_twh` and
+`share_of_generation_pct` — and nothing distinguishing a figure a country reported from one
+Ember modelled or back-filled, which its methodology says happens for some country-years.
+
+So the adapter marks every row `OFFICIAL`, and that is a property of the SOURCE, not a claim
+about the row. Marking everything `ESTIMATE` would be equally wrong in the other direction and
+would understate the reported majority.
+
+**Why this is recorded rather than decided:** the tier system exists to stop exactly this kind
+of blur, and here the blur is in the upstream data rather than in our handling. The honest
+options are to leave it as-is with the limit written down, or to introduce a tier meaning
+"primary source, per-row provenance unavailable" — which is close to what `UNVERIFIED` was added
+for and may be its second real use.
+
+**What would settle it:** a per-row flag from Ember, or a published list of estimated
+country-years that could be joined against. Neither is in the v1 API today.
+
+---
+
+## 18. `npm run probe` does not run on Windows
+
+**Raised 2026-08-15.** The script is `NODE_USE_ENV_PROXY=1 node --env-file-if-exists=.env
+scripts/probe-sources.mjs`. npm spawns scripts through `cmd.exe` on this machine, which does not
+understand a POSIX environment-variable prefix, so the command fails immediately with
+`'NODE_USE_ENV_PROXY' is not recognized`.
+
+**Not fixed in the commit that found it.** The tempting one-liner — moving the flag into
+`probe-sources.mjs` as `process.env.NODE_USE_ENV_PROXY ??= '1'` — changes proxy behaviour for
+DIRECT invocations too, and a network-semantics change should not ride along in a commit about
+keys.
+
+**Shape of the fix:** a cross-platform launcher — `cross-env` as a dev dependency, or a small
+node wrapper that sets the variable and spawns the prober — in its own commit, so the change to
+what the proxy does is visible as its own decision.
+
+**Until then:** run it directly, which works —
+`NODE_USE_ENV_PROXY=1 node --env-file-if-exists=.env scripts/probe-sources.mjs <id>`.

@@ -1,0 +1,380 @@
+{
+  "stats": {
+    "timestamp": "2026-08-15T13:17:07.802225Z",
+    "response_time_in_seconds": 0.236,
+    "rate_limit": "No",
+    "number_of_records": 34,
+    "query_parameters_used": {
+      "entity_code": [
+        "AUT"
+      ],
+      "start_date": [
+        "2022"
+      ],
+      "end_date": [
+        "2023"
+      ]
+    },
+    "available_metrics": [
+      "generation_twh",
+      "share_of_generation_pct"
+    ],
+    "query_value_range": {
+      "date": {
+        "min": "2022",
+        "max": "2023"
+      },
+      "generation_twh": {
+        "min": -0.07,
+        "max": 73.17
+      },
+      "share_of_generation_pct": {
+        "min": -0.1,
+        "max": 113.5
+      }
+    },
+    "query_all_dates_value_range": {}
+  },
+  "data": [
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Bioenergy",
+      "is_aggregate_series": false,
+      "generation_twh": 4.75,
+      "share_of_generation_pct": 7.37
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Clean",
+      "is_aggregate_series": true,
+      "generation_twh": 50.41,
+      "share_of_generation_pct": 78.19
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Coal",
+      "is_aggregate_series": false,
+      "generation_twh": 0,
+      "share_of_generation_pct": 0
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Demand",
+      "is_aggregate_series": true,
+      "generation_twh": 73.17,
+      "share_of_generation_pct": 113.5
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Fossil",
+      "is_aggregate_series": true,
+      "generation_twh": 14.06,
+      "share_of_generation_pct": 21.81
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Gas",
+      "is_aggregate_series": false,
+      "generation_twh": 10.85,
+      "share_of_generation_pct": 16.83
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Hydro",
+      "is_aggregate_series": false,
+      "generation_twh": 34.63,
+      "share_of_generation_pct": 53.72
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Hydro, bioenergy and other renewables",
+      "is_aggregate_series": true,
+      "generation_twh": 39.38,
+      "share_of_generation_pct": 61.08
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Net imports",
+      "is_aggregate_series": false,
+      "generation_twh": 8.7,
+      "share_of_generation_pct": 13.5
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Nuclear",
+      "is_aggregate_series": false,
+      "generation_twh": 0,
+      "share_of_generation_pct": 0
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Other fossil",
+      "is_aggregate_series": false,
+      "generation_twh": 3.21,
+      "share_of_generation_pct": 4.98
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Other renewables",
+      "is_aggregate_series": false,
+      "generation_twh": 0,
+      "share_of_generation_pct": 0
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Renewables",
+      "is_aggregate_series": true,
+      "generation_twh": 50.41,
+      "share_of_generation_pct": 78.19
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Solar",
+      "is_aggregate_series": false,
+      "generation_twh": 3.79,
+      "share_of_generation_pct": 5.88
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Total generation",
+      "is_aggregate_series": true,
+      "generation_twh": 64.47,
+      "share_of_generation_pct": 100
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Wind",
+      "is_aggregate_series": false,
+      "generation_twh": 7.24,
+      "share_of_generation_pct": 11.23
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2022",
+      "series": "Wind and solar",
+      "is_aggregate_series": true,
+      "generation_twh": 11.03,
+      "share_of_generation_pct": 17.11
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Bioenergy",
+      "is_aggregate_series": false,
+      "generation_twh": 4.56,
+      "share_of_generation_pct": 6.42
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Clean",
+      "is_aggregate_series": true,
+      "generation_twh": 60.16,
+      "share_of_generation_pct": 84.76
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Coal",
+      "is_aggregate_series": false,
+      "generation_twh": 0,
+      "share_of_generation_pct": 0
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Demand",
+      "is_aggregate_series": true,
+      "generation_twh": 70.91,
+      "share_of_generation_pct": 99.9
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Fossil",
+      "is_aggregate_series": true,
+      "generation_twh": 10.82,
+      "share_of_generation_pct": 15.24
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Gas",
+      "is_aggregate_series": false,
+      "generation_twh": 7.5,
+      "share_of_generation_pct": 10.57
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Hydro",
+      "is_aggregate_series": false,
+      "generation_twh": 40.67,
+      "share_of_generation_pct": 57.3
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Hydro, bioenergy and other renewables",
+      "is_aggregate_series": true,
+      "generation_twh": 45.23,
+      "share_of_generation_pct": 63.72
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Net imports",
+      "is_aggregate_series": false,
+      "generation_twh": -0.07,
+      "share_of_generation_pct": -0.1
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Nuclear",
+      "is_aggregate_series": false,
+      "generation_twh": 0,
+      "share_of_generation_pct": 0
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Other fossil",
+      "is_aggregate_series": false,
+      "generation_twh": 3.32,
+      "share_of_generation_pct": 4.68
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Other renewables",
+      "is_aggregate_series": false,
+      "generation_twh": 0,
+      "share_of_generation_pct": 0
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Renewables",
+      "is_aggregate_series": true,
+      "generation_twh": 60.16,
+      "share_of_generation_pct": 84.76
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Solar",
+      "is_aggregate_series": false,
+      "generation_twh": 6.89,
+      "share_of_generation_pct": 9.71
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Total generation",
+      "is_aggregate_series": true,
+      "generation_twh": 70.98,
+      "share_of_generation_pct": 100
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Wind",
+      "is_aggregate_series": false,
+      "generation_twh": 8.04,
+      "share_of_generation_pct": 11.33
+    },
+    {
+      "entity": "Austria",
+      "entity_code": "AUT",
+      "is_aggregate_entity": false,
+      "date": "2023",
+      "series": "Wind and solar",
+      "is_aggregate_series": true,
+      "generation_twh": 14.93,
+      "share_of_generation_pct": 21.03
+    }
+  ]
+}

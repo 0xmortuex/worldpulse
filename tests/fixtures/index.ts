@@ -9,6 +9,7 @@ import portwatchChokepoints from './portwatch-chokepoints.json';
 import whoDon from './who-don.json';
 import unhcrPopulation from './unhcr-population.json';
 import cisaKev from './cisa-kev.json';
+import emberYearlyAut from './economy/ember-yearly-aut.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -19,6 +20,7 @@ import { buildChokepointQueryUrl } from '../../src/sources/portwatch';
 import { buildDonQueryUrl } from '../../src/sources/who-don';
 import { buildPopulationUrl } from '../../src/sources/unhcr';
 import { buildCatalogUrl } from '../../src/sources/cisa-kev';
+import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
 import type { FetchContext } from '../../src/sources/adapter';
 
 /**
@@ -128,6 +130,25 @@ export const FIXTURES: Record<string, Fixture> = {
    * mirror serves one file and offers no narrowing. Trimming it would make the
    * fixture describe a request nobody makes.
    */
+  /**
+   * Austria, captured live 2026-08-15 through `buildYearlyUrl` (rule 26).
+   *
+   * CHOSEN FOR ITS HAZARDS, not for being typical. Of the countries sampled it
+   * is the one carrying three at once: a negative `generation_twh`
+   * (`Net imports` −0.07), a `share_of_generation_pct` above 100 (`Demand`
+   * 113.5%), and six genuinely reported zeros. A tidy country would have made a
+   * fixture that proved nothing.
+   *
+   * The URL carries no key. Ember authenticates by query parameter, so the
+   * builder emits the keyless URL and the Worker appends the key — which is why
+   * a captured fixture can be committed at all.
+   */
+  'ember-electricity': {
+    sourceId: 'ember-electricity',
+    requestUrl: emberYearlyUrl({ iso3: 'AUT', startYear: 2022, endYear: 2023 }),
+    body: emberYearlyAut,
+  },
+
   'cisa-kev': {
     sourceId: 'cisa-kev',
     requestUrl: buildCatalogUrl(),
