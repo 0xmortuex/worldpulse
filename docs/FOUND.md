@@ -1822,3 +1822,315 @@ The background waiter watching the log was killed. That is a fact about the wait
 the correct response has been to ask the process's own artifacts — 5 node processes alive, the
 log advancing through mutation 1 of 12 — rather than to infer from the wrapper's status. **A
 wrapper reports the wrapper; only the process reports the process.**
+
+---
+
+## I contaminated a measurement by working during it, and the harness said so
+
+**2026-08-15.** A mutation run was launched in the background, and I kept editing the primary
+checkout while it ran — correcting an entity QID and re-recording the suite census. The harness
+finished and refused to stand behind its own output:
+
+```
+PRIMARY CHECKOUT NOT CLEAN after finishing:
+M data/wikidata-entities.json
+ M tests/suite-census.json
+
+The worktree was supposed to absorb every write. Something leaked into the real
+checkout — treat the results above as suspect and inspect the diff.
+```
+
+**The results were discarded and the suite re-run on a verified-clean tree.**
+
+### Why this is rule 20a and not merely untidiness
+
+A mutation run measures whether the suite catches a defect *in a specific tree*. Changing that
+tree mid-run means the twelve mutations were not all measured against the same code — the early
+ones saw one tree, the later ones another. **The number would still have looked like a result**:
+twelve rows, twelve verdicts, a timing table.
+
+It is the same error as comparing a commit against a flaky baseline, or timing a query while
+another query saturated the endpoint: **the instrument was not measuring one thing.**
+
+### The part worth keeping is why it felt safe
+
+The mutation harness works in a git worktree, which I knew, and that is exactly what made
+editing the main checkout feel harmless. It IS harmless to the mutation's own writes. What it is
+not harmless to is the harness's ability to *prove* nothing leaked — and the guard it uses for
+that proof is a diff of the primary checkout, which my edits made dirty.
+
+**Background work does not stop the tree from being the subject of a measurement.** Launching
+something long and then treating the repository as free is the specific habit, and it is
+attractive precisely because the run is elsewhere.
+
+### The follow-on, which is the same lesson pointed the other way
+
+Later in the same session a file needed committing while a replacement run was still in flight.
+The reflex from the incident above says *never touch the tree*. That reflex is a heuristic, and
+heuristics do not know mechanisms, so the harness was read instead:
+
+| Fact, from `scripts/mutation-check.mjs` | Consequence |
+| --- | --- |
+| `requireCleanCheckout` is called at exactly two points (577, 700) | there is no mid-run check to trip |
+| `trackedDirt` passes `--untracked-files=no` | a new file is invisible until it is staged |
+| `makeWorktree` is called once (579), `--detach ... HEAD` | the measured tree is pinned; later commits cannot move it |
+| `rev-parse HEAD` is read at 563, before the worktree | the reported commit is captured at the start |
+
+So committing a new file mid-run is safe **by mechanism**, and the commit went in. Recorded
+because the pair is the actual lesson: the first half is *do not assume it is safe*, and the
+second half is *do not assume it is unsafe either*. *Read the guard.* An unexamined caution
+costs real work and feels like diligence while it does it.
+
+---
+
+## Four shipped SPARQL queries can truncate silently, and none of them currently does
+
+**2026-08-15.** The cabinet query's truncation was found because `LIMIT 300` was hit exactly
+for the United Kingdom, and it now reports the hit. Its four sibling queries carry bare
+`LIMIT` literals with **no detection at all** — the fix was applied to the query where the
+defect was discovered rather than to the class of defect.
+
+**The prediction was that the judiciary query was already truncating.** `LIMIT 20`, one row
+per justice, and India's Supreme Court has 34 sanctioned judges. That is a specific,
+checkable claim, so it was checked rather than written up.
+
+### The measurement says no — for every country tried
+
+```
+shipped-query LIMIT characterisation — 2026-08-15T22:06:55Z
+query         iso   limit   rows   ms      verdict
+judiciary     IND   20      1      2225    under
+judiciary     USA   20      1      1225    under
+judiciary     GBR   20      2      1393    under
+judiciary     DEU   20      6      10081   under
+judiciary     BRA   20      1      1266    under
+legislature   GBR   200     5      931     under
+legislature   IND   200     4      933     under
+legislature   DEU   200     7      989     under
+legislature   BRA   200     14     1290    under
+legislature   ITA   200     5      857     under
+offices       GBR   200     27     815     under
+offices       FRA   200     23     387     under
+offices       USA   200     48     1075    under
+offices       ITA   200     80     1323    under
+
+0 limit hit(s)
+```
+
+**India's Supreme Court returns one row, not thirty-four**, and the reason was measured rather
+than guessed:
+
+```
+court via P209:            Q213380  Supreme Court of India
+P1308 officeholder rows:   0  (total, before any end-date filter)
+P1342 number of seats:     not recorded
+people via P39 positions:  2
+```
+
+So the bench is simply **not in Wikidata** in the shape the query asks for. The limit is nowhere
+near reached because there is almost nothing to return.
+
+### The part that is NOT a defect, checked before it was written up
+
+The obvious next sentence — "so the judiciary panel under-reports India" — was going to be
+written, and it is wrong. `judiciarySection` passes both fields through
+`wikidataFact(court.seats, …)` and `wikidataFact(court.chiefJustice?.name ?? null, …)`, so a
+missing bench renders as **`nodata`**, not as a confident blank. The court's name renders; the
+seat count and chief justice say they have no data; the section already carries a caveat saying
+the appointment mechanism is left blank rather than summarised from memory.
+
+**That is the system working exactly as designed on genuinely thin data**, and it would have
+been recorded as a defect if the rendering path had not been read. Two predictions in one
+finding, both refuted by measurement: the truncation that was not happening, and the
+under-reporting that was being disclosed properly.
+
+### Disposition: latent, guarded, not urgent
+
+Per the OPEN-QUESTIONS protocol a latent defect — real but not reachable by a user today — is
+**not** an emergency. It is fixed in place and the work continues. Detection is one line per
+query and the cabinet already proves the state is reachable, so the guard is worth having
+before a country grows into it rather than after.
+
+**The honest shape of this entry is that I predicted a specific failure and the measurement
+refuted it.** The prediction was reasonable and cheap to check; writing it up unchecked would
+have put a false fact about India's judiciary into the findings file, in the exact register the
+file exists to prevent. Rule 35's habit — prove the mechanism — applied to a defect claim rather
+than to an environmental one.
+
+---
+
+## The legislature query lists a parliament as a chamber of itself
+
+**2026-08-15, characterising fields for step 9.** Measuring which columns a Legislature tab
+could source turned up a country count that could not be right: **the United Kingdom returned
+three chambers.**
+
+```
+House of Commons                   chamber      seats=650    P31 house of commons
+House of Lords                     chamber      seats=808    P31 house of lords
+Parliament of the United Kingdom   << PARENT    seats=1433   P31 parliament
+                                                             P31 bicameral legislature
+```
+
+**The parent body is returned as a peer of its own two houses, carrying a seat count that is
+the other two added together.** A panel rendering that shows a bicameral legislature as
+tricameral and invites the reader to add 650 + 808 + 1433.
+
+New Zealand is the sharpest version, because it is unicameral:
+
+```
+New Zealand Parliament      PARENT     seats=120
+House of Representatives    chamber    seats=120
+```
+
+**The same 120 seats, rendered twice, as two different chambers.**
+
+### The mechanism, confirmed rather than inferred
+
+Two clauses combine:
+
+```sparql
+?body wdt:P527? ?chamber .                                    <- ZERO-or-one hop
+VALUES ?chamberType { wd:Q35749 wd:Q10553309 wd:Q375928 wd:Q637846 }
+```
+
+The `?` lets `?chamber` bind to `?body` itself, and **`Q35749` is "parliament"** — a whole
+legislature, not a chamber of one. So a parent that is an instance of parliament satisfies the
+filter meant to identify its children. The four VALUES entries are *parliament*, *legislative
+house*, *lower house*, *upper house*: three chamber kinds and one whole-body kind, sitting in
+one list as though they were the same category.
+
+### The obvious fix is wrong, and Iceland is why
+
+The immediate repair — drop the `?`, require a real `P527` hop — was checked before it was
+written, and it **loses Iceland entirely**:
+
+```
+ISL:  Althing    PARENT    seats=63     <- the ONLY row Iceland has
+```
+
+For a genuinely unicameral legislature, Wikidata models the body itself as the chamber, so the
+parent *is* the answer. Requiring a hop renders Iceland with zero chambers — trading a
+double-count for a disappearance, which is the worse of the two because it is silent.
+
+**The correct rule is relational, not structural:** keep the parent only when it has no
+matching children. This is the fourth time in this project that a bound which "looked
+convincing" would have dropped real data — the 3-hop minister walk that lost a UK minister is
+the same shape, caught the same way, by measuring after the fix rather than before.
+
+### Three rival repairs, measured against the cases that break them
+
+Chambers returned per country. **A** requires a real `P527` hop; **B** drops `Q35749`
+"parliament" from the type list; **C** is the relational `FILTER NOT EXISTS` that keeps a body
+only when no child of it is itself a chamber.
+
+| iso | current | A: require hop | B: drop parliament | **C: relational** |
+| --- | --- | --- | --- | --- |
+| GBR | **3** | 2 | 2 | **2** |
+| IND | **3** | 2 | 2 | **2** |
+| RWA | **3** | 2 | 2 | **2** |
+| NZL | **2** | 1 | **0** | **1** |
+| DEU | 2 | **0** | 2 | **2** |
+| ISL | 1 | **0** | **0** | **1** |
+| CHN | 1 | inconcl. | **0** | **1** |
+| LBY | 1 | **0** | **0** | **1** |
+| VAT | 1 | **0** | **0** | **1** |
+
+**Germany is the case neither rival survives and nobody would have predicted.** Its two
+chambers are each a *separate* `P194` of the country rather than children of one parent, so
+requiring a `P527` hop loses **both** — a G7 legislature rendering as zero chambers. That was
+not on the list of cases to check; it fell out of measuring all nine.
+
+What C returns is right in every case: GBR Lords 808 + Commons 650; NZL House of
+Representatives 120 once; DEU Bundestag 630 + Bundesrat 69; ISL Althing 63; VAT the Pontifical
+Commission 7.
+
+**Both rejected repairs were the ones that would have been written from reasoning alone**, and
+each is silently destructive in a different direction. The measurement cost three queries per
+country and settled it.
+
+### Two more things the same measurement turned up
+
+**`P2937` (legislative term) is recorded for 0 of 17 chambers** across ten countries. A term
+row would have rendered empty for every country in the app — the judiciary's `P1308` mistake,
+caught this time before anything was built on it rather than after. Coverage of the fields that
+survived: seats `P1342` 15/17 (88%), presiding officer `P488` 8/17 (47%).
+
+**Saudi Arabia returns zero chambers from the live query while the app ships a `SAU`
+legislature fixture.** Per D6 a live contradiction is a finding to investigate, not a fixture to
+update — so it was investigated, and the guess in the first draft of this paragraph ("the
+chamber-type list may not reach it") was wrong:
+
+```
+SAU wdt:P194  ->  Q62399316  "Government of Saudi Arabia"   P31 government
+
+can Q62399316 reach a chamber type?
+   wdt:P31                 false
+   wdt:P31/wdt:P279        false
+   wdt:P31/wdt:P279*       false      <- UNBOUNDED, still false
+
+entities linked to SAU by ANY property that reach a chamber type:  none
+
+Q818708  "Consultative Assembly of Saudi Arabia"   seats = 150     <- exists, unlinked
+```
+
+**Saudi Arabia's "legislative body" is its government.** The Consultative Assembly exists in
+Wikidata with its 150 seats recorded; nothing connects it to the country. So this is an
+**upstream data gap**, precisely located — not a query defect and not a bound that is too
+tight. The unbounded walk was tried specifically to rule the bounding work in or out, and it
+is ruled out.
+
+The fixture stays, per 20b: it is the deterministic input for the partial-party-breakdown
+invariant, and that invariant is real regardless of which country's name is on it. What
+changes is that the **live** path for SAU must render the absence rather than the fixture's
+content once step 10 converts the panel.
+
+### Disposition
+
+**Latent, not live.** The Government tab renders legislature fixtures today, so no user is
+currently shown a tricameral United Kingdom. It becomes live the moment step 10 converts the
+panel, and step 9 builds directly on this query — so it is fixed as part of item 2 rather than
+queued.
+
+---
+
+## The party bar has been drawing synthetic data because nothing real can reach it
+
+**2026-08-15.** Following the chamber fix, the party-composition clause was measured properly
+for the first time. It reads `P527` — *has part(s)* — and calls whatever comes back a party.
+
+Across GBR, ISL, DEU, NZL, IND, FRA, ESP and SWE it returned the Monarch of the United Kingdom,
+the Bundesrat Library, the Enquete Commission on Afghanistan, the Finance Committee of the
+French National Assembly, several parliamentary offices, and bare Q-ids. **Zero political
+parties.** Constraining `?party` to be one returns zero rows everywhere.
+
+**So `partyBreakdownIsComplete` has never returned true for a real country**, and cannot: it
+requires every party to carry a seat count summing to the chamber total, and there are no
+parties. The stacked bar renders only against `legislature-bicameral.json`, whose parties are
+named "Fixture Labour" and "Fixture Conservative" and whose seats sum to 650 exactly because
+someone wrote them that way.
+
+The fixtures are correctly synthetic per D6 — the invariant is which rule fires, not who the
+parties are. What is wrong is **rule 33**: a synthetic input must describe a state the real
+system can reach, and this one describes a state no live capture has ever produced or could.
+
+Another **built, tested, uncalled** path, and the third this session. The pattern each time is
+that every individual check is honest about its own scope: the unit tests exercise the bar, the
+fixture is a legitimate synthetic input, the completeness guard genuinely guards. Nothing is
+vacuous. **The tests run the branch; the app never does.**
+
+Disposition: the clause now constrains to real parties, so the live panel states its absence
+instead of rendering a library as a party. The sourcing decision is OPEN-QUESTIONS 30, with
+`P1410` measured as the most promising route — Germany returns *CDU/CSU Bundestag fraction =
+246* — and the United Kingdom returning constituencies from the same property, which is why it
+is a goal rather than a patch.
+
+### The self-inflicted part
+
+Two probes of the member-counting route used position QIDs recalled from memory. Iceland's
+supposed "Althing membership" returned **Tories, Whigs and Roundheads** — seventeenth-century
+English factions. That is the exact failure `tests/entity-verification.test.ts` was written to
+prevent, committed by its author within the same session, in a scratch script where no guard
+runs. The guard covers the entity table; it does not cover my hands. The one QID added to the
+table today was verified live *before* being written, by a script that refuses to write on a
+label mismatch or zero instances.

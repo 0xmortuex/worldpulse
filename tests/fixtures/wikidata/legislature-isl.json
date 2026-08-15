@@ -21,19 +21,10 @@
           "type": "literal",
           "value": "63"
         },
-        "party": {
-          "type": "uri",
-          "value": "http://www.wikidata.org/entity/Q21272959"
-        },
         "chamberLabel": {
           "xml:lang": "en",
           "type": "literal",
           "value": "Althing"
-        },
-        "partyLabel": {
-          "xml:lang": "en",
-          "type": "literal",
-          "value": "Member of the Althing"
         }
       }
     ]

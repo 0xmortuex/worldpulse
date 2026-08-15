@@ -1786,3 +1786,58 @@ A mutation that removes a disclosure is caught by the presence check, which woul
 existed anyway. A mutation that makes it fire everywhere is caught **only** by the absence
 check — so that is the one to write, because it is the one that proves the pair rather than
 half of it.
+
+## 43. A fixture captured from a defective query makes the defect the expected value
+
+**A live capture proves the endpoint answered. It does not prove you asked the right
+question** — and once the answer is committed as a fixture, every assertion written against it
+inherits the defect as its definition of correct.
+
+### Where this came from
+
+`buildLegislatureQuery` returned the parent body as a chamber of itself: the United Kingdom
+came back as Commons 650, Lords 808, and *Parliament of the United Kingdom* 1433 — the other
+two added together. The defect was then blessed in **three places at once**, each of which
+looked like diligence:
+
+| Place | What it said | Why it passed review |
+| --- | --- | --- |
+| the builder's doc comment | "GBR 4.7s (Parliament 1433, Lords 808, Commons 650)" | it was recording a *timing* fix, and the timing was right |
+| the captured fixture | 5 rows, 3 distinct chambers | a faithful capture of what the endpoint returned |
+| the contract test | `assert.equal(chambers.length, 3)` | titled "three chambers from five rows (rule 28)" — and rule 28 *was* being applied correctly |
+
+The test was not careless. It was testing the parser's row-collapsing behaviour, which works.
+**It took its expected value from the fixture, and nobody asked whether three was right.**
+
+The same file's other assertion recorded that Iceland "returns one party, which is data
+sparsity and not a pass" — careful language about the wrong thing. The single row was
+**"Member of the Althing"**, an office. `P527` is *has part(s)*; a chamber's parts are not its
+parties. Measured across eight countries the clause returned committees, a library, offices and
+bare Q-ids, and **not one political party**.
+
+### The check
+
+When a contract test's expected value comes from a capture, **one assertion must come from
+outside the capture** — from the world, not from the response:
+
+```ts
+// from the capture — proves the parser reads what the endpoint sent
+assert.deepEqual(rowsAndDistinct(raw, 'chamber'), { rows: 2, distinct: 2 });
+
+// from the world — proves the endpoint was asked the right thing
+assert.deepEqual(chambers.map((c) => c.label).sort(), ['House of Commons', 'House of Lords']);
+```
+
+The second assertion is the one that fails when the query is wrong and the capture is faithful.
+**The United Kingdom is bicameral** is a fact about the United Kingdom; `length === 3` was a
+fact about a broken query.
+
+### How to spot it before it ships
+
+Ask of every captured expectation: *would this number be different if the query were wrong?*
+If the answer is "no, because the number came from the query", the assertion is a mirror. A
+mirror never disagrees with you, which is why it reads as passing.
+
+**This is rule 25 inverted.** Rule 25 says assert the invariant rather than an incidental
+property of the fixture. Here the incidental property was promoted to an invariant and given a
+rule number in its title — the citation made it look considered.

@@ -75,32 +75,98 @@ describe('query 6 — legislature', () => {
     assert.equal(buildLegislatureQuery('GBR').includes('wdt:P279*'), false);
   });
 
-  it('parses the United Kingdom capture: three chambers from five rows (rule 28)', () => {
-    const raw = capture('legislature-gbr');
-    assert.deepEqual(rowsAndDistinct(raw, 'chamber'), { rows: 5, distinct: 3 });
+  it('a parliament is not returned as a chamber of itself', () => {
+    /**
+     * THIS TEST USED TO ASSERT THE DEFECT.
+     *
+     * It read `assert.equal(chambers.length, 3)` for the United Kingdom, under
+     * the heading "three chambers from five rows (rule 28)". The rule-28 part
+     * was real — the parser does collapse rows to distinct entities — but the
+     * expected count came from the capture, and the capture came from a query
+     * that returned the parent body alongside its own two houses:
+     *
+     *   House of Commons                    650
+     *   House of Lords                      808
+     *   Parliament of the United Kingdom   1433   <- the other two, added up
+     *
+     * Nobody asked whether three was right. It was blessed in three places at
+     * once: this assertion, the captured fixture, and the builder's own comment
+     * listing "(Parliament 1433, Lords 808, Commons 650)" as a success.
+     */
+    const query = buildLegislatureQuery('GBR');
+    assert.match(query, /FILTER NOT EXISTS/, 'the parent-body guard is gone');
+    assert.match(query, /\?chamber wdt:P527 \?child/, 'the guard no longer looks at children');
 
+    const raw = capture('legislature-gbr');
     const chambers = parseLegislature(raw);
-    assert.equal(chambers.length, 3);
-    const commons = chambers.find((chamber) => chamber.label === 'House of Commons');
-    assert.ok(commons, 'the House of Commons is missing from a UK legislature capture');
-    assert.equal(commons.seats, 650);
+    assert.deepEqual(
+      chambers.map((chamber) => chamber.label).sort(),
+      ['House of Commons', 'House of Lords'],
+      'the United Kingdom is bicameral; a third chamber means the parent is back',
+    );
+    assert.equal(chambers.find((c) => c.label === 'House of Commons')?.seats, 650);
+    assert.equal(chambers.find((c) => c.label === 'House of Lords')?.seats, 808);
   });
 
-  it('parses a single-chamber capture', () => {
-    // Iceland is the country whose failure disproved "it is a volume problem":
-    // one chamber, and it still timed out under the old query.
+  it('keeps the body itself when it has no chamber children — the unicameral case', () => {
+    /**
+     * The guard's other half, and the reason it is relational rather than
+     * structural. Requiring a real P527 hop would drop Iceland entirely, and
+     * measurement said it would also drop BOTH German chambers, which are
+     * separate P194 values of the country rather than children of one parent.
+     *
+     * Chambers returned per country when this was chosen:
+     *
+     *   iso   before   require-a-hop   drop-"parliament"   this guard
+     *   GBR      3           2                 2                2
+     *   NZL      2           1                 0                1
+     *   DEU      2           0                 2                2
+     *   ISL      1           0                 0                1
+     */
     const chambers = parseLegislature(capture('legislature-isl'));
-    assert.equal(chambers.length, 1);
+    assert.equal(chambers.length, 1, 'Iceland lost its only chamber');
     assert.equal(chambers[0]?.label, 'Althing');
     assert.equal(chambers[0]?.seats, 63);
   });
 
-  it('records that Iceland returns one party, which is data sparsity and not a pass', () => {
-    // Stated rather than asserted as success. The Althing has more than one
-    // party; Wikidata lists one composition statement. A test that read
-    // "parties > 0" as coverage would be asserting our query works from a fact
-    // about Wikidata's completeness.
-    const chambers = parseLegislature(capture('legislature-isl'));
-    assert.equal(chambers[0]?.parties.length, 1);
+  it('does not call a committee, a library or an office a political party', () => {
+    /**
+     * THE SECOND ASSERTION THAT BLESSED A DEFECT.
+     *
+     * It read "records that Iceland returns one party, which is data sparsity
+     * and not a pass" — careful about the wrong thing. The single row was not a
+     * sparse party list; it was **"Member of the Althing"**, an office. P527 is
+     * "has part(s)", and a chamber's parts are not its parties.
+     *
+     * Measured across eight countries, the unconstrained clause returned the
+     * Monarch of the United Kingdom, the Bundesrat Library, the Enquete
+     * Commission on Afghanistan, the Finance Committee of the French National
+     * Assembly, and bare Q-ids. **Not one political party.**
+     *
+     * Constraining ?party to be a political party returns zero rows for every
+     * country tried, which is the honest answer and renders as "Wikidata
+     * records no party composition for this chamber". A real sourcing route is
+     * OPEN-QUESTIONS 30.
+     */
+    assert.match(buildLegislatureQuery('GBR'), /\?party wdt:P31/, 'the party-type constraint is gone');
+
+    for (const iso of ['gbr', 'isl']) {
+      const chambers = parseLegislature(capture(`legislature-${iso}`));
+      for (const chamber of chambers) {
+        assert.deepEqual(
+          chamber.parties,
+          [],
+          `${iso}: ${chamber.label} reports parties, which no live capture has ever legitimately produced`,
+        );
+      }
+    }
+  });
+
+  it('reports how many rows each capture actually had, rather than implying breadth', () => {
+    // Rule 40: a test whose sample is thin should say so, not pass quietly and
+    // let a reader infer coverage. Both captures are small BECAUSE the fixes
+    // above removed rows that should never have been there.
+    assert.deepEqual(rowsAndDistinct(capture('legislature-gbr'), 'chamber'), { rows: 2, distinct: 2 });
+    assert.deepEqual(rowsAndDistinct(capture('legislature-isl'), 'chamber'), { rows: 1, distinct: 1 });
   });
 });

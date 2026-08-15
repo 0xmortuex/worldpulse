@@ -1425,3 +1425,76 @@ is a verified class QID — at which point the branch also needs bounding, like 
 
 **Not acted on.** Both options change what the app can find, and `verified: false` means the
 original choice was never confirmed either.
+
+---
+
+## 30. The party breakdown has no source, and the panel has a bar to draw
+
+**Raised 2026-08-15 while fixing the legislature query for step 9.**
+
+**Context.** The Government tab renders a stacked party-composition bar per chamber, guarded by
+`partyBreakdownIsComplete` so it is only drawn when the recorded party seats account for the
+chamber exactly. That guard is good and it works. The problem is upstream of it: **the query
+has never had a source for party composition.**
+
+It read `P527` — *has part(s)* — and called whatever came back a party. Measured across eight
+countries:
+
+| Country | What the "party" clause returned |
+| --- | --- |
+| GBR | Monarch of the United Kingdom, House of Lords, House of Commons |
+| DEU | Member of the Bundesrat, Bundesrat Library, Enquete Commission on Afghanistan, `Q132798745` |
+| ISL | Member of the Althing |
+| FRA | Finance Committee, European Affairs Committee, `Q59709026` |
+| ESP | member of the Senate of Spain |
+| SWE | member of the Swedish Riksdag |
+
+**Not one political party in any of them.** Constraining `?party` to actually be a political
+party — now shipped — returns **zero rows for every country tried**. That is honest: the panel
+says "Wikidata records no party composition for this chamber", which is true.
+
+**Why this needs a decision rather than a fix.** The bar is specced, built, tested and
+demonstrably correct against fixtures whose numbers sum. What it lacks is any real country that
+can reach it. Per rule 33 a synthetic input must describe a state the real system can reach, and
+right now none does — so this is either a sourcing job, a scope cut, or a deliberate
+fixtures-only feature, and which one it is depends on priorities I do not set.
+
+### The options, each with what it costs
+
+**A. Source it from `P1410` (number of seats in assembly), constrained to parties.**
+Measured: Germany returns real parliamentary groups — *CDU/CSU Bundestag fraction = 246* — mixed
+with parties recorded at 0. The United Kingdom returns **constituencies** (Cardiganshire = 1,
+Shipley = 1), because `P1410`'s subject is not restricted to parties either. Iceland returns
+nothing.
+*Cost:* per-country quality varies from good to actively wrong, so it needs the same
+country-by-country characterisation the chamber walk just got. It is the most promising route
+and it is not a small one.
+
+**B. Count sitting members and group by party (`P39` membership × `P102` party).**
+*Cost:* expensive, and it makes the figure `DERIVED` rather than `OFFICIAL` — a real change
+to what the panel claims. My two probes of this route were also **wrong in a way worth
+recording**: I used position QIDs from memory and Iceland's "Althing membership" returned
+*Tories, Whigs and Roundheads*, seventeenth-century English factions. Any serious attempt needs
+the position entities verified through the entity table first.
+
+**C. Drop live party composition; keep the bar as a fixtures-only demonstration.**
+*Cost:* a specced user-visible feature never appears for a real country, and `UNEXERCISED-PATHS`
+gains another built-tested-uncalled entry. Honest, cheap, and a visible reduction in scope.
+
+**D. Source it from outside Wikidata** — IPU Parline publishes chamber composition for most
+countries.
+*Cost:* a new source through the full gate, and its licence is unread. Every licence read in
+this project so far has been less permissive than assumed, five for five, so this is not a
+formality.
+
+### My recommendation
+
+**C now, A as its own goal later.** The bar keeps working against fixtures, the live panel
+states its absence truthfully, and nothing invents a party. A is worth doing properly — Germany
+proves real data exists — but doing it inside step 9 would mean characterising a second query
+across the size range while the tab itself is being built, and the last time this project fixed
+a query and built on it in one motion, the fix looked convincing and dropped a UK minister.
+
+**What is blocked:** nothing. The panel renders honestly today either way.
+**What is NOT blocked:** step 9 proceeds; this decides only whether a live party breakdown ships
+with it.

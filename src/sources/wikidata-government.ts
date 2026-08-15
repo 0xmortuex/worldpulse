@@ -275,6 +275,115 @@ export function parseCabinet(raw: unknown, sourceId = SOURCE_ID): Cabinet {
 /* ------------------------------------------------------------- legislature */
 
 /**
+ * The types that make something a chamber — declared ONCE, because the guard
+ * below needs the same list and two copies of it would drift.
+ *
+ * `Q35749` is "parliament", which is a whole legislature rather than a chamber
+ * of one. It has to stay in the list: for a unicameral country Wikidata models
+ * the body itself as the chamber, and Iceland, China, Libya and Vatican City
+ * are reachable by no other route. Its presence is exactly what makes
+ * `CHAMBER_PARENT_GUARD` necessary.
+ */
+const CHAMBER_TYPE_QIDS = ['Q35749', 'Q10553309', 'Q375928', 'Q637846'] as const;
+
+export const CHAMBER_TYPE_VALUES = CHAMBER_TYPE_QIDS.map((qid) => `wd:${qid}`).join(' ');
+
+/**
+ * ## A parliament is not a chamber of itself
+ *
+ * `?body wdt:P527? ?chamber` is a ZERO-or-one hop, so `?chamber` can bind to
+ * `?body`. Combined with "parliament" in the type list above, a parent body
+ * satisfies the filter meant to identify its children, and comes back as their
+ * peer.
+ *
+ * Measured before the fix:
+ *
+ * ```
+ * GBR   House of Commons                   650
+ *       House of Lords                     808
+ *       Parliament of the United Kingdom  1433   <- the other two, added up
+ *
+ * NZL   New Zealand Parliament             120
+ *       House of Representatives           120   <- the SAME 120 seats, twice
+ * ```
+ *
+ * ### The two obvious repairs are both silently destructive
+ *
+ * Chambers returned per country, measured in one sitting:
+ *
+ * ```
+ * iso   current   require a real P527 hop   drop "parliament"   THIS GUARD
+ * GBR      3                2                      2                2
+ * NZL      2                1                      0                1
+ * DEU      2                0                      2                2
+ * ISL      1                0                      0                1
+ * CHN      1            inconclusive               0                1
+ * LBY      1                0                      0                1
+ * VAT      1                0                      0                1
+ * ```
+ *
+ * **Germany is the case that was not on anyone's list**: its two chambers are
+ * each a separate `P194` of the country rather than children of one parent, so
+ * requiring a hop returns zero chambers for a G7 legislature. Dropping
+ * "parliament" loses every unicameral country instead.
+ *
+ * So the rule is relational rather than structural: **keep a body only when no
+ * child of it is itself a chamber.** A parent with chamber children is a
+ * container and is dropped; a body with none IS the chamber and is kept.
+ */
+const CHAMBER_PARENT_GUARD = `  FILTER NOT EXISTS {
+    ?chamber wdt:P527 ?child .
+    ?child ${CHAMBER_TYPE_PATH} ?childType .
+    FILTER(?childType IN (${CHAMBER_TYPE_QIDS.map((qid) => `wd:${qid}`).join(', ')}))
+  }`;
+
+/**
+ * ## P527 is "has part(s)", and a chamber's parts are not its parties
+ *
+ * The party clause read P527 and called whatever came back a party. What comes
+ * back, measured across eight countries:
+ *
+ * ```
+ * GBR   Monarch of the United Kingdom · House of Lords · House of Commons
+ * DEU   Member of the Bundesrat · Bundesrat Library · Enquete Commission · Q132798745
+ * ISL   Member of the Althing
+ * FRA   Finance Committee · European Affairs Committee · Q59709026
+ * ESP   member of the Senate of Spain
+ * SWE   member of the Swedish Riksdag
+ * ```
+ *
+ * **Not one political party in any of them** — committees, libraries, offices,
+ * and bare Q-ids. Constraining `?party` to actually be a political party
+ * returns **zero rows for every country tried**, which is the honest answer:
+ * chambers do not record their composition through P527.
+ *
+ * ### Why constrain rather than remove
+ *
+ * Zero parties renders "Wikidata records no party composition for this
+ * chamber", which is true. The unconstrained clause would render the Bundesrat
+ * Library as a parliamentary party the moment the panel goes live — a wrong
+ * value with confident provenance, which is the failure this project exists to
+ * prevent.
+ *
+ * A real sourcing route is a decision rather than a fix, and it is queued as
+ * OPEN-QUESTIONS 30 with the two candidates measured. Until it is answered the
+ * feature reports its own absence instead of inventing content.
+ *
+ * ### The bound here is required, and it is honestly untested
+ *
+ * Written first as `wdt:P31/wdt:P279*` and caught immediately by the budget
+ * guard, which forbids the unbounded closure in any shipped query — the guard
+ * doing exactly its job on its author, one commit after being written.
+ *
+ * The bounded and unbounded forms return the same thing today, because both
+ * return **nothing**. So this bound has never been exercised against data that
+ * reaches it, and that is stated rather than glossed: when question 30 is
+ * answered and parties actually arrive, the depth needs measuring the way the
+ * ministerial walk's four hops were measured, not assuming.
+ */
+const PARTY_TYPE_PATH = 'wdt:P31/wdt:P279?/wdt:P279?';
+
+/**
  * ## This query used to be broken in a way that read as slowness
  *
  * It was recorded as "never completes against live WDQS" — HTTP 504 for GBR,
@@ -304,10 +413,16 @@ export function parseCabinet(raw: unknown, sourceId = SOURCE_ID): Cabinet {
  *   Althing", and the chauffeur service of the German Bundestag. Constraining to
  *   legislative types drops them. GBR: 5.6s → 4.7s, and the rows become correct.
  *
- * Measured after: GBR 4.7s (Parliament 1433, Lords 808, Commons 650), DEU 2.7s
- * (Bundestag, Bundesrat), ISL 4.3s (Althing), VAT 3.2s, TUV 4.8s. Every country
- * that previously failed now returns, and `parseLegislature` reads all of them
- * unchanged.
+ * Measured after: GBR 4.7s, DEU 2.7s (Bundestag, Bundesrat), ISL 4.3s
+ * (Althing), VAT 3.2s, TUV 4.8s. Every country that previously failed now
+ * returns, and `parseLegislature` reads all of them unchanged.
+ *
+ * **That GBR line used to read "(Parliament 1433, Lords 808, Commons 650)" and
+ * called it correct.** See `CHAMBER_PARENT_GUARD` below: 1433 is the other two
+ * added together, and the parent body was being returned as a chamber of
+ * itself. The timing was right and the rows were wrong, recorded as a success
+ * in three places at once — this comment, the contract test's expected count,
+ * and the captured fixture.
  *
  * Rule 31 applied before treating it as one bug: the other BIND-inside-UNION
  * site, `buildLeadershipTimelineQuery`, binds CONSTANTS in branches that bind
@@ -321,12 +436,14 @@ WHERE {
   ?country wdt:P298 "${iso3}" .
   ?country wdt:P194 ?body .
   ?body wdt:P527? ?chamber .
-  VALUES ?chamberType { wd:Q35749 wd:Q10553309 wd:Q375928 wd:Q637846 }
+  VALUES ?chamberType { ${CHAMBER_TYPE_VALUES} }
   ?chamber ${CHAMBER_TYPE_PATH} ?chamberType .
+${CHAMBER_PARENT_GUARD}
   OPTIONAL { ?chamber wdt:P1342 ?seats . }
   OPTIONAL {
     ?chamber p:P527 ?partyStatement .
     ?partyStatement ps:P527 ?party .
+    ?party ${PARTY_TYPE_PATH} wd:${qid('politicalParty')} .
     OPTIONAL { ?partyStatement pq:P1410 ?partySeats . }
   }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }

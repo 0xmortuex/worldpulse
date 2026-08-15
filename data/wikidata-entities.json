@@ -18,6 +18,15 @@
       "verified": true,
       "verifiedOn": "2026-08-15",
       "note": "CORRECTED 2026-08-15. Was Q1513611, which is \"Supreme Court of Ghana\" — a specific court, not a class, with ZERO instances anywhere in Wikidata, so the fallback branch could never match for any country. Q190752 is \"supreme court\" (highest court in a jurisdiction), with 272 instances and used by 99 countries' P209 courts. The expectedLabel recorded here was always right; only the qid was wrong, and comparing the two would have caught it."
+    },
+    "politicalParty": {
+      "qid": "Q7278",
+      "expectedLabel": "political party",
+      "usedBy": "legislature query, constraining ?party in the composition clause so that committees, libraries and offices returned by P527 are not rendered as parliamentary parties",
+      "verified": true,
+      "verifiedOn": "2026-08-15",
+      "fallback": "The clause is inside an OPTIONAL, so a wrong id here yields no parties rather than wrong ones — the panel then states that no composition is recorded, which is the same thing it states today for every real country.",
+      "note": "VERIFIED 2026-08-15 before being written, not after: Q7278 resolves to \"political party\" with 23834 instances. Added by a script that refuses to write the entry on a label mismatch or zero instances, because this table already carried one QID that was an individual rather than a class for as long as it existed."
     }
   },
   "properties": {
