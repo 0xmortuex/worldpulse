@@ -385,3 +385,28 @@ exists.
 through the Worker from the public CSVs instead, which needs no key but does need the Worker
 built and a 16MB file handled server-side. That is a different piece of work from "register a
 source", and it is not obviously the right trade for a generation-mix row.
+
+---
+
+## 12. How should the globe encode low confidence, given it has only one channel?
+
+**Raised 2026-08-15 during B1.** The relations layer encodes two things in hue — tier (5) and
+confidence (2) — and ten colours cannot all be distinguished under dichromacy. Measured:
+`adversary` base collides with `strained` low-confidence at **ΔE 9.7 under protanopia**. Full
+measurement in `FOUND.md`.
+
+**Everywhere except the globe this is already solved**: the relations list carries glyph, label
+and the `low conf.` tag, so hue is decorative there. A polygon fill has no second channel.
+
+| Option | Cost |
+| --- | --- |
+| **(a) Accept it.** The popover names the tier, so nothing is knowable only from the fill. | A reader scanning without hovering can misread confident-adversary as unconfident-strained. Cheapest, and honest only because the popover exists. |
+| **(b) Drop the low-confidence hues; encode confidence as a pattern or stroke.** | globe.gl polygon fills do not take patterns; this likely means a stroke treatment or an overlay layer, which is real work and may not read at small polygon sizes. |
+| **(c) Drop low-confidence from the globe entirely**, keeping it in the list. | Loses a signal decision 8a called load-bearing: "a classification resting mostly on stale inputs renders in a distinct low-confidence treatment". Changing that is a spec change, not an implementation choice. |
+
+**My recommendation is (a) for now and (b) when the globe next gets work**, because the
+information is not lost — it is one hover away — and (c) contradicts a standing decision.
+
+**Why this is yours and not mine:** (c) would overturn decision 8a, and (b) trades a real
+amount of rendering work against a defect that only affects one of ten colour pairs for one of
+three dichromacies. Neither is a judgement I should make silently while implementing a palette.

@@ -405,3 +405,77 @@ changed in three years.
   `lastModified`, `generated` are the source describing itself. Where a dated series exists,
   the last dated observation is the honest "as of" — which is how the PortWatch and WHO
   adapters take theirs.
+
+---
+
+## Ten colours over-subscribe the colourblind-safe space, and the globe pays for it
+
+**Found while making the relation palette colourblind-safe (B1), 2026-08-15.**
+
+The relations layer encodes **two** things in hue: which tier (5 values) and whether the
+classification rests on stale evidence (2 values). That is ten colours, and ten mutually
+distinguishable colours do not exist under dichromacy.
+
+Measured with `scripts/cvd.mjs` over the shipped palette, worst cross-tier pair:
+
+```
+adversary (base)  #D55E00   vs   strained (low confidence)  #8f8a1f
+ΔE 9.7 under protanopia
+```
+
+**A confident adversary and an unconfident strained are the same colour** to a protanope.
+
+**Where this does and does not bite.** In the relations list it does not: the tier is carried
+by glyph and label as well as hue, and low confidence by the `low conf.` tag. On the **globe**
+it does — a polygon fill is one channel, and there is no second one. The tier is recoverable
+from the popover, which names it, so nothing is knowable *only* from the fill; but a reader
+scanning the globe without hovering can misread that pair.
+
+**What was measured on the way, and is worth keeping:**
+
+- The palette this replaced had two collisions, and the one the spec predicted was not among
+  them. The spec said "relations mode leans on red/green"; it was blue/red, which is safe.
+  The real collisions were `adversary`/`strained` (ΔE 13.2, deuteranopia) and
+  `neutral`/`nodata` (ΔE ~14.7 under **all three**, and near-identical to normal vision too).
+- `neutral` vs `nodata` is this project's own central distinction rendered in one colour:
+  *evidence exists and nets out* versus *there is no evidence*. It had been near-invisible to
+  everyone since the palette was written.
+- `strained` is yellow rather than orange because orange measured ΔE 18.4 against vermillion
+  under deuteranopia — under the bar. Yellow measures 33.4. Chosen by measurement.
+
+**Not fixed here**, because fixing it means changing how the globe encodes confidence rather
+than which colours it uses. Recorded as `OPEN-QUESTIONS.md` 12.
+
+---
+
+## A frame-based wait budgeted in milliseconds is the fixed-duration bug wearing a disguise
+
+**Found across four verify runs while landing B1 (commit 3 of the Fact-model migration),
+2026-08-15.** Each run found a different defect, which is why they are all recorded here
+rather than only the last.
+
+`selectCountry`'s fixed 250ms/500ms parks were replaced with condition-based waits precisely
+because rule 15 forbids durations. The replacements then made three further mistakes, each
+subtler than the last:
+
+| # | Defect | How it presented |
+| --- | --- | --- |
+| 1 | `waitForDomQuiet` fell back to `document.body` when its selector was absent | the globe rewrites its tooltip container forever, so `body` never quiets: every call burned its budget, the suite grew 270s, step 7 went 1 → 5 failures |
+| 2 | It observed `.dossier`, which `root.innerHTML =` **replaces** | a detached node never mutates again, so the observer reported quiet after three frames while the panel churned on. **It failed by succeeding** — no timeout catches that |
+| 3 | Both waits budgeted in wall-clock while polling `requestAnimationFrame` | 4 frames costs 3s at the 750ms median and 9.6s at the 2400ms spike, against a 10s budget. `waitForStableNode` was timing out at its own edge and clicking anyway |
+
+**Defect 2 is the one worth remembering.** A wait that times out is loud and gets fixed. A wait
+that returns `true` early is silent, and its damage appears somewhere else entirely — in this
+case as an intermittent click timeout two steps later. It also masked defect 3: while the wait
+was vacuous, nothing exercised the frame budget, so the unit error could not surface.
+
+**The rule the three share:** a wait must observe a target that survives what it is waiting
+for, and must be budgeted in the units it polls in. Both are now in the helper's own comment.
+
+**A fourth thing, not a defect but a lesson about instruments.** The `panel settled` check
+added alongside these fired once, in a step where every downstream assertion passed. `#panel`
+mutates about once every four frames at rest, so "three consecutive quiet frames within
+twenty-four" is marginal by construction. It was measuring a proxy rather than the failure —
+the failure being a node replaced under a click, which `waitForStableNode` asserts directly.
+The wait was kept and the failure report dropped: a check that goes red over something that
+breaks nothing teaches people that red means "run it again" (rule 15).

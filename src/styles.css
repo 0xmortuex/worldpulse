@@ -190,13 +190,31 @@ body {
 .legend strong { display: block; color: var(--text); font-weight: 600; }
 .legend span:last-child { color: var(--text-faint); }
 
+/* The swatch carries a glyph as well as a hue, so the tier survives colour
+   blindness. Sized to fit the shape rather than being a bare 10px chip; the
+   glyph is dark because every tier colour is light enough to carry it, and the
+   contrast is what makes the shape readable at this size. */
 .swatch {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
   flex: none;
-  margin-top: 3px;
+  margin-top: 1px;
   border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 8px;
+  line-height: 1;
+  color: #0b0f14;
+}
+
+/* The tier in words, beside the swatch. Colour is never the only channel: hue,
+   glyph and this label all carry it. */
+.relation-tier {
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 /* ---------- panel ---------- */

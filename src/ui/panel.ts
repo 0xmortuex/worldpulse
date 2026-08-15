@@ -5,7 +5,7 @@ import { scoreFact } from '../relations/provenance';
 import { pairKey, score } from '../relations/score';
 import type { Finding, RelationResult, Tier } from '../relations/types';
 import type { AppState, Store } from '../state';
-import { TIER_COLORS, TIER_LABELS } from '../theme';
+import { TIER_COLORS, TIER_GLYPH, TIER_LABELS } from '../theme';
 import { escapeHtml } from './popover';
 import { comparePortrait, renderDossierHeader } from './header';
 import { renderGovernmentTab } from './government';
@@ -143,7 +143,7 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
       ${TIER_ORDER.map(
         (tier) => `
         <div class="tier-count">
-          <span class="swatch" style="background:${TIER_COLORS[tier]}"></span>
+          <span class="swatch" style="background:${TIER_COLORS[tier]}" aria-hidden="true">${TIER_GLYPH[tier]}</span>
           <span class="tier-count-n">${notAFact(counts[tier] ?? 0, 'count of rows rendered below, each of which carries its own badge and provenance')}</span>
           <span class="tier-count-l">${escapeHtml(TIER_LABELS[tier])}</span>
         </div>`,
@@ -160,9 +160,18 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
               .map((result) => {
                 const other = context.byCode.get(result.other);
                 if (!other) return '';
+                /**
+                 * Three channels, never colour alone (B1): the swatch's hue, the
+                 * glyph inside it, and the tier's name in text. Before this the
+                 * row carried its tier ONLY as a background colour, so a reader
+                 * with a red-green deficiency could not tell an adversary from a
+                 * strained relation — the two the panel most needs to separate.
+                 */
                 return `<li data-select="${escapeHtml(result.other)}" role="button" tabindex="0">
-                  <span class="swatch" style="background:${TIER_COLORS[result.tier]}"></span>
+                  <span class="swatch" style="background:${TIER_COLORS[result.tier]}"
+                    aria-hidden="true">${TIER_GLYPH[result.tier]}</span>
                   <span class="relation-name">${escapeHtml(other.name)}</span>
+                  <span class="relation-tier" data-tier="${escapeHtml(result.tier)}">${escapeHtml(TIER_LABELS[result.tier])}</span>
                   ${result.lowConfidence ? '<span class="tag tag--warn">low conf.</span>' : ''}
                   <span class="relation-score">${factHtml(scoreFact(result, context.compiledAt), { hideAsOf: true, compact: true })}</span>
                 </li>`;
@@ -217,7 +226,7 @@ function compareView(selected: readonly Country[], state: AppState, context: Pan
       );
       pairs.push(`
         <li>
-          <span class="swatch" style="background:${TIER_COLORS[result.tier]}"></span>
+          <span class="swatch" style="background:${TIER_COLORS[result.tier]}" aria-hidden="true">${TIER_GLYPH[result.tier]}</span>
           <span class="relation-name">${escapeHtml(a.name)} ↔ ${escapeHtml(b.name)}</span>
           <span class="relation-score">${escapeHtml(TIER_LABELS[result.tier])}</span>
         </li>`);
@@ -246,7 +255,7 @@ function compareView(selected: readonly Country[], state: AppState, context: Pan
           const values = columns.map((c) => c.counts[tier]);
           const max = Math.max(...values);
           return `<tr>
-            <td><span class="swatch" style="background:${TIER_COLORS[tier]}"></span>${escapeHtml(TIER_LABELS[tier])}</td>
+            <td><span class="swatch" style="background:${TIER_COLORS[tier]}" aria-hidden="true">${TIER_GLYPH[tier]}</span>${escapeHtml(TIER_LABELS[tier])}</td>
             ${values
               .map(
                 (value) =>

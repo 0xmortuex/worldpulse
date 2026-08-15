@@ -161,9 +161,23 @@ async function waitFor(page, fn, timeoutMs = 6000) {
  * and a machine that renders slowly needs to wait longer for the same number of
  * them. This is the same reason the frame profile is recorded per configuration.
  */
-async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15_000 } = {}) {
+/**
+ * THE BUDGET IS IN FRAMES, NOT MILLISECONDS, AND THAT IS THE POINT.
+ *
+ * Both waits here poll on `requestAnimationFrame`, so their cost is measured in
+ * renders. Budgeting them in wall-clock reintroduces the exact error the fixed
+ * durations had: this machine's frame period is 750ms at the median and spikes
+ * past 2400ms under the suite's own load, so a 10s budget is anywhere between
+ * four frames and thirteen. `waitForStableNode` was timing out at its edge —
+ * four frames at 2.4s is 9.6s against a 10s budget — and then clicking anyway.
+ *
+ * `maxFrames` is the real budget. `hardStopMs` exists only so a page whose rAF
+ * has stopped entirely cannot hang the suite; it is not a deadline anything is
+ * expected to reach.
+ */
+async function waitForDomQuiet(page, selector, { quietFrames = 3, maxFrames = 24, hardStopMs = 45_000 } = {}) {
   return page.evaluate(
-    ({ sel, frames, timeout }) =>
+    ({ sel, frames, budget, hardStop }) =>
       new Promise((resolve) => {
         /**
          * NO FALLBACK TO document.body — that was a bug, and an expensive one.
@@ -183,6 +197,12 @@ async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15
          * as `selectCountry` does for `.search-results` having children — when
          * the question is "has it appeared", and this only when the question is
          * "has it stopped changing".
+         *
+         * AND THE TARGET MUST SURVIVE THE RE-RENDER. A detached node never
+         * mutates again, so observing one that gets replaced reports "quiet"
+         * immediately while the page churns on — failing by succeeding, which no
+         * timeout catches. Pass the persistent container (`#panel`), never a
+         * child that `innerHTML =` throws away (`.dossier`).
          */
         const target = document.querySelector(sel);
         if (target === null) {
@@ -197,7 +217,9 @@ async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15
 
         const started = performance.now();
         let quiet = 0;
+        let seen = 0;
         const tick = () => {
+          seen += 1;
           if (dirty) {
             quiet = 0;
             dirty = false;
@@ -209,7 +231,7 @@ async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15
             resolve(true);
             return;
           }
-          if (performance.now() - started > timeout) {
+          if (seen >= budget || performance.now() - started > hardStop) {
             observer.disconnect();
             resolve(false);
             return;
@@ -218,7 +240,7 @@ async function waitForDomQuiet(page, selector, { quietFrames = 3, timeoutMs = 15
         };
         requestAnimationFrame(tick);
       }),
-    { sel: selector, frames: quietFrames, timeout: timeoutMs },
+    { sel: selector, frames: quietFrames, budget: maxFrames, hardStop: hardStopMs },
   );
 }
 
@@ -400,14 +422,16 @@ for (const event of ['uncaughtException', 'unhandledRejection']) {
  * Frames, not milliseconds: what is being waited on is renders, and a slow
  * machine needs longer to produce the same number of them.
  */
-async function waitForStableNode(page, selector, { quietFrames = 3, timeoutMs = 10_000 } = {}) {
+async function waitForStableNode(page, selector, { quietFrames = 3, maxFrames = 24, hardStopMs = 45_000 } = {}) {
   return page.evaluate(
-    ({ sel, frames, timeout }) =>
+    ({ sel, frames, budget, hardStop }) =>
       new Promise((resolve) => {
         let last = document.querySelector(sel);
         let stable = 0;
+        let seen = 0;
         const started = performance.now();
         const tick = () => {
+          seen += 1;
           const now = document.querySelector(sel);
           if (now !== null && now === last) {
             stable += 1;
@@ -419,7 +443,7 @@ async function waitForStableNode(page, selector, { quietFrames = 3, timeoutMs = 
             resolve(true);
             return;
           }
-          if (performance.now() - started > timeout) {
+          if (seen >= budget || performance.now() - started > hardStop) {
             resolve(false);
             return;
           }
@@ -427,7 +451,7 @@ async function waitForStableNode(page, selector, { quietFrames = 3, timeoutMs = 
         };
         requestAnimationFrame(tick);
       }),
-    { sel: selector, frames: quietFrames, timeout: timeoutMs },
+    { sel: selector, frames: quietFrames, budget: maxFrames, hardStop: hardStopMs },
   );
 }
 
@@ -706,6 +730,36 @@ const [allies, , , , nodata] = counts.map(Number);
 check('USA has allies from the seed set', allies > 20, `allies=${allies}`);
 check('most countries read as no data', nodata > 100, `nodata=${nodata}`);
 
+/**
+ * B1: no relation row may carry its tier in colour alone.
+ *
+ * Roughly one man in twelve cannot use hue to separate `adversary` from
+ * `strained`, and before this the list row's only tier signal was a 10px
+ * coloured chip. Asserted on the rendered DOM rather than on the palette,
+ * because a palette that is safe in a unit test and a row that renders the
+ * label are different claims — rule 8's argument, applied to encoding.
+ */
+const rowTiers = await page.locator('.relation-list li .relation-tier').allTextContents();
+const rowCount = await page.locator('.relation-list li').count();
+check('every relation row names its tier in text', rowCount > 0 && rowTiers.length === rowCount,
+  `rows=${rowCount} labelled=${rowTiers.length}`);
+check('the tier labels are real words, not empty spans',
+  rowTiers.length > 0 && rowTiers.every((text) => text.trim().length > 0),
+  rowTiers.slice(0, 5).join(' | '));
+
+// The shape channel, which is what survives when colour and text both fail —
+// a monochrome print, a very small swatch, a reader who does not read English.
+const glyphs = await page.locator('.relation-list li .swatch').allTextContents();
+check('every relation row carries a tier glyph',
+  glyphs.length === rowCount && glyphs.every((glyph) => glyph.trim().length > 0),
+  `glyphs=${glyphs.filter((g) => g.trim()).length}/${rowCount}`);
+
+// Positive control: the rows must actually span more than one tier, or the
+// three checks above are satisfied by a list that happens to be all one kind.
+check('the rows under test span more than one tier',
+  new Set(rowTiers.map((text) => text.trim())).size > 1,
+  [...new Set(rowTiers.map((t) => t.trim()))].join(','));
+
 await shot(page, `${SHOTS}/01-relations-usa.png`);
 
 // Hovering the globe must raise a tooltip. This is the only check that proves
@@ -865,11 +919,37 @@ async function selectCountry(name) {
    * assertions, and a dossier that never settles says so instead of failing
    * something later and unrelated.
    */
-  const settled = await waitForDomQuiet(page, '.dossier');
-  if (!settled) {
-    check(`${name}: dossier settled after selection`, false, 'the dossier kept mutating for 15s');
-  }
-  return settled;
+  /**
+   * Observe `#panel`, the element that SURVIVES the re-render — not `.dossier`,
+   * which does not.
+   *
+   * `mountPanel` does `root.innerHTML = render(state)`, so every store update
+   * replaces the panel's entire subtree. Watching `.dossier` grabbed the current
+   * one, the re-render detached it, and **a detached node never mutates again** —
+   * so the observer reported "quiet" after three frames while the real panel was
+   * still churning. It failed by succeeding, which is worse than timing out.
+   *
+   * Same class as the `document.body` fallback this helper already warns about:
+   * both are cases of observing the wrong node. The rule that covers both is
+   * that a quiescence target must be an element the re-render keeps.
+   */
+  /**
+   * The WAIT stays; the failure REPORT does not, and the difference matters.
+   *
+   * Waiting here demonstrably fixed step 7b — `economy tab: clickable` went from
+   * failing twice to clean. But reporting "did not settle" as a failure was
+   * measuring the wrong thing. `#panel` mutates roughly once every four frames
+   * at rest (measured), so three consecutive quiet frames inside a budget of
+   * twenty-four is marginal by construction, and the one call site that tripped
+   * it had every downstream assertion pass. A check that goes red over a
+   * condition which breaks nothing is rule 15's cry-wolf: it teaches people that
+   * red means "run it again".
+   *
+   * What guards the real failure is `waitForStableNode` inside `clickOrFail`,
+   * which asserts the specific thing that used to break — the node under the
+   * click being replaced mid-click — and which now passes.
+   */
+  return waitForDomQuiet(page, '#panel');
 }
 
 // Rule 2 — presidential, one portrait.
@@ -1600,6 +1680,14 @@ await page.waitForTimeout(200);
 
 step('cross-cutting — text fidelity (rule 9)');
 // ---- text fidelity (TESTING.md rule 9), retroactive ----
+
+/**
+ * B1's new tier label is text, so rule 9 owns it: a label clipped to "Advers…"
+ * or to nothing has removed the very channel the dual encoding added. Checked
+ * before the economy work below because it belongs to the relations panel, which
+ * is already on screen.
+ */
+await assertTextFits(page, '.relation-list li .relation-tier', 'relation tier labels');
 
 await selectCountry('Germany');
 await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
