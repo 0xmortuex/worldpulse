@@ -40,6 +40,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VERDICT, verdictForResponse } from './probe-verdict.mjs';
+import { keyedProbeUrl, redactKeys } from './probe-auth.mjs';
 import { isCarried, mergeResults, refreshedIds } from './probe-merge.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -129,6 +130,15 @@ async function readCapped(res) {
   }
 }
 
+/**
+ * Every environment variable that holds a key, so a response body or error can
+ * be scrubbed of all of them rather than only the one being used.
+ *
+ * Populated from the registry in main(). Empty until then, which is safe: the
+ * only caller runs after.
+ */
+let KEY_ENV_NAMES = [];
+
 async function probeOne(source) {
   const result = {
     id: source.id,
@@ -159,14 +169,28 @@ async function probeOne(source) {
     ? { error: String(pre.error?.cause?.message ?? pre.error?.message ?? pre.error), ms: pre.ms }
     : { status: pre.res.status, ms: pre.ms, cors: pickCorsHeaders(pre.res.headers) };
 
-  // 2. The real request, carrying Origin exactly as a browser would.
-  const got = await timedFetch(source.probeUrl, {
+  /**
+   * 2. The real request, carrying Origin exactly as a browser would — and the
+   *    key, if the source needs one and we have both the value and a declared
+   *    mechanism.
+   *
+   * `result.url` keeps the UNKEYED `probeUrl` by construction: this file's
+   * output is committed, and a key reaching it would be a secret leaked by the
+   * tool built to describe secrets' absence.
+   */
+  const auth = keyedProbeUrl(source, process.env);
+  result.keyed = auth.keyed;
+  if (auth.reason !== null) result.keyReason = auth.reason;
+
+  const got = await timedFetch(auth.url, {
     method: 'GET',
     headers: { Origin: ORIGIN, 'User-Agent': PROBE_UA },
   });
 
   if (got.error) {
-    result.get = { error: String(got.error?.cause?.message ?? got.error?.message ?? got.error), ms: got.ms };
+    const raw = String(got.error?.cause?.message ?? got.error?.message ?? got.error);
+    // An error message can quote the request URL, key included.
+    result.get = { error: redactKeys(raw, process.env, KEY_ENV_NAMES), ms: got.ms };
     result.verdict = VERDICT.UNREACHABLE;
     result.reason = result.get.error;
     return result;
@@ -270,6 +294,9 @@ async function main() {
   }
 
   const registry = JSON.parse(await readFile(resolve(ROOT, 'data/sources.json'), 'utf8'));
+  KEY_ENV_NAMES = registry.sources
+    .map((s) => s.keyEnv)
+    .filter((name) => typeof name === 'string' && name !== '');
   const filter = process.argv.slice(2);
 
   const targets = registry.sources.filter(

@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tests.json",
-    "probe": "NODE_USE_ENV_PROXY=1 node scripts/probe-sources.mjs",
+    "probe": "NODE_USE_ENV_PROXY=1 node --env-file-if-exists=.env scripts/probe-sources.mjs",
     "test": "node scripts/run-tests.mjs",
     "attribution": "node scripts/gen-attribution.mjs",
     "verify": "npm run build && node scripts/verify-render.mjs",

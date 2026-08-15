@@ -635,7 +635,15 @@ this defect with the same work.
 
 ---
 
-## 16. The commit-4 verify diff: halted, pending one experiment
+## 16. The commit-4 verify diff — **CLOSED 2026-08-15**
+
+> **Closed.** Commit 4 is confirmed clean: commit 3's flake-free run and commit 4 are identical
+> in every step, not merely consistent within flake. The halt is lifted and the migration
+> sequence is verified end to end. Rule 36 is amended in `TESTING.md` with commit-3-against-
+> itself as its worked example, carrying both clauses — the observed cascade bound, and the
+> statement that if the cascade could explain any plausible diff then comparisons on this
+> configuration are inconclusive by construction and must say so.
+
 
 **Raised 2026-08-15.** The migration goal says: *"If commit 4 produces any verify diff, stop the
 sequence, report the diff as a finding, and do not proceed to commit 5 until it is explained and

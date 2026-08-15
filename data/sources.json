@@ -1201,7 +1201,8 @@
       "origin": "https://api.ember-energy.org",
       "transport": "worker",
       "notes": "BLOCKED ON A KEY — the API returns 403 {\"detail\":\"No API key set\"}. The key is free but requires a signup that cannot be completed autonomously, so NO LIVE RESPONSE HAS BEEN CAPTURED and verifiedAgainst stays \"documentation\", which blocks deployment by design (A6). See OPEN-QUESTIONS 11. LICENCE READ AND VERIFIED 2026-08-14 at ember-energy.org/creative-commons/ — CC BY 4.0, share and adapt with credit. This is a genuine reading, not a spec claim, and not rule-derived. Ember logo use needs separate permission; not used. A KEYLESS PATH EXISTS AND IS NOT USABLE AS-IS — files.ember-energy.org publishes release_generation_yearly_global.csv (16.0MB) and release_generation_yearly_lower.csv (4.1MB) without a key, but NEITHER SENDS access-control-allow-origin, so a browser cannot read them: they are worker-required, and the Worker does not exist. Their size also rules them out as fixtures. Recorded in FOUND.md rather than worked around. SHAPE NOTES for whoever lands this: the CSV mixes country rows with regional aggregates (Area type = Region, blank ISO 3 code) and carries an \"Is aggregated source\" flag, so summing rows naively double-counts. It also distinguishes a reported 0.0 from an empty cell -- the same rule 30 distinction UNHCR needed.",
-      "schemaVersion": 1
+      "schemaVersion": 1,
+      "keyParam": "api_key"
     }
   ],
   "verifiedAgainstValues": {
