@@ -1603,3 +1603,49 @@ Nobody re-measured it because it had been measured — which is exactly the reas
 refuses about licences, endpoints and flake rates, arriving about a defect.
 
 **A blocker is a measurement, and measurements expire.**
+
+---
+
+## The 3-hop bound would have silently dropped a UK cabinet position
+
+**Measured 2026-08-15T20:38Z**, validating a fix before shipping it.
+
+The cabinet query's 52 seconds are in one clause: `wdt:P279*` in the UNION's second branch.
+Bounding it to three hops made Iceland 21x faster with an **identical row set**, and turned the
+United Kingdom's 504 into a 200. Two countries agreeing, a large country rescued — a convincing
+fix, and the point at which it would have shipped.
+
+**Then the hop depth was measured, and the bound is wrong:**
+
+| Country | d1 | d≤2 | **d≤3** | **d≤4** | d≤5 |
+| --- | --- | --- | --- | --- | --- |
+| Iceland | 9 | 26 | 26 | 26 | 26 |
+| Tuvalu | 15 | 17 | 17 | 17 | 17 |
+| **United Kingdom** | 25 | 88 | **194** | **195** | 195 |
+| India | 36 | 55 | 55 | 55 | 55 |
+| France | 57 | 93 | 105 | 105 | 105 |
+| United States | 7 | 25 | 25 | 25 | 25 |
+
+**The United Kingdom has a ministerial position at exactly four subclass hops from `minister`.**
+A three-hop bound returns 194 of its 195 positions.
+
+**One missing minister, no error, plausible output.** That is the party-bar bug at subclass
+depth, and it is exactly the failure the LIMIT instruction in this goal was written to prevent —
+arriving through a different mechanism than a LIMIT.
+
+### Why the evidence available before this looked sufficient
+
+Iceland and Tuvalu both showed identical row sets under the bound. The countries where the
+bounded query rescued a 504 could not be compared at all, **because the unbounded query returns
+nothing to compare against** — so the strongest-looking evidence, "it fixes the United Kingdom",
+was the case where equivalence was least checkable.
+
+**A fix validated where it can be validated, and shipped where it cannot, is not validated.**
+
+### What the measurement gives instead of a guess
+
+Every country measured has `d≤4 == d≤5`, so four hops is sufficient for all six. That is a
+measurement over six countries and not a proof over 190 — so the bound is a **choice with a
+known blast radius**, and it needs the hit case detected rather than assumed away: compare the
+bounded count against a `d≤5` count and report when they differ, so the day a seventh hop
+appears is a report rather than a missing row.
