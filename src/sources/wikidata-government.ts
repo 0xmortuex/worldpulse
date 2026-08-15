@@ -124,7 +124,33 @@ export interface Cabinet {
   vacantCount: number;
   /** Positions whose label came back as a bare Q-id. */
   untranslatedCount: number;
+  /**
+   * The query returned exactly `LIMIT` rows, so the result is TRUNCATED and the
+   * true count is unknown.
+   *
+   * ## Why this field exists
+   *
+   * Measured 2026-08-15, immediately after the timeout fix: the United Kingdom
+   * returns **exactly 300 rows against `LIMIT 300`**. Its cabinet is being cut
+   * off, and nothing said so — 300 ministries is a plausible number, there is no
+   * error, and the true figure is simply unavailable.
+   *
+   * **This truncation is older than the fix and was invisible because of it.**
+   * The query used to 504 for the United Kingdom, so it never returned rows to
+   * be truncated. Repairing the timeout did not create this; it revealed it.
+   *
+   * A caller that renders a cabinet MUST say the list is incomplete when this is
+   * true. Rendering 300 ministries as though they were all of them is the
+   * party-bar bug: right units, plausible magnitude, silently wrong.
+   */
+  truncated: boolean;
 }
+
+/**
+ * The row cap in `buildCabinetQuery`, exported so the parser can detect
+ * saturation rather than hard-coding the number in two places that could drift.
+ */
+export const CABINET_ROW_LIMIT = 300;
 
 const QID_ONLY = /^Q\d+$/;
 
@@ -173,6 +199,15 @@ export function parseCabinet(raw: unknown, sourceId = SOURCE_ID): Cabinet {
     ministries,
     vacantCount: ministries.filter((ministry) => ministry.holder === null).length,
     untranslatedCount: ministries.filter((ministry) => ministry.untranslated).length,
+    /**
+     * SATURATION IS MEASURED ON RAW ROWS, NOT ON MINISTRIES.
+     *
+     * `ministries` is the collapsed view — one entry per position, several rows
+     * per position when a position has multiple holder statements. So a
+     * truncated 300-row response can collapse to far fewer ministries and look
+     * unremarkable. The cap applies to rows, so the check must too.
+     */
+    truncated: result.rows.length >= CABINET_ROW_LIMIT,
   };
 }
 

@@ -1649,3 +1649,44 @@ measurement over six countries and not a proof over 190 — so the bound is a **
 known blast radius**, and it needs the hit case detected rather than assumed away: compare the
 bounded count against a `d≤5` count and report when they differ, so the day a seventh hop
 appears is a report rather than a missing row.
+
+---
+
+## Fixing the timeout revealed a truncation the timeout had been hiding
+
+**Measured 2026-08-15T20:56Z**, characterising the fixed cabinet query across the size range.
+
+| Country | Before | After, run 1 | After, run 2 |
+| --- | --- | --- | --- |
+| Vatican City | — | 2374ms, 0 rows | 2507ms, 0 rows |
+| Iceland | **52181ms**, 33 rows | 3237ms, 33 rows | 2817ms, 33 rows |
+| **United Kingdom** | **504 after 65659ms** | **8398ms, 300 rows** | **5300ms, 300 rows** |
+| India | — | 5249ms, 60 rows | 2969ms, 60 rows |
+
+Iceland is 16× faster with an identical row set, and the United Kingdom's 504 is gone. Two runs
+each, because "GBR works now" from one sample is the same evidence quality as the stale blocker
+this goal started by disproving.
+
+### And the United Kingdom returns exactly 300 rows against `LIMIT 300`
+
+**Its cabinet is truncated.** The true count is unknown, there is no error, and 300 ministries is
+an entirely plausible number.
+
+**This defect is older than the fix and was invisible because of it.** The query used to 504 for
+the United Kingdom, so it never returned rows to be cut off. Repairing the timeout did not create
+the truncation; it removed the louder failure that had been standing in front of it.
+
+**A loud failure can hide a quiet one, and fixing the loud one is when the quiet one becomes
+reachable.** Worth stating because the instinct after a successful fix is to measure that it
+worked — which it did, on every axis being watched — and the truncation sat in the same numbers,
+in a column that looked like a healthy row count.
+
+### Saturation is measured on rows, not on the collapsed view
+
+`ministries` collapses rows by position, so 300 truncated rows carrying several holder
+statements each can collapse to a handful of ministries and look unremarkable. The cap applies to
+rows, so the check does too — and a planted case proves the collapsed-looking version is still
+caught.
+
+**`Cabinet.truncated` is now part of the type**, so a caller cannot render a cut-off cabinet as
+complete without ignoring a field that says otherwise.
