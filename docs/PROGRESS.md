@@ -44,3 +44,35 @@ Five commits, each individually green, none squashed.
 
 **Next:** `NEXT-GOAL.md` — hardware GL as default, mutation parallelism, then FIRMS and the
 remaining Phase A sources.
+
+## 2026-08-15 — NEXT-GOAL launched: FIRMS + Phase A batch
+
+**Goal state: RUNNING.** The Fact-model migration is closed administratively per S7, with
+question 14 as its amendment record.
+
+### Done this checkpoint
+
+| Item | Evidence |
+| --- | --- |
+| `--only` on verify (Part 1.3, the last harness item) | `5165d67` — 17 assertions/10.4s vs 287/98.4s |
+| FIRMS registered, licence read, probed | `322841c` — 200, KEY-GATED, transport worker |
+| Path-embedded keys expressible | `keyIn`/`keyPlaceholder`, 5 planted cases |
+| Transport declared after the guard caught its absence | `6d9f682` |
+
+**718 tests / 145 suites, all passing. Typecheck exit 0. Tree clean.**
+
+### Next, in order
+
+1. FIRMS adapter — precision bound to `scan`/`track`, thermal-anomalies-only labelling,
+   instrument-aware `confidence`, `acq_time` as HHMM
+2. FIRMS live fixture through the app's own builder, run through `parse` first
+3. FIRMS contract test, then `verifiedAgainst: live` in its own commit
+4. Phase A batch: Cloudflare Radar, IODA/OONI, IOM DTM, ReliefWeb/HDX, FEWS NET, IFES,
+   UN voting, Feodo — each through the gate, adapter-only where no surface exists
+5. #20's Comtrade experiment when the budget resets
+
+### Open, needing nothing from anyone
+
+19a (verdict ladder orders `keyRequired` before reachability) and 18 (`npm run probe` on
+Windows) are both shaped and both change behaviour beyond their own source, so each waits for
+its own commit rather than riding along.
