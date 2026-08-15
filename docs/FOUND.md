@@ -1209,3 +1209,33 @@ point and the reason the error cost a fetch rather than a retraction.
 
 **Consequence for the batch:** every "licence" cell in the Phase A table is now an unverified
 claim until read. The plan's licence notes are a research lead, not a record.
+
+---
+
+## OONI's data policy names a licence family, not a licence
+
+**Read 2026-08-15.** `ooni.org/about/data-policy/` says only:
+
+> Content available under a **Creative Commons license**.
+
+Stopping there would have recorded a licence FAMILY. Creative Commons spans CC0 — which waives
+everything — and CC BY-NC-SA, which forbids commercial use and binds derived datasets. Those are
+not variations of one licence; they are opposite answers to both questions this project asks.
+
+The same page points onward to `github.com/ooni/license/data`, whose `LICENSE.md` reads:
+
+> This work is licensed under a Creative Commons **Attribution-NonCommercial-ShareAlike 4.0**
+> International License.
+
+**CC BY-NC-SA 4.0.** Class `share-alike-nc` — the class added earlier this session for
+`OPEN-QUESTIONS` 9, now with its second user after WHO DON. A class built for one source that
+turns out to fit the next unrelated one is a sign the gap was real rather than local.
+
+**Second licence read of this batch, second time the convenient reading was wrong.** Feodo's
+plan entry said CC0 and the terms reserve all rights; OONI's own page says "a Creative Commons
+license" and the licence is the most restrictive CC variant this project can still use. Neither
+was a lie — both were incomplete in the direction that would have made the work easier.
+
+**The rule this batch is now run under:** a licence is read until it names a specific instrument.
+"Creative Commons", "open", "free to use" and "public domain" are leads. `CC BY-NC-SA 4.0` is a
+licence.

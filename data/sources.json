@@ -1236,6 +1236,27 @@
         "burst": 50
       },
       "transport": "worker"
+    },
+    {
+      "id": "ooni",
+      "name": "OONI — network measurement aggregates",
+      "panel": "risk",
+      "homepage": "https://ooni.org/data/",
+      "probeUrl": "https://api.ooni.io/api/v1/aggregation?since=2026-08-01&until=2026-08-15&axis_x=measurement_start_day",
+      "license": "CC BY-NC-SA 4.0 — read 2026-08-15 at github.com/ooni/license/data/LICENSE.md: \"This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.\"",
+      "licenseClass": "share-alike-nc",
+      "attribution": "Open Observatory of Network Interference (OONI), CC BY-NC-SA 4.0.",
+      "cadence": "daily",
+      "ttlMs": 21600000,
+      "tier": "OFFICIAL",
+      "keyRequired": false,
+      "keyEnv": null,
+      "verifiedAgainst": "documentation",
+      "origin": "https://api.ooni.io",
+      "notes": "A CONNECTIVITY MEASUREMENT IS NEVER A CLAIM ABOUT CAUSE. OONI reports that a test failed, timed out, or returned unexpected content from a given vantage point. It does not report that a government blocked something, and neither may this app. Blocking, censorship and interference are inferences a reader may draw; they are not what the measurement says. SPEC-EXPANSION lists OONI to corroborate Cloudflare Radar, and the same rule binds both: a connectivity drop is factual signal, never a claim about cause.  LICENCE READ 2026-08-15. ooni.org/about/data-policy/ points to github.com/ooni/license/data, whose LICENSE.md reads: \"This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.\" So CC BY-NC-SA 4.0 -- attribution, non-commercial, share-alike. Class share-alike-nc, which exists because of OPEN-QUESTIONS 9 and now has its second user after WHO DON. A genuine reading: the data policy page states only \"Content available under a Creative Commons license\" and names no variant, so stopping there would have recorded a licence family rather than a licence.  NON-COMMERCIAL IS SATISFIABLE ONLY WHILE THIS PROJECT STAYS NON-COMMERCIAL (decision 3), and share-alike binds any derived dataset this app publishes.  The aggregation endpoint answers 200 with {v, dimension_count, db_stats, result} and needs no key. Aggregation counts are what this app wants: individual measurements identify vantage points, and a per-measurement view would carry more about the person who ran the test than about the network. PROBED 2026-08-15: 200, no access-control-allow-origin, so WORKER-REQUIRED -- a browser cannot read it. Response took 18.2s, well over the 20s default probe timeout margin, so timeoutMs is raised to 30s: an aggregation query scans a large corpus and a default timeout would record a slow source as an unreachable one.",
+      "schemaVersion": 1,
+      "transport": "worker",
+      "timeoutMs": 30000
     }
   ],
   "verifiedAgainstValues": {
