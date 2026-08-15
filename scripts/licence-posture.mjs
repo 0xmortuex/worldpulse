@@ -30,6 +30,38 @@
  */
 
 /**
+ * Which classes actually express each obligation.
+ *
+ * A licence text saying "NonCommercial" and a class that does not carry the
+ * non-commercial constraint is a source whose obligation exists only in prose —
+ * which is how `restricted` came to cover two postures, and how WHO's
+ * CC BY-NC-SA sat in `share-alike` with its NC term recorded nowhere a check
+ * could see it.
+ */
+/**
+ * Satisfied A FORTIORI, not only by exact match.
+ *
+ * `restricted` and `restricted-minimal` grant less than NC or SA require, so a
+ * source held under either is already being treated more conservatively than the
+ * licence demands. Requiring an exact class there would force a WEAKER
+ * classification onto four RSS feeds to satisfy a guard — the guard bending the
+ * data rather than describing it.
+ *
+ * `restricted-minimal` satisfies share-alike for the same reason from the other
+ * end: it ingests a headline, a timestamp and a link, which creates no derived
+ * dataset for copyleft to be viral into.
+ *
+ * What this still catches is the case it was built for: a class that expresses
+ * ONE of two obligations and silently drops the other.
+ */
+const SATISFIES_NC = new Set(['nc', 'share-alike-nc', 'restricted-minimal', 'restricted']);
+const SATISFIES_SA = new Set(['share-alike', 'share-alike-nc', 'restricted-minimal', 'restricted']);
+
+/** Does the licence TEXT claim an obligation the CLASS has to carry? */
+const CLAIMS_NC = /\bNC\b|non-?commercial/i;
+const CLAIMS_SA = /\bSA\b|share-?alike/i;
+
+/**
  * @param {{sources: Array<Record<string, unknown>>}} registry
  * @returns {string[]} one problem per contradiction, empty when consistent
  */
@@ -46,6 +78,35 @@ export function licenceProblems(registry) {
           `but it declares transport "${source.transport}", which is the app saying how it fetches it. ` +
           'Use "restricted-minimal" if minimal attributed elements are genuinely ingested, ' +
           'or remove the transport if they are not',
+      );
+    }
+
+    /**
+     * THE CLASS MUST CARRY EVERY OBLIGATION THE LICENCE TEXT CLAIMS.
+     *
+     * Fail closed: a licence saying NonCommercial and a class that does not
+     * express it leaves the constraint in prose, where no check can enforce it
+     * and a future reader may reasonably assume it was considered. WHO's
+     * CC BY-NC-SA sat in `share-alike` exactly this way — the SA obligation was
+     * carried, the NC obligation was not, and the registry looked consistent.
+     *
+     * Read from the licence STRING rather than a curated flag, because the
+     * string is what someone transcribes from the source and is the last place a
+     * mistake can still be caught mechanically.
+     */
+    const licence = String(source.license ?? '');
+
+    if (CLAIMS_NC.test(licence) && !SATISFIES_NC.has(String(source.licenseClass))) {
+      problems.push(
+        `${id}: licence text claims a non-commercial term ("${licence.slice(0, 48)}…") but ` +
+          `licenceClass "${source.licenseClass}" does not express it — use "nc" or "share-alike-nc"`,
+      );
+    }
+
+    if (CLAIMS_SA.test(licence) && !SATISFIES_SA.has(String(source.licenseClass))) {
+      problems.push(
+        `${id}: licence text claims a share-alike term ("${licence.slice(0, 48)}…") but ` +
+          `licenceClass "${source.licenseClass}" does not express it — use "share-alike" or "share-alike-nc"`,
       );
     }
 

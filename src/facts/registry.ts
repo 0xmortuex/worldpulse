@@ -6,7 +6,7 @@ import type { Tier } from './types';
  * registry is JSON, and a union alone cannot check JSON — it can only be
  * asserted over it. See `parseRegistry` below.
  */
-const LICENSE_CLASSES = ['open', 'nc', 'share-alike', 'restricted', 'restricted-minimal'] as const;
+const LICENSE_CLASSES = ['open', 'nc', 'share-alike', 'share-alike-nc', 'restricted', 'restricted-minimal'] as const;
 const VERIFIED_AGAINST = ['documentation', 'live', 'bundled'] as const;
 const TIERS = ['OFFICIAL', 'ESTIMATE', 'DERIVED'] as const;
 const TRANSPORTS = ['direct', 'worker'] as const;
@@ -170,6 +170,11 @@ export function licenseIsConstrained(licenseClass: LicenseClass): boolean {
   return (
     licenseClass === 'nc' ||
     licenseClass === 'share-alike' ||
+    // Both obligations bind, so it is constrained twice over. Listed explicitly
+    // for the same reason as the others: a class omitted here reads as
+    // unconstrained to every consumer, which is the failure that would matter
+    // most for the one class carrying two terms.
+    licenseClass === 'share-alike-nc' ||
     licenseClass === 'restricted' ||
     licenseClass === 'restricted-minimal'
   );

@@ -5,7 +5,8 @@
     "nc": "Non-commercial only. Usable by this project (non-commercial, no ads, no paid tier) but must be isolated behind its own adapter so a change in project status means swapping one module.",
     "share-alike": "Copyleft (ODbL, CC BY-SA). Derived datasets inherit the licence. Must be stored separately and never merged into a general-purpose derived table.",
     "restricted": "No licence grant for reuse. Not ingested. Link-out only.",
-    "restricted-minimal": "No general licence grant, but minimal attributed elements are ingested: facts and figures rendered with source credit and a link back (a headline, outlet, timestamp and link; or a numeric value with its source named). Never bulk redistribution, never the full work. Everything else is link-out. Enforced by scripts/licence-posture.mjs, not by convention."
+    "restricted-minimal": "No general licence grant, but minimal attributed elements are ingested: facts and figures rendered with source credit and a link back (a headline, outlet, timestamp and link; or a numeric value with its source named). Never bulk redistribution, never the full work. Everything else is link-out. Enforced by scripts/licence-posture.mjs, not by convention.",
+    "share-alike-nc": "Non-commercial AND copyleft (CC BY-NC-SA). Both obligations bind: usable by this project because it is non-commercial (decision 3), and derived datasets inherit the licence so they are stored separately and never merged into a general-purpose derived table. Neither term may be dropped because the other is recorded."
   },
   "sources": [
     {
@@ -1129,7 +1130,7 @@
       "homepage": "https://www.who.int/emergencies/disease-outbreak-news",
       "probeUrl": "https://www.who.int/api/news/diseaseoutbreaknews?%24orderby=PublicationDateAndTime+desc&%24top=10&%24select=Id%2CDonId%2CTitle%2CPublicationDateAndTime%2CItemDefaultUrl",
       "license": "CC BY-NC-SA 3.0 IGO — WHO publications are open access under this licence (who.int/about/policies/publishing/copyright, read 2026-08-14).",
-      "licenseClass": "share-alike",
+      "licenseClass": "share-alike-nc",
       "attribution": "Disease Outbreak News, World Health Organization (CC BY-NC-SA 3.0 IGO).",
       "cadence": "continuous",
       "ttlMs": 3600000,

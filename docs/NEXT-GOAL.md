@@ -14,7 +14,47 @@ The suite currently costs ~18 minutes per verify and ~65 minutes per full mutati
 machine. That cost is why run discipline (S4) had to be written down at all: a check nobody
 can afford to run is a check that stops being run.
 
-### 1.1 Hardware GL becomes the default
+### 1.1 — ANSWERED AND DONE, 2026-08-15
+
+**Scenario (b), and worse than predicted.** The renderer string settled it before anything was
+flipped: `WORLDPULSE_HARDWARE_GL=1` had never engaged the GPU. It only removed the swiftshader
+flags, and headless Chromium falls back to software without an explicit ANGLE backend — so four
+sessions of "hardware GL" numbers were SwiftShader compared against SwiftShader. Not a
+blocklist: `--ignore-gpu-blocklist` changed nothing.
+
+| | SwiftShader | GPU (`--use-angle=gl`) |
+| --- | --- | --- |
+| Globe idle, US selected | 766.6ms / 1.3fps | **16.7ms / 59.9fps** |
+| p95 frame | 1533.3ms | **16.8ms** |
+| Full verify | ~1050–1250s | **103s** |
+
+**My prediction was wrong and the reviewer's instinct was right.** This document originally
+said the win would be "variance, not speed". It is 46× on frame time and 10× on the suite. The
+prediction was drawn from a measurement of a mislabelled configuration — which is rule 35a's
+entire point, arriving one paragraph after I wrote the rule.
+
+Landed: GPU default, `WORLDPULSE_SOFTWARE_GL=1` opt-out, renderer printed every run, and a run
+that requests the GPU and gets software **fails** naming both strings. Frame budgets re-based
+from 750ms to 16.7ms. The camera-settle and atomic-tooltip-read conditions the speed exposed
+are in, and L9's two tangled mechanisms are separated.
+
+### 1.2 — STRUCK, with the arithmetic that struck it
+
+Worker count was to be sized from this machine's cores. The sizing measurement removed the
+reason for the work:
+
+| | SwiftShader | GPU |
+| --- | --- | --- |
+| One mutation | ~330–510s | **~115s** |
+| Full 11-mutation suite | **~65 min** | **~21 min** |
+
+Two workers on 2 physical cores might save ten minutes off twenty-one, against a worktree per
+worker, port allocation, an N-of-one-run lock, per-worker accounting and a contention
+measurement — and at ~408MB per browser tree on 3.79GB, near the memory ceiling anyway. **Not
+built.** Recorded in `FOUND.md`: dropped because the measurement meant to size it showed there
+was nothing left to size.
+
+### 1.1 (superseded) — the plan as originally written
 
 **Change:** `verify-render.mjs` and `mutation-check.mjs` default to hardware GL;
 `WORLDPULSE_SOFTWARE_GL=1` becomes the opt-in fallback. This inverts today's default.
@@ -39,7 +79,7 @@ near-identical median. If that holds, the win is variance rather than speed — 
 reduce flake rather than duration, and the durations may barely move. Measure before claiming
 either.
 
-### 1.2 Parallelise the mutation harness
+### 1.2 (superseded) — the plan as originally written
 
 **Change:** N workers, each with its own worktree, port and browser.
 

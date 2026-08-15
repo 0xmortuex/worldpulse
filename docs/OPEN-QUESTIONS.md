@@ -493,3 +493,61 @@ would undo the argument for all of them.
 struck from any future goal text rather than carried forward, because it has now been asserted
 across several sessions and is the clearest instance of P13 — a planned fixture that acquired
 authority by repetition and was never checked against the tree.
+
+---
+
+## 15. Two event markers overlap closely enough that the pick lands on the neighbour
+
+**Raised 2026-08-15, exposed by the GPU.** `frontFacingClusterId()` nominates `EONET_2` as the
+most central front-facing marker; hovering the coordinates `screenCoordsOf('EONET_2')` returns
+resolves the tooltip to **`EONET_MEASURED`** instead.
+
+The projection is not wrong — the probe confirms coordinates are stable and the canvas geometry
+is correct. Two markers are simply close enough on screen that globe.gl's raycast returns the
+neighbour.
+
+**Why it appears now.** At 1.3fps the camera never settled to the position where the two
+overlap; the harness aimed and clicked from a different vantage. At 59.9fps the camera reaches
+its target, and the target happens to put these two markers adjacent.
+
+**Why it needs you rather than a fix from me.** There are three defensible answers and they are
+product decisions, not parsing ones:
+
+| Option | Cost |
+| --- | --- |
+| **(a) Aim at the most ISOLATED front-facing marker**, not the most central | Harness-only change; the check keeps testing what it was written for. But it stops testing the crowded case, which is the one users meet. |
+| **(b) Accept the neighbour** when both are within N pixels, asserting only that *a* marker resolved | Weakens a real assertion — the check exists because a wrong id means a wrong event flew the camera somewhere else. |
+| **(c) Treat overlapping markers as a product defect** and cluster or offset them | The honest reading if two events genuinely render on top of each other: a user cannot click the one they mean either. This is the same complaint L9 makes, arriving from a different direction. |
+
+**My recommendation: (c) is the real answer and (a) unblocks the harness meanwhile** — but (c)
+changes rendering behaviour, and the clustering rules are already specced, so it is not mine to
+decide while fixing a test.
+
+**Related:** the fixture set has an `EONET_MEASURED` event precisely to prove a measured
+position renders differently from a derived centroid. Its placement relative to `EONET_2` is
+fixture data, so (a) could also be achieved by moving a fixture — which would be editing a
+fixture to make a test pass, and is recorded here rather than done.
+
+### ANSWERED — 2026-08-15: it is a rendering defect, and step 7 already specified the fix
+
+Not a test problem. Step 7's original hard cases included **coincident or near-coincident
+events (an aftershock sequence): overlapping points must remain individually selectable, or
+cluster with a stated count. Silently stacking so only the top one is reachable is a
+fact-id-class bug.**
+
+That requirement was written and the renderer does not meet it. `EONET_2` and
+`EONET_MEASURED` stack closely enough that a raycast at one returns the other — so a user
+aiming at one event opens another, which is the fact-id failure rule 7 names: not an absence,
+a confident wrong answer.
+
+**The fix is the specced coincidence handling** — cluster with a count at overlap, expand on
+interaction, every member reachable — and **the neighbour-pick case becomes its planted case.**
+
+**The fixture stays exactly as it is.** Separating the two markers would make the test pass
+while real coincident events stayed unclickable: editing reality to match the assertion. It is
+now the regression fixture for the coincidence feature, which is the best available disposal
+for a fixture that was nearly moved.
+
+**Interim cover:** the keyboard/list path (S3/L12), which reaches every event without a click
+and therefore without a raycast. One more reason the promotion was right — it covers L9 and
+this defect with the same work.

@@ -54,6 +54,49 @@ describe('licence posture', () => {
     );
   });
 
+  it('CATCHES a class that expresses one obligation and drops the other', () => {
+    /**
+     * The planted case for the NC+SA split. WHO's CC BY-NC-SA sat in
+     *  for a whole source registration: the copyleft term was
+     * carried, the non-commercial term existed only in prose, and the registry
+     * looked consistent because nothing compared the class against the licence
+     * text.
+     */
+    const problems = check([
+      source({ id: 'who', license: 'CC BY-NC-SA 3.0 IGO', licenseClass: 'share-alike', transport: 'direct' }),
+    ]);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /non-commercial term/);
+    assert.match(problems[0] ?? '', /share-alike-nc/);
+  });
+
+  it('accepts share-alike-nc for a licence carrying both', () => {
+    assert.deepEqual(
+      check([source({ license: 'CC BY-NC-SA 3.0 IGO', licenseClass: 'share-alike-nc', transport: 'direct' })]),
+      [],
+    );
+  });
+
+  it('catches an NC licence filed as open, the least restrictive mistake', () => {
+    const problems = check([source({ license: 'CC BY-NC 4.0', licenseClass: 'open', transport: 'direct' })]);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /non-commercial/);
+  });
+
+  it('does NOT force a weaker class onto a stricter one', () => {
+    /**
+     * A fortiori. A BBC feed whose terms say personal, non-commercial use sits
+     * in  — no general grant, headline and link only —
+     * which is stricter than NC requires. Demanding an exact class here would
+     * push four RSS feeds into a WEAKER classification to satisfy a guard: the
+     * guard bending the data rather than describing it.
+     */
+    assert.deepEqual(
+      check([source({ license: 'BBC Terms — personal, non-commercial use', licenseClass: 'restricted-minimal', transport: 'worker' })]),
+      [],
+    );
+  });
+
   it('the shipped registry has a consistent licence posture', () => {
     assert.deepEqual(licenceProblems(registry), []);
   });

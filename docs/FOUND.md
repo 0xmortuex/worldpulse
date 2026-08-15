@@ -641,3 +641,33 @@ side of it:
 was, is what made this recoverable. A revert recorded as "didn't work" would have buried a
 correct fix for good. A revert recorded with its unmet condition turned into a specification
 that something else later satisfied — and the fix landed without anyone re-deriving it.
+
+---
+
+## The 46× deleted the parallel-worker work item
+
+**Measured 2026-08-15, immediately after the GPU became the default.** Worker count for a
+parallel mutation harness was to be sized from this machine's cores. The arithmetic was redone
+first, and it removed the reason for the work.
+
+| | SwiftShader | GPU (angle gl) |
+| --- | --- | --- |
+| Full `npm run verify` | **~1050–1250s** | **103s** |
+| One mutation (build + verify) | ~330–510s | **~115s** |
+| Full 11-mutation suite | **~65 min** | **~21 min** |
+
+**A ten-fold speedup on the thing parallelism was meant to accelerate.** Two workers on a
+2-physical-core machine could save perhaps ten minutes off twenty-one, and would cost: a
+worktree per worker, port allocation, a run-lock that admits N workers of one run while still
+refusing a second run, per-worker duration accounting, and a contention measurement to know
+whether any of it helped. On 3.79GB of RAM with one worker's browser tree measured at ~408MB,
+two workers is also near the memory ceiling.
+
+**So it is not built.** The complexity was justified by a 65-minute run; it is not justified by
+a 21-minute one, and the run discipline in S4 — full suite only before a push or a goal close —
+already covers the remaining cost.
+
+**Recorded because the reasoning matters more than the conclusion.** The item was not dropped
+because it was hard; it was dropped because the measurement that was supposed to *size* it
+showed there was nothing left to size. Doing the arithmetic before the build is what turned a
+week of plausible work into a paragraph.
