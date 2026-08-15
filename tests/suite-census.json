@@ -30,6 +30,7 @@
   "fixture requests carry the parameters the app sends": 12,
   "fixture subjects are reachable": 4,
   "GDELT DOC contract": 3,
+  "gl configuration": 5,
   "guard: host accounting catches an unregistered host": 2,
   "guard: label-service check catches a request that cannot produce its response": 3,
   "guard: parameter parity catches an omitted parameter": 2,

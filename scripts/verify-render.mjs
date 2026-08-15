@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path';
 import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
 import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
 import { acquireRunLock } from './run-lock.mjs';
+import { describeRenderer, glArgs, isSoftwareRenderer } from './gl-config.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -175,7 +176,7 @@ async function waitFor(page, fn, timeoutMs = 6000) {
  * has stopped entirely cannot hang the suite; it is not a deadline anything is
  * expected to reach.
  */
-async function waitForDomQuiet(page, selector, { quietFrames = 3, maxFrames = 24, hardStopMs = 45_000 } = {}) {
+async function waitForDomQuiet(page, selector, { quietFrames = 3, maxFrames = 300, hardStopMs = 15_000 } = {}) {
   return page.evaluate(
     ({ sel, frames, budget, hardStop }) =>
       new Promise((resolve) => {
@@ -242,6 +243,23 @@ async function waitForDomQuiet(page, selector, { quietFrames = 3, maxFrames = 24
       }),
     { sel: selector, frames: quietFrames, budget: maxFrames, hardStop: hardStopMs },
   );
+}
+
+/**
+ * Poll until `fn` returns non-null, and return THAT value.
+ *
+ * `waitFor` answers 'did it happen'. A caller that then re-reads the DOM to learn
+ * WHAT happened has opened a gap, and anything the page rewrites in between falls
+ * into it. Returning the value the passing evaluation itself saw closes the gap.
+ */
+async function waitForValue(page, fn, timeoutMs = 6000) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const value = await page.evaluate(fn);
+    if (value !== null) return value;
+    if (Date.now() > deadline) return null;
+    await page.waitForTimeout(60);
+  }
 }
 
 const failures = [];
@@ -422,7 +440,71 @@ for (const event of ['uncaughtException', 'unhandledRejection']) {
  * Frames, not milliseconds: what is being waited on is renders, and a slow
  * machine needs longer to produce the same number of them.
  */
-async function waitForStableNode(page, selector, { quietFrames = 3, maxFrames = 24, hardStopMs = 45_000 } = {}) {
+/**
+ * Wait until the CAMERA stops moving.
+ *
+ * `controls.enableDamping = true` with `dampingFactor = 0.12`, so `flyTo` eases
+ * toward its target over many frames rather than snapping — even with a 0ms
+ * duration.
+ *
+ * `pickEvent` used to park for a fixed 500ms after focusing a cluster. At 1.3fps
+ * that was two-thirds of ONE frame: the camera could not move between computing
+ * a marker's screen position and moving the pointer there, so the two always
+ * agreed. At 59.9fps the same 500ms is thirty frames of continuous easing, the
+ * coordinates are read mid-glide, and the marker has moved by the time the
+ * pointer arrives.
+ *
+ * That is why switching to the GPU took `hover-missed` from 0 in 30 trials to 24
+ * in 30. The pick was never robust; it was aiming at a stationary target by
+ * accident of frame rate. Waiting for the camera to settle is the condition that
+ * makes it robust at any frame rate — rule 15, at a site that had escaped it.
+ */
+async function waitForCameraSettled(page, { quietFrames = 3, maxFrames = 300, hardStopMs = 10_000 } = {}) {
+  return page.evaluate(
+    ({ frames, budget, hardStop }) =>
+      new Promise((resolve) => {
+        const read = () => {
+          const pov = window.__worldpulse?.pointOfView?.();
+          return pov ? `${pov.lat.toFixed(4)},${pov.lng.toFixed(4)},${pov.altitude.toFixed(4)}` : null;
+        };
+        let last = read();
+        let still = 0;
+        let seen = 0;
+        const started = performance.now();
+        const tick = () => {
+          seen += 1;
+          const now = read();
+          if (now !== null && now === last) still += 1;
+          else {
+            still = 0;
+            last = now;
+          }
+          if (still >= frames) {
+            resolve(true);
+            return;
+          }
+          if (seen >= budget || performance.now() - started > hardStop) {
+            resolve(false);
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+    { frames: quietFrames, budget: maxFrames, hardStop: hardStopMs },
+  );
+}
+
+/**
+ * Frame budgets re-based for the GPU default.
+ *
+ * `maxFrames: 24` was chosen when a frame cost 750ms — eighteen seconds. At
+ * 16.7ms it is four tenths of a second, which is not long enough for anything
+ * involving an async load to settle. The budget is sized for the configuration
+ * that is now the default, with `hardStopMs` as the backstop when the software
+ * fallback makes frames expensive again.
+ */
+async function waitForStableNode(page, selector, { quietFrames = 3, maxFrames = 300, hardStopMs = 15_000 } = {}) {
   return page.evaluate(
     ({ sel, frames, budget, hardStop }) =>
       new Promise((resolve) => {
@@ -634,23 +716,46 @@ const { executablePath, note: chromiumNote } = resolveChromium({
 });
 console.log(`chromium: ${chromiumNote}`);
 /**
- * Software rasterise by default: on a GPU-less box the globe otherwise renders
- * as an empty canvas and every marker check passes against nothing.
+ * GPU by default; `WORLDPULSE_SOFTWARE_GL=1` opts out.
  *
- * WORLDPULSE_HARDWARE_GL=1 opts into a real GPU, which is roughly twice as fast
- * — but it is NOT equivalent, and that is why it is opt-in rather than
- * automatic: under hardware GL on this machine the marker picks fail and a later
- * click times out. Authoritative runs stay on software, where a result can be
- * compared with every previous one.
+ * This inverts what stood here before, and the comment it replaces was wrong in
+ * a way worth recording. It said hardware GL "is roughly twice as fast — but it
+ * is NOT equivalent", and that software should stay authoritative. Both halves
+ * came from measurements of a configuration that was never hardware:
+ * `WORLDPULSE_HARDWARE_GL=1` merely dropped the swiftshader flags, and headless
+ * Chromium falls back to SwiftShader without an explicit ANGLE backend. Four
+ * sessions of "hardware" numbers were software.
+ *
+ * With `--use-angle=gl` the same machine renders the globe at 59.9fps against
+ * SwiftShader's 1.3 — 46× — with a flat frame time (p95 16.8ms against
+ * 1533.3ms). See FOUND.md.
  */
 const browser = await chromium.launch({
   ...(executablePath ? { executablePath } : {}),
-  args:
-    process.env['WORLDPULSE_HARDWARE_GL'] === '1'
-      ? []
-      : ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+  args: glArgs(),
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
+
+/**
+ * Print the renderer the run ACTUALLY got, and refuse a silent fallback.
+ *
+ * The label is a request; this is the answer. Asking cost one `getParameter`
+ * call and would have caught the mislabelled configuration immediately, so it is
+ * now unconditional — every run states its renderer beside its numbers, per
+ * rule 20a.
+ */
+const renderer = await describeRenderer(page);
+console.log(`renderer: ${renderer}`);
+if (process.env['WORLDPULSE_SOFTWARE_GL'] !== '1' && isSoftwareRenderer(renderer)) {
+  console.error(
+    `\nREQUESTED THE GPU AND GOT SOFTWARE: ${renderer}\n` +
+      'Every timing and flake number from this run would describe a renderer nobody asked for, ' +
+      'under a label saying otherwise — which is exactly how four sessions of "hardware GL" ' +
+      'measurements turned out to be SwiftShader. Set WORLDPULSE_SOFTWARE_GL=1 to run software ' +
+      'deliberately, or fix the ANGLE backend.\n',
+  );
+  process.exit(1);
+}
 
 // Patience for a machine that is doing other things. Playwright's 30s default is
 // comfortable on a dedicated container and marginal on a working desktop under
@@ -1347,7 +1452,9 @@ async function pickEvent(eventId, { focus = true } = {}) {
   // back-facing marker would bring it into view and defeat the point.
   if (focus) {
     await page.evaluate((id) => window.__worldpulse.focusCluster(id), eventId);
-    await page.waitForTimeout(500);
+    // A CONDITION, not a park. Damping means flyTo eases over many frames, so
+    // coordinates read mid-glide are stale by the time the pointer arrives.
+    await waitForCameraSettled(page);
   }
   await page.mouse.move(10, 10);
   await page.waitForTimeout(150);
@@ -1362,9 +1469,30 @@ async function pickEvent(eventId, { focus = true } = {}) {
   // flakiest check in the suite — threw its result away, so a tooltip that
   // never appeared was indistinguishable from one that appeared with the wrong
   // id. Callers can now tell those apart.
-  const settled = await waitFor(page, () => document.querySelector('.evt') !== null, 5000);
-  const id = await page.evaluate(() => document.querySelector('.evt')?.getAttribute('data-event-id') ?? null);
-  return { aimed: true, settled, id, x: target.x, y: target.y };
+  /**
+   * ONE evaluation: presence and identity together.
+   *
+   * This fix was written, measured green and REVERTED four sessions ago, and the
+   * revert was correct at the time: rule 15 recorded that the '.evt'-exists wait
+   * was vacuous — the previous hover's tooltip satisfied it instantly — so a fix
+   * that removed failures without removing that vacuity was rule 34's forbidden
+   * shape. FOUND.md named the condition for landing it: fix the vacuity first,
+   * then measure the read race separately.
+   *
+   * The GPU met that condition. At 60fps the tooltip actually clears when the
+   * pointer parks, so the guard is real, and with it real the two-round-trip race
+   * is measurable: hover-missed went from 22-of-30 to 0-of-30 with this change,
+   * on the frame-profile tool, under a renderer that reports itself.
+   */
+  const seen = await waitForValue(
+    page,
+    () => {
+      const tip = document.querySelector('.evt');
+      return tip ? { id: tip.getAttribute('data-event-id') } : null;
+    },
+    5000,
+  );
+  return { aimed: true, settled: seen !== null, id: seen?.id ?? null, x: target.x, y: target.y };
 }
 
 // Aim at a specific front-facing event and require THAT event back.

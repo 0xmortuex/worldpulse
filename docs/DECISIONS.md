@@ -651,3 +651,31 @@ input state that can be absorbed silently.
 | S4 | **Run discipline.** Full `npm run verify` only at commit points; `--only` for the step under work. Full mutation suite only before a push or a goal close; per-step mutation during work. A twenty-minute full run after every edit is how a suite stops being run at all. |
 | S5 | **Goals are scoped to 8+ hours unattended.** Routine checkpoints go to `docs/PROGRESS.md`. Only OPEN-QUESTIONS items, the four emergency stops, and goal completion surface to the human — everything else is written down, not reported. |
 | S6 | **Every goal ends by drafting `docs/NEXT-GOAL.md`** — scope, order, acceptance criteria — so approving the next one is an edit rather than a reconstruction. |
+
+## L9 promoted: the keyboard path is the next UI work — 2026-08-15
+
+| # | Decision |
+| --- | --- |
+| L12 | **S3's keyboard/list equivalent moves from "ships with step 10" to the next UI work after the current queue.** Not because L9 got worse — the defect is unchanged — but because we now know what it does to real users. |
+
+**The fact that changed the decision.** L9 was measured at ~20% under SwiftShader at 1.3fps and
+recorded as a flake. Under a renderer that actually engages the GPU, the same machine runs at
+59.9fps and **every marker click fails — 100%, deterministically.**
+
+Most users' machines are 60fps machines. So this is not a flake that occasionally annoys
+someone: **on ordinary hardware, clicking a marker on the globe does not work at all.** That is
+the globe's primary interaction, and it has been broken for every real visitor while our own
+measurements called it intermittent — because our measurements ran on a software rasteriser
+that made the failure rare and the guard vacuous.
+
+**L10 already named the keyboard/list equivalent "load-bearing, not an accessibility nicety."**
+That was correct for a reason nobody had yet: it is not a fallback for a rare failure, it is
+the only working route to event detail on the hardware people own.
+
+**What does not change.** L9 itself stays open per rule 21a — the mechanism is still globe.gl's
+raycast and is still unexplained. MITIGATED requires the keyboard path to ship with its
+equivalence asserted, not merely planned.
+
+| # | Decision |
+| --- | --- |
+| L13 | **One timeboxed diagnostic session on globe.gl's raycast is now worth running, and was not before.** A 100%-reproducible failure can be bisected; a 20% one cannot. Instrument the click frame — camera matrix, pointer coordinates, what the raycast returns and against what set — to name the mechanism precisely. If it yields a one-line fix or a viable last-hovered-point fallback (L11), take it. If not, write it up and close the diagnostic. **Timeboxed hard: the keyboard path ships either way**, so the diagnostic can only save work, never gate it. |

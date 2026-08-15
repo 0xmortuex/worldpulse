@@ -563,3 +563,81 @@ plan is a hypothesis about the code, not a fact about it. Both of these had been
 across several sessions — including by me, when I wrote the migration plan — without anyone
 checking whether the type system permitted them. `ScoredInput.weight: number` settles the
 first in one line, and it was there the whole time.
+
+---
+
+## "Hardware GL" was SwiftShader measuring itself — the real GPU is 46× faster
+
+**Found 2026-08-15, because a reviewer refused to accept a 2% difference as plausible.**
+
+`WORLDPULSE_HARDWARE_GL=1` only *removes* the swiftshader launch flags. Headless Chromium
+then falls back to SwiftShader anyway, so **every measurement this project has recorded as
+"hardware GL" was software rendering**, compared against software rendering. That is why the
+medians came out 733ms versus 750ms: they were the same renderer twice.
+
+Renderer strings, via `WEBGL_debug_renderer_info`:
+
+| Launch args | Renderer that actually engaged |
+| --- | --- |
+| `--use-gl=angle --use-angle=swiftshader` | SwiftShader |
+| *(none — what the harness called "hardware GL")* | **SwiftShader** |
+| `--ignore-gpu-blocklist` | **SwiftShader** — not a blocklist problem |
+| `--use-gl=angle --use-angle=d3d11` | **Intel UHD Graphics, Direct3D11** |
+| `--use-gl=angle --use-angle=gl` | **Intel UHD Graphics, OpenGL 4.5** |
+
+The GPU was never blocked. Headless Chromium simply needs an explicit ANGLE backend.
+
+**The app's frame profile, globe idle with the US selected:**
+
+| Configuration | median | p95 | max | fps |
+| --- | --- | --- | --- | --- |
+| swiftshader | 766.6ms | 1533.3ms | 2149.9ms | **1.3** |
+| angle d3d11 | 16.7ms | 33.3ms | 33.4ms | **59.9** |
+| **angle gl** | **16.7ms** | **16.8ms** | **16.8ms** | **59.9** |
+
+**A 46× difference in median, and `angle gl` is flat**: p95 equal to median, so the long-tail
+frames that made every frame-based wait marginal simply do not occur.
+
+### What this invalidates
+
+- **`TESTING.md` §15's second-configuration table.** Its "hardware GL" row is SwiftShader. The
+  conclusion that hardware GL "is not roughly twice as fast" was comparing software to
+  software; the real answer is 46×, in the direction the tool's own comment originally claimed.
+- **"This machine is slower than the sandbox."** 750ms/frame is what this machine does *under
+  SwiftShader*. It renders the globe at 60fps. The comparison was between two software
+  rasterisers on different CPUs, which says nothing about the hardware.
+- **Every flake rate measured to date** — L9's 20%/50%/30%, the click-actionability class — was
+  measured at 1.3fps. Rule 20a: those numbers belong to a configuration nobody needs to use.
+- **Every frame budget.** `waitForStableNode` and `waitForDomQuiet` use `maxFrames: 24`, sized
+  when a frame cost 750ms. At 16.7ms that budget is 0.4 seconds.
+
+### The instrument mislabelling itself
+
+This is the sharpest instance yet of the class rule 35 was written for. The configuration was
+*named* "hardware GL" in an environment variable, a code comment, a decision log and a
+`TESTING.md` table — and the name was the only thing making it hardware. Nothing measured what
+renderer was in the process, so four sessions of numbers accumulated under a label that was
+false from the first commit.
+
+**A configuration must be identified by what it reports, not by the flag that requested it.**
+The renderer string costs one `getParameter` call and would have caught this immediately.
+
+### Closure: the reverted fix was right, the revert was right, and the condition was named
+
+The `pickEvent` two-round-trip fix in this file was written, measured green, and **reverted on
+purpose** four sessions ago. It has now landed unchanged. The sequence is worth keeping intact,
+because it is the disposal discipline working end to end rather than an argument for either
+side of it:
+
+| Step | What happened |
+| --- | --- |
+| **Fix written** | presence and identity read in one evaluation; three step-7 failures went green |
+| **Reverted** | rule 15 recorded that the `.evt`-exists wait was *vacuous* — the previous hover's tooltip satisfied it instantly — so a fix that removed failures without removing that vacuity was rule 34's forbidden shape, and it had been measured on an 11-commit-stale tree at a frame rate that no longer applied |
+| **Condition named** | this entry: "fix the vacuity first, then measure the read race separately, under a stated configuration" |
+| **Condition met** | the GPU clears the stale tooltip, so the guard became real for the first time |
+| **Fix landed** | hover-missed 22-of-30 → **0-of-30**, measured under a renderer that reports itself |
+
+**The argument this settles:** writing down *why* something was reverted, not merely that it
+was, is what made this recoverable. A revert recorded as "didn't work" would have buried a
+correct fix for good. A revert recorded with its unmet condition turned into a specification
+that something else later satisfied — and the fix landed without anyone re-deriving it.

@@ -1345,3 +1345,42 @@ numbers agree, which is rule 15's failure wearing a comparison's clothes.
 **Fix the comparison method before the deciding run, not after seeing its result.** That
 ordering is what separates a verdict from a rationalisation, and it is cheap: the method
 follows from the known flakes, which are already written down.
+
+### 35a. A configuration is identified by what it reports, not by the flag that requested it
+
+The sentence rule 35 was missing. Nothing ever asked the process which renderer it had, and
+**the name was the only thing making it hardware** — an environment variable, a code comment,
+a decision-log line and a `TESTING.md` table all said "hardware GL" over four sessions of
+SwiftShader measurements.
+
+The check costs one `getParameter` call. `scripts/gl-config.mjs` now asks, every run prints the
+answer beside its numbers, and a run that requested the GPU and got software **fails** rather
+than warning — a warning nobody reads is how the original mislabelling survived. Planted cases
+in `tests/gl-config.test.ts` use the real strings, including the exact SwiftShader line that
+went unnoticed.
+
+### L9's historical rates were two mechanisms blended at a ratio set by frame rate
+
+**This is why no two measurements of it ever agreed.** `pickEvent` was measuring a hover and a
+click together and reporting one number, and the mix depended on how fast the machine rendered:
+
+| Configuration | hover-missed | click-dropped | What was really being measured |
+| --- | --- | --- | --- |
+| SwiftShader, 1.3fps | **0 / 30** | all failures | the hover check was **vacuous** — the previous hover's tooltip never cleared, so `waitFor('.evt')` was satisfied instantly by a stale element carrying the right id |
+| GPU, 59.9fps, before the fix | **22–24 / 30** | the rest | the tooltip now clears, so the guard is real — and it exposed a two-round-trip read race between "does `.evt` exist" and "what id does it carry" |
+| **GPU, 59.9fps, after the fix** | **0 / 30** | **50 / 50** | hover is genuinely correct; the click is genuinely lost |
+
+**The hover half was a harness defect and is fixed** (one evaluation returns presence and
+identity together). **The click half is L9** — globe.gl's raycast failing to resolve — and at
+60fps it fails **100% of the time**, deterministically, rather than the ~20% recorded at
+1.3fps.
+
+So every historical L9 rate — 93% first-attempt, 40% shipped, 90% single, later 20%/50%/30% —
+was a blend of a real defect and a vacuous check, weighted by frame rate. None of them was
+wrong to record; all of them were measuring two things at once, which is why 20a's insistence
+on recording the configuration mattered more than anyone realised at the time.
+
+**Per rule 21a this is an explanation, not a closure.** L9 stays open, the first-attempt
+assertion stays as its canary, and MITIGATED still waits on S3's keyboard path. A failure that
+reproduces every time is far more tractable than one that reproduces one time in five — which
+is what makes the timeboxed diagnostic worth doing now and not before.

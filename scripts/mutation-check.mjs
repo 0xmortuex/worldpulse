@@ -34,6 +34,7 @@ import { dirname, join, resolve } from 'node:path';
 import { INCONCLUSIVE, anchorProblem, classifyMutation, failingLabels } from './mutation-verdict.mjs';
 import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
 import { acquireRunLock } from './run-lock.mjs';
+import { glLabel } from './gl-config.mjs';
 import { planFrom } from './mutation-journal.mjs';
 import { appendFileSync, readFileSync as readSync } from 'node:fs';
 
@@ -89,7 +90,11 @@ function machineProfile() {
     memGb: Math.round(totalmem() / 1024 ** 3),
     node: process.version,
     loadAvg1: loadavg()[0]?.toFixed(2) ?? '?',
-    rasteriser: process.env['WORLDPULSE_HARDWARE_GL'] === '1' ? 'hardware GL' : 'software (swiftshader)',
+    // The REQUESTED renderer. What was actually got is printed per-run by
+    // verify-render, which asks the live context — this label is a request, and
+    // labelling a run by its request is how "hardware GL" came to mean
+    // SwiftShader for four sessions.
+    rasteriser: `${glLabel()} (requested)`,
     chromium: process.env['PLAYWRIGHT_CHROMIUM_PATH'] ?? "playwright's own build",
   };
 }
