@@ -10,6 +10,7 @@ import whoDon from './who-don.json';
 import unhcrPopulation from './unhcr-population.json';
 import cisaKev from './cisa-kev.json';
 import emberYearlyAut from './economy/ember-yearly-aut.json';
+import congressBills from './congress-bills.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -21,6 +22,7 @@ import { buildDonQueryUrl } from '../../src/sources/who-don';
 import { buildPopulationUrl } from '../../src/sources/unhcr';
 import { buildCatalogUrl } from '../../src/sources/cisa-kev';
 import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
+import { buildRecentBillsUrl } from '../../src/sources/congress';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -149,6 +151,21 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'ember-electricity',
     requestUrl: emberYearlyUrl({ iso3: 'AUT', startYear: 2022, endYear: 2023 }),
     body: emberYearlyAut,
+  },
+
+  /**
+   * Twenty most-recently-updated bills, captured live 2026-08-15 through
+   * `buildRecentBillsUrl` (rule 26).
+   *
+   * The capture was run through `parse` BEFORE being written. A fixture that
+   * violated the adapter's own descending-order invariant would make the
+   * contract test pass against data the adapter would reject live — which is the
+   * fixture proving the test rather than the app.
+   */
+  'congress-gov': {
+    sourceId: 'congress-gov',
+    requestUrl: buildRecentBillsUrl({ limit: 20 }),
+    body: congressBills,
   },
 
   'cisa-kev': {

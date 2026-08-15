@@ -936,3 +936,38 @@ for this one, and nothing in the table says which.
 that knows the response shape can tell success from an error envelope, and the prober
 deliberately knows nothing about shapes. It is written into the source's registry notes so the
 adapter author meets it before they meet the bug.
+
+---
+
+## congress.gov ignores an invalid sort and answers 200
+
+**Measured 2026-08-15** while taking congress.gov through the gate. The default `/v3/bill`
+endpoint is not what a "latest activity" panel wants, and finding that out was the easy half.
+
+| Request | What came back |
+| --- | --- |
+| `/v3/bill` (no sort) | 110th Congress — **bills from 2007**, out of 429,656 |
+| `sort=updateDate+desc` | 119th Congress, updated the same day |
+| `sort=updateDate+asc` | 105th Congress, oldest first |
+| **`sort=bogus`** | **HTTP 200, arbitrary order, no error anywhere** |
+
+**An invalid sort is ignored rather than rejected.** So a typo in that parameter produces a
+successful response full of real bills in no useful order, and a panel headed "latest activity"
+renders decade-old legislation while every check reports fine.
+
+**There is a second way to reach the same failure, and it is worse because it looks correct.**
+The sort value contains a `+` that the API reads as a space. `URLSearchParams` percent-encodes
+it to `%2B`, which makes the sort invalid — which the API then ignores. **Correct encoding and
+broken encoding are indistinguishable from the response**, so the builder constructs that
+parameter by hand and a test asserts `%2B` never appears.
+
+**The adapter checks the ordering it asked for rather than trusting the request was honoured**,
+and throws when it is violated. It deliberately does NOT re-sort locally: sorting would hide the
+ignored parameter, and the next symptom would be a pagination bug, because page 2 of an
+unsorted result set is not the continuation of page 1. A locally-sorted page 1 would look
+perfect while the sequence beneath it meant nothing.
+
+**Third instance today of the same shape** — exchangerate.host returning 200 for errors,
+`res.ok` in my own auth sweep, and now this. The pattern is not "APIs lie"; it is that **a
+status code answers a question about transport, and every question worth asking here is about
+content.**

@@ -8,6 +8,7 @@ import * as wikidata from '../src/sources/wikidata';
 import * as usgs from '../src/sources/usgs';
 import * as gdelt from '../src/sources/gdelt';
 import * as ember from '../src/sources/ember';
+import * as congress from '../src/sources/congress';
 import type { GenerationRow } from '../src/sources/ember';
 import { factState } from '../src/facts/types';
 
@@ -395,5 +396,37 @@ describe('Wikimedia Commons imageinfo contract', () => {
       parsed.rows.some((row: GenerationRow) => row.isAggregateSeries),
       'no aggregate series in the response — the filter has nothing to remove',
     );
+  });
+
+  /**
+   * congress.gov — the ordering invariant, checked against the live API.
+   *
+   * This is the assertion that matters: `sort=bogus` returns 200 with arbitrary
+   * order and no error, so the only way to know the sort was honoured is to
+   * check the result. If congress.gov ever stops honouring it, this fails here
+   * rather than in a panel headed "latest activity".
+   */
+  it('congress: bills come back newest-first, and the API honoured the sort', async () => {
+    const sample = await liveOrInconclusive('congress-gov');
+    if (!sample) return;
+    const { body, ctx } = sample;
+
+    // parse() enforces the ordering itself and throws if the sort was ignored.
+    const list = congress.parse(body);
+    assert.ok(list.bills.length > 0, 'no bills came back');
+
+    for (const bill of list.bills) {
+      assert.ok(Number.isInteger(bill.congress) && bill.congress > 0);
+      assert.match(bill.updateDate, /^\d{4}-\d{2}-\d{2}$/);
+      assert.ok(bill.title.length > 0);
+      assert.match(bill.url, /^https:\/\/api\.congress\.gov\//);
+    }
+
+    // Sanity range, never a pinned value: the corpus only grows.
+    assert.ok((list.totalAvailable ?? 0) > 100_000, 'pagination.count looks wrong');
+
+    const fact = congress.totalBillsFact(list, ctx);
+    assert.equal(fact.tier, 'OFFICIAL');
+    assert.match(fact.note ?? '', /all Congresses/i);
   });
 });

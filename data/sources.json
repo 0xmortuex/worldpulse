@@ -675,10 +675,10 @@
       "keyRequired": true,
       "keyEnv": "CONGRESS_GOV_KEY",
       "legislatureTier": 1,
-      "verifiedAgainst": "documentation",
+      "verifiedAgainst": "live",
       "origin": "https://api.congress.gov",
       "transport": "worker",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "keyParam": "api_key",
       "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403. keyParam declares the query form because that is what the Worker appends and what the prober can apply."
     },

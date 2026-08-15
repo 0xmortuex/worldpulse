@@ -1,0 +1,333 @@
+{
+  "bills": [
+    {
+      "congress": 119,
+      "introducedDate": "2026-08-06",
+      "latestAction": {
+        "actionDate": "2026-08-06",
+        "text": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs."
+      },
+      "number": "5316",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "BINSA Act",
+      "type": "S",
+      "updateDate": "2026-08-15",
+      "updateDateIncludingText": "2026-08-15",
+      "url": "https://api.congress.gov/v3/bill/119/s/5316?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-08-06",
+      "latestAction": {
+        "actionDate": "2026-08-06",
+        "text": "Read twice and referred to the Committee on Rules and Administration."
+      },
+      "number": "5355",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Ballots by Election Day Act",
+      "type": "S",
+      "updateDate": "2026-08-15",
+      "updateDateIncludingText": "2026-08-15",
+      "url": "https://api.congress.gov/v3/bill/119/s/5355?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-08-06",
+      "latestAction": {
+        "actionDate": "2026-08-06",
+        "text": "Read twice and referred to the Committee on Agriculture, Nutrition, and Forestry. (Sponsor introductory remarks on measure: CR S4519)"
+      },
+      "number": "5301",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Voice for Farm Workers Act",
+      "type": "S",
+      "updateDate": "2026-08-15",
+      "updateDateIncludingText": "2026-08-15",
+      "url": "https://api.congress.gov/v3/bill/119/s/5301?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-08-07",
+      "latestAction": {
+        "actionDate": "2026-08-07",
+        "text": "Read twice and referred to the Committee on Foreign Relations."
+      },
+      "number": "5370",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Combatting the Persecution of Religious Groups in the People’s Republic of China Act",
+      "type": "S",
+      "updateDate": "2026-08-15",
+      "updateDateIncludingText": "2026-08-15",
+      "url": "https://api.congress.gov/v3/bill/119/s/5370?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-08-07",
+      "latestAction": {
+        "actionDate": "2026-08-07",
+        "text": "Read twice and referred to the Committee on Foreign Relations."
+      },
+      "number": "5369",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Restoring Electoral Fairness and Opposition Rights through Mandates for Accountability Act of 2026",
+      "type": "S",
+      "updateDate": "2026-08-15",
+      "updateDateIncludingText": "2026-08-15",
+      "url": "https://api.congress.gov/v3/bill/119/s/5369?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2025-05-15",
+      "latestAction": {
+        "actionDate": "2025-05-15",
+        "text": "Read twice and referred to the Committee on Environment and Public Works."
+      },
+      "number": "1779",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "LOCOMOTIVES Act",
+      "type": "S",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/s/1779?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2025-05-05",
+      "latestAction": {
+        "actionDate": "2026-07-14",
+        "text": "Forwarded by Subcommittee to Full Committee by Voice Vote."
+      },
+      "number": "3194",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "LOCOMOTIVES Act",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/hr/3194?format=json"
+    },
+    {
+      "congress": 118,
+      "introducedDate": "2023-12-13",
+      "latestAction": {
+        "actionDate": "2023-12-13",
+        "text": "Referred to the House Committee on Ways and Means."
+      },
+      "number": "6762",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "Protecting American Advanced Manufacturing Act",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/118/hr/6762?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-02-25",
+      "latestAction": {
+        "actionDate": "2026-04-15",
+        "text": "Placed on the Union Calendar, Calendar No. 529."
+      },
+      "number": "7688",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "DPA Modernization Act of 2026",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/hr/7688?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2025-06-26",
+      "latestAction": {
+        "actionDate": "2025-06-26",
+        "text": "Placed on the Union Calendar, Calendar No. 139."
+      },
+      "number": "4213",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "Department of Homeland Security Appropriations Act, 2026",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/hr/4213?format=json"
+    },
+    {
+      "congress": 118,
+      "introducedDate": "2024-07-31",
+      "latestAction": {
+        "actionDate": "2024-07-31",
+        "text": "Read twice and referred to the Committee on Finance."
+      },
+      "number": "4873",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "American Tax Dollars for American Solar Manufacturing Act",
+      "type": "S",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/118/s/4873?format=json"
+    },
+    {
+      "congress": 118,
+      "introducedDate": "2024-08-09",
+      "latestAction": {
+        "actionDate": "2024-08-09",
+        "text": "Referred to the House Committee on Ways and Means."
+      },
+      "number": "9338",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "To amend the Internal Revenue Code of 1986 to restrict the advanced manufacturing production credit with respect to components produced by, or in connection with, foreign entities of concern.",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/118/hr/9338?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-01-20",
+      "latestAction": {
+        "actionDate": "2026-04-30",
+        "text": "Became Public Law No: 119-86."
+      },
+      "number": "7147",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "Homeland Security and Further Additional Continuing Appropriations Act, 2026.",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/hr/7147?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-03-02",
+      "latestAction": {
+        "actionDate": "2026-03-09",
+        "text": "Received in the Senate and Read twice and referred to the Committee on Appropriations."
+      },
+      "number": "7744",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "Department of Homeland Security Appropriations Act, 2026",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/hr/7744?format=json"
+    },
+    {
+      "congress": 118,
+      "introducedDate": "2023-12-13",
+      "latestAction": {
+        "actionDate": "2023-12-13",
+        "text": "Read twice and referred to the Committee on Finance."
+      },
+      "number": "3486",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Protecting American Advanced Manufacturing Act",
+      "type": "S",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/118/s/3486?format=json"
+    },
+    {
+      "congress": 118,
+      "introducedDate": "2024-07-30",
+      "latestAction": {
+        "actionDate": "2024-07-30",
+        "text": "Referred to the House Committee on Ways and Means."
+      },
+      "number": "9201",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "Nuclear USA Act of 2024",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/118/hr/9201?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-06-10",
+      "latestAction": {
+        "actionDate": "2026-06-24",
+        "text": "Ordered to be Reported in the Nature of a Substitute (Amended) by Voice Vote."
+      },
+      "number": "9250",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "Great American Outdoors Act 250",
+      "type": "HR",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/hr/9250?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-01-07",
+      "latestAction": {
+        "actionDate": "2026-08-05",
+        "text": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 543."
+      },
+      "number": "3589",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "RISE Act",
+      "type": "S",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/s/3589?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2025-07-30",
+      "latestAction": {
+        "actionDate": "2026-08-10",
+        "actionTime": "11:10:55",
+        "text": "Held at the desk."
+      },
+      "number": "2542",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Federal Building Threat Notification Act",
+      "type": "S",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/s/2542?format=json"
+    },
+    {
+      "congress": 119,
+      "introducedDate": "2026-05-12",
+      "latestAction": {
+        "actionDate": "2026-08-06",
+        "text": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 546."
+      },
+      "number": "4505",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "A bill to require the United States Postal Service to designate ZIP Codes for certain communities.",
+      "type": "S",
+      "updateDate": "2026-08-14",
+      "updateDateIncludingText": "2026-08-14",
+      "url": "https://api.congress.gov/v3/bill/119/s/4505?format=json"
+    }
+  ],
+  "pagination": {
+    "count": 429656,
+    "next": "https://api.congress.gov/v3/bill?sort=updateDate desc&offset=20&limit=20&format=json"
+  },
+  "request": {
+    "contentType": "application/json",
+    "format": "json"
+  }
+}
