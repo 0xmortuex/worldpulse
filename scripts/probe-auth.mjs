@@ -63,6 +63,38 @@ export function keyedProbeUrl(source, env) {
   }
 
   /**
+   * A KEY CARRIED IN THE URL PATH, not a query parameter.
+   *
+   * NASA FIRMS is the first: `/api/area/csv/<MAP_KEY>/VIIRS_NOAA20_NRT/...`.
+   * Declared with a placeholder in `probeUrl` and `keyIn: "path"`, so the
+   * substitution point is written down rather than guessed at by position.
+   *
+   * **This is the most dangerous placement for a secret**, because the key
+   * becomes structurally part of the URL rather than a droppable parameter.
+   * Anything that records a request URL — provenance, logs, a fixture's
+   * `requestUrl` — carries it unless the builder emits the placeholder and only
+   * the fetch substitutes. `secretsIn` is what checks that it does.
+   */
+  const placeholder = source.keyPlaceholder == null ? '' : String(source.keyPlaceholder).trim();
+  if (String(source.keyIn ?? '') === 'path') {
+    if (placeholder === '') {
+      return {
+        ...unkeyed,
+        reason:
+          `${keyEnv} is set and keyIn is "path", but no keyPlaceholder is declared — ` +
+          'there is no way to know where in the path the key belongs',
+      };
+    }
+    if (!url.includes(placeholder)) {
+      return {
+        ...unkeyed,
+        reason: `probeUrl does not contain the declared placeholder "${placeholder}"`,
+      };
+    }
+    return { url: url.split(placeholder).join(encodeURIComponent(value)), keyed: true, reason: null };
+  }
+
+  /**
    * The mechanism must be DECLARED, never inferred.
    *
    * Defaulting to a query parameter would send the key to sources that want a

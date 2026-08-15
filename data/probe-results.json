@@ -1,19 +1,14 @@
 {
-  "probedAt": "2026-08-15T13:50:55.910Z",
+  "probedAt": "2026-08-15T15:09:00.382Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "exchangerate-host",
-    "comtrade",
-    "congress-gov",
-    "theyvoteforyou",
-    "opensanctions",
-    "eia"
+    "nasa-firms"
   ],
   "counts": {
     "CLIENT-FETCH": 27,
     "INCONCLUSIVE": 1,
     "WORKER-REQUIRED": 16,
-    "KEY-GATED": 7,
+    "KEY-GATED": 8,
     "UNREACHABLE": 1
   },
   "results": [
@@ -1625,6 +1620,36 @@
       "reason": "Key EMBER_API_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
       "keyed": true,
       "probedAt": "2026-08-15T12:58:18.822Z"
+    },
+    {
+      "id": "nasa-firms",
+      "name": "NASA FIRMS — active fire / thermal anomalies (VIIRS NOAA-20)",
+      "panel": "layers",
+      "url": "https://firms.modaps.eosdis.nasa.gov/api/data_availability/csv/{MAP_KEY}/ALL",
+      "keyRequired": true,
+      "keyEnv": "FIRMS_MAP_KEY",
+      "licenseClass": "open",
+      "preflight": {
+        "status": 401,
+        "ms": 1139,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 1175,
+        "contentType": "text/plain;charset=UTF-8",
+        "bytes": 404,
+        "truncated": false,
+        "contentLength": null,
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "no-cache"
+      },
+      "verdict": "KEY-GATED",
+      "reason": "Key FIRMS_MAP_KEY is server-side; routed through the Worker regardless of ACAO (observed: *).",
+      "keyed": true,
+      "probedAt": "2026-08-15T15:09:00.382Z"
     }
   ]
 }
