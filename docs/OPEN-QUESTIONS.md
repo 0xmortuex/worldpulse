@@ -765,3 +765,22 @@ what the proxy does is visible as its own decision.
 
 **Until then:** run it directly, which works —
 `NODE_USE_ENV_PROXY=1 node --env-file-if-exists=.env scripts/probe-sources.mjs <id>`.
+
+### ANSWERED — 2026-08-15
+
+**UNVERIFIED is the wrong tier, and the reasoning is worth keeping.** `UNVERIFIED` means
+*uncorroborated*. Ember's rows are corroborated — by the source's own published methodology.
+What they lack is a per-row reported-versus-modelled distinction the API does not expose.
+
+That is a **source-level limitation, not row-level doubt.** The tier stays `OFFICIAL` at source
+level, and the limitation is recorded in two places a reader can reach: the registry notes, and
+the panel's methodology line — *"Ember does not distinguish reported from modelled values per
+row."*
+
+**Inventing per-row doubt the source does not express would be authoring uncertainty, which is
+the same sin as authoring confidence.** The tier system exists to carry what a source claims,
+not to add a claim of our own in either direction.
+
+**Outstanding:** the methodology line has no home yet. Ember is adapter-only — no surface
+renders it (the PortWatch precedent) — so the line lands with the surface that first shows an
+Ember figure, and this entry is what that work is checked against.

@@ -858,3 +858,59 @@ form.
 Worth recording because the two guards that were written first — refuse if the builder emits a
 key, refuse if the response echoes one — both passed. They guarded the request and the response
 and had nothing to say about what was written down afterwards.
+
+---
+
+## A secret has three lifecycles, and a guard is needed for each
+
+**2026-08-15.** Ember was the first key-gated source to go through the full gate, and the key
+nearly escaped once per lifecycle. Each time, the guards that existed passed.
+
+| Lifecycle | Where it nearly went | Guard |
+| --- | --- | --- |
+| **SENT** | the app's URL builder emitting a key into a browser-built URL | builder emits none; the capture script refuses if it does |
+| **RECEIVED** | a response or error body echoing the key back | `redactKeys`, over every registered key rather than only the one in use |
+| **RECORDED** | `ctx.requestUrl` → `FetchProvenance` → **the inspector** | `secretsIn`, added here |
+
+**The third is the one that actually happened.** `loadSample` recorded the KEYED url in
+`ctx.requestUrl`, which flows into `FetchProvenance` and is rendered by the provenance
+inspector — the subsystem whose entire job is showing where a number came from would have shown
+the key. The first two guards passed throughout, correctly: **they watched the wire, and neither
+watched the ledger.**
+
+`secretsIn` walks any structure by containment rather than equality, because the leak was a key
+EMBEDDED IN A URL, not a key stored on its own. It reads its list of secrets from the registry
+so a source added tomorrow is covered without anyone extending a list, and it refuses to treat
+an empty variable as a secret — an empty string matched by `includes` matches everything, which
+would report every field on every run and get the guard switched off within a day.
+
+**The guard was vacuous when first written, and said so.** `npm test` did not load `.env`, so
+the scan printed "no keys configured, nothing to look for" and passed. Honest, and useless: a
+guard that cannot fire on the machine where the secrets live is not a guard. The runner now
+loads `.env` with `--env-file-if-exists`, and the scan runs against real values.
+
+**The planted case is the bug itself**, reconstructed: a keyed URL written into a `FetchContext`
+and carried into a real `FetchProvenance`.
+
+---
+
+## A 200 is not success, and I wrote a detector that assumed it was
+
+**2026-08-15**, sweeping the key-gated sources for their authentication mechanisms. The sweep
+tried each candidate and scored acceptance on `response.ok`.
+
+`exchangerate.host` returns **HTTP 200 for errors**. Unauthenticated it answers
+`{success, error}`; with `?access_key=` it answers `{success, terms, privacy, timestamp,
+source}`. Same status, different shape. My detector concluded NO MECHANISM ACCEPTED for a source
+whose mechanism was working in front of it, and would have concluded the same for any API that
+reports failure in the body.
+
+**This project already knows this rule.** `probe-verdict.mjs` refuses to infer a verdict from a
+non-`ok` response for the mirror-image reason, and the fetch layer distinguishes states rather
+than trusting status codes. I wrote a throwaway script and reached for `res.ok` anyway, because
+it was a scratch tool — which is exactly where the assumption survives, since a scratch tool's
+output gets read as a measurement.
+
+The shape difference is what caught it, and only because the sweep printed shapes beside
+statuses. Had it printed the verdict alone, `exchangerate-host` would have been recorded as
+having no usable mechanism.

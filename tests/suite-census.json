@@ -102,6 +102,7 @@
   "rule 8 — layout judgement": 10,
   "rule number and rule label agree": 2,
   "run lock": 6,
+  "secrets must not reach anything that is recorded": 8,
   "selection identity — F6": 4,
   "signal handling does not cut short a caller with its own teardown": 1,
   "sources.json registry validator": 5,

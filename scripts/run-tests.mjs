@@ -58,6 +58,19 @@ const tapDir = mkdtempSync(join(tmpdir(), 'worldpulse-tap-'));
 const tapPath = join(tapDir, 'run.tap');
 
 const args = [
+  /**
+   * Load `.env` so the checks that need real key values can actually run.
+   *
+   * Without this the secret scan reported "no keys configured, nothing to look
+   * for" on every run — honest, and useless: the guard that exists to keep a key
+   * out of committed provenance had no key to look for. A guard that cannot fire
+   * on the machine where the secrets live is not a guard.
+   *
+   * `--env-file-if-exists` rather than `--env-file`: a checkout without a `.env`
+   * must still run its tests, and a missing file is a degraded state here
+   * exactly as it is for every key-gated panel.
+   */
+  '--env-file-if-exists=.env',
   tsxCli,
   '--test',
   '--test-reporter=spec',
