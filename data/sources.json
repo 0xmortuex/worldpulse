@@ -1272,7 +1272,7 @@
       "tier": "OFFICIAL",
       "keyRequired": false,
       "keyEnv": null,
-      "verifiedAgainst": "documentation",
+      "verifiedAgainst": "live",
       "origin": "https://feodotracker.abuse.ch",
       "transport": "worker",
       "notes": "CLASS nc, CONFIRMED 2026-08-15. The plan documents said \"CC0, keyless\" and CC0 appears nowhere in abuse.ch's terms -- see FOUND.md and OPEN-QUESTIONS 22. 8.3 names the non-commercial term that actually binds this project, which is satisfiable only while this project stays non-commercial (decision 3). 8.1 reserves all rights and grants nothing affirmatively, which is why restricted-minimal was argued and rejected: the blocklist is published as a JSON download FOR blocking, and treating that as no grant at all would be its own kind of misreading.  WHAT THIS DATA IS: IP addresses observed hosting botnet command-and-control servers, with the malware family, AS number and first/last-seen dates. It is defensive threat intelligence. An address appearing here is a statement about a host, never about a person, and the country field is where the host sits -- not an attribution of origin, operator or intent. Rendering it as \"attacks from country X\" would assert all three.  PROBED 2026-08-15: 200, no access-control-allow-origin, so WORKER-REQUIRED. status is online/offline per entry -- an offline C2 is a historical record, not a current threat, and the two must not be counted together.",

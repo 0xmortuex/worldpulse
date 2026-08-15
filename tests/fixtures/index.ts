@@ -15,6 +15,7 @@ import eiaElectricity from './economy/eia-electricity-2023.json';
 import comtradeUsa from './economy/comtrade-usa-2023-exports.json';
 import exchangerateUsd from './economy/exchangerate-usd.json';
 import ooniIr from './risk/ooni-ir.json';
+import feodoC2 from './risk/feodo-c2.json';
 import { readFileSync as readFixture } from 'node:fs';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
@@ -33,6 +34,7 @@ import { buildAnnualTradeUrl } from '../../src/sources/comtrade';
 import { buildQuotesUrl } from '../../src/sources/exchangerate';
 import { buildAreaUrl as firmsAreaUrl } from '../../src/sources/firms';
 import { buildAggregationUrl as ooniUrl } from '../../src/sources/ooni';
+import { buildBlocklistUrl } from '../../src/sources/feodo';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -284,6 +286,22 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'ooni',
     requestUrl: ooniUrl({ countryCode: 'IR', since: '2026-08-08', until: '2026-08-15' }),
     body: ooniIr,
+  },
+
+  /**
+   * The whole blocklist — captured live 2026-08-15 through `buildBlocklistUrl`
+   * (rule 26) and run through `parse` first. abuse.ch serves one document and
+   * offers no narrowing, so this IS the request the app makes.
+   *
+   * Small (5 entries) and still carries what matters: **one online and four
+   * offline**, two malware families, three countries, and two null hostnames.
+   * The online/offline split is the distinction the adapter exists to preserve,
+   * and a capture with only one status would not have exercised it.
+   */
+  'feodo-tracker': {
+    sourceId: 'feodo-tracker',
+    requestUrl: buildBlocklistUrl(),
+    body: feodoC2,
   },
 
   'cisa-kev': {

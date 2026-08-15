@@ -14,6 +14,7 @@ import * as comtrade from '../src/sources/comtrade';
 import * as fx from '../src/sources/exchangerate';
 import * as firms from '../src/sources/firms';
 import * as ooni from '../src/sources/ooni';
+import * as feodo from '../src/sources/feodo';
 import * as portwatch from '../src/sources/portwatch';
 import * as whoDon from '../src/sources/who-don';
 import * as unhcr from '../src/sources/unhcr';
@@ -752,6 +753,36 @@ describe('the four flags that claimed live without live coverage', () => {
       assert.equal(fact.tier, 'OFFICIAL');
       assert.match(fact.note ?? '', /not confirmed/i);
       assert.match(fact.note ?? '', /says nothing either way/i);
+    }
+  });
+
+  /**
+   * Feodo Tracker — online and offline are different claims, and the country
+   * field is about a host.
+   */
+  it('feodo: entries parse, and an offline C2 is never counted as current', async () => {
+    const sample = await liveOrInconclusive('feodo-tracker');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const servers = feodo.parse(body);
+
+    for (const server of servers) {
+      assert.ok(['online', 'offline'].includes(server.status));
+      assert.ok(server.port >= 1 && server.port <= 65535);
+      assert.ok(server.malware.length > 0);
+      assert.match(server.firstSeen, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+      assert.ok(server.lastOnline === null || /^\d{4}-\d{2}-\d{2}T/.test(server.lastOnline));
+      assert.ok(server.country === null || /^[A-Z]{2}$/.test(server.country));
+    }
+
+    // The count must never include a server that stopped answering.
+    const live = feodo.online(servers);
+    const country = live[0]?.country;
+    if (country) {
+      const fact = feodo.onlineInCountryFact(servers, country, ctx);
+      assert.equal(fact.value, live.filter((s) => s.country === country).length);
+      assert.match(fact.note ?? '', /HOSTED in this country/);
+      assert.match(fact.note ?? '', /not who operates them/i);
     }
   });
 });

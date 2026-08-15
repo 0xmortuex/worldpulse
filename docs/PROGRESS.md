@@ -133,3 +133,37 @@ and a stated remedy. 4 still to survey.**
 
 Every licence read so far has contradicted the plan's column: Feodo was "CC0" and reserves all
 rights; OONI had no entry and is the most restrictive CC variant this project can use.
+
+### Phase A gate table — 2026-08-15, three through
+
+| Source | Licence | Probed | Adapter | Fixture | Contract | Flipped | State |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **FIRMS** | NASA open, citation urged | ✅ | ✅ | ✅ | ✅ | ✅ | **through** |
+| **OONI** | CC BY-NC-SA 4.0 | ✅ | ✅ | ✅ | ✅ | ✅ | **through** |
+| **Feodo Tracker** | **`nc`** — not CC0 | ✅ | ✅ | ✅ | ✅ | ✅ | **through** |
+| Cloudflare Radar | — | 400 | — | — | — | — | token not in `.env` |
+| IODA | **unreadable** | 200 | — | — | — | — | `OPEN-QUESTIONS` 24 |
+| IOM DTM | — | 404 | — | — | — | — | endpoint unknown |
+| ReliefWeb | not read | 403 | — | — | — | — | `OPEN-QUESTIONS` 23b — appname |
+| HDX HAPI | — | 429 bot block | — | — | — | — | contact `hdx@un.org` |
+| FEWS NET | — | timeout ×2 | — | — | — | — | needs another vantage point |
+| IFES ElectionGuide | — | 401 | — | — | — | — | request access |
+| UN voting | — | 202 async | — | — | — | — | confirm the intended API |
+
+**3 of 10 through. 7 blocked, every one on something outside this machine, every one with its
+remedy recorded.**
+
+**774 tests / 157 suites, typecheck 0, verify 287 assertions with only the known L9 cluster
+failing, tree clean.**
+
+### What the three conversions have in common
+
+Each carried a hazard that a plausible adapter would have shipped:
+
+- **FIRMS** — five-decimal coordinates for a 400 m pixel, which for this source reads as a
+  strike location
+- **OONI** — a field named `day` that means hour, and a total sitting beside its own components
+- **Feodo** — a plan entry saying CC0 over terms reserving all rights, and offline C2 records
+  that would have counted as present threats
+
+None was visible from the documentation. All three came from measuring the response.
