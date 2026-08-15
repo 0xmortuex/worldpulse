@@ -219,3 +219,41 @@ is recorded with its blocker and the single action that clears it (`OPEN-QUESTIO
 Five licences were read: three permitted conversion, one (FEWS NET) revealed a per-record
 policy the source-level licence does not cover, and one (IODA) could not be found at all.
 **Every licence read contradicted the plan document** — always in the permissive direction.
+
+## 2026-08-15 — Step 8 closed: the Military tab
+
+**Every specced element built, and every hard case asserted in a browser.**
+
+| Check | Result |
+| --- | --- |
+| `npm run typecheck` | exit 0 |
+| `npm test` | **798 tests / 165 suites, 0 fail**, census clean |
+| `npm run verify` | **338 assertions across 11 steps, 0 skipped** — failures only in the known-open L9 cluster |
+| `npm run mutate` | **12 mutations, 12 CAUGHT by the named assertion, 0 SURVIVED, 0 caught elsewhere** |
+| `git status --porcelain` | empty, nothing unpushed |
+
+### What step 8 shipped
+
+| Specced element | State |
+| --- | --- |
+| A country with no armed forces | abolished ≠ absent, asserted (Costa Rica) |
+| Expenditure without personnel, and the reverse | independent, asserted (Iceland, Eritrea) |
+| C-in-C is the head of government | one person, said once |
+| Ceremonial vs operational command | ceremonial marked; undeclared fails closed to ceremonial |
+| Non-NPT and undeclared nuclear states | the estimate named as the entire claim (Israel) |
+| **Zero recorded overseas presence → "none recorded"** | **the step's acceptance criterion, asserted in a browser** |
+| The generated no-equipment-data card | rendered where it corrects an impression, withheld where it would create one |
+
+### The idiom that hardened during this step
+
+**Every disclosure ships with the case where it must appear AND the case where it must not.**
+Either alone passes on a mechanism that fires always or never:
+
+| Disclosure | Must appear | Must not |
+| --- | --- | --- |
+| "None recorded" | Costa Rica, empty list | New Zealand, real deployment |
+| No-equipment card | New Zealand, has forces | Costa Rica, abolished |
+| P3 shortfall caveat (earlier) | contributing input empty | required input empty |
+
+The step-8 mutation exists to prove that pairing: it makes the card render everywhere, and was
+**caught by the card-ABSENCE half**, not by its presence check.
