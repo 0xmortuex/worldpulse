@@ -1403,3 +1403,63 @@ easier, because the rule was fresh and its shape felt familiar.
 **The rule that follows:** an unsatisfiable condition gets REPORTED as unsatisfied. Reaching for
 a rule that would reclassify it is the tell, not the fix. A blocker is a fact; a criterion is
 not a thing to be relieved of.
+
+---
+
+## The first machine-readable licence, and a second policy that varies per record
+
+**2026-08-15.** FEWS NET publishes its own licence as an API endpoint:
+
+```
+GET /api/licence/  →  {"id":"cc-by-igo",
+                       "title":"Creative Commons Attribution for Intergovernmental Organisations",
+                       "url":"http://creativecommons.org/licenses/by/3.0/igo/legalcode",
+                       "status":"active"}
+```
+
+**The first source in this registry whose licence could be read by a request.** Worth noting
+against the four before it: Feodo's was buried in prose that said the opposite of the plan,
+OONI's page named a family and pointed at a repository, IODA's was absent from a 4MB bundle, and
+ReliefWeb's could not be reached at all.
+
+**And the source-level licence is not the whole story.** `/api/datausagepolicy/` returns two
+policies:
+
+| Policy | Description |
+| --- | --- |
+| `Public` | "The source data may be made available on the public website for analysis by anyone" |
+| `Restricted` | "only visible to users that have been specifically granted permission" |
+
+**So CC BY 3.0 IGO is the ceiling, not the grant for every row.** An adapter must filter on the
+per-record policy. Ingesting a `Restricted` record would be a licence violation *from a source
+whose licence field says open* — which is the failure mode a source-level licence check cannot
+see, and the reason the policy is recorded in the registry notes before any adapter exists.
+
+---
+
+## Rule 35 satisfied on mechanism, not on repetition
+
+FEWS NET timed out twice, and I recorded it as "needs a different vantage point" — repetition
+without mechanism, which rule 35 says is not enough.
+
+Measuring the same host properly settled it:
+
+```
+/api/                   200 in 1527ms   — a self-documenting index of 141 endpoints
+/api/licence/           200 in 1311ms
+/api/datausagepolicy/   200 in  250ms
+/api/ipcphase/          TIMEOUT at 15s, again at 25s
+/api/ipcclassification/ TIMEOUT at 25s
+/api/ipcphasemap/       404
+/api/ipcpackage/        500
+```
+
+**The host and the network path are fine.** Reference endpoints answer in a quarter of a second
+from the same origin that hangs on IPC data. That is a statement about the source rather than
+about this machine, which is exactly the distinction rule 35 demands — and it took three more
+requests to get, after two timeouts had already produced a confident-sounding but empty verdict.
+
+**Three distinct failure modes across four IPC endpoints** — timeout, 404, 500 — is itself
+information: it is not one broken route but a subsystem in trouble. I stopped guessing a fifth
+name, because after three distinct failures a fourth guess is inference where documentation
+exists somewhere.

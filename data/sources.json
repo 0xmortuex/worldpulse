@@ -1298,6 +1298,26 @@
       "excluded": true,
       "notes": "PARKED 2026-08-15 ON AN APPROVED APPNAME. Ember disposition: the endpoint is known-correct and the adapter is writable; only the live fixture is blocked.  The plan pointed at v1, which is decommissioned and says so exactly: \"The API version v1 has been decommissioned. Please use version v2 instead.\" v2 then answers 403: \"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https://apidoc.reliefweb.int/parameters#appname\". Both messages name their own remedy.  THE APPNAME IS AN IDENTIFIER, NOT A CREDENTIAL -- it identifies the calling application so ReliefWeb can contact its operator, and it is sent in the clear as a query parameter. It is declared as keyEnv anyway so the prober and .env.example machinery carry it, but whether it belongs in .env or in the registry once issued is worth one decision when it arrives (OPEN-QUESTIONS 23b).  LICENCE NOT YET READ, and licenseClass is restricted as the fail-closed placeholder -- NOT a finding. It means nothing has been established, and it must be replaced by a real reading before anything is ingested. excluded is true so no guard treats this as a live source in the meantime.",
       "schemaVersion": 1
+    },
+    {
+      "id": "fews-net",
+      "name": "FEWS NET — food security classifications (IPC)",
+      "panel": "risk",
+      "homepage": "https://fews.net/",
+      "probeUrl": "https://fdw.fews.net/api/licence/?format=json",
+      "license": "CC BY 3.0 IGO — read 2026-08-15 from the API itself at fdw.fews.net/api/licence/: {\"id\":\"cc-by-igo\",\"title\":\"Creative Commons Attribution for Intergovernmental Organisations\",\"url\":\"http://creativecommons.org/licenses/by/3.0/igo/legalcode\",\"status\":\"active\"}.",
+      "licenseClass": "open",
+      "attribution": "FEWS NET (Famine Early Warning Systems Network), CC BY 3.0 IGO.",
+      "cadence": "monthly",
+      "ttlMs": 86400000,
+      "tier": "OFFICIAL",
+      "keyRequired": false,
+      "keyEnv": null,
+      "verifiedAgainst": "documentation",
+      "origin": "https://fdw.fews.net",
+      "excluded": true,
+      "notes": "REGISTERED WITH ITS LICENCE READ, DATA ENDPOINTS BLOCKED. excluded is true because nothing is ingested yet.  LICENCE READ 2026-08-15 FROM THE API ITSELF -- fdw.fews.net/api/licence/ returns CC BY 3.0 IGO with an active status and a link to the legal code. This is the first source in this registry whose licence was machine-readable, and it is worth noting because four consecutive licence reads before it had to be dug out of prose, a linked repository, or a JS bundle that did not contain one.  A SECOND POLICY VARIES PER RECORD, and it is the hazard an adapter must handle: fdw.fews.net/api/datausagepolicy/ lists \"Public\" (\"The source data may be made available on the public website for analysis by anyone\") AND \"Restricted\" (\"only visible to users that have been specifically granted permission\"). So the CC BY 3.0 IGO licence is the ceiling, not the whole story -- an adapter must filter on the per-record policy rather than assuming the source-level licence covers every row. Ingesting a Restricted record would be a licence violation even though the source is nominally open.  THE DATA ENDPOINTS ARE THE BLOCKER, and each fails differently -- measured 2026-08-15:   /api/                        200 in 1527ms, a self-documenting index of 141 endpoints   /api/licence/                200 in 1311ms   /api/datausagepolicy/        200 in  250ms   /api/ipcphase/               TIMEOUT at 15s and again at 25s   /api/ipcclassification/      TIMEOUT at 25s   /api/ipcphasemap/            404   /api/ipcpackage/             500  RULE 35 IS NOW SATISFIED ON MECHANISM, not merely on repetition. Two timeouts from one machine proved nothing about cause; the reference endpoints answering in 250-1500ms from the SAME host prove the network path and the host are fine and the IPC endpoints specifically are not. That is a statement about the source rather than about this machine.  What would unblock it: a working IPC endpoint, from FEWS NET documentation or support. The remaining 141-endpoint index is in the log and several untried names look plausible (ipcpopulation, ipcclassificationdataset, ipcpopulationdataset), but guessing a fourth after three distinct failures would be inference where the answer is documented somewhere.",
+      "schemaVersion": 1
     }
   ],
   "verifiedAgainstValues": {
