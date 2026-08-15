@@ -451,3 +451,50 @@ existed. That is the system having worked without the rule, not a gap the rule f
 
 > Kept rather than deleted. Removing a specified rule because today's data cannot reach it
 > would mean re-deriving it the first time data can, and P3 took three sessions to specify.
+
+### The general class this belongs to — BUILT, TESTED, UNCALLED
+
+**Added 2026-08-15.** §14 above was written as one path's problem. It is an instance of a
+coverage class worth naming, because everything in this project's arsenal reported green over
+it:
+
+| Check | Verdict | What it could not see |
+| --- | --- | --- |
+| 12 planted unit tests | pass | whether anything calls the function |
+| `tsc --noEmit`, both projects | exit 0 | a correct branch is still correct when unreachable |
+| P3 browser assertion (P12) | pass | it pointed at the *required*-input case, a different branch |
+| `npm run verify`, 287 assertions | only the known L9 failures | same |
+
+**This is not vacuity, and the distinction matters.** A vacuous test does not exercise its
+subject — the mutation scored from another step's failures, the guard watching a detached node,
+the wait that returned true early. Here the tests genuinely exercise the code and would catch a
+regression in it. **The tests run the branch; the app never does.** Vacuity is a defect in the
+check. This is a defect in nothing at all — every part is correct — and it is invisible
+precisely because each check is honest about its own scope.
+
+**What sees it: counting the construction sites.** A test proves a function works. Only
+enumerating its callers proves anything calls it.
+
+```
+$ grep -rn "required: false" src/ --include=*.ts
+src/relations/provenance.ts:65      <- the only production site
+src/dev/gallery.ts                  <- the demonstration, added afterwards
+```
+
+`tests/p3-reachability.test.ts` now holds that enumeration, and it fires in three directions:
+an undeclared contributing site fails it, a declared site that disappears fails it, and — the
+unusual one — **it fails when the situation improves.** The moment a production input can be
+empty, `contributingShortfall` goes live and the assertion says so, naming the gallery entry as
+the stand-in to replace. The reminder is attached to the condition that makes it actionable
+rather than to a step number someone has to remember, which is the same reasoning as
+re-recording the suite census whenever the suites change instead of on a schedule.
+
+**For step 10.** The mechanism is built, tested and waiting. It goes live the moment relations
+inputs can represent consulted-and-empty — `OPEN-QUESTIONS` 13, deliberately still armed rather
+than pulled forward: relations run on seed data, so implementing the representation now would
+produce a *second* mechanism waiting for a caller. One dead branch, written down as waiting, is
+better than two.
+
+**Where to look for other instances.** Any rule specified ahead of the data that motivates it:
+§11, §12 and §13 above are all "adapter proven, nothing renders it", which is this class seen
+from the other end. The question to ask of each is not "is it tested" but "what calls it".

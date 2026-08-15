@@ -470,9 +470,41 @@ shortfall beside the arithmetic). It is built from a registered source, and it s
 comment that no production path reaches it — so the demonstration cannot be mistaken for
 evidence that relations produce this today.
 
+### Disposition, 2026-08-15 — STAYS ARMED for step 10, deliberately
+
+Confirmed as still open rather than pulled forward, and for a reason stronger than sequencing:
+relations run on a seed table, so **consulted-and-empty does not genuinely occur until live
+fetches do.** Giving `ScoredInput` the representation now would build a second mechanism
+waiting for a caller — the precise shape of the finding this session produced. One dead branch,
+documented as waiting, is better than two.
+
+`tests/p3-reachability.test.ts` now enumerates the contributing-input sites and **fails when
+this question is answered**, naming the gallery stand-in to replace. The reminder is attached to
+the condition that makes it actionable rather than to a step number someone must remember.
+
 ---
 
-## 14. A goal's acceptance criterion required evidence that cannot exist
+## 14. A goal's acceptance criterion required evidence that cannot exist — **DECIDED 2026-08-15**
+
+> **Decided, all three parts.**
+>
+> 1. **The criterion is AMENDED to the reachable case** — a value surviving with a caveat,
+>    asserted against its opposite so neither passes alone. That is the demonstration the
+>    criterion actually wanted. The two named fixtures were the wrong vehicles for it, and that
+>    was established at source rather than argued.
+> 2. **The San Marino fixture is STRUCK**, with its epitaph: *it was never confident.* The
+>    refusal fires before any Fact exists, and a caveat needs a Fact to attach to. **A system
+>    refusing earlier than P3 can see is correct behaviour, not a gap.** It is not to be
+>    carried into any future goal text.
+> 3. **13 stays armed for step 10, not pulled forward.** The temptation was that fixing 13
+>    would give `contributingShortfall` a live caller — but relations still run on seed data,
+>    and consulted-and-empty only genuinely occurs once live fetches do. Building the
+>    representation now would create a *second* mechanism waiting for a caller, which is the
+>    exact shape this session just found. **One dead branch documented is better than two.**
+>
+> The generalisation is recorded in `UNEXERCISED-PATHS.md` §14 as its own coverage class.
+
+
 
 **Raised 2026-08-15, at the close of the Fact-model migration.** Recorded because an
 unsatisfiable acceptance criterion is a decision for the person who set it, not something to

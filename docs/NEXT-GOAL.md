@@ -164,6 +164,16 @@ match live data without recording the contradiction as a finding first.
 
 ## Open questions this goal will run into
 
-**9** (no NC+SA licence class) blocks nothing but recurs at Cloudflare Radar and CIVICUS —
-worth settling once. **13** (relations cannot represent consulted-and-empty) does not bite
-until step 10. **11** (Ember key) and **8** (disease.sh) stay parked.
+**9** — **SETTLED.** `share-alike-nc` exists with a fail-closed guard reading the licence text;
+it fired on five sources, one of them a real misclassification (WHO). Cloudflare Radar and
+CIVICUS now land on a class that carries both obligations.
+
+**14** — **DECIDED.** Criterion amended to the reachable case, San Marino struck with its
+epitaph (it was never confident; the refusal fires before any Fact exists).
+
+**13** (relations cannot represent consulted-and-empty) **stays armed for step 10** and is not
+to be pulled forward: relations run on seed data, so building the representation now would
+create a second mechanism waiting for a caller. `tests/p3-reachability.test.ts` fires when the
+condition changes, so it does not need remembering.
+
+**11** (Ember key) and **8** (disease.sh) stay parked.
