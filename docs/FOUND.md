@@ -1288,3 +1288,59 @@ under-count without any field having changed name or type.
 `anomaly` is explicitly unconfirmed, `failure` is a network error that says nothing either way.
 Flattening them into "blocked" would be this app asserting a cause the source declined to
 assert, and the rendered note names all three so one number cannot be read as the whole picture.
+
+---
+
+## A 429 that was a bot block, and my own record of it was wrong
+
+**2026-08-15.** HDX HAPI answered `429` on the first survey. I recorded it in the gate table as
+"rate limited, retry later" — the ordinary meaning of that status.
+
+The second attempt returned 429 again, and this time I read the body:
+
+```json
+{"error":"Blocked due to bot activity.",
+ "info":"If you are a human, please contact hdx@un.org so that we can investigate why you encountered this problem."}
+```
+
+**Not a rate limit. A bot block with a contact route.** The remedies are opposite: waiting
+clears a rate limit and never clears this, so my record would have had someone retrying a
+source that will refuse forever.
+
+**Second time this session a status code named the wrong reason.** `theyvoteforyou`'s ten 403s
+were a Cloudflare challenge, not authentication. Here a 429 is an access decision, not a
+throughput one. Both times the body said so plainly and the status did not.
+
+**And both times I recorded the status's meaning before reading the body** — after writing rule
+37, which says exactly this. The rule is easy to apply to an adapter, where reading the payload
+is the task. It is hard to apply to a survey, where the status IS the result you came for, and
+the body looks like detail you can skip.
+
+**Rule 37 has a corollary now: a survey that records status codes without bodies produces a
+table of wrong reasons.** The status says something happened. The body says what.
+
+---
+
+## Phase A, surveyed end to end: 2 through, 8 blocked, every blocker named
+
+**2026-08-15.** All ten sources measured. What the survey cost — a handful of requests — bought
+eight blockers that would each have surfaced mid-adapter.
+
+| Source | Blocker | Remedy |
+| --- | --- | --- |
+| Cloudflare Radar | 400; token not in `.env` | provision a token |
+| IODA | licence unreadable — every route is a client-rendered shell | licence text from a browser |
+| IOM DTM | 404 on the surveyed path | the correct endpoint |
+| ReliefWeb | 403 — `v1` decommissioned, `v2` needs an approved appname | request an appname |
+| HDX HAPI | 429 — **bot block**, not a rate limit | contact `hdx@un.org` |
+| FEWS NET | timeout, twice, from this machine | a different vantage point, or confirmation the host is down |
+| IFES ElectionGuide | 401 — *"To request access… visit electionguide.org/request_access/"* | request access |
+| Feodo Tracker | licence is not CC0; class is a judgement | `OPEN-QUESTIONS` 22 |
+
+**Six of the eight name their own remedy in the response body.** Cloudflare Radar, ReliefWeb,
+HDX and IFES all say what to do; only IODA (silence) and FEWS NET (a timeout) do not. That is a
+better hit rate than the plan's licence column managed, and it is why the bodies are worth
+reading even when the status looks conclusive.
+
+**Nothing was forced.** Every one is recorded with its blocker per the riksdagen and Ember
+precedents, and each remains one human action from convertible.

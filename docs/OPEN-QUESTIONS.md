@@ -1023,3 +1023,25 @@ since it is an identifier rather than a credential — worth confirming when it 
 
 **Both sources are otherwise ready.** Reachability is proven, the endpoints are correct, and
 the remaining work is an adapter each.
+
+### 23a. The rest of the batch, surveyed 2026-08-15 — six more blockers, each with its remedy
+
+Completing question 23 with the sources surveyed after it was written. **All ten Phase A sources
+are now measured**; none was forced.
+
+| Source | Measured | What it needs from you |
+| --- | --- | --- |
+| Cloudflare Radar | `400` without a token | a token in `.env` (free; the class it lands on, `share-alike-nc`, already exists) |
+| IOM DTM | `404` on `dtmapi.iom.int/api/common/GetAllCountryList` | the correct endpoint — the path was inferred, not documented, and inferring a second one would repeat the mistake |
+| HDX HAPI | `429` **"Blocked due to bot activity"**, twice | contact `hdx@un.org` as the response asks. **Corrected from my earlier record of "rate limited"** — waiting will never clear this |
+| FEWS NET | timeout, twice, ~25s each | rule 35 satisfied on repetition but NOT on mechanism: two timeouts from one machine do not distinguish a down host from a blocked path. Needs a different vantage point before it is called dead |
+| IFES ElectionGuide | `401` — *"To request access or resolve issues… visit electionguide.org/request_access/"* | request access |
+| UN voting (UNDL) | `202` with an empty body | the endpoint is asynchronous — a 202 means accepted, not answered, so the real integration needs the result-polling pattern rather than a single GET. Worth confirming the intended API before building |
+
+**Six of eight blockers name their own remedy in the response body.** Only IODA (silence) and
+FEWS NET (a timeout) do not — which is why the bodies were worth reading even where the status
+looked conclusive, and why my "rate limited" note for HDX was wrong for two turns.
+
+**None of these is a defect and none needs a decision about the app.** They need credentials,
+endpoints, or a vantage point. The adapters are straightforward once each is supplied, and the
+gate discipline that took FIRMS and OONI through is the same one waiting for them.
