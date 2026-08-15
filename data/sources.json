@@ -632,7 +632,7 @@
       "tier": "ESTIMATE",
       "keyRequired": true,
       "keyEnv": "VITE_EXCHANGERATE_HOST_KEY",
-      "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode. AUTH MEASURED 2026-08-15: ?access_key=. THIS SOURCE RETURNS HTTP 200 FOR ERRORS -- unauthenticated gives {success,error}, keyed gives {success,terms,privacy,timestamp,source}. Same status, different shape. Any check that scores success on the status code will read a working key as a broken one, and an adapter must key on the body. VITE_-prefixed and therefore PUBLIC by design: this key is inlined into the bundle, so it must never be one that grants anything beyond the free tier. AUTH MEASURED 2026-08-15: ?access_key=. THIS SOURCE RETURNS HTTP 200 FOR ERRORS -- unauthenticated gives {success,error}, keyed gives {success,terms,privacy,timestamp,source}. Same status, different shape. Any check that scores success on the status code will read a working key as a broken one, and an adapter must key on the body. VITE_-prefixed and therefore PUBLIC by design: this key is inlined into the bundle, so it must never be one that grants anything beyond the free tier.",
+      "notes": "Fallback for currencies Frankfurter does not cover. Probed without a key to record the unauthenticated failure mode. AUTH MEASURED 2026-08-15: ?access_key=. THIS SOURCE RETURNS HTTP 200 FOR ERRORS -- unauthenticated gives {success,error}, keyed gives {success,terms,privacy,timestamp,source}. Same status, different shape. Any check that scores success on the status code will read a working key as a broken one, and an adapter must key on the body. VITE_-prefixed and therefore PUBLIC by design: this key is inlined into the bundle, so it must never be one that grants anything beyond the free tier.",
       "verifiedAgainst": "documentation",
       "origin": "https://api.exchangerate.host",
       "transport": "worker",
@@ -653,11 +653,11 @@
       "tier": "OFFICIAL",
       "keyRequired": true,
       "keyEnv": "COMTRADE_KEY",
-      "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor. AUTH MEASURED 2026-08-15: ?subscription-key= (200) and Ocp-Apim-Subscription-Key header (200) both accepted; unauthenticated 401. Azure API Management, so the parameter name is the gateway's rather than Comtrade's. AUTH MEASURED 2026-08-15: ?subscription-key= (200) and Ocp-Apim-Subscription-Key header (200) both accepted; unauthenticated 401. Azure API Management, so the parameter name is the gateway's rather than Comtrade's.",
-      "verifiedAgainst": "documentation",
+      "notes": "500 calls/day per key. Must be served from the Worker cache, never fetched per visitor. AUTH MEASURED 2026-08-15: ?subscription-key= (200) and Ocp-Apim-Subscription-Key header (200) both accepted; unauthenticated 401. Azure API Management, so the parameter name is the gateway's rather than Comtrade's.",
+      "verifiedAgainst": "live",
       "origin": "https://comtradeapi.un.org",
       "transport": "worker",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "keyParam": "subscription-key"
     },
     {
@@ -680,7 +680,7 @@
       "transport": "worker",
       "schemaVersion": 2,
       "keyParam": "api_key",
-      "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403. keyParam declares the query form because that is what the Worker appends and what the prober can apply. AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403. keyParam declares the query form because that is what the Worker appends and what the prober can apply."
+      "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403. keyParam declares the query form because that is what the Worker appends and what the prober can apply."
     },
     {
       "id": "uk-commons-votes",
@@ -1002,7 +1002,7 @@
       "transport": "worker",
       "schemaVersion": 2,
       "keyParam": "api_key",
-      "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403. AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403."
+      "notes": "AUTH MEASURED 2026-08-15: ?api_key= (200) and X-Api-Key header (200) both accepted; unauthenticated 403."
     },
     {
       "id": "globalfirepower",

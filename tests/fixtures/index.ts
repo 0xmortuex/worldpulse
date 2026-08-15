@@ -12,6 +12,7 @@ import cisaKev from './cisa-kev.json';
 import emberYearlyAut from './economy/ember-yearly-aut.json';
 import congressBills from './congress-bills.json';
 import eiaElectricity from './economy/eia-electricity-2023.json';
+import comtradeUsa from './economy/comtrade-usa-2023-exports.json';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
 import { buildEventsUrl as eonetEventsUrl } from '../../src/sources/eonet';
@@ -25,6 +26,7 @@ import { buildCatalogUrl } from '../../src/sources/cisa-kev';
 import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
 import { buildRecentBillsUrl } from '../../src/sources/congress';
 import { buildAnnualUrl as eiaAnnualUrl } from '../../src/sources/eia';
+import { buildAnnualTradeUrl } from '../../src/sources/comtrade';
 import type { FetchContext } from '../../src/sources/adapter';
 import registry from '../../data/sources.json';
 import { keyedProbeUrl } from '../../scripts/probe-auth.mjs';
@@ -189,6 +191,29 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'eia',
     requestUrl: eiaAnnualUrl({ productId: '2', activityId: '2', startYear: 2023, endYear: 2023, length: 300 }),
     body: eiaElectricity,
+  },
+
+  /**
+   * US exports 2023, every partner, captured live 2026-08-15 through
+   * `buildAnnualTradeUrl` (rule 26) and run through `parse` before writing.
+   *
+   * ONE CALL. Comtrade allows 500 a day and answered 429 to a second request
+   * during development, which is also why this source is Worker-cached and never
+   * fetched per visitor.
+   *
+   * `cmdCode=TOTAL` is the query rather than an optimisation: without it the same
+   * request returns 100,000 rows mixing individual HS lines with the `999999`
+   * all-commodities row, and summing that double-counts a country's entire trade
+   * while looking plausible.
+   *
+   * Every row here is `isReported: false` and `isAggregate: true`, which is the
+   * subject of `OPEN-QUESTIONS` 20 — the fixture is the evidence for that
+   * question, not a workaround for it.
+   */
+  comtrade: {
+    sourceId: 'comtrade',
+    requestUrl: buildAnnualTradeUrl({ reporterCode: 842, year: 2023, flowCode: 'X' }),
+    body: comtradeUsa,
   },
 
   'cisa-kev': {

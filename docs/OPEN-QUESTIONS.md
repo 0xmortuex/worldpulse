@@ -858,3 +858,41 @@ reads: `verdictForResponse` checks `keyRequired` before looking at the response,
 that is completely unreachable records as `KEY-GATED`, identical to six healthy ones. Either
 `UNREACHABLE` should be evaluated first, or the record should carry both. I have not changed it,
 because it alters the meaning of every key-gated row in the table.
+
+---
+
+## 20. Every Comtrade TOTAL row is `isReported: false` — which reading is right?
+
+**Raised 2026-08-15** capturing the Comtrade fixture. US exports 2023, `cmdCode=TOTAL`, 224
+partner rows:
+
+```
+isReported true:  0      false: 224
+isEstimated:      221
+isAggregate:      224
+```
+
+**Every row.** So the adapter's current mapping — `isReported: false` implies `ESTIMATE` —
+renders *every* Comtrade country total as an estimate, and a panel showing US trade would carry
+an ESTIMATE badge on a figure most readers would call official.
+
+**Two readings, and they differ in what they claim about the world:**
+
+| Reading | Consequence |
+| --- | --- |
+| The figure is not a direct submission from the reporter, so it is genuinely not that country's official statistic | `ESTIMATE` is correct and the badge is honest |
+| The reporter DID submit the underlying HS lines; `TOTAL` is Comtrade's own aggregation of reported data, and `isReported` describes the aggregated ROW rather than the data beneath it | `ESTIMATE` overstates the doubt — the data is official, the summing is Comtrade's |
+
+**`DERIVED` is not available as a third answer.** In this project `DERIVED` means *this app
+computed it* — the gallery says so explicitly. A figure Comtrade aggregated is not one we
+derived, so borrowing the tier would misdescribe who did the arithmetic.
+
+**Current handling: `ESTIMATE`, with the reason rendered.** That is the fail-closed choice — it
+claims less rather than more — and the note says exactly why, so a reader is not left guessing
+what the badge means. But if reading two is correct, the app is systematically understating a
+primary source.
+
+**What would settle it:** Comtrade's own documentation of `isReported`, or a comparison of a
+`TOTAL` row against the sum of that reporter's HS lines for the same year. The second is
+measurable here and costs two API calls against a 500/day budget with a burst limit that
+already returned 429 today — worth doing deliberately rather than as part of this pass.

@@ -10,6 +10,7 @@ import * as gdelt from '../src/sources/gdelt';
 import * as ember from '../src/sources/ember';
 import * as congress from '../src/sources/congress';
 import * as eia from '../src/sources/eia';
+import * as comtrade from '../src/sources/comtrade';
 import type { GenerationRow } from '../src/sources/ember';
 import { factState } from '../src/facts/types';
 
@@ -465,6 +466,43 @@ describe('Wikimedia Commons imageinfo contract', () => {
       const fact = eia.valueFact(row, ctx);
       assert.ok((fact.note ?? '').length > 0, `flag ${row.flag} produced no note`);
       if (row.flag === 'steo-estimate') assert.equal(fact.tier, 'ESTIMATE');
+    }
+  });
+
+  /**
+   * Comtrade — the envelope's own error field is the contract's first assertion.
+   *
+   * `error` is a string that is `""` on success, so a 200 can carry a failed
+   * query. `parse` throws on a populated one; this checks the live envelope
+   * reaches that path cleanly.
+   *
+   * Rate-limited at 500/day with a burst limit that returns 429, so this runs
+   * only under PROBE_LIVE and reports inconclusive rather than failing when the
+   * quota is spent.
+   */
+  it('comtrade: the envelope is clean and every row carries its flags', async () => {
+    const sample = await liveOrInconclusive('comtrade');
+    if (!sample) return;
+    const { body, ctx } = sample;
+    const report = comtrade.parse(body);
+
+    assert.ok(report.rows.length > 0, 'no rows came back');
+
+    for (const row of report.rows) {
+      assert.ok(Number.isInteger(row.reporterCode));
+      assert.ok(Number.isInteger(row.partnerCode));
+      assert.ok(Number.isInteger(row.year));
+      assert.equal(typeof row.isReported, 'boolean');
+      assert.equal(typeof row.isAggregate, 'boolean');
+      assert.ok(row.primaryValue === null || Number.isFinite(row.primaryValue));
+    }
+
+    // The tier must follow the flags rather than be assumed.
+    for (const row of report.rows) {
+      const fact = comtrade.tradeValueFact(row, ctx);
+      const expected = !row.isReported || row.isEstimated ? 'ESTIMATE' : 'OFFICIAL';
+      assert.equal(fact.tier, expected, `${row.partnerCode} tier does not follow its flags`);
+      if (expected === 'ESTIMATE') assert.ok((fact.note ?? '').length > 0, 'an estimate with no reason');
     }
   });
 });
