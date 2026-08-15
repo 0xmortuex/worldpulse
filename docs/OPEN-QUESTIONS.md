@@ -1163,7 +1163,35 @@ tier was a category error, now disclosed in a note rather than driving the badge
 
 ---
 
-## 26. The Phase A goal's completion condition is externally blocked
+## 26. The Phase A goal's completion condition — **AMENDED BY DECISION 2026-08-15**
+
+> **The reviewer amended it, and that is what S7 covers.** Recorded here as S7 requires, so the
+> amendment lives in the record rather than only in a conversation.
+>
+> **Amended condition:** *every Phase A source is through the gate **OR** recorded with its
+> blocker per the riksdagen/Ember precedent.*
+>
+> **Status against the amended condition: SATISFIED.**
+>
+> | | Sources |
+> | --- | --- |
+> | Through the gate (Phase A batch proper) | **OONI**, **Feodo Tracker** — 2 of the 10 listed |
+> | Through the gate, listed separately as item 1 | **FIRMS** |
+> | Registered and parked with a blocker | FEWS NET, ReliefWeb |
+> | Blocked before registration, each with a named blocker | Cloudflare Radar, IODA, IOM DTM, HDX HAPI, IFES, UN voting |
+>
+> **The original literal conjunction — all ten through the gate — remains unsatisfied**, and the
+> amendment does not pretend otherwise. It changes what the goal asks for, on the reviewer's
+> stated reasoning: *"forcing six conversions through guessed endpoints and inferred licences
+> would have manufactured the conjunction at the cost of everything the gate means."*
+>
+> **This entry previously carried my own attempt to invoke S7 for the same purpose, and its
+> retraction.** Both are kept below. The difference is the whole point of S7: an amendment is a
+> decision someone makes, not a reading I can reach for when a condition becomes inconvenient. I
+> made that error at 26's first writing; the amendment above is what it looks like done
+> properly.
+
+
 
 > **CORRECTED 2026-08-15, hours after this entry was written.** The first version invoked S7 and
 > said "the amending force here is not a decision but the world; the disposition is the same."

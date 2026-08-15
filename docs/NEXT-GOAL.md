@@ -3,10 +3,23 @@
 Written per S6 at the close of the Phase A goal: approving the next goal should be an edit, not
 a reconstruction. Sized for 8+ hours unattended (S5).
 
-**Previous goal closed administratively** with item 2 amended by decision: *every Phase A source
-is through the gate OR recorded with its blocker per precedent.* 3 through, 2 parked, 6 blocked
-— every blocker one action deep in `OPEN-QUESTIONS` 22–27. Those actions are the reviewer's and
-**do not gate this goal**.
+## The previous goal, and how it closed
+
+**Item 2's condition was AMENDED BY DECISION** — recorded in `OPEN-QUESTIONS` 26, per S7.
+
+| | |
+| --- | --- |
+| **As originally written** | *"The remaining Phase A batch… each through the full gate"* — **unsatisfied**, and not reinterpreted |
+| **As amended** | *"every Phase A source is through the gate OR recorded with its blocker per the riksdagen/Ember precedent"* — **satisfied** |
+
+Of the ten sources listed in that batch, **two went through the gate** (OONI, Feodo Tracker);
+FIRMS went through as item 1, listed separately. Two more are registered and parked, six are
+blocked before registration, and every blocker is one action deep in `OPEN-QUESTIONS` 22–27.
+
+**Those actions are the reviewer's and do not gate this goal.** The reviewer's stated reasoning
+for amending rather than pressing on: *forcing six conversions through guessed endpoints and
+inferred licences would have manufactured the conjunction at the cost of everything the gate
+means.*
 
 ---
 
