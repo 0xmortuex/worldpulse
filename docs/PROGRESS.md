@@ -167,3 +167,33 @@ Each carried a hazard that a plausible adapter would have shipped:
   that would have counted as present threats
 
 None was visible from the documentation. All three came from measuring the response.
+
+### Verification battery — 2026-08-15, at the close of the Phase A goal
+
+| Check | Result |
+| --- | --- |
+| `npm run typecheck` | **exit 0**, both projects |
+| `npm test` | **777 tests / 157 suites, 0 fail**, census re-recorded |
+| `npm run verify` | **287 assertions across 10 steps, 0 skipped** — 5 failures, all the known-open L9 marker-click cluster in step 7 |
+| `npm run mutate` | **11 mutations, 11 CAUGHT by the named assertion, 0 SURVIVED, 0 caught elsewhere, 0 inconclusive** |
+| `git status --porcelain` | empty, nothing unpushed |
+
+**Mutation timing, measured under the run lock on the GPU harness (rule 20a):** 1169s wall
+clock, fastest 93s, median 100s, slowest 125s. S4a's arithmetic holds — a full suite before a
+goal close is affordable at ~20 minutes where it was 65.
+
+**Every mutation was caught by the assertion named for it**, which is the distinction rule 34
+exists for: a mutation caught by a neighbour proves the suite noticed something, not that the
+intended check works.
+
+### Goal outcome, stated plainly
+
+| Item | State |
+| --- | --- |
+| (1) FIRMS through the full gate | **complete** |
+| (2) Phase A batch, each through the gate | **3 of 10 — NOT satisfied** |
+| (3) Comtrade experiment | **complete**, and it corrected a shipped tier |
+
+**Item 2 is not satisfied and is not being reinterpreted.** Seven sources are blocked on
+credentials, endpoints, licence text and a vantage point that do not exist on this machine; each
+is recorded with its blocker and the single action that clears it (`OPEN-QUESTIONS` 22–26).
