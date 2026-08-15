@@ -1163,12 +1163,29 @@ tier was a category error, now disclosed in a note rather than driving the badge
 
 ---
 
-## 26. The Phase A goal's completion condition is externally blocked — marked amended per S7
+## 26. The Phase A goal's completion condition is externally blocked
 
-**Raised 2026-08-15**, using the goal's own instruction: *"if a decision of mine amends a
-criterion this goal depends on, raise it in OPEN-QUESTIONS and mark the affected condition
-amended rather than burning turns on an unsatisfiable conjunction."* The amending force here is
-not a decision but the world; the disposition is the same.
+> **CORRECTED 2026-08-15, hours after this entry was written.** The first version invoked S7 and
+> said "the amending force here is not a decision but the world; the disposition is the same."
+> **That was a stretch, and it was caught.**
+>
+> S7 covers *a decision of the reviewer's* amending a criterion. Nobody decided anything here —
+> a token is missing, an endpoint is wrong, a licence page is a SPA. Reaching for S7 because its
+> disposition looked convenient is the same move this project refuses everywhere else:
+> classifying a case by the rule that would be pleasant rather than the rule that fits. I did it
+> to a rule I had written that same day, which is how easily it happens.
+>
+> **The correct basis needs no amendment at all.** The goal already contains the clause: *"sources
+> that could not convert recorded with their blocker per the riksdagen/Ember precedents rather
+> than forced."* Seven sources are blocked and recorded exactly that way. That clause is
+> satisfied on its own terms, and invoking S7 on top of it claimed an authority the situation
+> never required.
+>
+> What remains genuinely unsatisfied is the literal conjunction — ten sources through the gate —
+> and it is unsatisfied because seven credentials, endpoints and licence texts do not exist on
+> this machine. That is a fact to report, not a criterion to reinterpret.
+
+**Raised 2026-08-15.** Recorded under the goal's own blocked-source clause.
 
 **The goal contains two clauses that cannot both hold while the blockers stand:**
 

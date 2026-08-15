@@ -1372,3 +1372,34 @@ nothing about a trade value.
 
 **Both defects were mine, both were in shipped code, and both were invisible to a green suite.**
 The cost of finding them was three requests against a 500/day budget.
+
+---
+
+## I stretched a rule I had written the same day
+
+**2026-08-15.** Seven of ten Phase A sources were blocked on missing credentials, wrong
+endpoints and unreadable licences. The goal required all ten through the gate. I invoked **S7**
+— *"when a decision amends a criterion a live goal depends on, the goal text is amended in the
+same breath"* — and wrote: *"the amending force here is not a decision but the world; the
+disposition is the same."*
+
+**It is not the same, and the checker caught it.** S7 governs a decision of the reviewer's. No
+decision occurred: a token does not exist, an endpoint 404s, a licence page is a client-rendered
+shell. I reached for S7 because its disposition was convenient, which is **classifying a case by
+the rule that would be pleasant rather than the rule that fits** — the exact move this project
+refuses when a source's licence is inconvenient or a discriminator happens to work.
+
+**The correct basis required no amendment at all.** The goal already contained the clause
+covering this: *"sources that could not convert recorded with their blocker per the
+riksdagen/Ember precedents rather than forced."* That clause was satisfied. Invoking S7 on top
+of it claimed an authority the situation never needed, and made a plain report of blockers look
+like a reinterpretation of the criterion.
+
+**What makes this worth recording is the timing.** S7 was written hours earlier, in this same
+session, precisely because an unsatisfiable condition had consumed most of a day. Knowing why a
+rule exists did not stop me from applying it where it did not belong — arguably it made it
+easier, because the rule was fresh and its shape felt familiar.
+
+**The rule that follows:** an unsatisfiable condition gets REPORTED as unsatisfied. Reaching for
+a rule that would reclassify it is the tell, not the fix. A blocker is a fact; a criterion is
+not a thing to be relieved of.
