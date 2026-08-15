@@ -49,7 +49,30 @@ describe('query 6 — legislature', () => {
     // Without this the query returns the Monarch of the United Kingdom, "Member
     // of the Althing", and the chauffeur service of the German Bundestag as
     // legislative chambers. It completed; it was still wrong.
-    assert.match(buildLegislatureQuery('GBR'), /wdt:P31\/wdt:P279\*/);
+    //
+    // AMENDED 2026-08-15. This asserted the exact string `wdt:P31/wdt:P279*`,
+    // which pinned the unbounded operator rather than the constraint it exists
+    // for — so bounding the walk failed a test whose stated intent the change
+    // preserves. Rule 25: assert the invariant, not the instance.
+    //
+    // The invariant is that chambers are reached by a P31 walk to a declared
+    // chamber type. Verified against the unbounded form on six countries before
+    // this was changed — identical chamber sets for VAT, ISL, GBR, IND, USA and
+    // DEU, so the Monarch is still not a chamber.
+    const query = buildLegislatureQuery('GBR');
+    assert.match(query, /\?chamber wdt:P31\/wdt:P279/, 'chambers are no longer type-constrained');
+    assert.match(query, /VALUES \?chamberType/, 'the chamber types are no longer declared');
+  });
+
+  it('does NOT use an unbounded subclass walk', () => {
+    /**
+     * The other half, and the reason the assertion above was widened rather than
+     * deleted. `wdt:P279*` cost the sibling cabinet query 24 of its 52 seconds,
+     * and this query carried the same clause while merely not paying for it that
+     * day. A regression to the unbounded form is the specific change that
+     * reintroduces a 60-second query.
+     */
+    assert.equal(buildLegislatureQuery('GBR').includes('wdt:P279*'), false);
   });
 
   it('parses the United Kingdom capture: three chambers from five rows (rule 28)', () => {

@@ -10,11 +10,12 @@
       "fallback": "The cabinet query UNIONs this path with P208 (executive body) + P361 (part of), so a wrong id here degrades coverage rather than producing wrong rows."
     },
     "courtOfLastResort": {
-      "qid": "Q1513611",
+      "qid": "Q190752",
       "expectedLabel": "supreme court",
       "usedBy": "judiciary query, as a fallback class when P209 is absent",
-      "verified": false,
-      "fallback": "P209 (highest judicial authority) is the primary path; this class is only a fallback."
+      "verified": true,
+      "verifiedOn": "2026-08-15",
+      "note": "CORRECTED 2026-08-15. Was Q1513611, which is \"Supreme Court of Ghana\" — a specific court, not a class, with ZERO instances anywhere in Wikidata, so the fallback branch could never match for any country. Q190752 is \"supreme court\" (highest court in a jurisdiction), with 272 instances and used by 99 countries' P209 courts. The expectedLabel recorded here was always right; only the qid was wrong, and comparing the two would have caught it."
     }
   },
   "properties": {

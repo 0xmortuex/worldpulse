@@ -46,6 +46,67 @@ export const MINISTER_SUBCLASS_HOPS = 4;
 
 export const MINISTER_SUBCLASS_PATH = 'wdt:P279/wdt:P279?/wdt:P279?/wdt:P279?';
 
+/**
+ * The chamber-type walk, bounded on its own measurement.
+ *
+ * The legislature query carried the same unbounded `wdt:P279*` that cost the
+ * cabinet query 24 of its 52 seconds. It was not failing when this was written —
+ * it completed in 734–2347ms — which is exactly why it needed bounding: it
+ * carried the known-expensive clause and was simply not paying for it that day.
+ *
+ * **This path allows ZERO hops**, unlike the ministerial one. Some chambers are
+ * direct instances of a chamber type, and a bound derived from the exact-depth
+ * table would have excluded them — an off-by-one that drops real chambers.
+ * Verified against the unbounded form rather than derived:
+ *
+ *   country  unbounded  bounded 0–2  identical
+ *   VAT      1          1            yes
+ *   ISL      1          1            yes
+ *   GBR      3          3            yes
+ *   IND      3          3            yes
+ *   USA      3          3            yes
+ *   DEU      2          2            yes
+ *
+ * Six countries, every chamber accounted for, and `tests/wdqs-budget.test.ts`
+ * compares this bound against one hop deeper under `PROBE_LIVE` — so a
+ * seven-hop chamber somewhere is a reported failure rather than a missing house
+ * of parliament.
+ */
+export const CHAMBER_TYPE_HOPS = 2;
+
+export const CHAMBER_TYPE_PATH = 'wdt:P31/wdt:P279?/wdt:P279?';
+
+/**
+ * The court walk — the third `wdt:P279*`, and the one that was paying for
+ * nothing.
+ *
+ * The judiciary query's fallback branch cited `Q1513611`, recorded in the entity
+ * table with `"verified": false`. That QID is **"Supreme Court of Ghana" — a
+ * specific court, not a class**, with zero instances anywhere in Wikidata. The
+ * branch could never match for any country, and it carried an unbounded closure
+ * to do it: 6724ms for the United Kingdom, spent on a guaranteed empty result.
+ *
+ * The class is now `Q190752` ("supreme court", 272 instances, used by 99
+ * countries' P209 courts), and the walk is bounded on its own measurement:
+ *
+ *   country  unbounded  0 hops  0–1  0–2  0–3
+ *   VAT      1          1       1    1    1
+ *   ISL      1          1       —    1    1
+ *   GBR      2          2       2    2    2
+ *   IND      1          1       1    1    1
+ *   USA      1          1       1    1    1
+ *   FRA      3          3       3    3    3
+ *
+ * **Zero hops suffices** — courts are direct instances — so this allows one, as
+ * margin that costs nothing measurable.
+ *
+ * And Vatican City now returns 1, which is the whole point: its `P209` is empty,
+ * and that is precisely the case the fallback exists to cover.
+ */
+export const COURT_CLASS_HOPS = 1;
+
+export const COURT_CLASS_PATH = 'wdt:P31/wdt:P279?';
+
 interface EntityTable {
   entities: Record<string, { qid: string; expectedLabel: string; verified: boolean }>;
 }
@@ -261,7 +322,7 @@ WHERE {
   ?country wdt:P194 ?body .
   ?body wdt:P527? ?chamber .
   VALUES ?chamberType { wd:Q35749 wd:Q10553309 wd:Q375928 wd:Q637846 }
-  ?chamber wdt:P31/wdt:P279* ?chamberType .
+  ?chamber ${CHAMBER_TYPE_PATH} ?chamberType .
   OPTIONAL { ?chamber wdt:P1342 ?seats . }
   OPTIONAL {
     ?chamber p:P527 ?partyStatement .
@@ -344,7 +405,7 @@ WHERE {
   ?country wdt:P298 "${iso3}" .
   { ?country wdt:P209 ?court . }
   UNION
-  { ?court wdt:P1001 ?country ; wdt:P31/wdt:P279* wd:${qid('courtOfLastResort')} . }
+  { ?court wdt:P1001 ?country ; ${COURT_CLASS_PATH} wd:${qid('courtOfLastResort')} . }
   OPTIONAL { ?court wdt:P1342 ?seats . }
   OPTIONAL {
     ?court p:P1308 ?statement .

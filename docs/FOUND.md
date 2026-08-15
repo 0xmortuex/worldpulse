@@ -1690,3 +1690,66 @@ caught.
 
 **`Cabinet.truncated` is now part of the type**, so a caller cannot render a cut-off cabinet as
 complete without ignoring a field that says otherwise.
+
+---
+
+## The entity table recorded the right concept, the wrong identifier, and its own doubt
+
+**Measured 2026-08-15**, resolving `OPEN-QUESTIONS` 29.
+
+```
+qid           instances   label / description
+Q190752             272   "supreme court" — highest court in a jurisdiction
+Q1513611              0   "Supreme Court of Ghana" — highest judicial body in Ghana
+```
+
+**`Q1513611` is the Supreme Court of Ghana — a specific court, not a class.** Nothing can be an
+instance of it, so the judiciary query's fallback branch could never match for any country. It
+carried an unbounded `wdt:P279*` to do it: **6724ms for the United Kingdom, spent on a
+guaranteed empty result.**
+
+### Everything needed to catch this was already written down
+
+```json
+"courtOfLastResort": {
+  "qid": "Q1513611",
+  "expectedLabel": "supreme court",
+  "verified": false
+}
+```
+
+- The **concept** was right: "supreme court".
+- The **identifier** was wrong.
+- The **doubt was recorded**: `verified: false`.
+- The **check existed as a field**: `expectedLabel`, sitting beside the qid it contradicts.
+
+Comparing those two strings against Wikidata answers it in one request. Nobody ran it, for as
+long as the entry has existed.
+
+**A doubt written down and never measured is the P12 class in the entity table.** P12 says a
+decision specifying user-visible behaviour needs an assertion or it is a note; `verified: false`
+is the same shape — a flag that records uncertainty and discharges nobody's obligation to
+resolve it. It reads as diligence and functions as a comment.
+
+### The fallback's intent survives, and now works
+
+Vatican City's `P209` is empty — that is exactly the case the branch exists for — and with the
+correct class it returns **1**. Its real judiciary entities are there: the Court of Cassation and
+the Apostolic Signatura, both instances of `Q190752`.
+
+So this was never a pointless branch to delete. It was a right idea with a wrong constant, which
+is a much easier thing to leave in place for a year, because everything around it reads as
+correct.
+
+### And the walk needed no hops at all
+
+```
+country  unbounded  0 hops  0–1  0–2
+VAT      1          1       1    1
+GBR      2          2       2    2
+FRA      3          3       3    3
+```
+
+Courts are direct instances. The bound allows one hop as margin that costs nothing measurable —
+the third and last unbounded closure in this file, all three now bounded on their own
+measurements rather than by analogy with each other.
