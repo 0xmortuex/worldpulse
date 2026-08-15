@@ -962,6 +962,46 @@ check('P3: the value renders as no data, not as a computed number',
 const plainDerived = page.locator('.gallery li', { hasText: 'A count this app computed' });
 check('positive control: an ordinary derivation still shows its value',
   (await plainDerived.locator('.badge--derived').count()) === 1);
+
+/**
+ * P3's SECOND half in a browser: a shortfall among merely-contributing inputs.
+ *
+ * The two cases are only meaningful against each other. A required input coming
+ * back empty must suppress the value; a contributing one must NOT — it must
+ * leave the number standing and say what was missing. Assert both, or the first
+ * assertion is equally satisfied by an app that renders everything as no data.
+ *
+ * Unreachable in production today: relations is the only `required: false`
+ * caller and its input values are typed `number`, so nothing can be empty
+ * (OPEN-QUESTIONS 13). Asserted here anyway — the disclosure is watched working
+ * before a source depends on it.
+ */
+const shortfallCard = page.locator('.gallery li', { hasText: 'fewer inputs than were consulted' });
+check('P3: a contributing shortfall renders as its own card', (await shortfallCard.count()) === 1);
+
+check('P3: a contributing shortfall KEEPS its value — it is not "no data"',
+  (await shortfallCard.locator('.fact-value--nodata').count()) === 0
+    && ((await shortfallCard.locator('.fact-value').first().textContent()) ?? '').includes('5'),
+  await shortfallCard.locator('.fact-value').first().textContent() ?? '(no value element)');
+
+check('P3: the shortfall is disclosed as a caveat on the fact',
+  /fewer inputs than were consulted/.test(
+    (await shortfallCard.locator('.fact-note').first().textContent().catch(() => '')) ?? ''),
+  await shortfallCard.locator('.fact-note').first().textContent().catch(() => '(no note element)'));
+
+// And where the arithmetic is shown, because the formula "+3 +2 = 5" cannot
+// disclose a missing term — a term that is absent simply is not in it.
+await shortfallCard.locator('.badge').first().click();
+await page.waitForTimeout(400);
+const shortfallInspector = await page.locator('.inspector-body').innerText().catch(() => '');
+check('P3: the inspector states the shortfall next to the arithmetic',
+  /2 contributing inputs returned no value|1 of 3 contributing inputs returned no value/.test(
+    shortfallInspector.replace(/\s+/g, ' ')),
+  shortfallInspector.replace(/\s+/g, ' ').slice(0, 200));
+check('P3: the shortfall inspector still shows the formula it computed from',
+  shortfallInspector.includes('+3 +2 = 5'), shortfallInspector.slice(0, 120));
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
 check('an untraceable value renders as broken', tiers.some((t) => t.includes('UNTRACEABLE')));
 check('a key-gated source renders as unconfigured', tiers.some((t) => t.includes('KEY NOT SET')));
 check(

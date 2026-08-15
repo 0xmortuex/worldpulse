@@ -671,3 +671,42 @@ already covers the remaining cost.
 because it was hard; it was dropped because the measurement that was supposed to *size* it
 showed there was nothing left to size. Doing the arithmetic before the build is what turned a
 week of plausible work into a paragraph.
+
+---
+
+## A disclosure mechanism whose only caller cannot trigger it
+
+**Found 2026-08-15**, re-deriving a claim from the tree rather than from my own earlier note,
+after a check insisted two named P3 fixtures be shown rendering.
+
+Neither fixture became producible — `ScoredInput.weight` is `number`, and San Marino refuses at
+`resolve.ts:209` with `primary: null`, before any Fact exists. That much was already recorded.
+What the re-derivation added is the part I had understated:
+
+```
+$ grep -rn "required: false" src/ --include=*.ts
+src/relations/provenance.ts:65:      required: false,
+```
+
+**One site. The other two derived inputs are `required: true`.** So no fact in the shipped app
+can satisfy `contributingShortfall`, and both the caveat in `provenance.ts` and the shortfall
+block in `inspector.ts:220` are **unreachable in production**. Commit 5 shipped a disclosure
+that nothing can reach — correct, unit-tested twelve ways, and dead.
+
+**The finding is about how it looked green.** Twelve planted tests pass, typecheck passes, the
+browser assertion for P3 passes. Every one of those is honest about what it covers, and none of
+them can see that the covered branch has no live caller. A test proves a function works; only
+counting the construction sites proves anything calls it.
+
+**What was wrong with the browser evidence, separately.** The gallery's P3 entry covered the
+*required*-input case, where the value is suppressed. An app that rendered every derivation as
+"no data" would pass that assertion. The distinguishing case — a value that SURVIVES with a
+caveat — had no browser demonstration at all, only unit tests. It has one now, asserted against
+its opposite so neither can pass alone.
+
+**A guard caught the first attempt at the demonstration.** It invented three citation hosts
+(`nato.int`, `treaties.un.org`, `sipri.org`) to look like a relations score;
+`registry-coverage.test.ts` failed it for hosts in `src/` that resolve through no registered
+source. That guard was right and the entry was rebuilt over a source the app knows. Worth
+recording because the fixture was being written *to demonstrate honesty about data*, and it
+still needed a check to stop it inventing sources.

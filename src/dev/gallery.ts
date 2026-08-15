@@ -2,7 +2,7 @@ import worldbankFixture from '../../tests/fixtures/worldbank-indicator.json';
 import usgsFixture from '../../tests/fixtures/usgs-quakes.json';
 import gdeltFixture from '../../tests/fixtures/gdelt-doc.json';
 import { escapeHtml, factHtml } from '../facts/badge';
-import type { AnyFact, Fact } from '../facts/types';
+import { contributingShortfall, type AnyFact, type Fact } from '../facts/types';
 import type { Store } from '../state';
 import type { FetchContext } from '../sources/adapter';
 import * as gdelt from '../sources/gdelt';
@@ -33,6 +33,85 @@ interface Entry {
   title: string;
   explain: string;
   fact: AnyFact;
+}
+
+/**
+ * A derivation over three World Bank indicators where one has no observation.
+ *
+ * The URLs are built off the registry's own indicator host rather than written
+ * out, because `registry-coverage.test.ts` requires every host in `src/` to
+ * resolve through the registry — and it caught the first draft of this entry,
+ * which invented three citation hosts to look like a relations score. That guard
+ * is right: a host typed into a component is a fetch target nobody registered.
+ * Building the demonstration out of a source the app actually knows is both
+ * legal and more honest, since a World Bank indicator genuinely can return no
+ * observation for a country while its siblings return one.
+ */
+function indicatorInput(indicator: string, value: number | null, extractedBy: string): {
+  fact: AnyFact;
+  required: false;
+} {
+  const base = new URL(FIXTURE_CTX.requestUrl);
+  return {
+    fact: {
+      value,
+      asOf: '2024',
+      tier: 'OFFICIAL',
+      provenance: {
+        kind: 'fetch',
+        sourceId: 'worldbank',
+        requestUrl: `${base.origin}/v2/country/SMR/indicator/${indicator}?format=json`,
+        httpStatus: 200,
+        fetchedAt: '2026-01-01T00:00:00Z',
+        cache: 'miss',
+        raw: value === null ? '[{"page":1},[]]' : `[{"page":1},[{"value":${value}}]]`,
+        extractedBy,
+        fromFixture: true,
+      },
+    },
+    // Contributing, never required: the average of the indicators that DID
+    // answer is a real figure. Marking these required would render the whole
+    // thing as no data, which is the larger lie.
+    required: false,
+  };
+}
+
+function indicatorBreadth(): AnyFact {
+  const inputs = [
+    indicatorInput('NY.GDP.MKTP.CD', 3, 'latest non-null observation'),
+    indicatorInput('SP.POP.TOTL', 2, 'latest non-null observation'),
+    // The one that answered with nothing. Consulted, present in the input list,
+    // absent from the formula — which is exactly why the formula alone cannot
+    // disclose it.
+    indicatorInput('MS.MIL.XPND.CD', null, 'no non-null observation among 60 rows'),
+  ];
+
+  const provenance = {
+    kind: 'derived' as const,
+    computedBy: 'src/dev/gallery.ts',
+    formula: '+3 +2 = 5',
+    computedAt: '2026-01-01T00:00:00Z',
+    inputs,
+  };
+
+  /**
+   * The note is computed by the same helper the relations score uses, not typed
+   * out. A hand-written caveat would keep rendering its sentence after the rule
+   * behind it changed or broke — the gallery asserting a string rather than the
+   * behaviour.
+   */
+  const shortfall = contributingShortfall(provenance);
+  return {
+    value: 5,
+    asOf: '2026',
+    tier: 'DERIVED',
+    provenance,
+    ...(shortfall === null
+      ? {}
+      : {
+          note: `${shortfall.missing} of ${shortfall.contributing} contributing findings returned no value, so this figure rests on fewer inputs than were consulted.`,
+        }),
+  };
 }
 
 function entries(): Entry[] {
@@ -125,6 +204,34 @@ function entries(): Entry[] {
         ],
       },
     },
+  });
+
+  /**
+   * P3's OTHER half, and the one that had no browser-visible case until now.
+   *
+   * A derivation whose merely-CONTRIBUTING input came back empty is not "no
+   * data" — the remaining terms still sum to a real number — and it is not a
+   * complete figure either. It is the third state: a value, with a caveat saying
+   * how much of what was consulted actually answered.
+   *
+   * **This state is currently unreachable from any production construction
+   * site**, and that is a finding rather than a reason to leave it
+   * undemonstrated. `src/relations/provenance.ts` is the only caller that marks
+   * inputs `required: false`, and it builds each input fact from
+   * `ScoredInput.weight`, typed `number` — so no relations input can ever be
+   * empty, and `contributingShortfall` cannot fire in the shipped app. The
+   * mechanism is right; the one site that could use it cannot yet represent
+   * consulted-and-empty. See `OPEN-QUESTIONS.md` 13.
+   *
+   * The entry is here so the disclosure is watched working before a source needs
+   * it. A rule that has never been seen rendering is a rule nobody has checked.
+   */
+  list.push({
+    title: 'DERIVED — computed from fewer inputs than were consulted',
+    explain:
+      'P3: a CONTRIBUTING input came back empty. The value still computes from the rest, so it ' +
+      'renders — with a caveat. Calling this "no data" would be a bigger lie than the shortfall.',
+    fact: indicatorBreadth(),
   });
 
   list.push({

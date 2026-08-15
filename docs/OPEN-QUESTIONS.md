@@ -449,6 +449,27 @@ reachable, and `contributingShortfall` already handles it.
 is a change to the scoring engine and belongs with the live-data work that makes it matter.
 Recorded so it is a decision waiting for you rather than a rediscovery at step 10.
 
+### Update, 2026-08-15 — the consequence is larger than first stated
+
+Re-derived from the tree rather than from the note above, and it is worse than "does not bite
+today". `src/relations/provenance.ts:65` is the **only** `required: false` construction site in
+`src/` — the other two derived inputs (`eonet.ts`, `wikidata-dossier.ts`) are `required: true`.
+So no fact anywhere in the shipped app can satisfy `contributingShortfall`, and **both the
+caveat in `provenance.ts` and the shortfall block in `inspector.ts:220` are unreachable code in
+production.**
+
+Commit 5 shipped a disclosure mechanism whose only caller cannot trigger it. The mechanism is
+correct and has 12 planted unit tests; what is missing is a construction site able to express
+the state. That does not change the disposition — the fix is still question 13's, still at step
+10 — but it changes what the code claims about itself, so it is written down here rather than
+inferred later from a passing test count.
+
+**Now demonstrated rather than only tested.** A gallery entry renders the caveated state with
+five browser assertions (a value that survives, the caveat note, and the inspector stating the
+shortfall beside the arithmetic). It is built from a registered source, and it says in its own
+comment that no production path reaches it — so the demonstration cannot be mistaken for
+evidence that relations produce this today.
+
 ---
 
 ## 14. A goal's acceptance criterion required evidence that cannot exist
@@ -493,6 +514,34 @@ would undo the argument for all of them.
 struck from any future goal text rather than carried forward, because it has now been asserted
 across several sessions and is the clearest instance of P13 — a planned fixture that acquired
 authority by repetition and was never checked against the tree.
+
+### Update, 2026-08-15 — option 1 is built, not merely proposed
+
+Both refusals above were re-derived from the tree, not carried forward: `relations/types.ts:51`
+types `weight` as `number`, and `dossier/resolve.ts:209` returns `class: 'undetermined'` with
+`primary: null` before any Fact exists. Neither named fixture became producible.
+
+What the criterion was *for* — watching the caveat render — was reachable, and was the genuine
+gap. The **caveated** state had no browser demonstration at all: the gallery's P3 entry covered
+only the *required*-input case, which suppresses the value. That is a check satisfied equally by
+an app that renders everything as no data.
+
+Now asserted, both halves against each other:
+
+| Assertion | What it pins |
+| --- | --- |
+| a contributing shortfall renders as its own card | the state exists in the UI |
+| **KEEPS its value — it is not "no data"** | the distinction from the required-input case |
+| the shortfall is disclosed as a caveat on the fact | the disclosure reaches the reader |
+| the inspector states the shortfall next to the arithmetic | it lands where the formula is |
+| the shortfall inspector still shows the formula | the caveat did not replace the audit trail |
+
+The demonstration's caveat text is produced by `contributingShortfall`, not typed out, so it
+cannot keep rendering a sentence after the rule behind it changes. Step 2 is 27 assertions, all
+passing.
+
+**This does not close the question** — the criterion said *these two fixtures*, and they remain
+unproducible. It removes the reason the criterion was written.
 
 ---
 
