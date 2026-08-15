@@ -1,4 +1,5 @@
 import type { Country } from '../countries';
+import { renderMilitaryTab } from './military';
 import { factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import { scoreFact } from '../relations/provenance';
@@ -196,6 +197,7 @@ function tabBody(subject: Country, tab: TabId, context: PanelContext): string {
   if (tab === 'government') return renderGovernmentTab(subject.code, subject.name, context.today);
   if (tab === 'economy') return renderEconomyTab(subject.code, subject.name, context.today);
   if (tab === 'news') return renderNewsTab(subject.code, subject.name);
+  if (tab === 'military') return renderMilitaryTab(subject.code, subject.name);
   const entry = TABS.find((candidate) => candidate.id === tab);
   return `<div class="gov"><p class="gov-pending"><strong>Not built yet.</strong>
     The ${escapeHtml(entry?.label ?? tab)} tab arrives with ${escapeHtml(entry?.step ?? 'a later step')}.

@@ -1,0 +1,96 @@
+{
+  "$comment": "Hand-checked military profiles for step 8's fixture hard cases. Lives in data/ rather than src/ for the same reason relations-seed.json does: these are seed CITATIONS, and registry-coverage.test.ts requires every host in src/ to be a registered source. A citation is not a fetch target, and moving it here keeps that guard meaningful instead of adding exemptions to it.",
+  "compiledAt": "2026-08-15T00:00:00Z",
+  "sources": {
+    "worldbank": {
+      "name": "World Bank (SIPRI-derived)",
+      "url": "https://data.worldbank.org/indicator/MS.MIL.TOTL.P1"
+    },
+    "fas": {
+      "name": "Federation of American Scientists — Nuclear Notebook",
+      "url": "https://fas.org/initiative/status-world-nuclear-forces/"
+    },
+    "unpk": {
+      "name": "UN Peacekeeping troop and police contributions",
+      "url": "https://peacekeeping.un.org/en/troop-and-police-contributors"
+    },
+    "fr-mod": {
+      "name": "Ministère des Armées",
+      "url": "https://www.defense.gouv.fr/"
+    }
+  },
+  "profiles": [
+    {
+      "$case": "no armed forces, and zero recorded overseas presence",
+      "iso3": "CRI",
+      "hasArmedForces": false,
+      "overseasPresence": []
+    },
+    {
+      "$case": "expenditure without personnel",
+      "iso3": "ISL",
+      "hasArmedForces": false,
+      "expenditure": { "value": 0, "source": "worldbank", "coverageEnd": 2023 },
+      "overseasPresence": []
+    },
+    {
+      "$case": "personnel without expenditure",
+      "iso3": "ERI",
+      "hasArmedForces": true,
+      "personnel": { "value": 201750, "source": "worldbank", "coverageEnd": 2023 },
+      "overseasPresence": []
+    },
+    {
+      "$case": "non-NPT and undeclared: the FAS figure is the entire claim",
+      "iso3": "ISR",
+      "hasArmedForces": true,
+      "personnel": { "value": 169500, "source": "worldbank", "coverageEnd": 2023 },
+      "nuclearStatus": "non-npt-undeclared",
+      "warheads": { "value": 90, "source": "fas", "coverageEnd": 2025, "tier": "ESTIMATE" },
+      "overseasPresence": []
+    },
+    {
+      "$case": "ceremonial command, and a recorded deployment",
+      "iso3": "NZL",
+      "hasArmedForces": true,
+      "personnel": { "value": 15500, "source": "worldbank", "coverageEnd": 2023 },
+      "command": {
+        "title": "Commander-in-Chief (Governor-General)",
+        "holderName": "The Governor-General",
+        "ceremonial": true,
+        "alsoHeadOfGovernment": false
+      },
+      "overseasPresence": [
+        {
+          "hostIso3": "SSD",
+          "hostName": "South Sudan",
+          "kind": "UN peacekeeping",
+          "personnel": { "value": 3, "source": "unpk", "coverageEnd": 2025 }
+        }
+      ]
+    },
+    {
+      "$case": "operational command, NPT nuclear-weapon state, recorded basing",
+      "iso3": "FRA",
+      "hasArmedForces": true,
+      "personnel": { "value": 202200, "source": "worldbank", "coverageEnd": 2023 },
+      "expenditure": { "value": 61300000000, "source": "worldbank", "coverageEnd": 2023 },
+      "nuclearStatus": "npt-nuclear-weapon-state",
+      "warheads": { "value": 290, "source": "fas", "coverageEnd": 2025, "tier": "ESTIMATE" },
+      "command": {
+        "title": "Chef des armées",
+        "holderName": "The President of the Republic",
+        "ceremonial": false,
+        "alsoHeadOfGovernment": false
+      },
+      "overseasPresence": [
+        {
+          "hostIso3": "DJI",
+          "hostName": "Djibouti",
+          "kind": "bilateral basing",
+          "personnel": { "value": 1500, "source": "fr-mod", "coverageEnd": 2024 }
+        }
+      ]
+    }
+  ]
+}

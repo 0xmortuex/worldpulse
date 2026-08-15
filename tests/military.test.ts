@@ -11,6 +11,7 @@ import {
   type MilitaryProfile,
 } from '../src/dossier/military';
 import type { Fact } from '../src/facts/types';
+import { fixtureCodes, loadMilitary } from '../src/dossier/military-provider';
 
 /**
  * Step 8's fixture hard cases, written BEFORE the panel renders anything.
@@ -207,5 +208,36 @@ describe('hard case — non-NPT and undeclared nuclear states', () => {
     // Rule 30: a state with no published estimate is not a state with none.
     assert.equal(describeWarheads(profile({ warheads: null })), null);
     assert.equal(describeWarheads(profile({ warheads: fact(null) })), null);
+  });
+});
+
+describe('the fixtures cover every specced hard case', () => {
+  /**
+   * A hard case with no fixture is a hard case nobody has watched fail. This
+   * asserts the set rather than trusting that six comments were written.
+   */
+  it('every BUILD-ORDER hard case has a country behind it', () => {
+    const codes = fixtureCodes();
+    const cases: Array<[string, (p: MilitaryProfile) => boolean]> = [
+      ['no armed forces', (p) => !p.hasArmedForces],
+      ['expenditure without personnel', (p) => p.personnel === null && p.expenditure !== null],
+      ['personnel without expenditure', (p) => p.personnel !== null && p.expenditure === null],
+      ['non-NPT undeclared nuclear', (p) => p.nuclearStatus === 'non-npt-undeclared' && p.warheads !== null],
+      ['ceremonial command', (p) => p.command?.ceremonial === true],
+      ['operational command', (p) => p.command?.ceremonial === false],
+      ['zero recorded overseas presence', (p) => Array.isArray(p.overseasPresence) && p.overseasPresence.length === 0],
+      ['recorded overseas presence', (p) => Array.isArray(p.overseasPresence) && p.overseasPresence.length > 0],
+    ];
+
+    for (const [label, matches] of cases) {
+      const found = codes.map((code) => loadMilitary(code)).filter((p): p is MilitaryProfile => p !== null).some(matches);
+      assert.ok(found, `no fixture exercises "${label}"`);
+    }
+  });
+
+  it('an unknown country is null, not an empty profile', () => {
+    // An empty profile would render as a country with no armed forces, which is
+    // a claim. Null is the absence of one.
+    assert.equal(loadMilitary('ZZZ'), null);
   });
 });
