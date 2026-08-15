@@ -111,3 +111,25 @@ answered 429 rather than anything structural. Neither is a blocker.
 requires proving a mechanism is environmental before recording it as such.
 
 **740 tests / 150 suites, typecheck exit 0, tree clean.**
+
+### Phase A gate table — updated 2026-08-15
+
+| Source | Licence read | Probed | Adapter | Fixture | Contract | Flipped | State |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **FIRMS** | ✅ NASA open, citation urged | ✅ | ✅ | ✅ live | ✅ | ✅ | **through** |
+| **OONI** | ✅ CC BY-NC-SA 4.0 | ✅ | ✅ | ✅ live | ✅ | ✅ | **through** |
+| Cloudflare Radar | — | 400 | — | — | — | — | blocked: token not in `.env` |
+| IODA | ❌ unreadable (SPA) | 200 | — | — | — | — | **blocked: `OPEN-QUESTIONS` 23** |
+| IOM DTM | — | not surveyed | — | — | — | — | queued |
+| ReliefWeb | — | 403 on v2 | — | — | — | — | **blocked: approved appname, `OPEN-QUESTIONS` 23** |
+| HDX HAPI | — | 429 | — | — | — | — | retry |
+| FEWS NET | — | timeout | — | — | — | — | needs a second measurement (rule 35) |
+| IFES ElectionGuide | — | not surveyed | — | — | — | — | queued |
+| UN voting | — | not surveyed | — | — | — | — | queued |
+| Feodo Tracker | ✅ **not CC0** — all rights reserved, NC | 200 | — | — | — | — | held: `OPEN-QUESTIONS` 22 |
+
+**2 of 10 through. 4 blocked on things this machine cannot supply, each with a named blocker
+and a stated remedy. 4 still to survey.**
+
+Every licence read so far has contradicted the plan's column: Feodo was "CC0" and reserves all
+rights; OONI had no entry and is the most restrictive CC variant this project can use.

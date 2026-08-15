@@ -979,3 +979,47 @@ been read, and what they say needs a decision rather than a guess.
 **Note for the rest of the batch:** the plan's licence column is now treated as a research lead
 rather than a record. Each source's terms get read before its adapter, and any that disagree
 with the plan get recorded the way this one was.
+
+---
+
+## 23. Two Phase A sources blocked on things this machine cannot supply
+
+**Raised 2026-08-15.** Both are recorded rather than forced, per the riksdagen and Ember
+precedents. Neither is a defect; both need something from you.
+
+### IODA — the licence cannot be read from anywhere reachable
+
+`ioda.inetintel.cc.gatech.edu` is a client-rendered SPA: `/about` returns 6 characters of shell,
+`/acceptable-use` the same, the API root 15, and the GitHub repo path 404s. **No route serves
+licence text.**
+
+The API itself answers 200 and keyless — the data is reachable and an adapter would be
+straightforward. What is missing is the one thing L15 requires before ingesting anything:
+terms that have actually been read.
+
+**Not forced.** Emergency stop 2 covers shipping content whose terms we have not read, and
+"the licence page is a SPA" is not a reading. Ingesting on the assumption that an academic
+measurement project is permissive would be exactly the inference this project refuses —
+especially after Feodo, where the convenient assumption was wrong.
+
+**What would settle it:** the licence or acceptable-use text from a browser (where the SPA
+renders), or a citation policy from the IODA team.
+
+### ReliefWeb — needs an approved appname
+
+The plan's endpoint was `v1`, which is decommissioned: *"The API version 'v1' has been
+decommissioned. Please use version 'v2' instead."* That much was a free fix.
+
+`v2` then answers **403** with an equally precise message:
+
+> You are not using an approved appname. Kindly request an appname from ReliefWeb here:
+> `https://apidoc.reliefweb.int/parameters#appname`
+
+An appname is a registration, not a secret — but it is a registration a human completes, which
+is the Ember disposition exactly.
+
+**What would settle it:** an approved appname, which then goes in the registry (not `.env`,
+since it is an identifier rather than a credential — worth confirming when it arrives).
+
+**Both sources are otherwise ready.** Reachability is proven, the endpoints are correct, and
+the remaining work is an adapter each.
