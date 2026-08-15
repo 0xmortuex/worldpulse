@@ -37,24 +37,51 @@ budget on requests that cannot succeed.
 
 ## Part 1 — Establish what actually makes it time out
 
-**Measurement before redesign.** The finding names three candidate causes and does not choose
-between them, because nothing has isolated one:
+### The decisive fact is already in the measurement
 
-1. OPTIONAL clauses producing a cross-product
-2. the round trip fetching every chamber at once
-3. work that belongs at build time, as UCDP already is
+**Vatican City times out identically to Iceland.** One legislative body against one chamber,
+and both die at ~60s. A query whose cost is *independent of the country's data volume* is doing
+its expensive work **before the country filter constrains anything**.
 
-**The first task is to distinguish them**, not to pick the most plausible. A rewrite that
-happens to work teaches nothing about which clause was the problem, and the cabinet query — the
-one still passing — needs the same answer.
+That reframes the problem from "slow query" to "unanchored query", and it narrows the suspects
+to three, in likelihood order:
 
-Suggested method, since WDQS reports its own timings: strip the query to its smallest
-completing form, then add clauses back one at a time, recording the response time of each. That
-turns "the query is slow" into a table naming the clause that costs the most.
+1. **The label service materialising labels for an unconstrained intermediate result** — labels
+   are the classic unbounded cost, and `wikibase:label` runs over whatever it is handed.
+2. **A join ordered so the optimizer scans all legislatures or memberships before anchoring on
+   the country entity** — correct results, catastrophic order.
+3. **An OPTIONAL block forcing a product.**
 
-**Rule 20a applies to every timing here**: a duration is a property of the query *under
-WDQS's current load*, so each measurement records when it was taken, and a comparison uses
-measurements from one sitting.
+### Characterise before fixing
+
+**A fix without the mechanism named is the flake lesson again** — the thing that appears to work
+teaches nothing, and the cabinet query needs the same answer. So: obtain a query plan, or a
+minimal reproduction that shows *where* the 60s goes, before changing the shipped query.
+
+Method, since WDQS reports its own timings: strip to the smallest completing form, then add
+clauses back one at a time, recording each response time. That turns "the query is slow" into a
+table naming the clause that costs the most.
+
+**Rule 20a applies to every timing**: a duration is a property of the query *under WDQS's
+current load*, so each measurement records when it was taken and comparisons use one sitting.
+
+### The redesign's shape, once the mechanism is named
+
+- **Anchor on the country entity first, label last.** Bind the entity, constrain memberships to
+  it, and invoke the label service on the final small result only.
+- **An explicit LIMIT as a safety net**, sized to the largest real legislature — and **the
+  limit-hit case detected and reported, never silently truncating.** A parliament missing
+  members because a cap bit is the party-bar bug at chamber scale: plausible output, no error,
+  wrong answer.
+- **Characterise the fixed query's cost in the commit** — time per country across the size
+  range: Vatican City, Iceland, the United Kingdom, India. So the cabinet redesign reuses a
+  measured pattern rather than a hope.
+
+### The cabinet query
+
+**In scope if the same mechanism explains it** — one redesign, two queries, measured twice. **If
+its mechanism differs, it is recorded and queued, not forced** into a fix shaped for a different
+problem.
 
 ## Part 2 — Redesign against what the measurement says
 
@@ -81,9 +108,13 @@ the distinction this finding had to make by hand.
 ## Acceptance criteria
 
 - The timing table from Part 1, naming which clause costs what
-- `buildLegislatureQuery` completes for GBR and VAT; `buildCabinetQuery` completes for GBR
+- **`buildLegislatureQuery` completes for all four measured countries — Vatican City, Iceland,
+  the United Kingdom, India — with times recorded**
+- A contract test against a live capture, per the standard gate
+- The LIMIT's hit case detected and reported, with a test proving it is not silent
 - A guard that fails when a query exceeds its budget, with a planted case proving it fires
-- `FOUND.md` records what the cause turned out to be, including if it was none of the three
+- `FOUND.md` records what the cause turned out to be, **including if it was none of the three**
+- The cabinet query fixed if its mechanism matches, or recorded and queued if it does not
 - `npm run typecheck` exit 0; `npm test` exit 0 with count and census clean
 - `npm run verify` full-run per-step table, no failure outside the known L9 cluster
 - `npm run mutate` per S4 before the close

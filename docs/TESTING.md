@@ -1692,3 +1692,48 @@ failure recurred, which is precisely the vacuity this project refuses elsewhere.
 guard that would look like coverage.
 
 **The shell runs programs. It does not write prose into files.**
+
+---
+
+## 42. A disclosure ships with the case where it must NOT appear
+
+**Either half alone passes on a mechanism that fires always, or never.** A check that a caveat
+appears is satisfied by a panel that caveats everything; a check that it is absent is satisfied
+by a panel that caveats nothing. Only the pair distinguishes a working disclosure from a stuck
+one.
+
+| Disclosure | Must appear | Must NOT appear |
+| --- | --- | --- |
+| P3's shortfall caveat | a contributing input came back empty | a *required* input came back empty — that suppresses the value instead |
+| "None recorded" | Costa Rica, an empty deployment list | New Zealand, a real deployment |
+| The no-equipment card | New Zealand, which has forces | Costa Rica, which abolished its military |
+
+### The asymmetry is the design, not a special case
+
+The no-equipment card is the clearest of the three. It exists to stop a reader inferring absence
+from silence — so for a country with forces it corrects a false impression, and for a country
+that abolished its military it would **create** one: "we hold no equipment inventories" implies
+an inventory we are missing. **Where silence is the accurate answer, the disclosure must be
+silent too.**
+
+### How this rule arrived, which is the part worth keeping
+
+1. **Caught.** P3's browser assertion covered only the required-input case, where the value is
+   suppressed. An app that rendered every derivation as "no data" would have passed it. The gap
+   was found by a checker, not by design.
+2. **Corrected.** The contributing-shortfall case was added *against its opposite*, so neither
+   passes alone.
+3. **Internalised.** Step 8's none-recorded and no-equipment pairs were built paired from the
+   start, and the step's mutation targets the absence half specifically — it makes the card
+   render everywhere, and only the "Costa Rica must not show it" assertion can see that.
+
+**That progression is what a rule maturing looks like**, and it is why this entry exists rather
+than three separate notes: the third instance was cheaper than the first two because the shape
+was already known.
+
+### The mutation belongs on the absence half
+
+A mutation that removes a disclosure is caught by the presence check, which would likely have
+existed anyway. A mutation that makes it fire everywhere is caught **only** by the absence
+check — so that is the one to write, because it is the one that proves the pair rather than
+half of it.
