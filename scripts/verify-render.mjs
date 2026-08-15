@@ -32,7 +32,27 @@ function pinnedChromiumPath() {
   }
 }
 
-const BASE = process.argv[2] ?? 'http://localhost:4173';
+/**
+ * The base URL is the first POSITIONAL argument, not `argv[2]`.
+ *
+ * It was `argv[2]` until `--only` was added, at which point `--only` itself
+ * became the base URL and the run died with "Cannot navigate to invalid URL" —
+ * a failure that named the symptom and not the cause. Flags and their values are
+ * skipped explicitly so adding another one cannot repeat it.
+ */
+const BASE = (() => {
+  const rest = process.argv.slice(2);
+  for (let i = 0; i < rest.length; i += 1) {
+    const arg = rest[i];
+    if (arg === '--only') {
+      i += 1; // its value, not a base URL
+      continue;
+    }
+    if (arg.startsWith('--')) continue;
+    return arg;
+  }
+  return 'http://localhost:4173';
+})();
 const SHOTS = 'artifacts';
 
 /**
@@ -272,9 +292,60 @@ const failures = [];
  * drifts, and the whole point of this report is to say precisely which step's
  * assertions ran.
  */
+/**
+ * `--only <substring>`: run up to and including the matching step, then stop.
+ *
+ * ## What this flag does NOT do, said plainly
+ *
+ * It does not run one step in isolation, and it cannot. The steps share one
+ * browser and one page: step 4 asserts against a dossier that step 1 navigated
+ * to, and step 7's markers exist because earlier steps selected a country.
+ * Running step 4 alone would mean re-deriving its preconditions, which is a
+ * restructure of the whole script rather than a flag.
+ *
+ * So this is "stop after", not "only" — and it is named `--only` because that is
+ * the name S4 and the goal document use. **The doc is here rather than in a
+ * commit message because a flag whose name overstates what it does will be
+ * misread by whoever reads the name first.**
+ *
+ * ## Why it is still worth having
+ *
+ * The cost being avoided is everything AFTER the step under test, which for step
+ * 1 is nine tenths of the run. Regenerating three per-step tables this session
+ * meant three whole verifies to read three tables.
+ *
+ * The report says so: a run stopped early lists the steps that never ran as
+ * skipped, and exits non-zero, because a partial run that exits green is exactly
+ * the "a check that did not run must not look like one that passed" failure this
+ * harness already refuses everywhere else.
+ */
+const ONLY = (() => {
+  const index = process.argv.indexOf('--only');
+  if (index === -1) return null;
+  const value = process.argv[index + 1];
+  if (!value || value.startsWith('--')) {
+    console.error('--only needs a step substring, e.g. --only "2 —" or --only economy');
+    process.exit(1);
+  }
+  return value;
+})();
+
 let currentStep = 'harness';
 const steps = [];
+let stoppedEarly = false;
+
 function step(name) {
+  /**
+   * Stop BEFORE starting the step after the requested one, so the requested
+   * step is complete when the run ends.
+   */
+  if (ONLY !== null && stoppedEarly) return;
+  if (ONLY !== null && currentStep !== 'harness' && currentStep.includes(ONLY)) {
+    stoppedEarly = true;
+    console.log(`\n--only "${ONLY}": stopping after ${currentStep}`);
+    report(null);
+    return;
+  }
   currentStep = name;
   steps.push({ name, ok: 0, failed: 0, skipped: [] });
 }
@@ -340,6 +411,21 @@ function skipped(label, why) {
  * covered rather than leaving the reader to guess from a stack trace.
  */
 function report(abortError) {
+  /**
+   * A run stopped by `--only` names every step it did not reach, exactly as an
+   * aborted run does. The two are different events with the same obligation:
+   * a step that never ran must not be silently absent from the table, or the
+   * report reads as full coverage.
+   */
+  if (stoppedEarly) {
+    const reached = ALL_STEPS.indexOf(currentStep);
+    for (const entry of ALL_STEPS.slice(reached + 1)) {
+      if (!steps.some((started) => started.name === entry)) {
+        steps.push({ name: entry, ok: 0, failed: 0, skipped: [`entire step — --only "${ONLY}" stopped the run first`] });
+      }
+    }
+  }
+
   if (abortError) {
     const bucket = currentBucket();
     const label = `${currentStep} aborted: ${String(abortError.message ?? abortError).split('\n')[0].slice(0, 120)}`;

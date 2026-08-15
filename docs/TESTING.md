@@ -1612,3 +1612,39 @@ arrives on a day nobody is watching.
 has not broken anything, and failing the run would train people to ignore it — rule 15's
 lesson. What must not happen is the check reporting success in a voice indistinguishable from a
 check that actually discriminated.
+
+---
+
+## `--only` on verify: what it does, and what its name overstates
+
+**Built 2026-08-15**, closing the last open item of the harness-speed goal.
+
+```
+node scripts/verify-render.mjs --only "1 —"     17 assertions,  10.4s
+node scripts/verify-render.mjs                 287 assertions,  98.4s
+```
+
+**It runs up to and including the matching step, then stops. It does not run one step in
+isolation, and it cannot.** The steps share one browser and one page: step 4 asserts against a
+dossier step 1 navigated to, and step 7's markers exist because an earlier step selected a
+country. Running step 4 alone would mean re-deriving its preconditions, which is a restructure
+rather than a flag.
+
+The flag is called `--only` because that is the name S4 and the goal document use. **The
+discrepancy is documented at the flag itself**, not only here, because a name that overstates
+what it does will be believed by whoever reads the name first.
+
+**A stopped run is not a green run.** Every step that did not execute is listed as skipped and
+the process exits non-zero — the same rule the harness already applies to an aborted run, for
+the same reason: a check that did not run must not look like one that passed.
+
+### The bug it introduced on the way in
+
+`BASE` was `process.argv[2]`. Adding a flag made `--only` itself the base URL, and the run died
+with `Cannot navigate to invalid URL` — a message naming the symptom and not the cause. The fix
+takes the first POSITIONAL argument and skips flags and their values explicitly, so adding a
+second flag cannot repeat it.
+
+Worth recording because the failure mode was *silent about its own cause*: nothing said "you
+passed a flag where a URL was expected", and the harness had been happy to treat any string as
+a base URL for its entire life.
