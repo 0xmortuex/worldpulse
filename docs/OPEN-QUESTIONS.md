@@ -1221,7 +1221,20 @@ only the known L9 cluster, and a clean tree.
 
 ---
 
-## 27. Two Phase A endpoints were inferred by me, and that is the blocker
+## 27. Two Phase A endpoints were inferred by me — a SPEC DEFECT, not an access problem
+
+> **Class matters here.** "Blocked because I do not know the address" is not the same as
+> credential-walled (Cloudflare Radar, IFES, ReliefWeb), bot-blocked (HDX), or
+> licence-unreadable (IODA). Those need *access*. This needs **documentation research**, and the
+> defect is upstream: `SPEC-EXPANSION.md` named these sources without naming their endpoints, so
+> the first person to build them had to invent a URL. I did, twice, and both inventions failed.
+>
+> **The discipline held in both:** three distinct failures each, no fourth guess, and **no
+> adapter written against a guessed endpoint.** That is the FEWS NET rule applied — and FEWS NET
+> is also the caution against applying it too early, since there the answer turned out to be in
+> an index I had already fetched. The test is whether the next name comes from the source or
+> from me.
+
 
 **2026-08-15.** `SPEC-EXPANSION.md` names *"IOM DTM"* and *"UN General Assembly voting"* as
 sources. It names no endpoints. **I chose both URLs myself**, and both failed — which makes the

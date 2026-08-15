@@ -1648,3 +1648,47 @@ second flag cannot repeat it.
 Worth recording because the failure mode was *silent about its own cause*: nothing said "you
 passed a flag where a URL was expected", and the harness had been happy to treat any string as
 a base URL for its entire life.
+
+---
+
+## 41. File content goes through an editor, never through shell interpolation
+
+**Decided on arithmetic, not preference.** One session, one author, two tools:
+
+| Tool | Writes attempted | Failures |
+| --- | --- | --- |
+| Edit / Write | dozens | **0** |
+| shell heredoc, `node -e`, `sed` | ~15 | **5** |
+
+### The five
+
+1. Backticks in a `node -e` replacement — a fixture manifest entry silently not inserted.
+2. Backticks in a DECISIONS row — `` `OPEN-QUESTIONS.md` `` executed, leaving a gap mid-sentence.
+3. A `python - <<'PY'` fallback chained to `node -e` — the heredoc collapsed and the shell
+   interpreted half the repository as commands.
+4. Escaped backticks in a FIXTURES replacement — imports landed, the entry did not.
+5. Backticks in a PROGRESS table — `` `nc` `` and `` `hdx@un.org` `` executed, blanking two cells.
+
+### Why it is a rule and not a note
+
+**Two of the five did not fail loudly.** They produced files that read correctly in a diff
+summary and were missing a word in the middle of a sentence — a document asserting something
+slightly false about itself, which is this project's own defining failure class arriving in its
+tooling rather than its data.
+
+**And the lesson was recorded after the first incident.** I reached for the shell four more
+times, because it is one call instead of two and each string looked simple enough to survive.
+That is the proof the rule needs: **a recorded lesson without a rule does not hold.** The
+convenience is real, it is small, and it bought five incidents.
+
+### A mechanical guard would be vacuous here, and that is worth saying
+
+The obvious check — flag `echo`/heredoc/`sed` writing into `docs/` or `data/` — cannot see these
+failures, because they were **ad-hoc commands, not committed scripts.** Nothing in the
+repository ever contained them. A guard that scans the repo would pass every time while the
+failure recurred, which is precisely the vacuity this project refuses elsewhere.
+
+**So the rule stands on the tally rather than on a check**, and says so, rather than shipping a
+guard that would look like coverage.
+
+**The shell runs programs. It does not write prose into files.**
