@@ -6,8 +6,10 @@
       "qid": "Q83307",
       "expectedLabel": "minister",
       "usedBy": "cabinet query, as the superclass reached by P279* when finding ministerial positions",
-      "verified": false,
-      "fallback": "The cabinet query UNIONs this path with P208 (executive body) + P361 (part of), so a wrong id here degrades coverage rather than producing wrong rows."
+      "verified": true,
+      "fallback": "The cabinet query UNIONs this path with P208 (executive body) + P361 (part of), so a wrong id here degrades coverage rather than producing wrong rows.",
+      "verifiedOn": "2026-08-15",
+      "note": "VERIFIED 2026-08-15 by the check that was already implied by expectedLabel: Q83307 resolves to \"minister\" with 178 instances, which matches. The doubt recorded here was unfounded — but nobody knew that, because the doubt had been written down and never measured. The court entry beside it was wrong in exactly the same posture and stayed wrong for as long."
     },
     "courtOfLastResort": {
       "qid": "Q190752",

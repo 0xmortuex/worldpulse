@@ -144,6 +144,8 @@
   "suite census": 8,
   "test-count guard": 5,
   "the compile-time guard is present in the source": 3,
+  "the entity table describes itself honestly (no network)": 4,
+  "the entity table matches Wikidata (PROBE_LIVE only)": 1,
   "the fixtures cover every specced hard case": 2,
   "the four flags that claimed live without live coverage": 7,
   "the named assertion must have run": 3,

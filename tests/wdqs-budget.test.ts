@@ -31,8 +31,33 @@ const HEADERS = {
   'Content-Type': 'application/sparql-query',
 };
 
-/** Generous: the point is to catch a 60s cliff, not to police normal variance. */
-const BUDGET_MS = 20_000;
+/**
+ * The budget, set from measurement rather than from a guess.
+ *
+ * **This started at 20s and that was wrong**, because it was chosen before any
+ * variance data existed. Three United Kingdom samples, one sitting:
+ *
+ *   5300ms · 8398ms · 12485ms   — spread 7.2s
+ *
+ * A 20s budget sits 1.6× above the worst observed sample, and a guard whose
+ * threshold is within one variance-width of normal operation fails on weather
+ * rather than on defects — which trains people to ignore it (rule 15).
+ *
+ * **30s is chosen so the guard still catches what it exists for.** The failure
+ * mode is a return to the ~60s server-side cliff; 30s is half of that, and 2.4×
+ * the worst sample measured. Raising it further would start to admit the defect.
+ */
+const BUDGET_MS = 30_000;
+
+/**
+ * WDQS throttles bursts, and a throttled request says nothing about the query.
+ *
+ * Rule 3's distinction, which this file applied to unreachability and not to
+ * rate limiting: a 429 answers "did we ask too fast", not "is this query
+ * viable". The first live run of this guard failed on one — 877ms, far too fast
+ * to be a timeout — after a burst of characterisation queries.
+ */
+const THROTTLED = new Set([429, 503]);
 
 async function ask(query: string): Promise<{ ms: number; rows: number | null; status: number }> {
   const started = Date.now();
@@ -88,6 +113,12 @@ describe('WDQS query budget (PROBE_LIVE only)', () => {
       process.stderr.write('INCONCLUSIVE wdqs: endpoint unreachable — budget not checked\n');
       return;
     }
+    if (THROTTLED.has(result.status)) {
+      process.stderr.write(
+        `INCONCLUSIVE wdqs: throttled (${result.status}) after ${result.ms}ms — budget not checked\n`,
+      );
+      return;
+    }
     assert.equal(result.status, 200, `GBR cabinet returned ${result.status} after ${result.ms}ms`);
     assert.ok(result.ms < BUDGET_MS, `GBR cabinet took ${result.ms}ms, over the ${BUDGET_MS}ms budget`);
   });
@@ -127,7 +158,14 @@ describe('WDQS query budget (PROBE_LIVE only)', () => {
         process.stderr.write(`INCONCLUSIVE wdqs: ${iso} unreachable — hop bound not checked\n`);
         continue;
       }
-      if (bounded.rows === null || oneDeeper.rows === null) {
+      if (
+        bounded.rows === null ||
+        oneDeeper.rows === null ||
+        THROTTLED.has(bounded.status) ||
+        THROTTLED.has(oneDeeper.status)
+      ) {
+        // A throttled or errored side gives nothing to compare. Reporting that
+        // is honest; comparing a count against `null` would invent a verdict.
         process.stderr.write(`INCONCLUSIVE wdqs: ${iso} returned ${bounded.status}/${oneDeeper.status}\n`);
         continue;
       }
