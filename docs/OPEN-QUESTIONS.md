@@ -448,3 +448,48 @@ reachable, and `contributingShortfall` already handles it.
 **Deliberately not fixed now.** Commit 5 is P3's semantics; changing the relations input model
 is a change to the scoring engine and belongs with the live-data work that makes it matter.
 Recorded so it is a decision waiting for you rather than a rediscovery at step 10.
+
+---
+
+## 14. A goal's acceptance criterion required evidence that cannot exist
+
+**Raised 2026-08-15, at the close of the Fact-model migration.** Recorded because an
+unsatisfiable acceptance criterion is a decision for the person who set it, not something to
+argue with or work around.
+
+The migration goal required **"both P3 fixtures shown rendering caveated"**: a relations score
+with a `nodata` input, and San Marino's six-versus-two discrepancy. Every other criterion was
+met — five commits in order and unsquashed, typecheck exit 0, 583/583 tests, commit 4 per-step
+identical to commit 3, commit 5's verify at 282 assertions with only the known L9 failure, tree
+clean and pushed.
+
+**Neither fixture can be produced, for different reasons, and only one is even unblockable:**
+
+| Fixture | Why not | Unblockable? |
+| --- | --- | --- |
+| Relations score with a `nodata` input | `ScoredInput.weight` is `number`; an absent finding is absent from the array rather than present-and-empty | **Yes** — by question 13's fix, which was explicitly reserved as "a decision waiting for me" |
+| San Marino rendering caveated | It is a leader-resolution refusal. `resolve.ts` returns `undetermined`; there is **no `DerivedProvenance` anywhere in that path** for a P3 caveat to attach to | **No.** Not by any permission — only by inventing a derivation that does not exist |
+
+**Why this was not worked around.** The two available routes were to change `ScoredInput`
+(taking a decision reserved to the human) or to construct a derivation solely so an assertion
+could pass. The second is the failure rule 6 names: a fixture manufactured to make a check go
+green proves the check, not the app. This project has spent four sessions removing exactly
+that class of vacuity — a mutation scored from another step's failures, a guard watching a
+detached node, a wait that returned true early. Adding one deliberately to clear a checklist
+would undo the argument for all of them.
+
+**What is needed from you — any one of these closes it:**
+
+1. **Amend the criterion** to the reachable case, which is what was actually built and asserted:
+   a derivation whose *required* input came back empty, rendered in the gallery with a positive
+   control. This is the honest statement of what P3 proves today.
+2. **Approve question 13** — give `ScoredInput` a representation for consulted-and-empty. That
+   makes fixture 1 real, and it is worth doing on its own merits before step 10 regardless.
+3. **Drop fixture 2**, on the grounds that San Marino already refuses and did so before P3
+   existed — the system having worked without the rule, not a gap the rule fills (P13, and
+   `UNEXERCISED-PATHS.md` §14).
+
+**My recommendation: 1 and 3 now, 2 with the step-10 live-data work.** Fixture 2 should be
+struck from any future goal text rather than carried forward, because it has now been asserted
+across several sessions and is the clearest instance of P13 — a planned fixture that acquired
+authority by repetition and was never checked against the tree.
