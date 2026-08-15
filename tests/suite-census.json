@@ -157,6 +157,8 @@
   "unresolvable cases are stated, not guessed": 3,
   "UNVERIFIED tier": 7,
   "USGS earthquake feed contract": 4,
+  "WDQS query budget (PROBE_LIVE only)": 2,
+  "WDQS query shape (no network)": 3,
   "WHO Disease Outbreak News — contract": 8,
   "Wikidata SPARQL contract": 3,
   "Wikimedia Commons imageinfo contract": 7,

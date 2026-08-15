@@ -1721,6 +1721,27 @@ meant to be temporary — this is the same reasoning as rule 37's corollary abou
 a throwaway's output still gets read as a measurement, and a throwaway's failure still costs the
 run.
 
+### Third clause: never `cd` into the directory you are already in
+
+A compound command beginning with `cd` **defeats the auto-approval classifier**, which cannot
+statically determine the working directory — so none of the pre-approved patterns match and the
+command needs a human. `cd /repo && npm test` requires approval; `npm test` does not.
+
+**The `cd` was never necessary.** The shell already runs in the repository. It was habit,
+repeated across most of a session, and every instance was a potential silent pause.
+
+- Run `npm`, `node`, `git` **bare**, so they match their approvals.
+- If a command genuinely needs a different directory, **use a tool that sets the working
+  directory** rather than a shell compound.
+
+### What the three clauses have in common
+
+They are one lesson: **a command shape that defeats the classifier defeats an unattended goal.**
+Corruption is the visible cost and it is the smaller one — a mangled file fails loudly and gets
+fixed in the next turn. **An approval prompt during unattended work is a goal paused for hours,
+silently**, and nothing in the run reports it, because from the inside there is no difference
+between waiting and working.
+
 ---
 
 ## 42. A disclosure ships with the case where it must NOT appear

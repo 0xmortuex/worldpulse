@@ -5,6 +5,47 @@ import { parse as parseSparql } from './wikidata';
 const SOURCE_ID = 'wikidata-sparql';
 const ENDPOINT = 'https://query.wikidata.org/sparql';
 
+/**
+ * How deep the ministerial subclass walk goes — FOUR hops, measured.
+ *
+ * ## Why this is bounded at all
+ *
+ * `wdt:P279*` is unbounded, and it was the cabinet query's entire cost: measured
+ * 2026-08-15, the country-anchored UNION branch runs in 1.4s while the branch
+ * carrying the closure takes 24s, and the whole query 504s for the United
+ * Kingdom at 65s. Bounding the walk made Iceland 21× faster with an identical
+ * row set and turned that 504 into a 200.
+ *
+ * ## Why FOUR and not three
+ *
+ * Three was the first candidate, and it looked convincing — identical rows for
+ * Iceland and Tuvalu, and it rescued the United Kingdom. Then the depth was
+ * measured directly:
+ *
+ *   country   d1  d≤2  d≤3  d≤4  d≤5
+ *   ISL        9   26   26   26   26
+ *   TUV       15   17   17   17   17
+ *   GBR       25   88  194  195  195   ← one position at exactly four hops
+ *   IND       36   55   55   55   55
+ *   FRA       57   93  105  105  105
+ *   USA        7   25   25   25   25
+ *
+ * **A three-hop bound returns 194 of the United Kingdom's 195 positions.** One
+ * missing minister, no error, entirely plausible output — which is the failure
+ * this whole file is careful about, arriving at subclass depth.
+ *
+ * ## What this bound is, honestly
+ *
+ * Every country measured has `d≤4 == d≤5`, so four is sufficient for all six.
+ * **That is a measurement over six countries, not a proof over 190.** The bound
+ * is a choice with a known blast radius, and `tests/wdqs-budget.test.ts` compares
+ * four hops against five under `PROBE_LIVE` so the day a fifth hop appears it is
+ * a reported failure rather than a quietly missing row.
+ */
+export const MINISTER_SUBCLASS_HOPS = 4;
+
+export const MINISTER_SUBCLASS_PATH = 'wdt:P279/wdt:P279?/wdt:P279?/wdt:P279?';
+
 interface EntityTable {
   entities: Record<string, { qid: string; expectedLabel: string; verified: boolean }>;
 }
@@ -47,8 +88,8 @@ WHERE {
     ?country wdt:P208 ?cabinet .
     ?position wdt:P361 ?cabinet .
   } UNION {
-    ?position wdt:P1001 ?country ;
-              wdt:P279* wd:${qid('minister')} .
+    ?position wdt:P1001 ?country .
+    ?position ${MINISTER_SUBCLASS_PATH} wd:${qid('minister')} .
   }
   OPTIONAL {
     ?position p:P1308 ?statement .
