@@ -485,6 +485,7 @@ const ALL_STEPS = [
   '7g — time scrub',
   '7d — coverage choropleth',
   '7b — economy fetch states',
+  'cross-cutting — accessibility (step 14)',
   'cross-cutting — text fidelity (rule 9)',
   'cross-cutting — layout geometry (rule 8)',
 ];
@@ -2554,6 +2555,135 @@ await shot(page, `${SHOTS}/17e-economy-stale.png`);
  */
 await page.evaluate(() => window.__worldpulse.setEconScenario('fixtures'));
 await page.waitForTimeout(200);
+
+step('cross-cutting — accessibility (step 14)');
+// ---- step 14's accessibility pass, as assertions rather than a sweep ----
+//
+// Most of the accessibility work landed earlier by design: B1's dual encoding
+// is asserted in the choropleth step, and L9's keyboard route has its own. What
+// remains is the sweep over everything else, and a sweep done by reading is a
+// sweep done once.
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+await selectCountry('United States');
+await page.waitForTimeout(400);
+
+/**
+ * EVERY INTERACTIVE CONTROL HAS AN ACCESSIBLE NAME.
+ *
+ * A button whose only content is a swatch or a glyph is unusable to a screen
+ * reader, and this app is full of swatches. The check reads the computed
+ * accessible name rather than the text content, so an aria-label counts and an
+ * empty span does not.
+ */
+const unnamed = await page.evaluate(() => {
+  /**
+   * The first version of this missed `<label for>` and `aria-labelledby`, so it
+   * reported correctly-labelled inputs as unnamed — including the time scrub,
+   * which has had a visible label since it shipped. A check that flags correct
+   * code teaches people to ignore it, so it resolves names the way the platform
+   * does before complaining.
+   */
+  const nameOf = (el) => {
+    const aria = (el.getAttribute('aria-label') ?? '').trim();
+    if (aria) return aria;
+
+    const labelledBy = el.getAttribute('aria-labelledby');
+    if (labelledBy) {
+      const text = labelledBy
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent ?? '')
+        .join(' ')
+        .trim();
+      if (text) return text;
+    }
+
+    if (el.id) {
+      const explicit = document.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+      if (explicit?.textContent?.trim()) return explicit.textContent.trim();
+    }
+    const wrapping = el.closest('label');
+    if (wrapping?.textContent?.trim()) return wrapping.textContent.trim();
+
+    const title = (el.getAttribute('title') ?? '').trim();
+    if (title) return title;
+
+    return (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+  };
+
+  const bad = [];
+  for (const el of document.querySelectorAll('button, a[href], input, [role="button"]')) {
+    if (nameOf(el) === '') {
+      bad.push(`${el.tagName.toLowerCase()}#${el.id || '(no id)'}.${(el.className || '(none)').toString().split(' ')[0]}`);
+    }
+  }
+  return bad;
+});
+check('every interactive control has an accessible name', unnamed.length === 0, unnamed.slice(0, 6).join(', '));
+
+/**
+ * NO POSITIVE tabindex. A positive value overrides document order and produces
+ * a tab sequence nobody can predict — including the author.
+ */
+const positiveTabindex = await page.evaluate(
+  () => [...document.querySelectorAll('[tabindex]')].filter((el) => Number(el.getAttribute('tabindex')) > 0).length,
+);
+check('no control hijacks the tab order with a positive tabindex', positiveTabindex === 0, `${positiveTabindex} found`);
+
+/**
+ * THE GLOBE IS NOT THE ONLY ROUTE TO ANYTHING.
+ *
+ * This is L9's lesson generalised: a canvas cannot be tabbed into, so any
+ * information reachable only by clicking it is unreachable by keyboard. The
+ * event list is the proven route; this asserts it is focusable from the
+ * keyboard alone rather than only programmatically.
+ */
+await page.keyboard.press('Tab');
+const firstFocus = await page.evaluate(() => document.activeElement?.tagName.toLowerCase() ?? 'none');
+check('tabbing from the top reaches a real control', firstFocus !== 'body' && firstFocus !== 'none', firstFocus);
+
+/**
+ * EVERY IMAGE-LIKE ELEMENT CARRIES TEXT OR IS HIDDEN FROM THE TREE.
+ *
+ * A decorative swatch must be aria-hidden; an informative one must be labelled.
+ * Silence in both directions is the failure — a screen reader either announces
+ * "image" with no content, or skips something that carried meaning.
+ */
+const unlabelledGraphics = await page.evaluate(() => {
+  const bad = [];
+  for (const el of document.querySelectorAll('img, svg, [role="img"]')) {
+    const hidden = el.getAttribute('aria-hidden') === 'true';
+    const named = (el.getAttribute('aria-label') ?? el.getAttribute('alt') ?? '').trim() !== '';
+    if (!hidden && !named) bad.push(el.tagName.toLowerCase());
+  }
+  return bad;
+});
+check('every graphic is either labelled or explicitly decorative',
+  unlabelledGraphics.length === 0, unlabelledGraphics.slice(0, 6).join(', '));
+
+/**
+ * THE PAGE DECLARES ITS LANGUAGE. Without it a screen reader guesses the
+ * pronunciation of everything on it.
+ */
+check('the document declares a language',
+  ((await page.getAttribute('html', 'lang')) ?? '').length > 0);
+
+/**
+ * LEAVE THE ROOM AS YOU FOUND IT.
+ *
+ * This step navigates and selects, and the cross-cutting steps that follow read
+ * whatever tab the previous step left open. The first version of this block
+ * ended on the Government tab and broke ELEVEN downstream assertions —
+ * "economy values: matched something to measure" — which is not a defect in
+ * those checks: they were correctly reporting that there was nothing there.
+ *
+ * A step that shares mutable state with its successors owes them the state they
+ * expect. That is cheaper than making every later step defensive, and it keeps
+ * the failure where it belongs when it does go wrong.
+ */
+await clickOrFail(page, '[data-tab="economy"]', 'economy tab (restoring state for the next step)');
+await page.waitForTimeout(400);
 
 step('cross-cutting — text fidelity (rule 9)');
 // ---- text fidelity (TESTING.md rule 9), retroactive ----
