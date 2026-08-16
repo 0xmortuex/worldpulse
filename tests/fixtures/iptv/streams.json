@@ -1,0 +1,132 @@
+[
+  {
+    "channel": "AathavanTV.uk",
+    "feed": "SD",
+    "title": "Aathavan TV",
+    "url": "http://45.77.66.224:1935/athavantv/live/playlist.m3u8",
+    "quality": "720p",
+    "label": "Not 24/7",
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "AfghanistanInternational.uk",
+    "feed": "SD",
+    "title": "Afghanistan International",
+    "url": "https://hls.afintl.com/hls/stream.m3u8",
+    "quality": "720p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "AfrobeatTVEntertainment.uk",
+    "feed": "SD",
+    "title": "Afrobeats",
+    "url": "https://stream.ecable.tv/afrobeats/index.m3u8",
+    "quality": "1080p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "AhlulbaytTV.uk",
+    "feed": "SD",
+    "title": "Ahlulbayt TV",
+    "url": "https://cdn5.iqsat.net/iqb02/35fae546b99b61a038d52353487e8190.sdp/playlist.m3u8",
+    "quality": "1080p",
+    "label": "Not 24/7",
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "AhlulbaytTV.uk",
+    "feed": "SD",
+    "title": "Ahlulbayt TV",
+    "url": "https://cd198.anystream.uk:8082/hls/abtv3ng/index.m3u8",
+    "quality": "1080p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "AkaalChannel.uk",
+    "feed": "SD",
+    "title": "Akaal Channel",
+    "url": "https://cdn-globecast.akamaized.net/live/eds/akaal_tv/hls1_smart_akaal/akaal_tv.m3u8",
+    "quality": "396p",
+    "label": "Geo-blocked",
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "AlbUKTV.uk",
+    "feed": "SD",
+    "title": "AlbUK TV",
+    "url": "http://albuk.dyndns.tv:1935/albuk/albuk.stream/playlist.m3u8",
+    "quality": "1080p",
+    "label": "Not 24/7",
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "Althingi.is",
+    "feed": "SD",
+    "title": "Althingi",
+    "url": "https://althingi-live.secure.footprint.net/althingi/live/index.m3u8",
+    "quality": "1080p",
+    "label": "Not 24/7",
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "Omega.is",
+    "feed": "SD",
+    "title": "Omega",
+    "url": "https://customer-gllhkkbamkskdl1p.cloudflarestream.com/eyJhbGciOiJSUzI1NiIsImtpZCI6ImI3YmIwODNmMDhkNmQ5NWExZjIzZWE3ZWRhOWY4NTZhIn0.eyJzdWIiOiJkM2NlZTBhY2RmYTlkNWUzMTQ1MzMyMjk4Y2FlNGQ1YiIsImtpZCI6ImI3YmIwODNmMDhkNmQ5NWExZjIzZWE3ZWRhOWY4NTZhIiwiZXhwIjoxNzg1NTYxNzEyLCJhY2Nlc3NSdWxlcyI6W3sidHlwZSI6ImlwLmdlb2lwLmNvdW50cnkiLCJhY3Rpb24iOiJibG9jayIsImNvdW50cnkiOlsiUlUiLCJCWSJdfV19.mbhyruuIdBBCY-HxJTyLdG3OH1nvFFuzwhBGEainaCV5EkRv20p22JUd-x8yzyghm_X-soPuxO_h_lf6aSsxQz1qMCQ8ZGcN_GVRW8j2Tv3hRJTj_DQnxk0s5LXmrQCkUo1szfCNjkOaa062r3x5qL1-kZ5fKDRnSBpGJyx_H6G1SHOTzlTd9mGggrZ3aH7Omuu1vKDHvxE-C0oN0KpgjO0oht5DM9ClTtXB1Wabu0mqfYRGXBpuBHhAn7hvDOxHTlWrtTUMcUXv5uQ-oXyfLCqHHFk_CV2TUUq6lmO6sIC93EeZrBWFQJr_t32xGMJpgOhfxjaL39B5XeUYypzAGQ/manifest/video.m3u8",
+    "quality": "720p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "RUV2.is",
+    "feed": "SD",
+    "title": "RÚV 2",
+    "url": "https://ruvlive.akamaized.net/out/v1/2ff7673de40f419fa5164498fae89089/index.m3u8",
+    "quality": "1080p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "RUV.is",
+    "feed": "SD",
+    "title": "RÚV",
+    "url": "https://ruv-web-live.akamaized.net/streymi/ruverl/ruverl.m3u8",
+    "quality": "720p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": "Visir.is",
+    "feed": "SD",
+    "title": "Vísir",
+    "url": "https://live.visir.is/hls-live/visir.smil/playlist.m3u8",
+    "quality": "1080p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  },
+  {
+    "channel": null,
+    "feed": null,
+    "title": "TV Publica",
+    "url": "http://playcom.trapemn.tv:1935/transcoderip/tvpublica.stream/playlist.m3u8",
+    "quality": "1080p",
+    "label": null,
+    "user_agent": null,
+    "referrer": null
+  }
+]

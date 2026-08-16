@@ -1,0 +1,372 @@
+[
+  {
+    "id": "AathavanTV.uk",
+    "name": "Aathavan TV",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "Lyca Media"
+    ],
+    "country": "UK",
+    "categories": [
+      "entertainment"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://athavantv.com/"
+  },
+  {
+    "id": "AfghanistanInternational.uk",
+    "name": "Afghanistan International",
+    "alt_names": [],
+    "network": null,
+    "owners": [],
+    "country": "UK",
+    "categories": [
+      "news"
+    ],
+    "is_nsfw": false,
+    "launched": "2021-01-01",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.afintl.com/"
+  },
+  {
+    "id": "AfrobeatTVEntertainment.uk",
+    "name": "Afrobeat TV Entertainment",
+    "alt_names": [],
+    "network": null,
+    "owners": [],
+    "country": "UK",
+    "categories": [
+      "music"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": null
+  },
+  {
+    "id": "AhlulbaytTV.uk",
+    "name": "Ahlulbayt TV",
+    "alt_names": [],
+    "network": null,
+    "owners": [],
+    "country": "UK",
+    "categories": [
+      "religious"
+    ],
+    "is_nsfw": false,
+    "launched": "2009-08-17",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://ahlulbayt.co.uk/"
+  },
+  {
+    "id": "AkaalChannel.uk",
+    "name": "Akaal Channel",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "Amrik Singh Kooner"
+    ],
+    "country": "UK",
+    "categories": [
+      "religious"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://akaalchannel.tv/"
+  },
+  {
+    "id": "AlbUKTV.uk",
+    "name": "Alb UK TV",
+    "alt_names": [],
+    "network": null,
+    "owners": [],
+    "country": "UK",
+    "categories": [
+      "general"
+    ],
+    "is_nsfw": false,
+    "launched": "2017-01-01",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://albuk.tv/"
+  },
+  {
+    "id": "4Music.uk",
+    "name": "4Music",
+    "alt_names": [],
+    "network": "Box Plus",
+    "owners": [
+      "HM Government"
+    ],
+    "country": "UK",
+    "categories": [
+      "music"
+    ],
+    "is_nsfw": false,
+    "launched": "2008-08-15",
+    "closed": "2024-07-01",
+    "replaced_by": null,
+    "website": "https://www.boxplus.com/"
+  },
+  {
+    "id": "4seven.uk",
+    "name": "4seven",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "HM Government"
+    ],
+    "country": "UK",
+    "categories": [
+      "entertainment"
+    ],
+    "is_nsfw": false,
+    "launched": "2012-07-04",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.channel4.com/"
+  },
+  {
+    "id": "5Action.uk",
+    "name": "5Action",
+    "alt_names": [
+      "Paramount Network"
+    ],
+    "network": null,
+    "owners": [
+      "Paramount Networks UK & Australia"
+    ],
+    "country": "UK",
+    "categories": [
+      "entertainment"
+    ],
+    "is_nsfw": false,
+    "launched": "2022-01-19",
+    "closed": null,
+    "replaced_by": null,
+    "website": "http://www.channel5.com/channels/5action"
+  },
+  {
+    "id": "40Plus.uk",
+    "name": "40+",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "MG Global Entertainment (Europe) Limited"
+    ],
+    "country": "UK",
+    "categories": [
+      "xxx"
+    ],
+    "is_nsfw": true,
+    "launched": "2019-04-24",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.televisionx.com/"
+  },
+  {
+    "id": "AdultChannel.uk",
+    "name": "Adult Channel",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "Aylo Global Entertainment"
+    ],
+    "country": "UK",
+    "categories": [
+      "xxx"
+    ],
+    "is_nsfw": true,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": null
+  },
+  {
+    "id": "Climax.uk",
+    "name": "Climax",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "Aylo Global Entertainment (Europe) Limited"
+    ],
+    "country": "UK",
+    "categories": [
+      "xxx"
+    ],
+    "is_nsfw": true,
+    "launched": "1995-06-01",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.televisionx.com/"
+  },
+  {
+    "id": "Althingi.is",
+    "name": "Althingi",
+    "alt_names": [],
+    "network": null,
+    "owners": [],
+    "country": "IS",
+    "categories": [
+      "legislative"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.althingi.is/"
+  },
+  {
+    "id": "Omega.is",
+    "name": "Omega",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "Eirkur Sigurbjornsson"
+    ],
+    "country": "IS",
+    "categories": [
+      "religious"
+    ],
+    "is_nsfw": false,
+    "launched": "1992-07-28",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://omega.is/"
+  },
+  {
+    "id": "RUV.is",
+    "name": "RUV",
+    "alt_names": [
+      "RÚV"
+    ],
+    "network": null,
+    "owners": [],
+    "country": "IS",
+    "categories": [
+      "general"
+    ],
+    "is_nsfw": false,
+    "launched": "1966-01-01",
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.ruv.is/ruv/"
+  },
+  {
+    "id": "RUV2.is",
+    "name": "RUV 2",
+    "alt_names": [
+      "RÚV 2"
+    ],
+    "network": null,
+    "owners": [],
+    "country": "IS",
+    "categories": [
+      "general"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.ruv.is/ruv2/"
+  },
+  {
+    "id": "Visir.is",
+    "name": "Visir",
+    "alt_names": [
+      "Vísir"
+    ],
+    "network": null,
+    "owners": [],
+    "country": "IS",
+    "categories": [
+      "news"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.visir.is/"
+  },
+  {
+    "id": "EidfaxiTV.is",
+    "name": "Eidfaxi TV",
+    "alt_names": [
+      "Eiðfaxi TV"
+    ],
+    "network": null,
+    "owners": [],
+    "country": "IS",
+    "categories": [
+      "sports"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.eidfaxitv.is/"
+  },
+  {
+    "id": "GospelChannelScandinavia.is",
+    "name": "Gospel Channel Scandinavia",
+    "alt_names": [],
+    "network": null,
+    "owners": [],
+    "country": "IS",
+    "categories": [
+      "religious"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://www.gospel.tv/contact"
+  },
+  {
+    "id": "HopeChannelIceland.is",
+    "name": "Hope Channel Iceland",
+    "alt_names": [
+      "Hope Channel Ísland"
+    ],
+    "network": null,
+    "owners": [
+      "Seventh-day Adventist Church"
+    ],
+    "country": "IS",
+    "categories": [
+      "religious"
+    ],
+    "is_nsfw": false,
+    "launched": null,
+    "closed": null,
+    "replaced_by": null,
+    "website": "https://hopechannel.is/"
+  },
+  {
+    "id": "N4.is",
+    "name": "N4",
+    "alt_names": [],
+    "network": null,
+    "owners": [
+      "N4 ehf"
+    ],
+    "country": "IS",
+    "categories": [
+      "general"
+    ],
+    "is_nsfw": false,
+    "launched": "2006-05-01",
+    "closed": "2023-02-03",
+    "replaced_by": null,
+    "website": null
+  }
+]

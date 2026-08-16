@@ -2134,3 +2134,101 @@ prevent, committed by its author within the same session, in a scratch script wh
 runs. The guard covers the entity table; it does not cover my hands. The one QID added to the
 table today was verified live *before* being written, by a script that refuses to write on a
 label mismatch or zero instances.
+
+---
+
+## The index ships the channels its own blocklist removes
+
+**2026-08-15, step 11.** iptv-org publishes `blocklist.json` — **1578 channels, 1211 `dmca`
+and 367 `nsfw`** — listing what was removed on copyright demand or flagged adult.
+
+**It does not apply that list to `channels.json`.** Measured:
+
+```
+blocklist entries                              1578
+of those, channels that still exist            1420
+of THOSE, still present in channels.json       1420      <- all of them
+blocked channels that have a stream                0
+```
+
+So an app that renders the channel index as it arrives ships every one of them. The saving
+grace is that none has a playable stream — but they are still *listed*, by name, including the
+367 adult ones, and the DMCA'd ones were removed at a rights-holder's request.
+
+This is emergency 2 in the protocol — shipping content whose terms we have read and which
+forbids it — and it was found only because the licence was actually read rather than inferred
+from the registry's existing `licenseClass: "open"`.
+
+**The exclusion lives in the parser, not in a view.** A view-level filter is one refactor away
+from being routed around, and the thing it prevents is the kind of mistake that is already
+public by the time anyone notices.
+
+### The licence broke a five-for-five streak, in the good direction
+
+Every licence read in this project so far had been **less** permissive than the plan document
+assumed — Feodo declared "CC0" and reserved all rights, and four others narrowed the same way.
+The directionality was recorded as a standing bias to correct for.
+
+iptv-org is **The Unlicense**: public domain, commercial use permitted, exactly as assumed.
+**First one that was.** Worth recording precisely because the standing lesson is "assume
+narrower" — a lesson that is a heuristic, not a law, and a heuristic that never gets a
+counter-example quietly becomes a superstition.
+
+What the Unlicense does **not** cover is the streams. It covers the index; the streams are
+third-party URLs, and the project's own Legal section says it stores no video, has no control
+over a link's destination, and makes no copyright warranty. Those are two different licensing
+questions wearing one repository, and conflating them is how "the index is public domain"
+becomes "the streams are ours to serve".
+
+---
+
+## Four stream states, because probing found a fourth
+
+The health check was designed with three states — online, offline, unchecked. Probing the
+fixture's own streams produced this:
+
+```
+method  status  ms      cors   host
+GET     200     424     *      hls.afintl.com
+GET     200     656     *      ruvlive.akamaized.net
+GET     ERR     8005    —      45.77.66.224:1935          (timeout)
+GET     ERR     2       —      althingi-live...net        (DNS/TLS, instant)
+GET     401     477     *      customer-….cloudflarestream.com
+```
+
+**A 401 is a live server refusing.** Calling it `online` sends a viewer to something they
+cannot watch; calling it `offline` asserts something false about a host that answered in
+477ms. It is `restricted`, and it sorts above offline because a viewer with access can use it.
+
+Two other things the probe settled that a design could only have guessed at:
+
+- **Every responding server sends `access-control-allow-origin: *`**, so a browser can read
+  these results. The check does not have to live server-side, which had been the assumption.
+- **Failure is bimodal in time** — 2ms for DNS/TLS refusal, 8s for a timeout. Any batch check
+  needs a budget and concurrency, or one dead host stalls a country's whole listing.
+
+---
+
+## `UK` is not `GB`, and the conversion loses a G7 country silently
+
+iptv-org keys channels by a two-letter code that is *almost* ISO 3166-1 alpha-2.
+
+```
+UK   680 channels
+GB     0 channels
+```
+
+`alpha3ToAlpha2('GBR')` returns `GB`. The United Kingdom therefore returns **zero channels**,
+with no error, no empty-state distinction, and nothing in a test to notice — it would simply
+have rendered as a country with no television.
+
+This is the fourth silent-disappearance defect in two days: the 3-hop minister walk that
+dropped a UK minister, the chamber query that dropped Germany under one candidate repair, the
+judiciary QID that could never match, and now this. **The common shape is a join whose failure
+mode is emptiness**, and emptiness is indistinguishable from a legitimate absence unless
+something asserts the specific case.
+
+The override table is data rather than a branch, and a test asserts the table is actually
+consulted — so reimplementing the lookup without it fails rather than silently regressing.
+`XK` (Kosovo, 72 channels) is in the same table, and is user-assigned rather than ISO, which
+is the status this app already gives it on the globe.

@@ -16,6 +16,9 @@ import comtradeUsa from './economy/comtrade-usa-2023-exports.json';
 import exchangerateUsd from './economy/exchangerate-usd.json';
 import ooniIr from './risk/ooni-ir.json';
 import feodoC2 from './risk/feodo-c2.json';
+import iptvChannels from './iptv/channels.json';
+import iptvStreams from './iptv/streams.json';
+import iptvBlocklist from './iptv/blocklist.json';
 import { readFileSync as readFixture } from 'node:fs';
 import { buildUrl as worldbankUrl } from '../../src/sources/worldbank';
 import { buildFeedUrl as usgsFeedUrl } from '../../src/sources/usgs';
@@ -302,6 +305,41 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'feodo-tracker',
     requestUrl: buildBlocklistUrl(),
     body: feodoC2,
+  },
+
+  /**
+   * iptv-org, three endpoints, captured 2026-08-15 by `scripts/capture-iptv.mjs`.
+   *
+   * The live indexes are 9.8 MB and 3.3 MB, so these are SUBSETS — and a subset
+   * is where hard cases quietly vanish. The capture script therefore selects by
+   * CASE, not by convenience, and reports which cases a country cannot supply
+   * rather than writing a fixture that silently cannot exercise them.
+   *
+   * What is deliberately inside: channels with a stream, channels with none
+   * (400 of the UK's 680 real channels have none), blocklisted channels, an
+   * `is_nsfw` channel, a closed channel, and one orphan stream with
+   * `channel: null` — 1969 of the real ones look like that.
+   *
+   * The blocklist is not a nicety. All 1420 blocklisted channels that still
+   * exist are present in `channels.json`; the index does not apply its own
+   * exclusions.
+   */
+  'iptv-org-channels': {
+    sourceId: 'iptv-org-channels',
+    requestUrl: 'https://iptv-org.github.io/api/channels.json',
+    body: iptvChannels,
+  },
+
+  'iptv-org-streams': {
+    sourceId: 'iptv-org-streams',
+    requestUrl: 'https://iptv-org.github.io/api/streams.json',
+    body: iptvStreams,
+  },
+
+  'iptv-org-blocklist': {
+    sourceId: 'iptv-org-blocklist',
+    requestUrl: 'https://iptv-org.github.io/api/blocklist.json',
+    body: iptvBlocklist,
   },
 
   'cisa-kev': {

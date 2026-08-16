@@ -34,7 +34,7 @@ update when the state changes.
 | 8 | **Military tab** | scheduled |
 | 9 | **Legislature tab** | done |
 | 10 | **Live data pipeline** — ingests replace the seed set | scheduled |
-| 11 | **Live TV** | scheduled |
+| 11 | **Live TV** | done |
 | 12 | **Coverage-gap choropleth** | scheduled |
 | 13 | **URL state, time scrub, compare view** | scheduled |
 | 14 | **Closing sweep** — contract tests, accessibility, performance | scheduled |
@@ -96,10 +96,34 @@ Live ingests replace the hand-checked seed set (`README.md`: the seed banner exi
 interaction is provable before the pipeline lands). Phase A of `SPEC-EXPANSION.md` builds
 the ingest muscle this step needs.
 
-## Step 11 — Live TV
+## Step 11 — Live TV · DONE
 
 Via iptv-org, with **per-stream health checks**. Dead streams are **marked offline and
 sorted last** — not hidden, which would misreport coverage.
+
+**Reading the licence found a requirement no spec had.** `blocklist.json` lists **1578
+channels — 1211 `dmca`, 367 `nsfw`** — and **all 1420 of them that still exist are present in
+`channels.json`.** The index does not apply its own blocklist. An app that renders the channel
+list as it arrives ships channels removed on copyright demand. The exclusion lives in the
+parser rather than a view, and the panel reports the count it removed.
+
+The licence itself is **The Unlicense** — public domain, read at source. It is the first
+licence in this project that turned out to be **as permissive as assumed**; the previous five
+were all narrower than the plan recorded. It covers the *index* and cannot cover the streams,
+which are third-party URLs the project explicitly makes no warranty about — so: link upstream
+only, never proxy or re-host, attribute visibly.
+
+**Four health states, because measurement found four.** A first design had three;
+probing the fixture's own streams turned up a `401` from a server that answered in 477ms.
+A live server refusing is not a dead one — calling it `online` sends a viewer nowhere,
+calling it `offline` states something false. It renders as `restricted`.
+
+**`UK`, not `GB`.** iptv-org has 680 channels under `UK` and **zero** under `GB`, so a
+straight alpha-3 → alpha-2 conversion returns nothing for the United Kingdom with no error.
+An override table carries it, and a test asserts the table is consulted.
+
+**A channel with no stream is not a dead channel** — 41,068 channels against 16,589 streams,
+and 400 of the UK's 680 have none. Listed and watchable are different facts.
 
 ## Step 12 — Coverage-gap choropleth
 

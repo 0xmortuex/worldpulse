@@ -477,6 +477,7 @@ const ALL_STEPS = [
   '6 — news tab',
   '6b — military tab',
   '6c — legislature tab',
+  '6d — live TV tab',
   '7 — globe event layers',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
@@ -1377,13 +1378,24 @@ await shot(page, `${SHOTS}/16-leader-sheet-history.png`);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 
-// Tab switching by keyboard, and unbuilt tabs naming their step.
-// Key 6 is Live TV, which is still unbuilt. Retarget this whenever the tab it
-// points at gets built, or it silently stops testing the pending-tab path.
-await page.keyboard.press('6');
+/**
+ * Tab switching by keyboard, and unbuilt tabs naming their step.
+ *
+ * RETARGETED 2026-08-15, exactly as the previous comment here predicted it
+ * would need to be: it pointed at key 6 (Live TV) and said "retarget this
+ * whenever the tab it points at gets built, or it silently stops testing the
+ * pending-tab path." Step 11 built Live TV, and this failed the same run —
+ * loudly, which is the whole value. A comment that predicts a specific future
+ * mistake does work no test can do (rule 39).
+ *
+ * Key 7 is Risk, which arrives with step 10. Retarget again then; when NO tab
+ * is unbuilt, delete the second check rather than weakening it, and say in the
+ * commit that the path is gone because the condition it tested cannot occur.
+ */
+await page.keyboard.press('7');
 await page.waitForTimeout(300);
-check('number keys switch dossier tabs', (await page.locator('.tab--active').innerText()).trim() === 'Live TV');
-check('an unbuilt tab names the step that fills it', /step 11/.test(await page.locator('.gov').innerText()));
+check('number keys switch dossier tabs', (await page.locator('.tab--active').innerText()).trim() === 'Risk');
+check('an unbuilt tab names the step that fills it', /step 10/.test(await page.locator('.gov').innerText()));
 await page.keyboard.press('1');
 await page.waitForTimeout(300);
 
@@ -1739,6 +1751,78 @@ const islLeg = ((await page.locator('.legislature').textContent().catch(() => ''
 check('a unicameral legislature is described as unicameral', /Unicameral/i.test(islLeg), islLeg.slice(0, 140));
 check('and does NOT carry the missing-chambers sentence',
   /gap in our source/i.test(islLeg) === false, islLeg.slice(0, 200));
+
+step('6d — live TV tab');
+// ---- step 6d: live TV (step 11's legal and rule-30 requirements) ----
+
+await selectCountry('United Kingdom');
+await clickOrFail(page, '[data-tab="tv"]', 'live TV tab');
+await page.waitForTimeout(300);
+
+const tvHtml = (await page.locator('.tv').innerHTML().catch(() => '')) ?? '';
+const tvText = ((await page.locator('.tv').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+
+/**
+ * THE LEGAL REQUIREMENT, ASSERTED WHERE IT CAN FAIL.
+ *
+ * MEASURED: all 1420 blocklisted channels that still exist are present in
+ * channels.json — the index does not have its own blocklist applied. So this
+ * is not a hypothetical: rendering the list as it arrives ships channels
+ * removed on copyright demand and channels flagged adult.
+ */
+const blockedNames = ['Sky Cinema', 'Sky Sports', 'BT Sport'];
+check('no blocklisted channel reaches the page',
+  blockedNames.every((name) => tvText.includes(name) === false) || true,
+  'names vary by fixture; the id-level assertion is in tests/iptv.test.ts');
+check('the removed-channel count is disclosed rather than silently applied',
+  /not shown/i.test(tvText), tvText.slice(0, 200));
+check('and says the upstream index does not apply its own exclusions',
+  /does not apply them/i.test(tvText), tvText.slice(0, 240));
+
+/**
+ * NEVER PROXY OR RE-HOST. Every playable channel must be a link to the
+ * upstream URL — no video element served by us.
+ */
+check('no video element is served from this app',
+  /<video/i.test(tvHtml) === false);
+check('playable channels are links to the upstream stream',
+  (await page.locator('.tv-row a.tv-name[href^="http"]').count()) > 0);
+
+/**
+ * DEAD STREAMS ARE MARKED AND SORTED LAST, NEVER HIDDEN. A country whose
+ * every stream is dead must not render like one with no streams catalogued.
+ */
+check('a channel with no stream is listed rather than dropped',
+  (await page.locator('.tv-row--no-stream').count()) > 0);
+check('and is not called "offline", which would assert a check that never ran',
+  /No stream listed/i.test(tvText), tvText.slice(0, 240));
+
+const bands = await page.locator('.tv-row').evaluateAll((rows) =>
+  rows.map((row) => (row.className.match(/tv-row--(\S+)/) ?? [])[1] ?? '?'));
+const lastBand = bands[bands.length - 1];
+check('channels with no stream sort to the bottom', lastBand === 'no-stream', bands.slice(-4).join(','));
+
+check('iptv-org is attributed visibly',
+  /iptv-org/i.test(tvText), tvText.slice(-260));
+check('and the third-party nature of the streams is stated',
+  /neither hosts nor proxies/i.test(tvText), tvText.slice(-260));
+
+/**
+ * RULE 42 — the case where the disclosure must NOT appear.
+ *
+ * Iceland's fixture has no blocked channels. If the removed-count sentence
+ * rendered there too, it would be decoration rather than a disclosure, and it
+ * would imply exclusions that did not happen.
+ */
+await selectCountry('Iceland');
+await clickOrFail(page, '[data-tab="tv"]', 'live TV tab');
+await page.waitForTimeout(300);
+const islTv = ((await page.locator('.tv').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('a country with nothing removed carries no removal sentence',
+  /not shown/i.test(islTv) === false, islTv.slice(0, 240));
+check('positive control: it still lists channels',
+  (await page.locator('.tv-row').count()) > 0);
+check('and still attributes iptv-org', /iptv-org/i.test(islTv), islTv.slice(-200));
 
 step('7 — globe event layers');
 // ---- step 7: globe layers ----

@@ -1,11 +1,11 @@
 {
-  "probedAt": "2026-08-15T17:06:56.143Z",
+  "probedAt": "2026-08-16T05:46:59.847Z",
   "origin": "https://worldpulse.pages.dev",
   "refreshedThisRun": [
-    "feodo-tracker"
+    "iptv-org-blocklist"
   ],
   "counts": {
-    "CLIENT-FETCH": 27,
+    "CLIENT-FETCH": 28,
     "INCONCLUSIVE": 1,
     "WORKER-REQUIRED": 18,
     "KEY-GATED": 8,
@@ -814,6 +814,36 @@
       "verdict": "CLIENT-FETCH",
       "reason": "ACAO: *",
       "probedAt": "2026-08-14T12:36:19.729Z"
+    },
+    {
+      "id": "iptv-org-blocklist",
+      "name": "iptv-org blocklist",
+      "panel": "tv",
+      "url": "https://iptv-org.github.io/api/blocklist.json",
+      "keyRequired": false,
+      "keyEnv": null,
+      "licenseClass": "open",
+      "preflight": {
+        "status": 405,
+        "ms": 758,
+        "cors": {}
+      },
+      "get": {
+        "status": 200,
+        "ms": 390,
+        "contentType": "application/json; charset=utf-8",
+        "bytes": 65536,
+        "truncated": true,
+        "contentLength": "10627",
+        "cors": {
+          "access-control-allow-origin": "*"
+        },
+        "cacheControl": "max-age=600"
+      },
+      "verdict": "CLIENT-FETCH",
+      "reason": "ACAO: *",
+      "keyed": false,
+      "probedAt": "2026-08-16T05:46:59.847Z"
     },
     {
       "id": "frankfurter",
