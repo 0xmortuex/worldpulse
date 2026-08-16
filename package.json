@@ -11,7 +11,8 @@
     "probe": "NODE_USE_ENV_PROXY=1 node --env-file-if-exists=.env scripts/probe-sources.mjs",
     "test": "node scripts/run-tests.mjs",
     "attribution": "node scripts/gen-attribution.mjs",
-    "verify": "npm run build && node scripts/verify-render.mjs",
+    "verify": "npm run build && node scripts/bundle-budget.mjs && node scripts/verify-render.mjs",
+    "audit": "npx tsx scripts/doc-tree-audit.mjs",
     "check:deploy": "node scripts/check-deploy-gate.mjs",
     "mutate": "node scripts/mutation-check.mjs"
   },
