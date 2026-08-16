@@ -1329,3 +1329,89 @@ button.badge { cursor: pointer; }
 .tour-next { border-color: var(--accent); color: var(--accent); }
 .tour-skip { margin-right: auto; }
 .tour-actions button[disabled] { opacity: 0.4; cursor: default; }
+
+/* ---- v2: universal list views ---- */
+
+.lists[hidden] { display: none; }
+
+.lists {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: rgb(0 0 0 / 70%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+}
+
+.lists-panel {
+  width: min(1100px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.lists-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+}
+
+.lists-tab {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.lists-tab--on { border-color: var(--accent); color: var(--accent); }
+.lists-close { margin-left: auto; font: inherit; font-size: 12px; padding: 5px 12px;
+  border: 1px solid var(--border); border-radius: 4px; background: transparent;
+  color: var(--text-dim); cursor: pointer; }
+
+.lists-body { padding: 12px; }
+
+.list-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.list-table caption {
+  text-align: left;
+  color: var(--text-faint);
+  font-size: 11px;
+  padding-bottom: 8px;
+}
+.list-table th, .list-table td {
+  text-align: left;
+  padding: 5px 8px;
+  border-bottom: 1px solid #161b22;
+  vertical-align: top;
+}
+.list-table th { color: var(--text-faint); font-weight: 500; }
+.list-table a { color: var(--accent); }
+
+.list-swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+
+.list-stale { color: var(--warn); font-size: 11px; }
+.list-licence { color: var(--text-dim); }
+.list-verified { color: #7fd68a; }
+.list-unverified { color: var(--text-faint); }
+
+/* Verdicts are distinguished by a WORD and a hue, never hue alone — the same
+   dual-encoding the choropleth and the badges use. */
+.list-verdict--confirmed { color: #7fd68a; }
+.list-verdict--refuted { color: var(--warn); }
+
+.list-empty { color: var(--text-faint); font-size: 12px; }

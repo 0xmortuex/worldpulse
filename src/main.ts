@@ -37,6 +37,7 @@ import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
 import { mountLegislatureTab } from './ui/legislature';
 import { mountTour } from './ui/tour';
+import { mountLists } from './ui/lists';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
@@ -247,6 +248,7 @@ mountPanel(panelRoot, store, {
 mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
 mountTour(must<HTMLElement>('#tour'), must<HTMLElement>('#tour-launch'));
+mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now);
 
 store.subscribe((state) => {
   const styles = new Map<string, PolygonStyle>();

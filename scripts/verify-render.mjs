@@ -480,6 +480,7 @@ const ALL_STEPS = [
   '6d — live TV tab',
   '7 — globe event layers',
   '8a — the guided tour',
+  '8b — universal list views',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -2284,6 +2285,80 @@ check('arrow keys move between steps', /Step 2 of/.test(secondStep), secondStep)
 await page.keyboard.press('Escape');
 await page.waitForTimeout(250);
 check('Escape skips the tour from any step', (await page.locator('.tour-card').count()) === 0);
+
+step('8b — universal list views');
+// ---- v2 section 1.2: every collection also exists as a list ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+
+check('the lists are reachable from an obvious place',
+  (await page.locator('#lists-launch').count()) === 1);
+
+await clickOrFail(page, '#lists-launch', 'lists launcher');
+await page.waitForTimeout(400);
+check('opening shows a labelled dialog',
+  (await page.getAttribute('.lists-panel', 'aria-label')) === 'Browse lists');
+
+/**
+ * EVERY COLLECTION, not a selection of them. The tab set is asserted against
+ * the declared list so adding a collection without a tab fails here.
+ */
+for (const listId of ['events', 'countries', 'sources', 'watchlist']) {
+  check(`the ${listId} list has a tab`, (await page.locator(`[data-list="${listId}"]`).count()) === 1);
+}
+
+/**
+ * Each list must actually have rows. A tab that opens an empty table is a
+ * collection that exists visually and not in the list surface, which is the
+ * gap this feature closes.
+ */
+for (const listId of ['events', 'countries', 'sources', 'watchlist']) {
+  await clickOrFail(page, `[data-list="${listId}"]`, `${listId} tab`);
+  await page.waitForTimeout(350);
+  const rows = await page.locator('.list-table tbody tr').count();
+  check(`the ${listId} list has rows`, rows > 0, `${rows} rows`);
+  const caption = ((await page.locator('.list-table caption').textContent()) ?? '').trim();
+  check(`the ${listId} list states its size`, caption.length > 0, caption.slice(0, 80));
+}
+
+/**
+ * PROVENANCE TRAVELS WITH THE ROWS. The sources list is the one whose value is
+ * entirely in its columns: a reader checking this app's claims needs the
+ * licence class and whether the source was verified against a live capture.
+ */
+await clickOrFail(page, '[data-list="sources"]', 'sources tab');
+await page.waitForTimeout(350);
+const sourcesText = ((await page.locator('.lists-body').textContent()) ?? '').replace(/\s+/g, ' ');
+check('the sources list shows licence classes', /restricted|open|share-alike|nc/.test(sourcesText));
+check('and which sources are verified against a live capture',
+  /verified against a live capture/i.test(sourcesText), sourcesText.slice(0, 160));
+
+/**
+ * DEEP LINKS use the same query parameter the URL state reads, so a row link
+ * and a shared view are one mechanism rather than two that can disagree.
+ */
+await clickOrFail(page, '[data-list="countries"]', 'countries tab');
+await page.waitForTimeout(350);
+const href = await page.locator('.list-table tbody a').first().getAttribute('href');
+check('country rows deep-link by the same parameter the URL state uses',
+  /^\?c=[A-Z]{3}$/.test(href ?? ''), String(href));
+
+/**
+ * The watchlist list must show refutations as prominently as confirmations —
+ * and where there are none, say so rather than letting an all-green table imply
+ * a filter.
+ */
+await clickOrFail(page, '[data-list="watchlist"]', 'watchlist tab');
+await page.waitForTimeout(350);
+const watchText = ((await page.locator('.lists-body').textContent()) ?? '').replace(/\s+/g, ' ');
+check('the watchlist list says whether anything was refuted',
+  /refuted/i.test(watchText), watchText.slice(0, 160));
+
+// Keyboard-complete: Escape closes, as it does for the tour.
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+check('Escape closes the lists', (await page.locator('.lists-panel').count()) === 0);
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----
