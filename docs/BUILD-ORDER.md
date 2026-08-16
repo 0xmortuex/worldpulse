@@ -31,12 +31,12 @@ update when the state changes.
 | 6 | News tab, tone timeline, text-fidelity assertions | done |
 | 7 | Globe event layers, occlusion, clustering, staleness | done |
 | 7b | Economy fetch states — loading, unavailable, degraded, stale | done |
-| 8 | **Military tab** | scheduled |
+| 8 | **Military tab** | done |
 | 9 | **Legislature tab** | done |
 | 10 | **Live data pipeline** — ingests replace the seed set | scheduled |
 | 11 | **Live TV** | done |
-| 12 | **Coverage-gap choropleth** | scheduled |
-| 13 | **URL state, time scrub, compare view** | scheduled |
+| 12 | **Coverage-gap choropleth** | done |
+| 13 | **URL state, time scrub, compare view** | done |
 | 14 | **Closing sweep** — contract tests, accessibility, performance | scheduled |
 
 ---
