@@ -681,3 +681,53 @@ equivalence asserted, not merely planned.
 | # | Decision |
 | --- | --- |
 | L13 | **One timeboxed diagnostic session on globe.gl's raycast is now worth running, and was not before.** A 100%-reproducible failure can be bisected; a 20% one cannot. Instrument the click frame — camera matrix, pointer coordinates, what the raycast returns and against what set — to name the mechanism precisely. If it yields a one-line fix or a viable last-hovered-point fallback (L11), take it. If not, write it up and close the diagnostic. **Timeboxed hard: the keyboard path ships either way**, so the diagnostic can only save work, never gate it. |
+
+## L9 is MITIGATED — the keyboard route ships — 2026-08-16
+
+| # | Decision |
+| --- | --- |
+| L15 | **L9 is MITIGATED, not closed.** S3's three conditions are met: every marker-reachable event is reachable without a click, the first-attempt assertion is retained as a canary, and the mechanism is documented as globe.gl's rather than ours. Per rule 21a the ticket stays **open** — the raycast is still unexplained, and one working route around a defect is not an explanation of it. |
+
+**What shipped.** `src/ui/event-list.ts` renders one keyboard-reachable entry per marker, in
+the rail beside the layer toggles. Native `<button>` elements, so tab order, Enter and Space
+come from the platform rather than from key handlers we would have to get right.
+
+**Equivalence is structural, not maintained by hand.** `openEvent` is declared once in
+`main.ts` and passed both to `onEventClick` and to the list's `onActivate`. Two functions that
+"do the same thing" drift; one function cannot.
+
+**The set equality is asserted twice, deliberately.**
+
+| Where | What it compares | What it would miss alone |
+| --- | --- | --- |
+| `tests/event-list-equivalence.test.ts` | the list function against the cluster array | a list built from a stale array — it would pass while stranding events |
+| verify step `7c` | the rendered DOM against `clusterCount()`, what the globe actually received | nothing about the pure function's edge cases |
+
+The unit test also asserts its own sample is non-trivial: clusters exist, clustering actually
+happened, and the two `includeStale` runs produce **different** counts — otherwise the loop
+tested one case twice and looked like two.
+
+**The canary is still failing, and that is correct.** Step 7 still reports five failures:
+
+```
+the pick resolves to the event that was aimed at, not a neighbour
+positive control: the marker is hovered before the click
+clicking a marker moved the camera at all
+the camera landed on that event's coordinates
+the marker click worked on the first attempt
+```
+
+Those are L9. They are not skipped, quarantined or softened. Step 7c proves the route around
+them works, and is held to **the same standard**: it asserts the camera moved AND that it landed
+on that entry's coordinates, which is the same pair step 7 demands of the click.
+
+**Why this was urgent rather than an accessibility nicety.** L9 was recorded as a ~20% flake,
+measured under SwiftShader at 1.3fps. Under a renderer that engages the GPU the same machine
+runs at 59.9fps and **every marker click fails, deterministically**. Most users' machines are
+60fps machines, so the globe's primary interaction has never worked for real visitors while our
+own measurements called it intermittent — because they ran on a software rasteriser that made
+the failure rare and the guard vacuous. L10 called the keyboard equivalent "load-bearing, not an
+accessibility nicety" before anyone had the number that proved it.
+
+**L13's timeboxed diagnostic remains available and remains ungated.** It can now only save
+work, which is what "timeboxed hard" was for.

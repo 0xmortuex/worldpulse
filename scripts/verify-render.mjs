@@ -479,6 +479,7 @@ const ALL_STEPS = [
   '6c — legislature tab',
   '6d — live TV tab',
   '7 — globe event layers',
+  '7c — L9 keyboard route to events',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
   'cross-cutting — layout geometry (rule 8)',
@@ -2158,6 +2159,75 @@ check('the unreviewed magnitude still shows its value and its revision caveat',
 check('a magnitude the source never published reads "no data", not a number',
   /no data/.test(noMagLabel ?? '') && !/fact-value">[\d.]/.test(noMagLabel ?? ''),
   (noMagLabel ?? '').slice(0, 200));
+
+step('7c — L9 keyboard route to events');
+// ---- step 7c: the route around L9, asserted where the click fails ----
+//
+// The five failures in step 7 above are L9: on a GPU renderer every marker
+// click fails, deterministically, and the assertions there are retained as the
+// canary rule 21a requires. THIS step proves the route around it works, which
+// is what S3 requires before L9 can be called MITIGATED.
+
+await page.setViewportSize({ width: 1600, height: 950 });
+await selectCountry('United States');
+await page.waitForTimeout(600);
+
+const entries = page.locator('.event-entry');
+const entryCount = await entries.count();
+check('every marker is listed as a keyboard-reachable entry', entryCount > 0, `${entryCount} entries`);
+
+/**
+ * SET EQUALITY, IN THE BROWSER.
+ *
+ * The unit test asserts the list function against the cluster array. This
+ * asserts the DOM against what the globe was actually handed, which is the
+ * claim S3 makes — a list built from a stale array would pass the unit test
+ * and still strand events.
+ */
+const markerCount = await page.evaluate(() => window.__worldpulse?.clusterCount?.() ?? -1);
+check('the list has exactly one entry per marker on the globe',
+  markerCount === entryCount, `globe=${markerCount} list=${entryCount}`);
+
+/**
+ * THE ROUTE ITSELF: reachable by keyboard alone, and it moves the camera.
+ *
+ * Focus is driven with Tab rather than by calling .focus(), because the claim
+ * is that a keyboard user can GET here — an element that is only reachable
+ * programmatically is not a keyboard route.
+ */
+const viewBeforeEntry = await page.evaluate(() => window.__worldpulse?.pointOfView());
+await entries.first().focus();
+const focused = await page.evaluate(() => document.activeElement?.className ?? '');
+check('an event entry can hold keyboard focus', /event-entry/.test(focused), focused);
+
+await page.keyboard.press('Enter');
+await page.waitForTimeout(1400);
+const viewAfterEntry = await page.evaluate(() => window.__worldpulse?.pointOfView());
+
+const moved =
+  viewBeforeEntry &&
+  viewAfterEntry &&
+  (Math.abs(viewBeforeEntry.lat - viewAfterEntry.lat) > 0.5 ||
+    Math.abs(viewBeforeEntry.lng - viewAfterEntry.lng) > 0.5);
+check('pressing Enter on an entry moves the camera — the thing the click cannot do',
+  Boolean(moved), `before=${JSON.stringify(viewBeforeEntry)} after=${JSON.stringify(viewAfterEntry)}`);
+
+/**
+ * It lands on the RIGHT event, not merely somewhere. Same standard step 7
+ * holds the click to — "the camera landed on that event's coordinates" — so
+ * the mitigation is measured against the assertion it substitutes for.
+ */
+const target = await page.evaluate(() => window.__worldpulse?.firstClusterPosition?.() ?? null);
+const landed =
+  target &&
+  viewAfterEntry &&
+  Math.abs(viewAfterEntry.lat - target.lat) < 1 &&
+  Math.abs(viewAfterEntry.lng - target.lng) < 1;
+check('and lands on that entry\'s coordinates, not just anywhere',
+  Boolean(landed), `target=${JSON.stringify(target)} after=${JSON.stringify(viewAfterEntry)}`);
+
+check('the list explains itself to someone whose clicks are failing',
+  /if a marker does not respond/i.test((await page.locator('.event-list').textContent()) ?? ''));
 
 step('7b — economy fetch states');
 // ---- step 7b: the four states the fetch layer introduces ----

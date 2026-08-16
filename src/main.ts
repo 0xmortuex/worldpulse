@@ -14,6 +14,7 @@ import {
 } from './layers/events';
 import { colorFor, filterEvents, loadEvents } from './layers/provider';
 import { countLayers, mountLayersRail } from './ui/layers-rail';
+import { eventListHtml, mountEventList } from './ui/event-list';
 import { buildFindings, loadFacts } from './relations/facts';
 import { pairKey, score } from './relations/score';
 import type { RelationResult } from './relations/types';
@@ -52,14 +53,25 @@ let renderedEvents: GlobeEvent[] = [];
 let renderedClusters: EventCluster[] = [];
 
 const globeContainer = must<HTMLElement>('#globe');
+
+/**
+ * ONE handler, reached by two routes.
+ *
+ * L9's mitigation is only worth anything if the keyboard list does the same
+ * thing the marker does. Two functions that "do the same thing" drift; this is
+ * declared once and passed to both, so equivalence is structural rather than
+ * maintained by hand.
+ */
+const openEvent = (cluster: EventCluster): void => {
+  // Fly to the marker's real coordinate, which is the representative member's
+  // position — never a cluster average.
+  globe.flyTo(cluster.lat, cluster.lng, 1000);
+};
+
 const globe = new CountryGlobe(globeContainer, countries, {
   onSelect: (code, additive) => (additive ? store.toggle(code) : store.select(code)),
   onHover: (code) => store.setHovered(code),
-  onEventClick: (cluster) => {
-    // Fly to the marker's real coordinate, which is the strongest member's
-    // position — never a cluster average.
-    globe.flyTo(cluster.lat, cluster.lng, 1000);
-  },
+  onEventClick: openEvent,
 });
 
 mountLayersRail(
@@ -68,6 +80,14 @@ mountLayersRail(
   () => countLayers(allEvents, renderedEvents, renderedClusters),
   () => allEvents,
 );
+/**
+ * L9's keyboard route. Native `<button>` elements, so tab order, Enter and
+ * Space come from the platform rather than from key handlers we would have to
+ * get right.
+ */
+const eventListRoot = must<HTMLElement>('#event-list');
+mountEventList(eventListRoot, () => renderedClusters, { onActivate: openEvent });
+
 mountSearch(must<HTMLElement>('#search'), store, countries);
 mountRail(must<HTMLElement>('#rail'), store);
 const panelRoot = must<HTMLElement>('#panel');
@@ -153,6 +173,13 @@ store.subscribe((state) => {
     altitude: EVENT_ALTITUDE,
     label: eventTooltip(cluster),
   }));
+
+  /**
+   * Rendered from the SAME array the globe was handed, one line later, so the
+   * two cannot diverge. `tests/event-list-equivalence.test.ts` asserts the set
+   * equality that makes this L9's mitigation rather than a partial listing.
+   */
+  eventListRoot.innerHTML = eventListHtml(renderedClusters);
 
   renderModeIndicator(state.selected.length);
 });
@@ -311,6 +338,14 @@ declare global {
       backFacingClusterId(): string | null;
       eventById(id: string): { lat: number; lng: number } | null;
       clusterFor(id: string): { id: string; memberCount: number } | null;
+      /**
+       * L9's mitigation is a SET EQUALITY claim, and a unit test can only
+       * compare the list function against an array it was handed itself. These
+       * two expose what the globe actually received, so the browser can compare
+       * the rendered DOM against it.
+       */
+      clusterCount(): number;
+      firstClusterPosition(): { lat: number; lng: number } | null;
       tooltipFor(id: string): string | null;
       /** Swap the economy panel's fetch scenario without reloading the page. */
       setEconScenario(scenario: ScenarioName | null): void;
@@ -345,6 +380,11 @@ function onScreen(lat: number, lng: number): boolean {
 
 window.__worldpulse = {
   setEconScenario,
+  clusterCount: () => renderedClusters.length,
+  firstClusterPosition: () => {
+    const first = renderedClusters[0];
+    return first ? { lat: first.lat, lng: first.lng } : null;
+  },
   pointOfView: () => globe.pointOfView(),
   facesCamera: (lat, lng) => globe.facesCamera(lat, lng),
   /**
