@@ -2,6 +2,8 @@ import { escapeHtml, factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import type { Fact } from '../facts/types';
 import { loadGovernment } from '../dossier/government-provider';
+import { answeredSections, loadGovernmentLive, type GovernmentLoad } from '../dossier/government-live';
+import { fetcherFor, type RequestingFetcher } from '../fetch/scenario';
 import { loadDossier } from '../dossier/provider';
 import { resolveLeader } from '../dossier/resolve';
 import type { FetchContext } from '../sources/adapter';
@@ -72,7 +74,93 @@ function pending(title: string, why: string, step: string): string {
   </section>`;
 }
 
+/**
+ * ## The live path, behind a scenario parameter
+ *
+ * Without `?econ=` this renders from fixtures exactly as before — the default
+ * path has no stub and no async in it, which is why the tab's twenty-four
+ * existing browser assertions are untouched by this conversion.
+ *
+ * Four queries load independently, so one failing section cannot take the other
+ * three with it. That is the whole reason `government-live.ts` catches per
+ * section rather than letting a rejection collapse the set.
+ */
+type GovLiveState = 'loading' | GovernmentLoad;
+
+const govLoads = new Map<string, GovLiveState>();
+let govRerender: (() => void) | null = null;
+let govFetcher: RequestingFetcher | null = null;
+
+/** Test seam: drop cached loads so a scenario can be re-driven. */
+export function resetGovernmentLoads(): void {
+  govLoads.clear();
+  govFetcher = null;
+}
+
+function govScenarioActive(): boolean {
+  return typeof location !== 'undefined' && new URLSearchParams(location.search).get('econ') !== null;
+}
+
 export function renderGovernmentTab(iso3: string, countryName: string, today: Date): string {
+  if (govScenarioActive()) {
+    const live = govLoads.get(iso3);
+
+    if (live === undefined) {
+      govLoads.set(iso3, 'loading');
+      govFetcher ??= fetcherFor(location.search);
+      void loadGovernmentLive(govFetcher, iso3).then((load) => {
+        govLoads.set(iso3, load);
+        /**
+         * Only redraw when this panel is on screen. Rebuilding the dossier for
+         * a tab nobody is looking at detaches every element the user is
+         * interacting with — seventeen retries and a 90s timeout, measured.
+         */
+        if (document.querySelector('.gov') === null) return;
+        govRerender?.();
+      });
+    }
+
+    if (live === undefined || live === 'loading') {
+      return `<div class="gov" data-panel-state="loading">
+        <p class="gov-pending" aria-live="polite">Loading government data for
+        ${escapeHtml(countryName)}…</p>
+      </div>`;
+    }
+
+    const answered = answeredSections(live);
+    if (answered === 0) {
+      /**
+       * Every section failed. This is `unavailable`, and it must not borrow the
+       * no-data wording: "no government data for X" is a claim about the
+       * country, where this is a claim about four failed requests.
+       */
+      return `<div class="gov" data-panel-state="unavailable">
+        <p class="gov-pending">Could not load government data for ${escapeHtml(countryName)}.
+        <strong>All four queries failed — this is a request failure, not a finding that no
+        data exists.</strong></p>
+      </div>`;
+    }
+
+    if (answered < 4) {
+      /**
+       * DEGRADED, and disclosed as such. A partial load rendered silently is
+       * the failure the fetch layer's fifth state exists to prevent: the panel
+       * would look complete while three-quarters of it was missing.
+       */
+      return `<div class="gov" data-panel-state="degraded">
+        <p class="gov-caveat"><strong>Partial load.</strong>
+        ${n(answered, 'sections of this panel that answered, out of the four it requests')} of
+        4 sections answered; the rest are missing because their requests failed, not because
+        the country has no such institutions.</p>
+        ${renderGovernmentFixtures(iso3, countryName, today)}
+      </div>`;
+    }
+  }
+
+  return renderGovernmentFixtures(iso3, countryName, today);
+}
+
+function renderGovernmentFixtures(iso3: string, countryName: string, today: Date): string {
   const dossier = loadDossier(iso3);
   const government = loadGovernment(iso3);
 
@@ -374,7 +462,15 @@ function timelineSection(source: { value: Term[]; ctx: FetchContext } | null, to
 }
 
 /** Expand/collapse for long cabinets. */
-export function mountGovernmentTab(root: HTMLElement): void {
+export function mountGovernmentTab(root: HTMLElement, rerender?: () => void): void {
+  /**
+   * Optional, so existing callers keep working: without it the live path simply
+   * never redraws, which is a degradation rather than a break — and a required
+   * parameter here would have made this conversion touch every call site for
+   * no benefit to the fixture path.
+   */
+  if (rerender) govRerender = rerender;
+
   root.addEventListener('click', (event) => {
     const toggle = (event.target as HTMLElement).closest<HTMLElement>('[data-expand="cabinet"]');
     if (!toggle) return;

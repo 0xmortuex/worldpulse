@@ -181,7 +181,7 @@ const openLeaderSheet = mountLeaderSheet(
   (code) => byCode.get(code)?.name ?? code,
 );
 mountDossierHeader(panelRoot, openLeaderSheet);
-mountGovernmentTab(panelRoot);
+mountGovernmentTab(panelRoot, () => store.refresh());
 // Re-render through the store so the economy toggle takes the same path as
 // every other state change rather than mutating the DOM behind the panel.
 mountEconomyTab(panelRoot, () => store.refresh());
