@@ -39,6 +39,7 @@ import { mountLegislatureTab } from './ui/legislature';
 import { mountTour } from './ui/tour';
 import { mountLists } from './ui/lists';
 import { renderFlatMap, shouldAutoSwitch } from './ui/flatmap';
+import { mountPalette } from './ui/palette';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
@@ -256,8 +257,17 @@ mountPanel(panelRoot, store, {
     ...(specifiesLayers(window.location.search) ? { layers: new Set(initial.layers) } : {}),
   });
 
+  /**
+   * `map=` is a rendering preference, not view state, so `toSearch` knows
+   * nothing about it — and would drop it from the URL on the first render.
+   * A shared `?map=flat` link that loses its own parameter the moment it opens
+   * is a link that only works once, so it is carried across explicitly.
+   */
+  const askedMap = new URLSearchParams(window.location.search).get('map');
+  const keepMap = askedMap === 'globe' || askedMap === 'flat' ? `map=${askedMap}` : '';
+
   store.subscribe((state) => {
-    const search = toSearch(state);
+    const search = [toSearch(state), keepMap].filter(Boolean).join('&');
     const next = `${window.location.pathname}${search ? `?${search}` : ''}`;
     if (next !== `${window.location.pathname}${window.location.search}`) {
       window.history.replaceState(null, '', next);
@@ -273,8 +283,52 @@ mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now)
 flatRoot = must<HTMLElement>('#flatmap');
 const flatToggle = must<HTMLElement>('#flat-launch');
 
+/**
+ * Phase C.6. Every action the palette can take is expressed as a store change
+ * or an existing toggle — it navigates the app rather than reaching into it, so
+ * a surface added later gains a command without gaining a special case here.
+ */
+mountPalette(must<HTMLElement>('#palette'), {
+  selectCountry: (iso3) => store.select(iso3),
+  openTab: (tab) => store.setTab(tab as never),
+  openList: (list) => {
+    must<HTMLElement>('#lists-launch').click();
+    must<HTMLElement>('#lists').querySelector<HTMLElement>(`[data-list="${list}"]`)?.click();
+  },
+  runAction: (action) => {
+    if (action === 'tour') must<HTMLElement>('#tour-launch').click();
+    if (action === 'flat') must<HTMLElement>('#flat-launch').click();
+    if (action === 'coverage') store.setCoverageMode(!store.state.coverageMode);
+  },
+});
+
+/**
+ * An EXPLICIT rendering preference, from the toggle or from `?map=`.
+ *
+ * The globe/flat choice is deliberately not part of the shared view state the
+ * URL carries — 8c's caveat calls it "a rendering choice, not a change to the
+ * data", and folding it in with weights and thresholds would contradict that.
+ * But it is still worth being able to ask for, so `?map=globe` and `?map=flat`
+ * are read directly and mean *the reader has decided*.
+ *
+ * Deciding suppresses the auto-switch. The switch exists to rescue a reader
+ * who is watching a slideshow and has not asked for anything; overriding
+ * someone who stated a preference is not a rescue, it is a contradiction — and
+ * it would arrive four seconds in, on top of whatever they were doing.
+ */
+let flatMapChosen = false;
+{
+  const asked = new URLSearchParams(window.location.search).get('map');
+  if (asked === 'globe' || asked === 'flat') {
+    flatMapChosen = true;
+    flatMapOn = asked === 'flat';
+    flatToggle.setAttribute('aria-pressed', String(flatMapOn));
+  }
+}
+
 flatToggle.addEventListener('click', () => {
   flatMapOn = !flatMapOn;
+  flatMapChosen = true;
   // Choosing the map clears any auto-switch notice: the reader now knows.
   flatAutoReason = null;
   flatToggle.setAttribute('aria-pressed', String(flatMapOn));
@@ -291,7 +345,7 @@ flatToggle.addEventListener('click', () => {
 setTimeout(() => {
   const fps = measuredFps();
   const decision = shouldAutoSwitch(fps);
-  if (!decision.switch || flatMapOn) return;
+  if (!decision.switch || flatMapOn || flatMapChosen) return;
   flatMapOn = true;
   flatAutoReason = decision.reason;
   flatToggle.setAttribute('aria-pressed', 'true');

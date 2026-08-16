@@ -482,6 +482,7 @@ const ALL_STEPS = [
   '8a — the guided tour',
   '8b — universal list views',
   '8c — the flat-map fallback',
+  '8d — the command palette',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -918,7 +919,23 @@ page.on('console', (msg) => {
 page.on('pageerror', (err) => pageErrors.push(String(err)));
 
 await mkdir(SHOTS, { recursive: true });
-await page.goto(BASE, { waitUntil: 'networkidle' });
+
+/**
+ * `?map=globe` — the harness states a preference, because otherwise the
+ * auto-switch does.
+ *
+ * Headless Chromium renders the globe far below the 15fps floor, so four
+ * seconds into every page load the app moves to the flat map and the flat map
+ * covers the globe canvas. Steps that hover or click the globe then hit the
+ * overlay instead, and which steps got hit depended on where the wall-clock
+ * timer happened to land — the same suite failing in different places on
+ * different runs.
+ *
+ * The fix is not to disable the feature for tests. It is that a reader who
+ * asked for the globe gets the globe, which is what `?map=globe` says. Step 8c
+ * loads WITHOUT it, so the auto-switch is still observed where it belongs.
+ */
+await page.goto(`${BASE}?map=globe`, { waitUntil: 'networkidle' });
 await page.waitForTimeout(2500);
 
 step('1 — globe, selection, relations');
@@ -2370,11 +2387,31 @@ await selectCountry('France');
 await page.waitForTimeout(600);
 
 check('the flat map is reachable', (await page.locator('#flat-launch').count()) === 1);
-check('and the globe is what shows by default',
-  (await page.locator('.flatmap[hidden]').count()) === 1);
 
-await clickOrFail(page, '#flat-launch', 'flat map toggle');
-await page.waitForTimeout(600);
+/**
+ * THE AUTO-SWITCH FIRES IN THIS HARNESS, and that is the feature working.
+ *
+ * Headless Chromium renders the globe well under 15fps, so by the time this
+ * step runs the app has already moved the reader to the flat map — which the
+ * first version of this step read as a failure because it assumed the globe
+ * shows by default.
+ *
+ * So the auto-switch is ASSERTED instead of assumed away: if the app switched
+ * on its own, it must say so. A silent degrade is the failure this notice
+ * exists to prevent, and this harness is the only place it can be observed.
+ */
+const autoSwitched = (await page.locator('.flatmap[hidden]').count()) === 0;
+if (autoSwitched) {
+  const notice = ((await page.locator('.flat-notice').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+  check('an app-initiated switch SAYS it switched', notice.length > 0, notice.slice(0, 120));
+  check('and gives the frame rate that caused it', /frames per second/i.test(notice), notice.slice(0, 160));
+  check('and reassures that the data did not change',
+    /not a change to the data/i.test(notice), notice.slice(0, 200));
+} else {
+  check('the globe shows by default when the frame rate is fine', true);
+  await clickOrFail(page, '#flat-launch', 'flat map toggle');
+  await page.waitForTimeout(600);
+}
 
 check('switching shows the flat map', (await page.locator('.flat-svg').count()) === 1);
 check('it draws countries', (await page.locator('.flat-country').count()) > 100,
@@ -2410,7 +2447,18 @@ check('and it says what the map may not be read for', /never for size/i.test(fla
 /**
  * RULE 42's PAIR: a map the reader CHOSE carries no auto-switch notice. A
  * notice that always appears explains nothing, and this one would be false.
+ *
+ * When the app switched on its own, BOTH halves of the pair are still reachable
+ * in this one run — toggle back to the globe and forward again, and the second
+ * arrival is a chosen one. Asserting only the half the harness happened to land
+ * in would leave the other half untested on every machine.
  */
+if (autoSwitched) {
+  await clickOrFail(page, '#flat-launch', 'flat map toggle');
+  await page.waitForTimeout(400);
+  await clickOrFail(page, '#flat-launch', 'flat map toggle');
+  await page.waitForTimeout(500);
+}
 check('a chosen flat map carries no switch notice',
   (await page.locator('.flat-notice').count()) === 0);
 
@@ -2420,6 +2468,78 @@ check('switching back returns to the globe',
   (await page.locator('.flatmap[hidden]').count()) === 1);
 check('and the globe canvas is still there',
   (await page.locator('#globe canvas').count()) === 1);
+
+/**
+ * `?map=` — the stated preference, asserted in both directions, and asserted
+ * to SURVIVE the store's rewriting of the URL.
+ *
+ * This harness runs below the auto-switch floor, which makes it the one place
+ * the suppression can actually be observed: on a machine fast enough to keep
+ * the globe smooth, `?map=globe` and no parameter at all look identical.
+ */
+await page.goto(`${BASE}?map=flat`, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(900);
+check('?map=flat opens the flat map', (await page.locator('.flat-svg').count()) === 1);
+check('and it is a CHOICE, so nothing announces a switch',
+  (await page.locator('.flat-notice').count()) === 0);
+
+await page.goto(`${BASE}?map=globe`, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(5200); // past the 4s auto-switch measurement
+check('?map=globe holds the globe past the auto-switch measurement',
+  (await page.locator('.flatmap[hidden]').count()) === 1);
+check('and the preference survives in the URL the store rewrites',
+  /[?&]map=globe/.test(page.url()), page.url());
+
+step('8d — the command palette');
+// ---- v2 Phase C.6: keyboard-first navigation to every surface ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+
+check('the palette is closed until asked for', (await page.locator('.palette-panel').count()) === 0);
+
+/**
+ * IT OPENS FROM THE KEYBOARD. A palette reachable only by clicking a button is
+ * not a keyboard-first surface, which is the one thing it exists to be.
+ */
+await page.keyboard.press('Control+k');
+await page.waitForTimeout(350);
+check('Ctrl-K opens it', (await page.locator('.palette-panel').count()) === 1);
+check('and focus lands in the input',
+  (await page.evaluate(() => document.activeElement?.className ?? '')).includes('palette-input'));
+
+await page.keyboard.type('fra');
+await page.waitForTimeout(350);
+const first = ((await page.locator('.palette-item--first .palette-label').textContent()) ?? '').trim();
+check('typing a prefix finds the obvious thing first', first === 'France', first);
+check('and every result says what KIND it is',
+  (await page.locator('.palette-item--first .palette-kind').count()) === 1);
+
+/**
+ * ENTER RUNS THE FIRST RESULT, and the app actually changes. A palette that
+ * lists things without navigating to them is a search box.
+ */
+await page.keyboard.press('Enter');
+await page.waitForTimeout(900);
+check('Enter runs the first result and it closes',
+  (await page.locator('.palette-panel').count()) === 0);
+const panelAfter = ((await page.locator('.panel').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('and the app navigated to it', /France/.test(panelAfter), panelAfter.slice(0, 100));
+
+/**
+ * It reaches SURFACES, not only countries — the reason it is generated from
+ * the tour and list registries rather than hand-written.
+ */
+await page.keyboard.press('Control+k');
+await page.waitForTimeout(300);
+await page.keyboard.type('list: events');
+await page.waitForTimeout(350);
+const listHit = ((await page.locator('.palette-item--first .palette-label').textContent()) ?? '').trim();
+check('it can reach a list view', /List: Events/i.test(listHit), listHit);
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+check('Escape closes it', (await page.locator('.palette-panel').count()) === 0);
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----
@@ -3139,6 +3259,110 @@ step('cross-cutting — layout geometry (rule 8)');
 for (const breakpoint of BREAKPOINTS) {
   await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });
   await page.waitForTimeout(400);
+
+  /**
+   * THE DOSSIER IS ON TOP, asserted by hit-test rather than by inspecting CSS.
+   *
+   * Below 900px the panel becomes `position: absolute`, and the flat map's
+   * `z-index: 5` then painted over the whole dossier — tab strip included. The
+   * symptom was a 90-second click timeout in the economy block far below, which
+   * named the wrong thing: nothing was wrong with the economy panel, it was
+   * underneath a map.
+   *
+   * `elementFromPoint` is the check that matches the defect, because "can the
+   * reader actually hit this" is the question a z-index bug answers wrongly
+   * while every geometry measurement stays green. The reader who meets it is
+   * the one least able to escape: narrow screens are usually slow ones, the
+   * auto-switch fires on exactly those, and the rescue buried the dossier.
+   */
+  if (breakpoint.width <= 900) {
+    await selectCountry('France');
+
+    /*
+     * Drive to a KNOWN state instead of toggling blindly.
+     *
+     * The auto-switch may already have opened the flat map, in which case a
+     * blind click closes it and the hit-test below runs against a globe and
+     * passes — reporting that the map does not cover the dossier because there
+     * was no map. The positive control that follows is what makes the result
+     * mean anything.
+     */
+    if ((await page.locator('.flatmap[hidden]').count()) === 1) {
+      await clickOrFail(page, '#flat-launch', 'flat map toggle');
+      await page.waitForTimeout(500);
+    }
+    check(`${breakpoint.name} positive control: the flat map is actually showing`,
+      (await page.locator('.flat-svg').count()) === 1);
+
+    const overTab = await page.evaluate(() => {
+      /*
+       * Scope to the DOSSIER's tab, not to the first `[data-tab]` in the
+       * document.
+       *
+       * The unscoped selector matched an element up at y=70 while the panel sat
+       * at y=360, and the hit-test dutifully reported it as covered — by the
+       * seed banner, which is simply what is in front of that other element.
+       * The assertion is about the dossier's tab strip, so it has to name it.
+       */
+      const tab = document.querySelector('#panel [data-tab="economy"]');
+      if (!tab) {
+        const anywhere = document.querySelectorAll('[data-tab="economy"]').length;
+        return `no economy tab in #panel (${anywhere} elsewhere in the document)`;
+      }
+      /*
+       * SCROLL IT INTO VIEW BEFORE MEASURING. The panel scrolls, and a tab
+       * strip scrolled out of the panel's clipped box still has a rect —
+       * one ABOVE the panel, over the seed banner. Hit-testing that point
+       * reports the banner and reads as "the dossier is covered", which is
+       * a fact about where the panel was scrolled, not about stacking.
+       */
+      tab.scrollIntoView({ block: 'center', inline: 'nearest' });
+      const box = tab.getBoundingClientRect();
+      if (box.width === 0 || box.height === 0) return 'economy tab has no box';
+      const x = box.left + box.width / 2;
+      const y = box.top + box.height / 2;
+
+      /*
+       * The point must lie inside the panel for the answer to mean anything.
+       * Hit-testing a coordinate the panel does not occupy cannot tell us
+       * whether something covers the panel there.
+       */
+      const own = document.querySelector('#panel')?.getBoundingClientRect();
+      if (!own || x < own.left || x > own.right || y < own.top || y > own.bottom) {
+        return `tab centre ${Math.round(x)},${Math.round(y)} is outside the panel`
+          + ` ${own ? `${Math.round(own.left)},${Math.round(own.top)} ${Math.round(own.width)}x${Math.round(own.height)}` : 'absent'}`
+          + ' — measurement abandoned rather than reported';
+      }
+
+      const hit = document.elementFromPoint(x, y);
+      if (!hit) return `nothing at the tab position ${Math.round(box.left)},${Math.round(box.top)}`;
+      if (hit.closest('#panel')) return 'panel';
+
+      // Name the covering element by its ANCESTRY, not just its own tag: a bare
+      // <span> says nothing, and which container it belongs to is the answer.
+      const chain = [];
+      for (let el = hit; el && chain.length < 5; el = el.parentElement) {
+        const id = el.id ? `#${el.id}` : '';
+        const cls = typeof el.className === 'string' && el.className
+          ? `.${el.className.trim().split(/\s+/).join('.')}`
+          : '';
+        chain.push(`${el.tagName.toLowerCase()}${id}${cls}`);
+      }
+      const narrow = window.matchMedia('(max-width: 900px)').matches;
+      const panel = document.querySelector('#panel')?.getBoundingClientRect();
+      return `covered by ${chain.join(' < ')} | tab at ${Math.round(box.left)},${Math.round(box.top)}`
+        + ` | narrow=${narrow} | panel ${panel ? `${Math.round(panel.left)},${Math.round(panel.top)} ${Math.round(panel.width)}x${Math.round(panel.height)}` : 'absent'}`
+        + ` | viewport ${window.innerWidth}x${window.innerHeight}`;
+    });
+    check(`${breakpoint.name} the flat map does not cover the dossier`,
+      overTab === 'panel', overTab);
+
+    // Back to the globe, again by state rather than by assumption.
+    if ((await page.locator('.flatmap[hidden]').count()) === 0) {
+      await clickOrFail(page, '#flat-launch', 'flat map toggle');
+      await page.waitForTimeout(400);
+    }
+  }
 
   // Parliamentary: the densest header, two portraits plus captions.
   await selectCountry('United Kingdom');

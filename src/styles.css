@@ -352,6 +352,19 @@ body {
     max-height: 55%;
     border-left: none;
     border-top: 1px solid var(--border);
+    /*
+     * ABOVE THE FLAT MAP. `.flatmap` carries z-index 5, and below 900px the
+     * panel becomes positioned too — so without a number of its own it lost the
+     * stacking contest and the map covered the entire dossier, tab strip
+     * included.
+     *
+     * The reader who hits this is the one least able to escape it: a narrow
+     * screen is usually a slow one, the auto-switch fires on exactly those
+     * machines, and the rescue then buried the thing they came to read. Found
+     * by the 360px geometry pass, where the economy tab could not be clicked
+     * because a map was lying on top of it.
+     */
+    z-index: 6;
   }
 }
 
@@ -1458,3 +1471,70 @@ button.badge { cursor: pointer; }
    sibling, positioned over the same area. */
 .globe-cell { position: relative; min-width: 0; }
 .globe-cell .globe { position: absolute; inset: 0; }
+
+/* ---- v2 Phase C.6: the command palette ---- */
+
+.palette[hidden] { display: none; }
+
+.palette {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: rgb(0 0 0 / 55%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+
+.palette-panel {
+  width: min(560px, 92vw);
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.palette-input {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+}
+.palette-input:focus { outline: none; }
+
+.palette-results { list-style: none; margin: 0; padding: 4px; max-height: 50vh; overflow-y: auto; }
+
+.palette-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+}
+.palette-item:hover { background: #1c222b; }
+.palette-item--first { background: #1c222b; }
+
+/* The kind is a WORD, not a colour — Enter must be predictable, and "France"
+   and "Open the government tab" do different things. */
+.palette-kind {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  min-width: 62px;
+}
+
+.palette-empty { padding: 12px 14px; font-size: 12px; color: var(--text-faint); }
