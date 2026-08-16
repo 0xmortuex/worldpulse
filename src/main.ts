@@ -15,6 +15,14 @@ import {
 import { colorFor, filterEvents, loadEvents } from './layers/provider';
 import { countLayers, mountLayersRail } from './ui/layers-rail';
 import { eventListHtml, mountEventList } from './ui/event-list';
+import { BAND_ENCODING, coverageFor, panelsWithDataFor, type CountryCoverage } from './coverage';
+import { FIXTURE_COUNTRIES } from './dossier/provider';
+import { GOVERNMENT_COUNTRIES } from './dossier/government-provider';
+import { ECONOMY_COUNTRIES } from './dossier/economy-provider';
+import { NEWS_COUNTRIES } from './dossier/news-provider';
+import { fixtureCodes, loadMilitary } from './dossier/military-provider';
+import { legislatureFor } from './dossier/legislature-provider';
+import { tvListingFor } from './dossier/tv-provider';
 import { buildFindings, loadFacts } from './relations/facts';
 import { pairKey, score } from './relations/score';
 import type { RelationResult } from './relations/types';
@@ -27,7 +35,7 @@ import { mountNewsTab } from './ui/news';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
-import { plainPopover, relationPopover } from './ui/popover';
+import { coveragePopover, plainPopover, relationPopover, unassessedPopover } from './ui/popover';
 import { mountRail } from './ui/rail';
 import { mountSearch } from './ui/search';
 
@@ -49,6 +57,49 @@ const EVENT_ALTITUDE = 0.03;
 
 const now = new Date();
 const allEvents: GlobeEvent[] = loadEvents(now);
+
+/**
+ * Step 12's coverage assessment, computed once.
+ *
+ * Only countries a panel provider can actually be asked about are in this map.
+ * Everything else is **absent**, which the renderer treats as *unassessed* —
+ * deliberately distinct from a coverage score of zero.
+ */
+const assessedCountries = new Set<string>([
+  ...FIXTURE_COUNTRIES,
+  ...GOVERNMENT_COUNTRIES,
+  ...ECONOMY_COUNTRIES,
+  ...NEWS_COUNTRIES,
+  ...fixtureCodes(),
+]);
+
+const coverageByCountry = new Map<string, CountryCoverage>(
+  countries
+    .filter((country) => assessedCountries.has(country.code))
+    .map((country) => [
+      country.code,
+      coverageFor({
+        iso3: country.code,
+        panelsWithData: panelsWithDataFor({
+          dossier: FIXTURE_COUNTRIES.includes(country.code),
+          government: GOVERNMENT_COUNTRIES.includes(country.code),
+          legislature: legislatureFor(country.code).chambers.length > 0,
+          military: loadMilitary(country.code) !== null,
+          economy: ECONOMY_COUNTRIES.includes(country.code),
+          news: NEWS_COUNTRIES.includes(country.code),
+          tv: tvListingFor(country.code).channels.length > 0,
+        }),
+      }),
+    ]),
+);
+
+/**
+ * Darker than every band, deliberately.
+ *
+ * "Unassessed" must not read as a low score — it is not on the scale at all,
+ * and a colour that sits just below "Nothing" would put it there.
+ */
+const UNASSESSED_FILL = '#1a1a20';
 let renderedEvents: GlobeEvent[] = [];
 let renderedClusters: EventCluster[] = [];
 
@@ -129,7 +180,27 @@ store.subscribe((state) => {
     let cap = TIER_COLORS.nodata;
     let label = plainPopover(country);
 
-    if (subject && country.code !== subject.code) {
+    if (state.coverageMode) {
+      /**
+       * Step 12. Coverage REPLACES the relations colouring rather than layering
+       * over it, because the globe has one colour channel and two meanings in
+       * it is question 12's problem — a reader cannot tell which one they are
+       * looking at, and the map would be confidently ambiguous.
+       */
+      const assessment = coverageByCountry.get(country.code);
+      if (assessment) {
+        cap = BAND_ENCODING[assessment.band].fill;
+        label = coveragePopover(country, assessment);
+      } else {
+        /**
+         * Unassessed, which is NOT the "none" band. Painting it as "Nothing"
+         * would assert a measurement nobody took, and on a map a filled polygon
+         * reads as a result.
+         */
+        cap = UNASSESSED_FILL;
+        label = unassessedPopover(country);
+      }
+    } else if (subject && country.code !== subject.code) {
       const result: RelationResult = score(
         subject.code,
         country.code,

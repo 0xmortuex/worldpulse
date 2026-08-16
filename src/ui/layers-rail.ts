@@ -1,3 +1,4 @@
+import { BAND_ENCODING } from '../coverage';
 import { escapeHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import { magnitudeLegend, type EventCluster, type GlobeEvent } from '../layers/events';
@@ -54,6 +55,10 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
     }
     if (target.closest('[data-stale-toggle]')) {
       store.setIncludeStale(!store.state.includeStale);
+      return;
+    }
+    if (target.closest('[data-coverage-toggle]')) {
+      store.setCoverageMode(!store.state.coverageMode);
     }
   });
 
@@ -85,6 +90,36 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
             </li>`;
           }).join('')}
         </ul>
+
+        <button type="button" class="coverage-toggle${state.coverageMode ? ' coverage-toggle--on' : ''}"
+          data-coverage-toggle aria-pressed="${state.coverageMode}">
+          ${state.coverageMode ? 'Showing our coverage gaps' : 'Show our coverage gaps'}
+        </button>
+        ${
+          state.coverageMode
+            ? `<div class="coverage-legend">
+                <p class="rail-help"><strong>[DERIVED]</strong> This colours countries by how many
+                of this app's own panels have anything for them. It is a map of our gaps, not of
+                the world.</p>
+                <ul class="coverage-key">
+                  ${(['good', 'partial', 'sparse', 'none'] as const)
+                    .map(
+                      (band) => `<li>
+                        <span class="coverage-swatch" style="background:${BAND_ENCODING[band].fill}"></span>
+                        <span class="coverage-band">${escapeHtml(BAND_ENCODING[band].label)}</span>
+                        <span class="coverage-meaning">${escapeHtml(BAND_ENCODING[band].meaning)}</span>
+                      </li>`,
+                    )
+                    .join('')}
+                  <li>
+                    <span class="coverage-swatch coverage-swatch--unassessed"></span>
+                    <span class="coverage-band">Not assessed</span>
+                    <span class="coverage-meaning">No panel was checked. Not a score of zero.</span>
+                  </li>
+                </ul>
+              </div>`
+            : ''
+        }
 
         <button type="button" class="layer-stale${state.includeStale ? ' layer-stale--on' : ''}"
           data-stale-toggle aria-pressed="${state.includeStale}">

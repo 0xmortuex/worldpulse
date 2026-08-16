@@ -1,4 +1,5 @@
 import type { Country } from '../countries';
+import { BAND_ENCODING, coverageSentence, type CountryCoverage } from '../coverage';
 import { factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import { INPUT_LABELS, signedWeight } from '../relations/score';
@@ -97,6 +98,51 @@ export function relationPopover(
 }
 
 /** Popover for the neutral globe with no relations mode active. */
+/**
+ * Step 12's popover. The band's WORD is rendered, not only its colour.
+ *
+ * Phase B1's dual encoding is not satisfied by picking distinguishable hues —
+ * it needs a channel that survives having no hue at all. On a globe the hover
+ * text is that channel, so the band label and its meaning are spelled out here
+ * rather than left to the fill.
+ */
+export function coveragePopover(country: Country, coverage: CountryCoverage): string {
+  const encoding = BAND_ENCODING[coverage.band];
+  const missing =
+    coverage.absent.length > 0
+      ? `<div class="pop-caveat">Nothing yet from: ${escapeHtml(coverage.absent.join(', '))}.</div>`
+      : '';
+
+  return `<div class="pop">
+    <div class="pop-head">
+      <div class="pop-title">${escapeHtml(country.name)}</div>
+      <div class="pop-sub">${escapeHtml(encoding.label)}</div>
+    </div>
+    <div class="pop-note">${escapeHtml(coverageSentence(coverage))}</div>
+    ${missing}
+    <div class="pop-caveat"><strong>[DERIVED]</strong> This counts panels in this app, not
+    anything about the country. It is a map of our own gaps.</div>
+  </div>`;
+}
+
+/**
+ * A country nothing was checked for — and the reason this is its own popover.
+ *
+ * "Unassessed" and "assessed, found nothing" are different facts, and on a map
+ * a filled polygon reads as a result either way. The colour alone cannot carry
+ * the difference, so the text states it outright.
+ */
+export function unassessedPopover(country: Country): string {
+  return `<div class="pop">
+    <div class="pop-head">
+      <div class="pop-title">${escapeHtml(country.name)}</div>
+      <div class="pop-sub">Not assessed</div>
+    </div>
+    <div class="pop-note">No panel was checked for this country, so it has no coverage score.
+    <strong>This is not a score of zero.</strong></div>
+  </div>`;
+}
+
 export function plainPopover(country: Country): string {
   const codeNote =
     country.codeStatus === 'user-assigned'

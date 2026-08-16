@@ -24,6 +24,14 @@ export interface AppState {
   layers: ReadonlySet<string>;
   /** Whether events flagged stale are rendered. Off by default. */
   includeStale: boolean;
+  /**
+   * Step 12's coverage choropleth.
+   *
+   * A MODE rather than a layer, because it repaints every polygon and cannot
+   * coexist with relations colouring — two meanings for one channel is exactly
+   * what the globe's single colour channel cannot express (question 12).
+   */
+  coverageMode: boolean;
 }
 
 type Listener = (state: AppState) => void;
@@ -45,6 +53,7 @@ export class Store {
       tab: 'government',
       layers: new Set(DEFAULT_LAYERS),
       includeStale: false,
+      coverageMode: false,
       ...initial,
     };
   }
@@ -107,6 +116,11 @@ export class Store {
   setIncludeStale(include: boolean): void {
     if (this.#state.includeStale === include) return;
     this.#commit({ includeStale: include });
+  }
+
+  setCoverageMode(on: boolean): void {
+    if (this.#state.coverageMode === on) return;
+    this.#commit({ coverageMode: on });
   }
 
   setHovered(code: string | null): void {

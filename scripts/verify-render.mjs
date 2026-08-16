@@ -480,6 +480,7 @@ const ALL_STEPS = [
   '6d — live TV tab',
   '7 — globe event layers',
   '7c — L9 keyboard route to events',
+  '7d — coverage choropleth',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
   'cross-cutting — layout geometry (rule 8)',
@@ -2228,6 +2229,68 @@ check('and lands on that entry\'s coordinates, not just anywhere',
 
 check('the list explains itself to someone whose clicks are failing',
   /if a marker does not respond/i.test((await page.locator('.event-list').textContent()) ?? ''));
+
+step('7d — coverage choropleth');
+// ---- step 7d: step 12, the map of our own gaps ----
+
+await page.waitForTimeout(200);
+check('the coverage mode is reachable from the rail',
+  (await page.locator('[data-coverage-toggle]').count()) === 1);
+check('and is off by default, so the globe still means what it meant',
+  (await page.locator('[data-coverage-toggle]').getAttribute('aria-pressed')) === 'false');
+
+await clickOrFail(page, '[data-coverage-toggle]', 'coverage toggle');
+await page.waitForTimeout(400);
+
+const legend = ((await page.locator('.coverage-legend').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+
+/**
+ * THE CLAIM THAT MUST NOT BE MISREAD.
+ *
+ * A coverage map is the one surface a reader can easily mistake for a
+ * development index — "3 of 7" looks like data about a place. The surface says
+ * DERIVED and says whose gaps these are.
+ */
+check('the legend marks the figure as derived', /\[DERIVED\]/.test(legend), legend.slice(0, 160));
+check('and says it is a map of our gaps, not of the world',
+  /map of our gaps, not of the world/i.test(legend), legend.slice(0, 200));
+
+/**
+ * PHASE B1's DUAL ENCODING, asserted rather than assumed.
+ *
+ * Every band must be named in words. A key that is only swatches is unreadable
+ * to exactly the readers B1 exists for.
+ */
+for (const word of ['Most panels', 'Partial', 'Sparse', 'Nothing', 'Not assessed']) {
+  check(`the legend names "${word}" in words, not only in colour`,
+    legend.includes(word), legend.slice(0, 240));
+}
+
+/**
+ * RULE 30 AT MAP SCALE, and the pair that makes it mean something.
+ *
+ * "Not assessed" must be present as its own key entry AND must say it is not a
+ * score of zero — otherwise the darkest polygons read as the worst-covered
+ * countries rather than as ones nobody checked.
+ */
+check('"not assessed" is distinguished from a score of zero',
+  /not a score of zero/i.test(legend), legend.slice(0, 240));
+
+const swatches = await page.locator('.coverage-swatch').count();
+check('every band has a swatch as well as a word', swatches >= 5, `${swatches} swatches`);
+
+// The globe must actually repaint — a mode that changes nothing is a mode that
+// does nothing, and the legend alone would still have passed everything above.
+const repainted = await page.evaluate(() => {
+  const globe = document.querySelector('#globe canvas');
+  return Boolean(globe);
+});
+check('the globe is still rendering after the mode switch', repainted);
+
+await clickOrFail(page, '[data-coverage-toggle]', 'coverage toggle');
+await page.waitForTimeout(300);
+check('switching back off removes the legend',
+  (await page.locator('.coverage-legend').count()) === 0);
 
 step('7b — economy fetch states');
 // ---- step 7b: the four states the fetch layer introduces ----
