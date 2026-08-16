@@ -1,5 +1,7 @@
 import gdpNormal from '../../tests/fixtures/economy/gdp-normal.json';
 import inflationHyper from '../../tests/fixtures/economy/inflation-hyper.json';
+import legislatureGbr from '../../tests/fixtures/wikidata/legislature-gbr.json';
+import legislatureIsl from '../../tests/fixtures/wikidata/legislature-isl.json';
 import { fixtureFor } from '../dossier/economy-provider';
 import { INDICATORS } from '../economy/series';
 import { Fetcher, type FetchOutcome, type RequestOptions } from './transport';
@@ -237,6 +239,64 @@ registerScenarioSource('worldbank', {
 
 function isGdpRequest(spec: RequestSpec): boolean {
   return (spec.path.split('/indicator/')[1] ?? '').startsWith('NY.GDP');
+}
+
+/**
+ * Wikidata's SPARQL endpoint — the handler the legislature, government and
+ * dossier-header panels convert through.
+ *
+ * Registered now, ahead of those conversions, because the harness generalisation
+ * is only load-bearing if a second source actually uses it. A registry with one
+ * entry is a dispatch table that has never dispatched.
+ *
+ * **The fixture is keyed by the ISO code in the query**, not by a path segment.
+ * A SPARQL request is a POST whose body IS the query, so there is no
+ * `/country/XXX/` to split on — which is precisely the assumption that made the
+ * old harness World-Bank-shaped, and the reason `ScenarioSource` hands the whole
+ * spec to the handler rather than a parsed country code.
+ */
+registerScenarioSource('wikidata-sparql', {
+  origin: 'https://query.wikidata.org',
+
+  fixture(spec) {
+    const iso3 = isoInQuery(spec);
+    if (iso3 === null) return undefined;
+    return LEGISLATURE_CAPTURES[iso3];
+  },
+
+  sample(spec) {
+    // The same captures serve `ok` and `stale`: a stale response is the SAME
+    // body with an older timestamp, which is what staleness means. Serving
+    // different content would be testing two things at once.
+    return LEGISLATURE_CAPTURES[isoInQuery(spec) ?? 'GBR'] ?? legislatureGbr;
+  },
+
+  /**
+   * Under `degraded`, the United Kingdom answers and Iceland does not.
+   *
+   * Partial by construction, and chosen so the degraded case is a country whose
+   * panel has content beside one that does not — a degraded state where every
+   * country fails is indistinguishable from `unavailable`.
+   */
+  degradedOk(spec) {
+    return isoInQuery(spec) === 'GBR';
+  },
+});
+
+const LEGISLATURE_CAPTURES: Record<string, unknown> = {
+  GBR: legislatureGbr,
+  ISL: legislatureIsl,
+};
+
+/**
+ * Pull the ISO-3 code out of a SPARQL query body.
+ *
+ * Every query this app issues binds the country with `wdt:P298 "XXX"`, which
+ * `assertIso3` guarantees is three upper-case letters — so this reads the
+ * query's own anchor rather than guessing from a URL that does not carry one.
+ */
+function isoInQuery(spec: RequestSpec): string | null {
+  return /wdt:P298\s+"([A-Z]{3})"/.exec(spec.path ?? '')?.[1] ?? null;
 }
 
 export function fetcherFor(search: string): RequestingFetcher {

@@ -27,6 +27,16 @@ describe('the scenario harness dispatches on source', () => {
     const registered = registeredScenarioSources();
     assert.ok(registered.length > 0, 'no scenario source is registered at all');
     assert.ok(registered.includes('worldbank'), `worldbank missing; registered: ${registered.join(', ')}`);
+
+    /**
+     * A SECOND source is what makes the dispatch table load-bearing. A registry
+     * with one entry has never dispatched, and would pass every test below
+     * while proving the generalisation did nothing.
+     */
+    assert.ok(
+      registered.includes('wikidata-sparql'),
+      `only ${registered.join(', ')} registered — a one-entry registry is not a dispatch table`,
+    );
   });
 
   it('AN UNREGISTERED SOURCE FAILS LOUDLY, rather than borrowing another\'s fixtures', async () => {
@@ -36,10 +46,19 @@ describe('the scenario harness dispatches on source', () => {
      * look like a working demonstration. **A scenario that serves the wrong
      * source's data is worse than one that refuses, because it renders.**
      */
+    /**
+     * The id is deliberately one that cannot ever be registered.
+     *
+     * The first version used `wikidata-sparql` — a real source that was
+     * unregistered at the time — and registering it one commit later turned
+     * this into a test of a registered source. It failed, correctly, which is
+     * the test noticing its own premise had expired. A negative case must name
+     * something that stays negative.
+     */
     const fetcher = fetcherFor('?econ=ok');
     await assert.rejects(
-      () => fetcher.request(spec('wikidata-sparql')),
-      /no handler for source "wikidata-sparql"/,
+      () => fetcher.request(spec('not-a-real-source')),
+      /no handler for source "not-a-real-source"/,
     );
   });
 
