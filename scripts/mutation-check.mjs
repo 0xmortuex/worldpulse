@@ -576,6 +576,29 @@ try {
 
   await requireCleanCheckout('before starting');
   await requireFreshBranch();
+
+  /**
+   * THE LOCK PROTECTS THE TREE, NOT JUST THE CPU.
+   *
+   * `requireCleanCheckout` above and at the end is a FRESHNESS check: it proves
+   * afterwards whether the result can be trusted. It cannot prevent anything,
+   * and its verdict arrives twenty minutes late — at which point the only
+   * option left is to throw the run away. That happened twice in one session,
+   * the second time after the first had been written up and the lesson
+   * restated aloud.
+   *
+   * The guard is started HERE rather than left to the operator, because a
+   * mechanism you have to remember to switch on is the same thing as a note.
+   * It samples the tracked tree every second and kills this run on the first
+   * change, so a stray write costs a second instead of the whole measurement.
+   */
+  const guard = spawn(process.execPath, [resolve(import.meta.dirname, 'tree-guard.mjs')], {
+    cwd: ROOT,
+    stdio: 'inherit',
+    detached: false,
+  });
+  process.on('exit', () => guard.kill());
+
   const tree = await makeWorktree();
   console.log(`worktree: ${tree}\n`);
 

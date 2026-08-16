@@ -1916,3 +1916,61 @@ The only fix is not to write it.
 **And split the compound.** `push`, `log` and `status` each match an existing approval on
 their own; chaining them into one line is what keeps creating unscannable composites. Three
 short commands cost nothing and each is individually scannable.
+
+## 45. The run lock protects the measurement's TREE, not just its CPU
+
+**Beside the freshness check, and covering what it cannot.**
+
+`requireCleanCheckout` runs at two points — before starting and after finishing. It is a
+**freshness check**: it proves, afterwards, whether a result can be trusted. It cannot prevent
+anything, and its verdict arrives twenty minutes late, when the only remaining option is to
+throw the run away.
+
+**`scripts/tree-guard.mjs` closes that window to one second.** While the lock is held it
+samples the tracked tree every second and kills the run on the first change. A stray write
+costs a second instead of the whole measurement, and it says so while the person who made the
+edit still remembers making it.
+
+The mutation harness starts it itself. **A mechanism you have to remember to switch on is the
+same thing as a note**, which is the entire lesson below.
+
+### Why this exists, and it is the third time
+
+Two runs were voided in one session by writes to the tracked tree while they measured. **The
+second happened after the first was recorded in `FOUND.md`, promoted to a lesson, and
+restated aloud** — in the same breath as "I am leaving the tree untouched".
+
+That is this project's own recurring proof that a recorded lesson without a mechanism does not
+hold:
+
+| Lesson | What it took to stop happening |
+| --- | --- |
+| shell escaping kept breaking commands | **rule 41** — file content through Edit/Write, never interpolation |
+| a green summary read over a red failure line | **rule 44** — never pipe a gate whose exit code you will use |
+| edits during a measurement | **this rule** — the lock guards the tree |
+
+### The habit it defends against, named precisely
+
+Not carelessness. **A long background job makes the repository feel free**, because the work is
+happening elsewhere. Both leaks were documentation — work that feels like paperwork rather than
+like touching the code under test. That is why the guard watches TRACKED files only: an
+untracked scratch file cannot change what is being measured, and a guard that fired on those
+would be ignored within a day.
+
+### Two design points worth keeping
+
+**It kills rather than warns.** Letting a contaminated run continue spends nineteen more
+minutes producing a table the harness will refuse to stand behind — and a table that *looks*
+complete is worse than none, because someone will read it.
+
+**A git failure is INCONCLUSIVE, not a violation.** Rule 3 applied to the guard's own
+instrument: `git` failing is not evidence the tree is dirty, and killing a valid run on a
+transient error would make the guard worse than the problem it solves.
+
+### And the ad-hoc version got this wrong, which is why the real one is shaped this way
+
+A throwaway watcher written the same day used `tasklist | grep node` to decide whether the run
+was still alive. Node processes exist for many reasons, so it kept watching after the run had
+finished and flagged legitimate post-run work as contamination. **The permanent guard keys on
+the LOCK** — `readLock()` plus `processIsAlive(lock.pid)` — so "is the measurement still
+running" is answered by the thing that actually knows, not by a proxy that is usually right.
