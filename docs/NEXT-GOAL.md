@@ -1,138 +1,143 @@
-# Proposed next goal — the WDQS query redesign, which unblocks step 9
+# Proposed next goal — the closing goal: 4e, the news board, and the sweep
 
-Written per S6 at the close of step 8. Sized for 8+ hours unattended (S5).
+Written per S6 at the close of the core goal. Sized for 8+ hours unattended (S5).
 
-**Step 8 closed clean**: 798 tests / 165 suites, verify 338 assertions across 11 steps, mutate
-12 caught by name with 0 survived, tree clean. Every specced element shipped and every hard
-case asserted in a browser.
+**Seven of eight `CORE-GOAL.md` items are done.** This goal is the remainder, in the order
+the reviewer set, and it is the last one before v1 is complete per S1.
 
----
-
-## Why this and not step 9 itself
-
-`BUILD-ORDER.md` marks step 9 **BLOCKED**, and `FOUND.md` records why with measurements rather
-than an impression:
-
-| Query | Country | Result |
-| --- | --- | --- |
-| `buildLegislatureQuery` | GBR | **HTTP 504** |
-| `buildLegislatureQuery` | ISL — one chamber | **HTTP 500 after 60.6s** |
-| `buildLegislatureQuery` | VAT — one legislative body | **HTTP 504 after 65.5s** |
-| `buildCabinetQuery` | GBR | **HTTP 504** |
-| `buildCabinetQuery` | ISL | 200 — **52.6s**, 33 rows |
-| `buildCabinetQuery` | TUV | 200 — fast, 17 rows |
-
-**It is not country size.** Vatican City has one legislative body; Iceland has one chamber. Both
-fail at the ~60s mark, which is WDQS's server-side timeout. The legislature query completes for
-**no country tried**.
-
-**And the cabinet query is on notice, not passing.** 52.6s against a 60s ceiling is the same
-defect one country larger, and it already 504s for the United Kingdom.
-
-`BUILD-ORDER` states the disposition: *"The redesign is its own item and belongs before step 9
-starts, not inside it."* Building step 9 on a query that cannot complete would spend the step's
-budget on requests that cannot succeed.
+**The queue is clear.** OPEN-QUESTIONS 30 and 25 were both answered at the close of the
+previous goal, and nothing below waits on a decision.
 
 ---
 
-## Part 1 — Establish what actually makes it time out
+## Item 1 — 4e, per-panel live conversion
 
-### The decisive fact is already in the measurement
+**The harness generalisation comes first, because it gates every panel.**
 
-**Vatican City times out identically to Iceland.** One legislative body against one chamber,
-and both die at ~60s. A query whose cost is *independent of the country's data volume* is doing
-its expensive work **before the country filter constrains anything**.
+`ScenarioFetcher.request` reads `spec.path.split('/indicator/')` and branches on `NY.GDP` —
+it is World-Bank-shaped, because it was built for the one panel that needed it. Three panels
+are otherwise ready: `wikidata-sparql` is CLIENT-FETCH with a 146-byte probe response, and its
+queries are bounded and measured at 1–2s.
 
-That reframes the problem from "slow query" to "unanchored query", and it narrows the suspects
-to three, in likelihood order:
+**Order, and each part's own gate:**
 
-1. **The label service materialising labels for an unconstrained intermediate result** — labels
-   are the classic unbounded cost, and `wikibase:label` runs over whatever it is handed.
-2. **A join ordered so the optimizer scans all legislatures or memberships before anchoring on
-   the country entity** — correct results, catastrophic order.
-3. **An OPTIONAL block forcing a product.**
+1. **Generalise the scenario harness** — scenarios per source, fixtures per scenario, and the
+   four fetch states (loading, stale, degraded, unavailable) asserted for each. Its own commit,
+   its own browser assertions.
+2. **Convert legislature, government and the dossier header**, one commit each, per 20b: keep
+   the fixtures as the contract test's input, add a `fixtures` scenario, point every hard-case
+   assertion at it, and prove the live path separately under `PROBE_LIVE` against invariants
+   rather than values.
+3. **TV: a build-time extract, not a fetch.** `channels.json` is **1,274,245 bytes gzipped,
+   9.8 MB raw**. No amount of caching makes that a per-view fetch, and
+   `scripts/extract-ucdp.mjs` is the precedent — it already handles 417,968 events. **The
+   blocklist must be applied at extract time**, so the 1,578 excluded channels never reach the
+   bundle at all.
+4. **Military and news convert to honestly stating no source**, rather than waiting for
+   sources that do not exist. `hasArmedForces` now has a committed, reviewed table (question
+   31), so the military panel's live path is that table plus an honest gap for its figures.
+   GDELT is UNREACHABLE and the news panel says so.
 
-### Characterise before fixing
-
-**A fix without the mechanism named is the flake lesson again** — the thing that appears to work
-teaches nothing, and the cabinet query needs the same answer. So: obtain a query plan, or a
-minimal reproduction that shows *where* the 60s goes, before changing the shipped query.
-
-Method, since WDQS reports its own timings: strip to the smallest completing form, then add
-clauses back one at a time, recording each response time. That turns "the query is slow" into a
-table naming the clause that costs the most.
-
-**Rule 20a applies to every timing**: a duration is a property of the query *under WDQS's
-current load*, so each measurement records when it was taken and comparisons use one sitting.
-
-### The redesign's shape, once the mechanism is named
-
-- **Anchor on the country entity first, label last.** Bind the entity, constrain memberships to
-  it, and invoke the label service on the final small result only.
-- **An explicit LIMIT as a safety net**, sized to the largest real legislature — and **the
-  limit-hit case detected and reported, never silently truncating.** A parliament missing
-  members because a cap bit is the party-bar bug at chamber scale: plausible output, no error,
-  wrong answer.
-- **Characterise the fixed query's cost in the commit** — time per country across the size
-  range: Vatican City, Iceland, the United Kingdom, India. So the cabinet redesign reuses a
-  measured pattern rather than a hope.
-
-### The cabinet query
-
-**In scope if the same mechanism explains it** — one redesign, two queries, measured twice. **If
-its mechanism differs, it is recorded and queued, not forced** into a fix shaped for a different
-problem.
-
-## Part 2 — Redesign against what the measurement says
-
-Whichever cause the measurement names, the redesign has the same acceptance criterion:
-**every query completes for the countries that currently fail** — GBR and VAT at minimum, since
-those are the recorded failures.
-
-**The cabinet query is in scope.** Fixing only the legislature query would leave a known defect
-one country larger, and both queries share the endpoint, the pattern and probably the cause.
-
-## Part 3 — A guard, so this cannot recur silently
-
-The defect was found by hand while capturing fixtures. Nothing in the suite would have caught
-it, and nothing would catch its return.
-
-**What a guard can honestly check:** that every shipped SPARQL query completes within a stated
-budget against live WDQS, run under `PROBE_LIVE` so it does not make the ordinary suite depend
-on a public endpoint's weather. An unreachable endpoint reports INCONCLUSIVE, per the contract
-path's existing rule — a timeout is a different question from a query defect, which is exactly
-the distinction this finding had to make by hand.
+**Acceptance:** the battery at each commit; the harness generalisation with its four states
+asserted; three panels converted in three commits; the TV extract shipped with the blocklist
+applied before bundling; military and news stating their gaps in the app-owned wording.
 
 ---
 
-## Acceptance criteria
+## Item 2 — The breaking-news board, per `SPEC-BREAKING-NEWS.md` as amended
 
-- The timing table from Part 1, naming which clause costs what
-- **`buildLegislatureQuery` completes for all four measured countries — Vatican City, Iceland,
-  the United Kingdom, India — with times recorded**
-- A contract test against a live capture, per the standard gate
-- The LIMIT's hit case detected and reported, with a test proving it is not silent
-- A guard that fails when a query exceeds its budget, with a planted case proving it fires
-- `FOUND.md` records what the cause turned out to be, **including if it was none of the three**
-- The cabinet query fixed if its mechanism matches, or recorded and queued if it does not
-- `npm run typecheck` exit 0; `npm test` exit 0 with count and census clean
-- `npm run verify` full-run per-step table, no failure outside the known L9 cluster
-- `npm run mutate` per S4 before the close
-- `git status --porcelain` empty, nothing unpushed
+**The blocking dependency is the build order.** GDELT failed **six of six** attempts across a
+full session and is recorded UNREACHABLE. A ranking engine built on a source that has never
+once responded is a ranking engine nobody has seen rank anything.
+
+**So the order inside this item is fixed:**
+
+1. **The curated RSS fallback lands first** — the fifteen named feeds.
+2. **The card layout is built against fixtures.** The ranking engine already exists:
+   `src/news/significance.ts` shipped with the previous goal, normalised per rule 22, with
+   ties as bands and unconsulted inputs as null rather than zero.
+3. **Then they wire to real feeds.**
+
+The fixtures are **not a placeholder for the feed — they are the regression suite**, per D6.
+
+**Four time horizons** — Today, This Week, This Month, This Year.
+
+**What must reach the surface**, and these are the parts most likely to be dropped under time
+pressure:
+
+- the `[DERIVED]` tag on the surface as a whole
+- **the caveat as the headline, not a footnote**: this ranks coverage volume, not importance,
+  and it ranks *fifteen English-language feeds' coverage* — `SIGNIFICANCE_CAVEAT` already
+  carries all three clauses
+- a **"why this ranked here" inspector** on every card, showing each input's raw measurement
+  beside its normalised contribution, walking down to the source articles
+- **user-adjustable weights with live re-ranking**, as in the relations panel
+- **ties as a band**, never ranks 4, 5, 6
+
+**Acceptance:** the battery; the RSS fallback proven before any ranking work; the caveat
+asserted in a browser; the inspector showing raw beside normalised; a tied band asserted with
+a planted case; GDELT not a dependency of anything that must work.
+
+---
+
+## Item 3 — Step 14, the closing sweep with the doc-versus-tree audit
+
+Contract-test completion, accessibility pass, performance pass — over whatever landed after
+B1/B5/B6 pulled most of the accessibility work earlier.
+
+**The doc-versus-tree audit is the part specific to this project**, and it exists because of a
+measured failure: for four days every reference to "the caveat on the panel" described
+something that had never been built. `DOC-TREE-AUDIT.md` is the standing instrument.
+
+**What it checks, at minimum:**
+
+- every user-visible behaviour a doc asserts has an assertion behind it (P12)
+- every "done" in `BUILD-ORDER.md` matches the tree
+- every open question's status line matches its entries
+- every `verified: true` carries a date, and every recorded doubt has an expiry
+- every unexercised path is still unexercised, **or is closed with its construction site
+  named** — §14 in particular, whose blocker moved from the model to the data and will move
+  again the first time a live ingest answers empty
+
+**Acceptance:** the battery; the audit run and its table recorded; `BUILD-ORDER.md` showing
+14 of 14; every doc asserting user-visible behaviour either backed by an assertion or struck.
+
+---
+
+## The battery, at every boundary
+
+Unchanged from `CORE-GOAL.md`, and stated there rather than repeated here so an amendment
+lands in one place. In short: `typecheck` exit 0 · `npm test` exit 0 with count and census
+clean · `verify` full-run per-step table with no failure outside the known L9 cluster ·
+`mutate` per S4a before a push or a close · `git status --porcelain` empty · nothing unpushed.
+
+**Read it bare, never through a pipe** (rule 44). **Run the full suite, not `--only`**, before
+concluding anything about a regression — a filtered run misled this project three times in one
+session, twice by matching nothing and running everything.
+
+---
 
 ## Constraints
 
-No Fact-model changes. No new surfaces. **Step 9 itself is out of scope** — this goal unblocks
-it and stops. No WarWatch. Nothing fixed by widening a type, adding `any` or a cast, loosening
-an assertion or tolerance, adding a skip, or deleting a failing check. **File content through
-Edit/Write, never shell interpolation** (rule 41). Findings to `FOUND.md` without reprioritising.
+`CORE-GOAL.md`'s standing constraints apply unchanged: S1's scope freeze, the full gate for
+every source, nothing fixed by widening a type or loosening an assertion, D6's
+fixture-contradiction rule, route-around-and-record for judgement calls, S7 for amended
+criteria, and rule 41's four clauses on command shape — **including 41d, the newest: no quoted
+parentheses or braces, and no compound chains.**
+
+**New UI goes after existing UI in a container.** Twice in the last goal, inserting a control
+above an existing one broke that one's assertions.
+
+---
 
 ## Open questions this goal will run into
 
-None of `OPEN-QUESTIONS` 13, 17–18, 19a, 20–27 touch SPARQL. **22–27 are all reviewer actions**
-— credentials, endpoints, licence text — and none gates this work.
+**None gating.** 30 and 25 are answered. 22–27 are reviewer actions on credentials, endpoints
+and licence text, and none blocks this work. Question 13 stays armed until a live ingest first
+answers empty — which item 1 may well cause, and `tests/p3-reachability.test.ts` will fail
+when it does, by design.
 
 ## Launch condition
 
-**Nothing here needs a decision.** The blocker is measured and recorded, the disposition is
-already written in `BUILD-ORDER`, and the scope stops short of step 9 deliberately.
+**Nothing here needs a decision.** The blockers are measured, the order is the reviewer's, and
+the two open questions in the way were answered before this was drafted.
