@@ -2025,3 +2025,54 @@ By asserting the wrong thing first. Two tests expected `parseCabinet` to throw o
 body; it returned empty. The tests were corrected to the measured behaviour and the reason
 recorded, because the finding — **shape failures on this source come from malformed envelopes,
 not from wrong-but-valid ones** — is more useful than the assertion that produced it.
+
+## 47. A stored number's lifecycle: where it came from, what it outlives, what it can still claim
+
+Three clauses of one principle, all found in the TV build-time extract, all about a number
+that would otherwise have been **silently wrong**.
+
+### 47a. Provenance of a count is the STAGE that produced it
+
+The extract removes 1,430 channels — 1,053 `dmca` and 377 `nsfw` — and the panel discloses
+how many were removed. That count must come **from the removal stage**, not from the surviving
+list.
+
+**A disclosure recomputed from what survived a removal always reports zero removals.** The
+panel would say "nothing was excluded" precisely because the exclusion worked, converting a
+real disclosure into a false one — and it would look right, because zero is a plausible number.
+
+Generalised: when a pipeline stage drops rows, only that stage knows how many. Any later stage
+asking "how many were dropped?" is asking a question its input cannot answer.
+
+### 47b. A count can outlive its rows, when the count IS the fact
+
+The extract carries 9,908 channels and drops 29,733 that have no stream — but keeps a
+**per-country count** of the dropped ones.
+
+Shipping 29,733 rows to preserve what a single integer expresses would be the artefact serving
+the disclosure instead of the reverse. Dropping **both** would silently erase the
+listed-but-not-watchable distinction, which is a real fact about our source's coverage.
+
+So: keep the rows when the reader needs to see them, keep the count when the reader needs to
+know the number, and be explicit which one the surface actually uses. A distinction that
+survives only in rows nobody renders is a distinction that is already gone.
+
+### 47c. A stored measurement can only claim what was true when it was stored
+
+Every channel in the extract reports `health: 'unchecked'`, never `online`.
+
+**Liveness is a property of the network at a moment.** A build artefact recording "online"
+ships a claim it has no evidence for — the check ran once, at build time, against a different
+network, possibly weeks ago. `unchecked` is the honest state of a staleness-prone measurement
+at rest, and it is what lets the panel say "not checked" rather than implying a check that is
+no longer meaningful.
+
+The same reasoning forbids a captured `fetchedAt` from being refreshed on read, and forbids a
+cached tier from outliving the response that justified it.
+
+### Why these three belong together
+
+They are the same number at three points in its life: **where it came from**, **whether it
+outlives the rows that produced it**, and **what a stored copy of it can still honestly claim**.
+Each failure mode produces a plausible number rather than an obvious error, which is why none
+of them is caught by a type and all three need saying.

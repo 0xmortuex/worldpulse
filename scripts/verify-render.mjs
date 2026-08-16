@@ -2609,8 +2609,25 @@ check('every card carries a why-this-ranked inspector',
 const arithmetic = ((await page.locator('.breaking-arith').first().textContent()) ?? '').replace(/\s+/g, ' ');
 check('the inspector shows the raw measurement and its normalised value',
   /measured/.test(arithmetic) && /normalised/.test(arithmetic), arithmetic.slice(0, 160));
-check('a story nobody covered is listed rather than hidden',
-  /regional election result certified/i.test(board), board.slice(-200));
+/**
+ * THE INPUTS-BOUNDED CAVEAT, LIVE. Two of the five inputs cannot exceed what
+ * the curated feeds carry, and the capture is currently one feed — so every
+ * story is single-source by construction. A reader shown "1 outlet" without
+ * this reads a limit of our capture as a measure of the story's reach.
+ */
+check('the surface says how much of the curated list is actually captured',
+  /curated\s+feeds/i.test(board), board.slice(0, 400));
+check('and that single-source is a limit of the capture, not of the coverage',
+  /limit of this capture|limit of our capture/i.test(board), board.slice(0, 500));
+
+/**
+ * The inputs are recomputed from real feed data — fixtures proved the engine,
+ * this proves the inputs. A single-source marker per card is the visible
+ * consequence.
+ */
+check('single-source stories are marked per card',
+  (await page.locator('.breaking-single').count()) > 0,
+  `${await page.locator('.breaking-single').count()} markers`);
 
 step('cross-cutting — accessibility (step 14)');
 // ---- step 14's accessibility pass, as assertions rather than a sweep ----
