@@ -35,6 +35,7 @@ import { mountEconomyTab, setEconScenario } from './ui/economy';
 import type { ScenarioName } from './fetch/scenario';
 import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
+import { mountLegislatureTab } from './ui/legislature';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
@@ -185,6 +186,7 @@ mountGovernmentTab(panelRoot);
 // every other state change rather than mutating the DOM behind the panel.
 mountEconomyTab(panelRoot, () => store.refresh());
 mountNewsTab(panelRoot, () => store.refresh());
+mountLegislatureTab(() => store.refresh());
 /**
  * Test seam for the SEED badge's absent-when-live state.
  *

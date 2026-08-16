@@ -8,6 +8,8 @@ import {
   type LegislatureProfile,
 } from '../dossier/legislature';
 import { legislatureFor } from '../dossier/legislature-provider';
+import { loadLegislatureLive, type LegislatureLoad } from '../dossier/legislature-live';
+import { fetcherFor, type RequestingFetcher } from '../fetch/scenario';
 import { escapeHtml, factHtml } from '../facts/badge';
 import { notAFact as n } from '../facts/discipline';
 import type { Fact } from '../facts/types';
@@ -64,8 +66,109 @@ function seatFact(value: number | null, ctx: FetchContext, chamberQid: string, r
  * so the panel states that once and shows nothing rather than something
  * unreliable. See OPEN-QUESTIONS 30 for the sourcing decision.
  */
+/**
+ * ## The live path, behind a scenario parameter
+ *
+ * Without `?econ=`, this panel renders from the seed profile exactly as before
+ * — the default path has no stub and no async in it. With a scenario, it goes
+ * through the generalised harness so the four fetch states are reachable on a
+ * second source.
+ *
+ * The fixture provider stays either way, per 20b: pointed at the live path, the
+ * hard-case assertions quietly stop testing the branch they were written for
+ * and start testing whatever Wikidata returned that morning — and they keep
+ * passing, which is what makes it dangerous.
+ */
+type LiveState = 'loading' | LegislatureLoad;
+
+const liveLoads = new Map<string, LiveState>();
+let rerenderPanel: (() => void) | null = null;
+let fetcher: RequestingFetcher | null = null;
+
+/** Test seam: drop cached loads so a scenario can be re-driven. */
+export function resetLegislatureLoads(): void {
+  liveLoads.clear();
+  fetcher = null;
+}
+
+export function mountLegislatureTab(rerender: () => void): void {
+  rerenderPanel = rerender;
+}
+
+function scenarioActive(): boolean {
+  return typeof location !== 'undefined' && new URLSearchParams(location.search).get('econ') !== null;
+}
+
 export function renderLegislatureTab(iso3: string, countryName: string): string {
-  const profile = legislatureFor(iso3);
+  if (scenarioActive()) {
+    const live = liveLoads.get(iso3);
+
+    if (live === undefined) {
+      liveLoads.set(iso3, 'loading');
+      fetcher ??= fetcherFor(location.search);
+      void loadLegislatureLive(fetcher, iso3).then((load) => {
+        liveLoads.set(iso3, load);
+        /**
+         * Only redraw when this panel is the one on screen.
+         *
+         * `rerenderPanel` rebuilds the whole dossier. Calling it because a
+         * background load finished for a tab nobody is looking at detaches and
+         * recreates every element the user is interacting with — a click in
+         * flight lands on a button that no longer exists. That is not
+         * hypothetical: it aborted a verify run, seventeen detached-element
+         * retries against the government tab before timing out at 90s.
+         */
+        if (document.querySelector('.legislature') === null) return;
+        rerenderPanel?.();
+      });
+    }
+
+    if (live === undefined || live === 'loading') return liveLoadingMarkup(countryName);
+    if (live.failure !== null) return liveFailureMarkup(countryName, live.failure.reason);
+    if (live.chambers !== null) {
+      // The seed profile still supplies status, which no query answers.
+      const seeded = legislatureFor(iso3);
+      return renderProfile({ ...seeded, chambers: live.chambers, chambersCtx: live.ctx }, countryName);
+    }
+  }
+
+  return renderProfile(legislatureFor(iso3), countryName);
+}
+
+/**
+ * A skeleton the size of the loaded panel, because rules 8 and 9 apply to a
+ * loading state exactly as they do to a loaded one.
+ */
+function liveLoadingMarkup(countryName: string): string {
+  return `<div class="gov legislature" data-panel-state="loading">
+    <section class="gov-block">
+      <h3>Legislature</h3>
+      <p class="gov-pending" aria-live="polite">Loading chambers for
+      ${escapeHtml(countryName)}…</p>
+    </section>
+  </div>`;
+}
+
+/**
+ * A FAILED REQUEST IS NOT AN EMPTY LEGISLATURE.
+ *
+ * The empty-chamber wording says the gap is in our source's coverage. This says
+ * the request failed, which is a claim about the request — and it must never
+ * borrow the other sentence, because a reader would take a transport failure
+ * for a finding about the country.
+ */
+function liveFailureMarkup(countryName: string, reason: string): string {
+  return `<div class="gov legislature" data-panel-state="unavailable">
+    <section class="gov-block">
+      <h3>Legislature</h3>
+      <p class="gov-pending">Could not load chambers for ${escapeHtml(countryName)}
+      (${escapeHtml(reason)}). <strong>This is a failed request, not a finding that no
+      chambers are recorded.</strong></p>
+    </section>
+  </div>`;
+}
+
+function renderProfile(profile: LegislatureProfile, countryName: string): string {
 
   return `<div class="gov legislature">
     ${statusBlock(profile, countryName)}
