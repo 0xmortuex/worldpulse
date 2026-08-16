@@ -299,3 +299,42 @@ reach the bundle at all.
 Recorded, not forced. The next concrete step for 4e is **generalising the scenario harness**,
 after which legislature, government and the dossier header convert in three commits against a
 source already verified CLIENT-FETCH.
+
+---
+
+## V2 section 3 — SPEC-WARWATCH: Phase 0 first, and a reorder it forces
+
+**Phase 0 for the market ticker is done and its report is `docs/PHASE0-MARKETS.md`.**
+SPEC-WARWATCH §1 required it before a provider was chosen, and it reached the same class of
+conclusion Phase 0 reached for WorldPop: **the surface as specified cannot be built honestly.**
+
+Three findings drive everything downstream:
+
+1. **No free, keyless, redistribution-permitted live quote feed exists.** FRED's terms reserve
+   third-party series and forbid extraction; Stooq publishes no terms at all, and L15 makes
+   silence a refusal rather than a grant; every commercial free tier restricts redisplay.
+2. **What is usable is EIA (public domain) and the World Bank Pink Sheet (CC BY, monthly).**
+   Between them: Brent, WTI, natural gas, gold, wheat. **Major indices and defence-sector
+   equities have no redistributable source at all** and become an app-owned gap in decision
+   #32's wording.
+3. **It is therefore not a ticker.** EIA publishes daily spot prices with a lag; Pink Sheet
+   publishes monthly averages. Ticker chrome is itself a claim about freshness, and §1's own
+   rules — permanent delay disclosure, "market closed is a state, not a stale number" — already
+   forbid putting a monthly average under a scrolling tape.
+
+### The reorder
+
+**§1 moves to the end of section 3, after the edge Worker exists.** EIA is key-gated, and
+`src/fetch/compose.ts` already refuses to route a secret key without `transport: "worker"` —
+it throws rather than leaking. The Worker is not built; 18 sources in `CORS-VERDICT.md` are
+waiting on the same thing, and it belongs with deployment in V2-GOAL section 5.
+
+This is a dependency the spec did not name. What it *did* name — "the ticker exercises the
+fetch layer, and the fetch layer does not exist" — **is out of date**: `src/fetch/` exists and
+step 7b asserts its four states.
+
+**New order for section 3:** intel feed → dashboard → prediction markets → biohazard →
+public cameras → conflict presets → broadcast traffic and Hormuz → market strip (post-Worker).
+The intel feed leads because it needs no new source: it reuses `src/news/significance.ts`
+whole, which is what §3 demands anyway — *"a second ranking mechanism would drift from the
+first."*
