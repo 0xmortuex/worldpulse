@@ -62,11 +62,35 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
     }
   });
 
+  /**
+   * ## Rebuild only when the markup actually changes
+   *
+   * This rail used to replace its entire `innerHTML` on EVERY store commit —
+   * including hover, which fires continuously as a pointer crosses the globe.
+   * The rail's content does not depend on hover or on selection, so almost
+   * every one of those rebuilds produced identical markup and threw away live
+   * DOM to do it.
+   *
+   * That is not merely wasteful, it is the cause of a class of failure:
+   *
+   *   - a click can land on a node that is replaced before it resolves —
+   *     rule 35's replaced-DOM-node failure, which cost a day when it first
+   *     appeared on the economy tab
+   *   - a focused control loses focus mid-interaction
+   *   - a range input cannot be dragged at all, because it is destroyed on the
+   *     first `input` event it fires
+   *
+   * The last one is why step 13's time scrub could not ship beside this rail.
+   * Comparing the markup first is the smallest fix that removes the cause
+   * rather than widening a timeout around it.
+   */
+  let lastHtml = '';
+
   store.subscribe((state) => {
     const layerCounts = counts();
     const orphans = unregisteredLayers(all());
 
-    root.innerHTML = `
+    const html = `
       <section class="rail-section">
         <h2>Globe layers</h2>
         <ul class="layer-list">
@@ -175,5 +199,14 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
         proportional to energy, area or damage — read values from the tooltip, not
         from the dot.</p>
       </section>`;
+
+    /**
+     * The guard itself. Identical markup means nothing a reader can see has
+     * changed, so replacing the DOM would only destroy focus, selection and
+     * any interaction in flight.
+     */
+    if (html === lastHtml) return;
+    lastHtml = html;
+    root.innerHTML = html;
   });
 }

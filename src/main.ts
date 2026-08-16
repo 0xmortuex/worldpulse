@@ -132,6 +132,8 @@ function centroidOf(iso3: string): { lat: number; lng: number } | null {
 }
 let renderedEvents: GlobeEvent[] = [];
 let renderedClusters: EventCluster[] = [];
+/** See the event-list rebuild guard below — L9's keyboard route depends on it. */
+let lastEventListHtml = '';
 
 const globeContainer = must<HTMLElement>('#globe');
 
@@ -326,7 +328,19 @@ store.subscribe((state) => {
    * two cannot diverge. `tests/event-list-equivalence.test.ts` asserts the set
    * equality that makes this L9's mitigation rather than a partial listing.
    */
-  eventListRoot.innerHTML = eventListHtml(renderedClusters);
+  /**
+   * Rebuilt only when the markup changes — for L9's sake specifically.
+   *
+   * This list is the only working route to event detail on hardware where the
+   * marker click fails, and it is keyboard-driven. Replacing its DOM on every
+   * commit means a focused entry loses focus whenever the pointer crosses the
+   * globe, which is exactly the interaction a keyboard user is in the middle of.
+   */
+  const listHtml = eventListHtml(renderedClusters);
+  if (listHtml !== lastEventListHtml) {
+    lastEventListHtml = listHtml;
+    eventListRoot.innerHTML = listHtml;
+  }
 
   /**
    * Step 12's arcs, built from the SAME results the panel lists.
