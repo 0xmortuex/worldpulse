@@ -143,6 +143,41 @@ export function forcesSummary(profile: MilitaryProfile): 'abolished' | 'absent' 
 }
 
 /**
+ * ## The guard an ingest must call before it builds a profile
+ *
+ * `forcesSummary` reads `!profile.hasArmedForces`, so a field that was never
+ * set is **indistinguishable from `false`** — and `false` means "this state
+ * has abolished its armed forces", a claim about the country.
+ *
+ * An ingest that does not populate the field therefore makes the app announce
+ * that a country has no army because nobody wrote a boolean. That is emergency
+ * 3 in the protocol: a wrong value rendered with confidence, in the register
+ * this whole project exists to prevent.
+ *
+ * It is not hypothetical. Per OPEN-QUESTIONS 31 **no source this app has can
+ * supply this field** — the Wikidata route was measured and returns "has armed
+ * forces" for Costa Rica, Panama and Iceland — so the live ingest will reach
+ * this point with nothing to put in it. The correct behaviour then is to fail,
+ * not to default.
+ *
+ * Exported and total, per rule 32: a guard that can only be reached through a
+ * pipeline that does not exist yet is a guard nobody has tested.
+ */
+export function assertArmedForcesDeclared(
+  row: { iso3?: string; hasArmedForces?: unknown },
+): asserts row is { iso3?: string; hasArmedForces: boolean } {
+  if (typeof row.hasArmedForces !== 'boolean') {
+    throw new Error(
+      `military ingest: ${row.iso3 ?? 'a country'} has no hasArmedForces value ` +
+        `(got ${row.hasArmedForces === undefined ? 'undefined' : JSON.stringify(row.hasArmedForces)}). ` +
+        'It must be set explicitly — an unset field reads as "this country abolished its armed ' +
+        'forces", which is a claim about the country rather than about our data. See ' +
+        'OPEN-QUESTIONS 31: no registered source supplies it.',
+    );
+  }
+}
+
+/**
  * How the command line must read.
  *
  * Returns `null` when there is nothing supportable to say, rather than a

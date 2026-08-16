@@ -1537,3 +1537,84 @@ never consulted        ->  not in the array
 consulted, empty       ->  in the array, weight null      <- new
 consulted, has a value ->  in the array, weight a number
 ```
+
+---
+
+## 31. `hasArmedForces` has no source, and the obvious one is wrong in the worst direction
+
+**Raised 2026-08-16, item 4a of `CORE-GOAL.md`.** `UNEXERCISED-PATHS` §15 records this as the
+first thing step 10 inherits: `hasArmedForces` is hand-set per fixture and has no source.
+
+**Context.** It is a **constitutional** fact, not a figure, and absent from every statistical
+source this app uses. SIPRI and the World Bank publish expenditure and personnel, which answer a
+different question — a country can have no recorded spending and still have an army, and a
+missing figure is not a zero.
+
+### The obvious route was measured, and it fails on the cases that matter
+
+Wikidata has entities for national armed forces. "Does an *armed forces of X* entity exist,
+linked to the country?" looks like the answer. It is not:
+
+| iso | country | query says | ground truth |
+| --- | --- | --- | --- |
+| CRI | Costa Rica | **has armed forces** | **no army**, abolished 1949 |
+| PAN | Panama | **has armed forces** | **no army**, abolished 1990 |
+| ISL | Iceland | **has armed forces** | **no standing army** |
+| LIE | Liechtenstein | no armed forces | no army, abolished 1868 |
+| TUV | Tuvalu | no armed forces | no army |
+| FRA / USA / NZL | — | has armed forces | correct |
+
+**Wrong on three of the five no-army countries tested**, and wrong in the direction that
+matters: it would tell a reader Costa Rica has an army. The cause is that Wikidata models
+*historical* forces and defence agencies as armed-forces entities — Costa Rica's pre-1949 army
+exists as an entity, and so does Iceland's coast guard.
+
+Costa Rica is not an incidental example. It is the fixture the military panel's headline
+assertion runs on: *"a country with no armed forces says so as a fact about the country"*, and
+*"and says explicitly that it is not missing data"*.
+
+**The inverse route does not exist at all.** Wikidata has a class for "country without armed
+forces" (`Q1191823`); it has **zero instances**. Nobody populates it.
+
+Coverage for the presence route, for completeness: **189 of 275** countries with an ISO-3 code
+have a linked armed-forces entity. The 86 without are a mix of "no army" and "not recorded",
+which is precisely the rule-30 ambiguity this field exists to resolve — so even the coverage is
+not usable as a signal.
+
+### The options
+
+**A. Keep it curated, per country, with a citation each.** The set of countries without armed
+forces is **small (roughly 20) and stable over decades** — abolition is a constitutional event,
+not an annual statistic. A hand-checked list with a source per entry is defensible in a way a
+query that is wrong on Costa Rica is not.
+*Cost:* it is a maintained list, and it must be maintained. It is what the fixtures already do,
+made explicit and cited rather than implicit.
+
+**B. Wikidata presence query.** *Refuted above.* Recorded so nobody re-derives it.
+
+**C. CIA World Factbook, "Military and Security Forces".** It states the case in words —
+countries with none carry an explicit "no regular military forces" note. US Government work,
+public domain.
+*Cost:* a new source through the full gate, and the field is prose that would need parsing
+rather than a boolean. Every licence read in this project has been narrower than assumed, so
+"public domain because US Government" needs reading, not assuming — with the one exception
+recorded this session.
+
+**D. Derive it from expenditure or personnel.** *Do not.* Zero spending is not no army, and a
+missing figure is not zero. This is the failure the whole app is built to prevent, and it is
+listed only because it is the route someone will otherwise propose.
+
+### My recommendation
+
+**A, with C as the verification source when someone has time to read its licence.** The list is
+short, the facts change on a scale of decades, and a citation per country is stronger evidence
+than a query with a measured 60% error rate on the negative cases.
+
+Concretely: `data/military-seed.json` gains an explicit `hasArmedForces` with a `source` and
+`asOf` per country, exactly as its figures already carry, so the value stops being an
+uncited boolean in a fixture.
+
+**What is blocked:** nothing today — the panel renders correctly from fixtures. **What this
+gates:** the live military ingest cannot set this field from any source currently registered,
+so step 10's military conversion either ships with the curated list or ships without the
+abolished/absent distinction, and the second is not acceptable.
