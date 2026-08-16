@@ -156,8 +156,20 @@ export class CountryGlobe {
     return this.#globe.pointOfView();
   }
 
+  /**
+   * How many times `pointsData` has actually been re-assigned.
+   *
+   * Instrumentation kept rather than removed, because the defect it found is
+   * invisible from outside: re-assigning `pointsData` makes globe.gl rebuild
+   * every point object, which restarts its transition animation and leaves the
+   * markers unclickable while it runs. Nothing about that looks like a bug in a
+   * stack trace — it looks like markers that blink and ignore clicks.
+   */
+  pointsAssignments = 0;
+
   setEvents(clusters: readonly EventCluster[], styleOf: (cluster: EventCluster) => PointStyle): void {
     this.#pointStyle = styleOf;
+    this.pointsAssignments += 1;
     this.#globe
       .pointsData(clusters as unknown as object[])
       .pointLat((d) => (d as unknown as EventCluster).lat)

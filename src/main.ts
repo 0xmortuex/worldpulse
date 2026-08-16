@@ -135,6 +135,8 @@ let renderedEvents: GlobeEvent[] = [];
 let renderedClusters: EventCluster[] = [];
 /** See the event-list rebuild guard below — L9's keyboard route depends on it. */
 let lastEventListHtml = '';
+/** See the marker rebuild guard — hovering a country must not touch the points layer. */
+let lastMarkerSignature = '';
 
 const globeContainer = must<HTMLElement>('#globe');
 
@@ -313,18 +315,48 @@ store.subscribe((state) => {
 
   globe.setStyles(styles);
 
-  renderedEvents = filterEvents(allEvents, { enabled: state.layers, includeStale: state.includeStale });
-  renderedClusters = clusterEvents(renderedEvents);
-  globe.setEvents(renderedClusters, (cluster) => ({
-    radius: radiusForMagnitude(cluster.representative.magnitude),
-    color: colorFor(cluster.representative.layer),
-    // Must clear the TALLEST polygon altitude (a selected country sits at
-    // 0.018). Below that, the selected country's own raised polygon intercepts
-    // the ray and every event inside it becomes unclickable — visible, and
-    // unopenable, which is the worst combination.
-    altitude: EVENT_ALTITUDE,
-    label: eventTooltip(cluster),
-  }));
+  /**
+   * ## The marker layer is rebuilt ONLY when the marker set changes
+   *
+   * This used to run on every commit — including `setHovered`, which fires as
+   * a pointer crosses the globe. Re-assigning `pointsData` makes globe.gl
+   * rebuild every point object and restart its transition, which produced three
+   * reported symptoms from one cause:
+   *
+   *   - markers unclickable while a country is selected (mid-replacement)
+   *   - markers blinking (the transition restarting)
+   *   - hovering a COUNTRY visibly resetting the markers' animation
+   *
+   * MEASURED with `scripts/diagnose-points.mjs`: hovering across countries cost
+   * a `pointsData` re-assignment, confirming the polygon hover path was
+   * rebuilding the points layer. That is the reporter's hypothesis, and it was
+   * right.
+   *
+   * The marker set depends on exactly two things — which layers are enabled and
+   * whether stale events are included. Neither is touched by hover or by
+   * selection, so a signature over them is sufficient and precise. The point
+   * STYLE depends only on magnitude, layer and tooltip, none of which vary with
+   * selection either, so skipping the re-assignment loses nothing.
+   *
+   * Same shape as the rail's rebuild guard and the event list's: the fix for a
+   * wholesale rebuild is not a faster rebuild, it is not rebuilding.
+   */
+  const markerSignature = `${[...state.layers].sort().join(',')}|${state.includeStale}`;
+  if (markerSignature !== lastMarkerSignature) {
+    lastMarkerSignature = markerSignature;
+    renderedEvents = filterEvents(allEvents, { enabled: state.layers, includeStale: state.includeStale });
+    renderedClusters = clusterEvents(renderedEvents);
+    globe.setEvents(renderedClusters, (cluster) => ({
+      radius: radiusForMagnitude(cluster.representative.magnitude),
+      color: colorFor(cluster.representative.layer),
+      // Must clear the TALLEST polygon altitude (a selected country sits at
+      // 0.018). Below that, the selected country's own raised polygon intercepts
+      // the ray and every event inside it becomes unclickable — visible, and
+      // unopenable, which is the worst combination.
+      altitude: EVENT_ALTITUDE,
+      label: eventTooltip(cluster),
+    }));
+  }
 
   /**
    * Rendered from the SAME array the globe was handed, one line later, so the
@@ -561,6 +593,8 @@ declare global {
        * the rendered DOM against it.
        */
       clusterCount(): number;
+      /** How many times pointsData has been re-assigned. See globe.setEvents. */
+      pointsAssignments(): number;
       firstClusterPosition(): { lat: number; lng: number } | null;
       /**
        * Park the camera somewhere known before testing that an interaction
@@ -612,6 +646,7 @@ window.__worldpulse = {
     store.refresh();
   },
   clusterCount: () => renderedClusters.length,
+  pointsAssignments: () => globe.pointsAssignments,
   parkCamera: (lat, lng) => globe.flyTo(lat, lng, 0),
   firstClusterPosition: () => {
     const first = renderedClusters[0];

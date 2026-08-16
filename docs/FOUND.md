@@ -2326,3 +2326,75 @@ the gap.
 
 **Never one query's shape assumed for all countries.** That assumption is precisely what
 `P527` just disproved, across eight of them at once.
+
+---
+
+## L9 was ours. The raycast was probably innocent all along.
+
+**2026-08-16, from first real user testing on a fresh clone.** Three symptoms reported:
+
+- earthquake markers unclickable while a country is selected
+- markers blinking — disappearing and reappearing — while a country is selected
+- hovering a **country** visibly resetting the earthquake markers' animation
+
+The reporter named the third as the diagnostic gift, and was right: **hovering a country
+should not touch the points layer at all.** If it restarts marker animations, the polygon
+hover path is rebuilding `pointsData` wholesale — which explains all three at once, because
+a layer mid-replacement is unclickable and replacement re-triggers globe.gl's point
+transition.
+
+### Measured, not assumed
+
+`scripts/diagnose-points.mjs` counts `pointsData` re-assignments:
+
+```
+                        before fix   after fix
+after load                   1           1
+after selecting a country    2           1
+after 8 hover moves          3           1
+```
+
+**Confirmed.** The call site was `main.ts`'s store subscriber, which called
+`globe.setEvents(...)` unconditionally on every commit — and `setHovered` commits.
+
+### What this means for L9
+
+**L9 has failed five browser assertions on every run for weeks.** It was recorded as
+globe.gl's raycast: unexplained, 100% reproducible on GPU hardware, mitigated by the
+keyboard route and deliberately left open because a route around a defect is not an
+explanation of one.
+
+After this fix, **three consecutive full-suite runs passed 432 of 432 — including all five
+L9 canaries**, which had never all passed together before.
+
+So the mechanism was very likely **ours**: the marker the click was aimed at was being
+destroyed and recreated underneath the pointer. That is the stale-node class — the same
+one that detached elements mid-click on the economy panel — not a raycast defect.
+
+### What is NOT claimed
+
+**That globe.gl's raycast is proven innocent.** Three clean runs is strong evidence and it
+is not proof; per rule 21a one clean run is not a closed flake, and this defect's failure
+count varied 5, 4, 8, 7, 2, 1 across runs earlier the same day. What CAN be said is that
+the failures no longer reproduce, and that a named, measured cause was removed — which is
+exactly what L9 lacked for its entire life.
+
+**The canaries stay.** They now pass, which is the correct state for a canary, and deleting
+them the moment they went green would throw away the only thing that would notice a
+regression.
+
+### The lesson, and it is uncomfortable
+
+For weeks the reasoning was: *the failure is 100% reproducible on real hardware, our
+measurements said 20% because they ran on a software rasteriser, therefore the defect is in
+the dependency.* Every step of that is true. **The conclusion still did not follow.**
+
+A defect that reproduces deterministically on fast hardware and rarely on slow hardware is
+equally consistent with a RACE IN OUR OWN CODE that a slow frame rate happens to hide — and
+that reading was never tested, because the dependency explanation arrived first and
+explained the evidence adequately.
+
+Rule 31 says test a common cause before classifying errors individually. This is its
+sibling: **an explanation that fits the evidence is not thereby the cause**, and the cheap
+test — does anything of ours touch this layer when it should not? — was one instrumented
+counter away for the entire time.

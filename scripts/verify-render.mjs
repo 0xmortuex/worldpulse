@@ -479,6 +479,7 @@ const ALL_STEPS = [
   '6c — legislature tab',
   '6d — live TV tab',
   '7 — globe event layers',
+  '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
   '7f — URL view state',
@@ -2172,6 +2173,69 @@ check('the unreviewed magnitude still shows its value and its revision caveat',
 check('a magnitude the source never published reads "no data", not a number',
   /no data/.test(noMagLabel ?? '') && !/fact-value">[\d.]/.test(noMagLabel ?? ''),
   (noMagLabel ?? '').slice(0, 200));
+
+step('7i — marker layer stability');
+// ---- step 7i: hovering a country must not rebuild the points layer ----
+//
+// Reported from a fresh clone on a 60fps machine: markers unclickable while a
+// country was selected, markers blinking, and hovering a COUNTRY visibly
+// restarting the markers' animation. One mechanism behind all three — the
+// polygon hover path re-assigned pointsData, and globe.gl rebuilds every point
+// object and restarts its transition when that happens.
+//
+// This is NOT L9. L9 is the raycast missing a marker that was correctly
+// hovered; this was the marker not being there to hit.
+
+await page.setViewportSize({ width: 1600, height: 950 });
+await page.waitForTimeout(500);
+
+const assignmentsBefore = await page.evaluate(() => window.__worldpulse?.pointsAssignments() ?? -1);
+check('the points layer was built at least once', assignmentsBefore > 0, `${assignmentsBefore}`);
+
+await selectCountry('France');
+await page.waitForTimeout(600);
+const afterSelect = await page.evaluate(() => window.__worldpulse?.pointsAssignments() ?? -1);
+check('SELECTING a country does not rebuild the marker layer',
+  afterSelect === assignmentsBefore, `${assignmentsBefore} -> ${afterSelect}`);
+
+/**
+ * Hovering across countries is the reporter's diagnostic case: it should not
+ * touch the points layer AT ALL, so any re-assignment here is the defect.
+ */
+const globeBox = await page.locator('#globe').boundingBox();
+for (let i = 0; i < 8; i += 1) {
+  await page.mouse.move(globeBox.x + globeBox.width / 2 + i * 14, globeBox.y + globeBox.height / 2 + i * 9);
+  await page.waitForTimeout(90);
+}
+const afterHover = await page.evaluate(() => window.__worldpulse?.pointsAssignments() ?? -1);
+check('HOVERING countries does not rebuild the marker layer',
+  afterHover === assignmentsBefore, `${assignmentsBefore} -> ${afterHover}`);
+
+/**
+ * Two refresh cycles with a tab switch in between — the "wait two refresh
+ * cycles" the report asks for. State changes that do not alter which markers
+ * exist must leave the layer alone.
+ */
+await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
+await page.waitForTimeout(400);
+await clickOrFail(page, '[data-tab="government"]', 'government tab');
+await page.waitForTimeout(400);
+const afterTabs = await page.evaluate(() => window.__worldpulse?.pointsAssignments() ?? -1);
+check('switching tabs does not rebuild the marker layer',
+  afterTabs === assignmentsBefore, `${assignmentsBefore} -> ${afterTabs}`);
+
+/**
+ * The positive control. A guard that never rebuilds is broken in the other
+ * direction — toggling a layer genuinely CHANGES which markers exist, and must
+ * rebuild.
+ */
+await clickOrFail(page, '[data-stale-toggle]', 'stale toggle');
+await page.waitForTimeout(500);
+const afterStaleToggle = await page.evaluate(() => window.__worldpulse?.pointsAssignments() ?? -1);
+check('positive control: changing the marker SET does rebuild the layer',
+  afterStaleToggle > assignmentsBefore, `${assignmentsBefore} -> ${afterStaleToggle}`);
+await clickOrFail(page, '[data-stale-toggle]', 'stale toggle');
+await page.waitForTimeout(300);
 
 step('7c — L9 keyboard route to events');
 // ---- step 7c: the route around L9, asserted where the click fails ----
