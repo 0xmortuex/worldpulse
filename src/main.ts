@@ -38,6 +38,7 @@ import { mountNewsTab } from './ui/news';
 import { mountLegislatureTab } from './ui/legislature';
 import { mountTour } from './ui/tour';
 import { mountLists } from './ui/lists';
+import { renderFlatMap, shouldAutoSwitch } from './ui/flatmap';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
@@ -139,6 +140,25 @@ let renderedClusters: EventCluster[] = [];
 let lastEventListHtml = '';
 /** See the marker rebuild guard — hovering a country must not touch the points layer. */
 let lastMarkerSignature = '';
+
+/**
+ * Phase C.1 flat-map state. `flatAutoReason` is non-null only when the app
+ * moved the reader itself, so a chosen map carries no switch notice — rule 42's
+ * pair, applied to a mode rather than a caveat.
+ */
+let flatMapOn = false;
+let flatAutoReason: string | null = null;
+
+/**
+ * Declared here, not at the mount site.
+ *
+ * `store.subscribe` invokes its listener IMMEDIATELY, so the render block runs
+ * before any `const` declared below it has initialised — a temporal dead zone
+ * that threw on load and took `__worldpulse` with it, which is how eight
+ * assertions in three earlier steps failed at once. Nullable and checked, so
+ * the render is correct whether or not the mount has happened yet.
+ */
+let flatRoot: HTMLElement | null = null;
 
 const globeContainer = must<HTMLElement>('#globe');
 
@@ -250,6 +270,57 @@ mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
 mountTour(must<HTMLElement>('#tour'), must<HTMLElement>('#tour-launch'));
 mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now);
 
+flatRoot = must<HTMLElement>('#flatmap');
+const flatToggle = must<HTMLElement>('#flat-launch');
+
+flatToggle.addEventListener('click', () => {
+  flatMapOn = !flatMapOn;
+  // Choosing the map clears any auto-switch notice: the reader now knows.
+  flatAutoReason = null;
+  flatToggle.setAttribute('aria-pressed', String(flatMapOn));
+  store.refresh();
+});
+
+/**
+ * The auto-switch, measured once after the globe has had time to settle.
+ *
+ * A single early sample would catch the first-frame cost of building the globe
+ * and move everyone to the flat map, so it waits — and a reading it cannot take
+ * is INCONCLUSIVE rather than slow, per rule 3.
+ */
+setTimeout(() => {
+  const fps = measuredFps();
+  const decision = shouldAutoSwitch(fps);
+  if (!decision.switch || flatMapOn) return;
+  flatMapOn = true;
+  flatAutoReason = decision.reason;
+  flatToggle.setAttribute('aria-pressed', 'true');
+  store.refresh();
+}, 4000);
+
+/** Frames observed over one second, or null when the page is hidden. */
+function measuredFps(): number | null {
+  if (typeof document !== 'undefined' && document.hidden) return null;
+  return lastFpsSample;
+}
+
+let lastFpsSample: number | null = null;
+{
+  let frames = 0;
+  let started = performance.now();
+  const tick = () => {
+    frames += 1;
+    const elapsed = performance.now() - started;
+    if (elapsed >= 1000) {
+      lastFpsSample = (frames / elapsed) * 1000;
+      frames = 0;
+      started = performance.now();
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 store.subscribe((state) => {
   const styles = new Map<string, PolygonStyle>();
   const selected = new Set(state.selected);
@@ -318,6 +389,29 @@ store.subscribe((state) => {
   }
 
   globe.setStyles(styles);
+
+  /**
+   * Phase C.1 — the flat map is a PROJECTION of the same state, rendered from
+   * the same style map the globe was just handed one line above. Not a second
+   * model: two models eventually disagree, and a reader switching between them
+   * would get two answers to one question.
+   */
+  if (flatRoot === null) {
+    // The first render happens during mountPanel, before the flat map is
+    // mounted. Nothing to draw yet, and nothing to fail over.
+  } else if (flatMapOn) {
+    flatRoot.hidden = false;
+    flatRoot.innerHTML = renderFlatMap({
+      countries,
+      styles,
+      clusters: renderedClusters,
+      selected: state.selected,
+      autoSwitchReason: flatAutoReason,
+    });
+  } else {
+    flatRoot.hidden = true;
+    flatRoot.innerHTML = '';
+  }
 
   /**
    * ## The marker layer is rebuilt ONLY when the marker set changes

@@ -481,6 +481,7 @@ const ALL_STEPS = [
   '7 — globe event layers',
   '8a — the guided tour',
   '8b — universal list views',
+  '8c — the flat-map fallback',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -2359,6 +2360,66 @@ check('the watchlist list says whether anything was refuted',
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 check('Escape closes the lists', (await page.locator('.lists-panel').count()) === 0);
+
+step('8c — the flat-map fallback');
+// ---- v2 Phase C.1: one state, two renderings ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1400);
+await selectCountry('France');
+await page.waitForTimeout(600);
+
+check('the flat map is reachable', (await page.locator('#flat-launch').count()) === 1);
+check('and the globe is what shows by default',
+  (await page.locator('.flatmap[hidden]').count()) === 1);
+
+await clickOrFail(page, '#flat-launch', 'flat map toggle');
+await page.waitForTimeout(600);
+
+check('switching shows the flat map', (await page.locator('.flat-svg').count()) === 1);
+check('it draws countries', (await page.locator('.flat-country').count()) > 100,
+  `${await page.locator('.flat-country').count()} countries`);
+
+/**
+ * SHARED SELECTION STATE. The flat map is a projection of the same state, so
+ * the country selected on the globe must be selected here — a second model
+ * would eventually disagree, and a reader switching between them would get two
+ * answers to one question.
+ */
+check('the selected country is selected on the flat map too',
+  (await page.locator('.flat-country--selected').count()) > 0);
+
+/**
+ * SHARED LAYER DATA. The markers are the same clusters the globe was handed,
+ * so their count must match what the globe reports.
+ */
+const flatMarkers = await page.locator('.flat-marker').count();
+const globeClusters = await page.evaluate(() => window.__worldpulse?.clusterCount() ?? -1);
+check('the flat map shows the same markers the globe has',
+  flatMarkers === globeClusters, `flat=${flatMarkers} globe=${globeClusters}`);
+
+/**
+ * The projection's cost is stated rather than left to be inferred. A reader
+ * comparing Greenland to Africa on an equirectangular map will be wrong, and
+ * the map says so instead of letting them.
+ */
+const flatText = ((await page.locator('.flat-caveat').textContent()) ?? '').replace(/\s+/g, ' ');
+check('the projection distortion is disclosed', /area is badly distorted/i.test(flatText), flatText.slice(0, 160));
+check('and it says what the map may not be read for', /never for size/i.test(flatText), flatText.slice(0, 160));
+
+/**
+ * RULE 42's PAIR: a map the reader CHOSE carries no auto-switch notice. A
+ * notice that always appears explains nothing, and this one would be false.
+ */
+check('a chosen flat map carries no switch notice',
+  (await page.locator('.flat-notice').count()) === 0);
+
+await clickOrFail(page, '#flat-launch', 'flat map toggle');
+await page.waitForTimeout(500);
+check('switching back returns to the globe',
+  (await page.locator('.flatmap[hidden]').count()) === 1);
+check('and the globe canvas is still there',
+  (await page.locator('#globe canvas').count()) === 1);
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----

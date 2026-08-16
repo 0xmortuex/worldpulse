@@ -1415,3 +1415,46 @@ button.badge { cursor: pointer; }
 .list-verdict--refuted { color: var(--warn); }
 
 .list-empty { color: var(--text-faint); font-size: 12px; }
+
+/* ---- v2 Phase C.1: the flat-map fallback ---- */
+
+.flatmap[hidden] { display: none; }
+
+.flatmap {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: var(--bg);
+  overflow: auto;
+  padding: 12px;
+}
+
+.flat-notice {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  border-left: 3px solid var(--accent);
+  background: rgb(255 255 255 / 3%);
+}
+
+.flat-svg { width: 100%; height: auto; display: block; }
+
+.flat-country { stroke-width: 0.4; }
+.flat-country--selected { stroke: var(--accent); stroke-width: 1.2; }
+
+.flat-marker { fill: var(--accent); opacity: 0.85; }
+
+.flat-caveat {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-faint);
+}
+
+/* The globe and the flat map share one grid cell. globe.gl replaces the
+   contents of its container, so the flat map cannot be a child of it — it is a
+   sibling, positioned over the same area. */
+.globe-cell { position: relative; min-width: 0; }
+.globe-cell .globe { position: absolute; inset: 0; }

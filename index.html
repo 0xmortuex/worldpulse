@@ -13,6 +13,8 @@
         <div class="brand">worldpulse</div>
         <div id="search" class="search"></div>
         <div id="mode" class="mode"></div>
+        <button type="button" id="flat-launch" class="tour-launch"
+          aria-pressed="false" aria-label="Switch between the globe and a flat map">Flat map</button>
         <button type="button" id="lists-launch" class="tour-launch"
           aria-label="Browse everything as lists">Lists</button>
         <button type="button" id="tour-launch" class="tour-launch"
@@ -30,7 +32,12 @@
           <div id="event-list"></div>
           <div id="gallery"></div>
         </aside>
-        <div id="globe" class="globe"></div>
+        <!-- globe.gl replaces the contents of #globe, so #flatmap must be a
+             SIBLING sharing the same grid cell, never a child. -->
+        <div class="globe-cell">
+          <div id="globe" class="globe"></div>
+          <div id="flatmap" class="flatmap" hidden></div>
+        </div>
         <aside id="panel" class="panel" aria-label="Country dossier"></aside>
       </main>
 

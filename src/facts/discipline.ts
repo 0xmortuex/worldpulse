@@ -50,6 +50,8 @@ export const REGISTERED_RENDER_HELPERS: Record<string, string> = {
   axisBound: 'Axis scale bound describing the plotted range. A property of the plot, not a figure any source publishes in this form.',
   portraitFrame: 'Composes a portrait frame around a CSS pixel size, which it renders through px(). The numeric argument is a layout dimension, never a value read from a source.',
   portraitFigure: 'Composes a portrait figure around a CSS pixel size, which reaches the DOM through px(). Every fact inside it — the name, the office, the dates — is rendered with factHtml.',
+  toFixed:
+    'SVG path and marker coordinates on the flat map. These are PROJECTED PIXEL POSITIONS in a viewBox this app defines — a longitude becomes an x because the projection says so, not because any source published an x. The underlying lat/lng are facts and carry their badges wherever they are rendered as values; these are the geometry that draws them.',
   breakingCard:
     'Composes one story card around a rank and a tie flag. The rank is a POSITION in a ranking this app computes, not a figure from any source, and it reaches the DOM through notAFact() inside. Every measured value on the card — outlet counts, days, countries — is rendered by the inspector below it, each through notAFact with its own justification, because they are counts of what OUR fifteen curated feeds carried rather than facts about the world.',
   asOfCaveat:
