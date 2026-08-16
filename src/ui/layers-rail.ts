@@ -1,4 +1,15 @@
 import { BAND_ENCODING } from '../coverage';
+
+/**
+ * The scrub's travel.
+ *
+ * `SCRUB_MAX` is the present. The floor is a round year rather than the seed's
+ * earliest coverage because the seed's own floor moves whenever a finding is
+ * added, and a control whose range silently changes with the data is one whose
+ * shared links stop meaning the same thing.
+ */
+export const SCRUB_MIN = 1990;
+export const SCRUB_MAX = new Date().getUTCFullYear();
 import { escapeHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import { magnitudeLegend, type EventCluster, type GlobeEvent } from '../layers/events';
@@ -59,7 +70,33 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
     }
     if (target.closest('[data-coverage-toggle]')) {
       store.setCoverageMode(!store.state.coverageMode);
+      return;
     }
+    if (target.closest('[data-scrub-reset]')) {
+      store.setAsOfYear(null);
+    }
+  });
+
+  /**
+   * The scrub listens for `input`, not `click` or `change`.
+   *
+   * A range fires `input` while dragging and `change` on release. `click` would
+   * move the view only where the pointer landed, which reads as broken;
+   * `change` would skip every intermediate year, which is the point of a scrub.
+   *
+   * This only works because the rail no longer rebuilds on every commit — a
+   * control that destroyed itself on its own first event could not be dragged
+   * at all, which is why this shipped one commit after that fix rather than
+   * beside it.
+   */
+  root.addEventListener('input', (event) => {
+    const range = (event.target as HTMLElement).closest<HTMLInputElement>('[data-scrub]');
+    if (!range) return;
+    const year = Number(range.value);
+    // The top of the travel IS the present, and the present is null — so
+    // scrubbing back to the end clears the caveat rather than pinning it to
+    // this year.
+    store.setAsOfYear(year >= SCRUB_MAX ? null : year);
   });
 
   /**
@@ -155,6 +192,27 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
               </div>`
             : ''
         }
+
+        <div class="scrub">
+          <label class="scrub-label" for="scrub-year">Score relations as of</label>
+          <input type="range" id="scrub-year" class="scrub-range" data-scrub
+            min="${n(SCRUB_MIN, 'earliest year this control travels to — a property of the control, not a value from any source')}"
+            max="${n(SCRUB_MAX, 'the present year, this control\'s upper bound rather than a figure about the world')}"
+            step="1"
+            value="${n(state.asOfYear ?? SCRUB_MAX, 'current position of the scrub, which is UI state rather than a measurement')}">
+          <div class="scrub-value">${
+            state.asOfYear === null
+              ? 'now'
+              : n(state.asOfYear, 'the year relations are being scored as of — a control position, not a figure from any source')
+          }</div>
+          ${
+            state.asOfYear === null
+              ? ''
+              : '<button type="button" class="scrub-reset" data-scrub-reset>Back to now</button>'
+          }
+          <p class="rail-help">Shows what this app's PRESENT evidence says about that year.
+          Not what was known then, and not a claim about what was true.</p>
+        </div>
 
         ${
           layerCounts.clusteredAway > 0

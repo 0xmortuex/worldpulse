@@ -22,6 +22,7 @@ function state(over: Partial<AppState> = {}): AppState {
     layers: new Set<string>(),
     includeStale: false,
     coverageMode: false,
+    asOfYear: null,
     ...over,
   };
 }
@@ -124,6 +125,25 @@ describe('a malformed URL degrades to defaults, never to NaN', () => {
     // as a blank selection rather than as no selection.
     assert.deepEqual(fromSearch('c=USA,FRA,').selected, ['USA', 'FRA']);
     assert.deepEqual(fromSearch('c=').selected, []);
+  });
+});
+
+describe('the scrub position is shareable', () => {
+  it('round-trips an as-of year', () => {
+    assert.equal(fromSearch(toSearch(state({ asOfYear: 2015 }))).asOfYear, 2015);
+  });
+
+  it('the present is not written, so a default link carries no as-of', () => {
+    assert.doesNotMatch(toSearch(state({ asOfYear: null })), /asof/);
+    assert.equal(fromSearch('c=USA').asOfYear, null);
+  });
+
+  it('a malformed as-of falls back to the PRESENT, not to a nonsense year', () => {
+    // ?asof=banana parsing to 1970 would be a confidently wrong historical
+    // view. Falling back to now is obviously not what the link said.
+    for (const bad of ['banana', '0', '99999', '2015.5', '']) {
+      assert.equal(fromSearch(`asof=${bad}`).asOfYear, null, `"${bad}" was accepted`);
+    }
   });
 });
 

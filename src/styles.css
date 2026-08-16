@@ -1208,3 +1208,46 @@ button.badge { cursor: pointer; }
   background: color-mix(in srgb, var(--warn, #d9a441) 8%, transparent);
 }
 .econ-unavailable { border-left-color: var(--warn, #d9a441); }
+
+/* ---- step 13: the time scrub ---- */
+
+.scrub { margin: 0 0 16px; }
+
+.scrub-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.scrub-range { width: 100%; accent-color: var(--accent); }
+
+/* The position is stated in words as well as by the handle's location. A
+   slider's value is otherwise readable only by eye, and "which year is this"
+   is exactly what the caveat below depends on. */
+.scrub-value { font-size: 12px; color: var(--text); margin: 2px 0 6px; }
+
+.scrub-reset {
+  font: inherit;
+  font-size: 11px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+/* Renders ABOVE the relations and reads as a caveat rather than a caption,
+   because it changes what every classification below it means. */
+.panel-asof {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  border-left: 3px solid var(--accent);
+  background: rgb(255 255 255 / 3%);
+}

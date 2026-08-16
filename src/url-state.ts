@@ -41,6 +41,8 @@ export interface UrlState {
   layers: string[];
   includeStale: boolean;
   coverageMode: boolean;
+  /** Null is the present, and the present is not written to the URL. */
+  asOfYear: number | null;
 }
 
 /**
@@ -59,6 +61,7 @@ export function toSearch(state: AppState): string {
   if (state.tab !== 'government') params.set('tab', state.tab);
   if (state.includeStale) params.set('stale', '1');
   if (state.coverageMode) params.set('coverage', '1');
+  if (state.asOfYear !== null) params.set('asof', String(state.asOfYear));
 
   const layers = [...state.layers].sort();
   params.set('layers', layers.join(','));
@@ -126,6 +129,18 @@ export function fromSearch(search: string): UrlState {
     layers: rawLayers === null ? [] : rawLayers.split(',').filter((id) => id.length > 0),
     includeStale: params.get('stale') === '1',
     coverageMode: params.get('coverage') === '1',
+    /**
+     * A malformed as-of year falls back to the PRESENT, not to a parsed
+     * nonsense year. `?asof=banana` showing 1970 would be a confidently wrong
+     * historical view; showing now is obviously not what the link said, which
+     * is the failure a reader can actually notice.
+     */
+    asOfYear: (() => {
+      const raw = params.get('asof');
+      if (raw === null) return null;
+      const year = Number(raw);
+      return Number.isInteger(year) && year > 1800 && year < 2200 ? year : null;
+    })(),
   };
 }
 

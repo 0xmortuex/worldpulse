@@ -225,6 +225,7 @@ mountPanel(panelRoot, store, {
     thresholds: initial.thresholds,
     includeStale: initial.includeStale,
     coverageMode: initial.coverageMode,
+    asOfYear: initial.asOfYear,
     // Missing vs empty: only override the defaults when the URL actually said.
     ...(specifiesLayers(window.location.search) ? { layers: new Set(initial.layers) } : {}),
   });

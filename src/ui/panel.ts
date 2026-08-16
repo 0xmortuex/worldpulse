@@ -4,6 +4,7 @@ import { renderMilitaryTab } from './military';
 import { renderTvTab } from './tv';
 import { factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
+import { asOfCaveat, findingsAsOf } from '../relations/as-of';
 import { scoreFact } from '../relations/provenance';
 import { pairKey, score } from '../relations/score';
 import type { Finding, RelationResult, Tier } from '../relations/types';
@@ -109,18 +110,43 @@ function render(state: AppState, context: PanelContext): string {
   return compareView(selected, state, context);
 }
 
+/**
+ * Findings for this subject — all of them, or those a given year admits.
+ *
+ * Counted over the SUBJECT's pairs rather than the whole table, because the
+ * caveat is about this panel. Telling a reader that 40 of 900 findings were
+ * excluded when only 12 concerned this country would be a true number
+ * answering a question nobody asked.
+ */
+function countFindings(subject: Country, context: PanelContext, year?: number): number {
+  let count = 0;
+  for (const [code] of context.byCode) {
+    if (code === subject.code) continue;
+    const pair = context.findings.get(pairKey(subject.code, code));
+    count += year === undefined ? (pair ?? []).length : findingsAsOf(pair, year).length;
+  }
+  return count;
+}
+
 function relationsFor(subject: Country, state: AppState, context: PanelContext): RelationResult[] {
   const results: RelationResult[] = [];
   for (const [code] of context.byCode) {
     if (code === subject.code) continue;
     results.push(
+      /**
+       * The time scrub, and its whole mechanism: the SAME score() call, handed
+       * fewer findings. No second scoring path and no date parameter —
+       * `findingsAsOf` decides what existed, `score` does what it always did.
+       */
       score(
         subject.code,
         code,
-        context.findings.get(pairKey(subject.code, code)),
+        state.asOfYear === null
+          ? context.findings.get(pairKey(subject.code, code))
+          : findingsAsOf(context.findings.get(pairKey(subject.code, code)), state.asOfYear),
         state.weights,
         state.thresholds,
-        context.currentYear,
+        state.asOfYear ?? context.currentYear,
       ),
     );
   }
@@ -165,6 +191,20 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
         </div>`,
       ).join('')}
     </div>
+
+    ${
+      /**
+       * Renders BEFORE the relations, for the reason the cabinet's truncation
+       * notice does: it changes what every classification below it means. A
+       * reader who sees "ally" and only then learns the view is scored as of
+       * 2015 has already formed a belief about today.
+       */
+      state.asOfYear === null
+        ? ''
+        : `<p class="panel-asof">${escapeHtml(
+            asOfCaveat(state.asOfYear, countFindings(subject, context) - countFindings(subject, context, state.asOfYear), countFindings(subject, context)),
+          )}</p>`
+    }
 
     <h3 class="panel-h3">Classified relations <span class="badge badge--derived">DERIVED</span>${
       /**

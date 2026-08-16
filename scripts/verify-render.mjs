@@ -482,6 +482,7 @@ const ALL_STEPS = [
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
   '7f — URL view state',
+  '7g — time scrub',
   '7d — coverage choropleth',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
@@ -2294,6 +2295,52 @@ await page.waitForTimeout(1200);
 const afterBad = ((await page.locator('.panel').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
 check('a malformed weight still renders a working panel', /United States/.test(afterBad), afterBad.slice(0, 120));
 check('and no relation row reads as NaN', /NaN/.test(afterBad) === false, afterBad.slice(0, 200));
+
+step('7g — time scrub');
+// ---- step 7g: step 13's scrub, and the caveat that keeps it honest ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1000);
+await selectCountry('United States');
+await page.waitForTimeout(400);
+
+check('the scrub is present', (await page.locator('[data-scrub]').count()) === 1);
+check('and reads "now" until it is moved',
+  /now/i.test((await page.locator('.scrub-value').textContent()) ?? ''));
+check('so no as-of caveat is shown at the present',
+  (await page.locator('.panel-asof').count()) === 0);
+
+/**
+ * DRAGGING IT AT ALL is the assertion that could not pass before.
+ *
+ * The rail used to rebuild its entire innerHTML on every commit, so this range
+ * destroyed itself on the first `input` event it fired. That is why the scrub
+ * shipped one commit after the rebuild guard rather than beside it.
+ */
+await page.locator('[data-scrub]').fill('2015');
+await page.waitForTimeout(500);
+
+check('moving it updates the stated year',
+  /2015/.test((await page.locator('.scrub-value').textContent()) ?? ''));
+check('the control survived its own input event — it is still there',
+  (await page.locator('[data-scrub]').count()) === 1);
+
+const caveat = ((await page.locator('.panel-asof').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('an as-of caveat appears', caveat.length > 0, caveat.slice(0, 80));
+check('it says whose evidence this is', /PRESENT evidence/.test(caveat), caveat.slice(0, 200));
+check('and disclaims hindsight', /not what was known in 2015/i.test(caveat), caveat.slice(0, 200));
+check('and disclaims truth', /not a claim about what was true/i.test(caveat), caveat.slice(0, 220));
+
+check('the scrub position is shareable', /asof=2015/.test(page.url()), page.url());
+
+/**
+ * RULE 42's pair: back at the present, the caveat must be GONE. A disclaimer
+ * that never leaves is decoration, and this one would be actively false.
+ */
+await clickOrFail(page, '[data-scrub-reset]', 'back to now');
+await page.waitForTimeout(400);
+check('returning to now removes the caveat', (await page.locator('.panel-asof').count()) === 0);
+check('and clears it from the URL', /asof=/.test(page.url()) === false, page.url());
 
 step('7e — the relations SEED badge, in both states');
 // ---- step 7e: one global badge, and the assertion that it can go away ----

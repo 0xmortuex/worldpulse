@@ -32,6 +32,14 @@ export interface AppState {
    * what the globe's single colour channel cannot express (question 12).
    */
   coverageMode: boolean;
+  /**
+   * The year relations are scored as of, or null for the present.
+   *
+   * Null rather than the current year, so the present is a distinct state: a
+   * reader at now sees no as-of caveat, and a scrub parked on this year is a
+   * different intent from never having moved it.
+   */
+  asOfYear: number | null;
 }
 
 type Listener = (state: AppState) => void;
@@ -54,6 +62,7 @@ export class Store {
       layers: new Set(DEFAULT_LAYERS),
       includeStale: false,
       coverageMode: false,
+      asOfYear: null,
       ...initial,
     };
   }
@@ -121,6 +130,11 @@ export class Store {
   setCoverageMode(on: boolean): void {
     if (this.#state.coverageMode === on) return;
     this.#commit({ coverageMode: on });
+  }
+
+  setAsOfYear(year: number | null): void {
+    if (this.#state.asOfYear === year) return;
+    this.#commit({ asOfYear: year });
   }
 
   setHovered(code: string | null): void {
