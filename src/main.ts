@@ -153,12 +153,28 @@ mountGovernmentTab(panelRoot);
 // every other state change rather than mutating the DOM behind the panel.
 mountEconomyTab(panelRoot, () => store.refresh());
 mountNewsTab(panelRoot, () => store.refresh());
+/**
+ * Test seam for the SEED badge's absent-when-live state.
+ *
+ * The badge must be asserted in BOTH states — present while seeded, absent when
+ * the live provider lands — and the live provider does not exist yet. Without a
+ * seam the second assertion could only be written after the fact, which is how
+ * a disclosure ends up with no test that it ever goes away.
+ *
+ * Deliberately narrow: it flips one boolean that already exists on the fact
+ * set, and nothing reads it but the badge.
+ */
+let relationsSeededOverride: boolean | null = null;
+
 mountPanel(panelRoot, store, {
   byCode,
   findings,
   currentYear,
   compiledAt: facts.compiledAt,
   today: new Date(),
+  get relationsSeeded(): boolean {
+    return relationsSeededOverride ?? facts.seed;
+  },
 });
 mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
@@ -420,6 +436,11 @@ declare global {
       tooltipFor(id: string): string | null;
       /** Swap the economy panel's fetch scenario without reloading the page. */
       setEconScenario(scenario: ScenarioName | null): void;
+      /**
+       * Drive the SEED badge's both-states assertion. `null` restores the real
+       * value, so a test cannot leave the page lying about its own provenance.
+       */
+      setRelationsSeeded(seeded: boolean | null): void;
       counts(): {
         rendered: number;
         clusters: number;
@@ -451,6 +472,10 @@ function onScreen(lat: number, lng: number): boolean {
 
 window.__worldpulse = {
   setEconScenario,
+  setRelationsSeeded: (seeded) => {
+    relationsSeededOverride = seeded;
+    store.refresh();
+  },
   clusterCount: () => renderedClusters.length,
   firstClusterPosition: () => {
     const first = renderedClusters[0];

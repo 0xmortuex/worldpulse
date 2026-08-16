@@ -414,6 +414,18 @@ button.badge { cursor: pointer; }
   background: #1a1024;
   font-style: italic;
 }
+
+/* The relations layer's provenance, as ONE badge on the section heading rather
+   than a note per row. Distinguished from DERIVED beside it on three channels —
+   a warmer hue, a dashed rather than dotted border, and upright rather than
+   italic — because two badges sitting adjacent are exactly where colour alone
+   stops separating anything. */
+.badge--seed {
+  color: #d6a55f;
+  border: 1px dashed #8a6a2f;
+  background: #241c10;
+  font-style: normal;
+}
 /* A fourth tier, below ESTIMATE. Distinguished on THREE channels, not colour
    alone: a desaturated slate hue, a `double` border (solid/dashed/dotted are
    already spoken for by official/estimate/derived), and the '?' glyph. Low

@@ -731,3 +731,32 @@ accessibility nicety" before anyone had the number that proved it.
 
 **L13's timeboxed diagnostic remains available and remains ungated.** It can now only save
 work, which is what "timeboxed hard" was for.
+
+## Coverage tiers describe THIS APP, never the country — 2026-08-16
+
+| # | Decision |
+| --- | --- |
+| L16 | **A country with no ingested coverage renders "no legislative data ingested for this country" — the app-owned-gap wording, per the step-8 card precedent. Never an inference about whether its legislature publishes votes.** The tier system describes what this app has CONNECTED. Inferring "does not publish machine-readable votes" from our own non-ingestion would assert a fact about the country from a fact about us, which is the exact inversion rule 30 exists to prevent. If a country is KNOWN not to publish — established by reading, not by our absence of an adapter — that is a sourced statement and may render with its citation. Otherwise the gap belongs to the app and says so. |
+
+**Why this needed saying even though the principle is old.** Rule 30 is usually applied to a
+single value: "no answer" is not an answer of "no". A coverage *tier system* applies it to a
+whole surface, and the inversion is easier to make there because the tier looks like a property
+of the subject — "Tier 3" reads as a fact about a parliament rather than a fact about our
+adapter list. The number of tiers a country lands in is a measurement of us.
+
+**The step-8 precedent this points at.** The no-equipment card says *"this app holds no
+equipment data … not a statement about this country"*, and the abolished-military case
+deliberately omits it — because for a country with no army the card would invent a gap rather
+than disclose one. Same shape: the wording puts the subject where the evidence is.
+
+**Already complied with, checked rather than assumed.** Step 9's legislature panel renders
+`NO_CHAMBERS_RECORDED` — *"No chambers are recorded for this country. That is a gap in our
+source, not a finding that the country has no legislature."* — and the browser step asserts both
+that the gap is named as ours and that the phrase "has no legislature" appears only inside its
+own disclaimer. Step 12's coverage choropleth carries the same rule at map scale: its popovers
+say the count is of panels in this app, and an unassessed country states it is **not** a score
+of zero.
+
+**The one exemption, and its evidence bar.** A sourced statement that a country does not publish
+machine-readable votes may render as such — with a citation. The bar is a reading, not an
+absence: our not having an adapter is not evidence about anyone's publishing practice.

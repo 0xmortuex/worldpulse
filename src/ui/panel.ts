@@ -26,6 +26,19 @@ export interface PanelContext {
   compiledAt: string;
   /** Injected so the time scrub can later render the dossier as of a past date. */
   today: Date;
+  /**
+   * Whether relations are running on the hand-checked seed table.
+   *
+   * A GLOBAL property of the relations layer, not of any row — which is why it
+   * renders as one badge on the section heading rather than a note per row.
+   * Every row has the same provenance story, so repeating it per row would be
+   * noise wearing the clothes of diligence.
+   *
+   * **It comes off in the same commit the live provider lands in**, and it
+   * ships with a browser assertion for both states so that removal cannot be
+   * forgotten or faked.
+   */
+  relationsSeeded: boolean;
 }
 
 const TABS: Array<{ id: TabId; label: string; step: string | null }> = [
@@ -153,7 +166,17 @@ function singleView(subject: Country, state: AppState, context: PanelContext): s
       ).join('')}
     </div>
 
-    <h3 class="panel-h3">Classified relations <span class="badge badge--derived">DERIVED</span></h3>
+    <h3 class="panel-h3">Classified relations <span class="badge badge--derived">DERIVED</span>${
+      /**
+       * One badge for the whole layer, in the same position and idiom as
+       * DERIVED beside it. The inspector carries the detail; this carries the
+       * fact that there IS a detail worth opening.
+       */
+      context.relationsSeeded
+        ? ' <span class="badge badge--seed" title="Relations run on a hand-checked seed table' +
+          ' pending the live provider. Open any row\'s inspector for its provenance.">SEED</span>'
+        : ''
+    }</h3>
     ${
       notable.length === 0
         ? `<p class="panel-note">Nothing in the fact tables classifies ${escapeHtml(subject.name)}

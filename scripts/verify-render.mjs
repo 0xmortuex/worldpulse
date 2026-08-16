@@ -480,6 +480,7 @@ const ALL_STEPS = [
   '6d — live TV tab',
   '7 — globe event layers',
   '7c — L9 keyboard route to events',
+  '7e — the relations SEED badge, in both states',
   '7d — coverage choropleth',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
@@ -2229,6 +2230,48 @@ check('and lands on that entry\'s coordinates, not just anywhere',
 
 check('the list explains itself to someone whose clicks are failing',
   /if a marker does not respond/i.test((await page.locator('.event-list').textContent()) ?? ''));
+
+step('7e — the relations SEED badge, in both states');
+// ---- step 7e: one global badge, and the assertion that it can go away ----
+
+await selectCountry('United States');
+await page.waitForTimeout(300);
+
+/**
+ * PRESENT WHILE SEEDED. The seed disclosure describes the provenance of the
+ * whole relations layer, not any single row — every row has the same story —
+ * so it is one badge on the section heading, in the same position and idiom as
+ * the DERIVED badge beside it.
+ */
+const seedBadges = await page.locator('.badge--seed').count();
+check('the relations heading carries exactly one SEED badge', seedBadges === 1, `${seedBadges} found`);
+check('and it is not repeated per row',
+  (await page.locator('.relation-row .badge--seed').count()) === 0);
+check('it sits beside the DERIVED badge, not instead of it',
+  (await page.locator('.panel-h3 .badge--derived').count()) === 1);
+
+const seedText = ((await page.locator('.badge--seed').textContent()) ?? '').trim();
+check('the badge says SEED in words, not only in colour', seedText === 'SEED', seedText);
+
+/**
+ * ABSENT WHEN LIVE — the half that usually never gets written.
+ *
+ * A disclosure with no test that it goes away is a disclosure that will still
+ * be there long after it stopped being true. P12, and rule 42's pair: the
+ * badge ships with the case where it must NOT appear.
+ */
+await page.evaluate(() => window.__worldpulse?.setRelationsSeeded(false));
+await page.waitForTimeout(300);
+check('the badge disappears when relations are no longer seeded',
+  (await page.locator('.badge--seed').count()) === 0);
+check('positive control: the DERIVED badge is still there, so the panel did render',
+  (await page.locator('.panel-h3 .badge--derived').count()) === 1);
+
+// Restore, so nothing downstream sees a page lying about its own provenance.
+await page.evaluate(() => window.__worldpulse?.setRelationsSeeded(null));
+await page.waitForTimeout(300);
+check('and comes back when the override is cleared',
+  (await page.locator('.badge--seed').count()) === 1);
 
 step('7d — coverage choropleth');
 // ---- step 7d: step 12, the map of our own gaps ----
