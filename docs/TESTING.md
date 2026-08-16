@@ -1889,3 +1889,30 @@ and the summary looked fine. That lesson was about **reading** output. This is a
 **A test that passes for the wrong reason is worse than one that fails**, because it is counted
 as coverage. The file involved now asserts its own premise — that every kind it uses resolves to
 a non-zero weight — so the vacuity fails loudly instead of passing quietly.
+
+### 41d. No quoted parentheses or braces in command text — and no compound chains
+
+**The third shape, found 2026-08-16.** A quote character inside parentheses or braces makes
+the command classifier refuse to scan the command at all — "expansion obfuscation". The
+offender was pure decoration:
+
+```bash
+git push -q 2>&1|tail -1; git log --oneline -1; git status --porcelain; echo "(clean)"
+```
+
+**No allowlist entry can fix this**, which is what separates it from the first two clauses.
+An approval rule matches a command the classifier has parsed; this shape stops it parsing.
+The only fix is not to write it.
+
+**Two rules, both cheap:**
+
+1. **Never quote parentheses or braces in bash command text.** `echo "(clean)"` is
+   decoration, and decoration that costs an approval prompt is decoration removed.
+2. **Never echo a summary the command already proves.** `git status --porcelain` returning
+   nothing IS the clean signal. An `echo` beside it adds a claim on top of evidence, which is
+   the same anti-pattern this project rejects in a panel: a caption asserting what the data
+   already shows, able to drift from it.
+
+**And split the compound.** `push`, `log` and `status` each match an existing approval on
+their own; chaining them into one line is what keeps creating unscannable composites. Three
+short commands cost nothing and each is individually scannable.

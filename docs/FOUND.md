@@ -2232,3 +2232,38 @@ The override table is data rather than a branch, and a test asserts the table is
 consulted — so reimplementing the lookup without it fails rather than silently regressing.
 `XK` (Kosovo, 72 channels) is in the same table, and is user-assigned rather than ISO, which
 is the status this app already gives it on the globe.
+
+---
+
+## Three command shapes the classifier cannot parse — one class, one cost
+
+**2026-08-16, the third instance.** Each was found the same way: an unattended goal stopped
+making progress, and the cause was a command waiting on an approval nobody was there to give.
+
+| Shape | Example | Why an allowlist cannot help |
+| --- | --- | --- |
+| **inline scripts** | a multi-line heredoc piped to `node` | the content IS the command, so no rule can match it |
+| **`cd` prefixes** | `cd <repo> && npm test` | the compound defeats the classifier before `npm test` is seen |
+| **quoted braces** | `… ; echo "(clean)"` | a quote inside parentheses reads as expansion obfuscation; **the classifier refuses to scan it at all** |
+
+**The third is the sharpest**, because the first two can at least be reasoned about as
+"unusual commands". This one is a *scanning refusal*: the command was `git push`, `git log`
+and `git status` — three commands with existing approvals — and a decorative `echo "(clean)"`
+on the end made the whole line unscannable.
+
+### What they have in common, and it is not shell syntax
+
+**Every one of them was avoidable and none of them was load-bearing.** The heredoc could have
+been a file. The `cd` was into a directory the shell was already in. The `echo` restated what
+`git status --porcelain` had already proved by returning nothing.
+
+So the class is not "tricky shell" — it is **decoration and habit around commands that were
+already fine**. The cost is disproportionate and invisible: an unattended run does not fail,
+it *pauses*, and a paused run looks exactly like a slow one until someone checks.
+
+### The rule that falls out of all three
+
+**Write the shortest command that produces the evidence, and let the evidence speak.** Do not
+chain what can be separate. Do not narrate what the command already prints. Do not inline what
+belongs in a file. Each of those is also, independently, better practice — which is the part
+worth keeping when the classifier eventually changes.
