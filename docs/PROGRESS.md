@@ -338,3 +338,25 @@ public cameras → conflict presets → broadcast traffic and Hormuz → market 
 The intel feed leads because it needs no new source: it reuses `src/news/significance.ts`
 whole, which is what §3 demands anyway — *"a second ranking mechanism would drift from the
 first."*
+
+### 3.1 — the intel feed: shipped, with one requirement named as outstanding
+
+Built and gated: chronological cross-source feed, search, sort, 24h/7d/30d/all range,
+header counters, per-card severity band, "why this severity" inspector walking down to the
+source articles, pagination with a stated total. Verify step **8e**, 21 assertions.
+
+**Severity is banded as a share of what ANSWERED, not of a fixed maximum.** An input the
+app could not consult is excluded from the denominator as well as the numerator, so
+failing to look lowers confidence and never the band. `tests/intel.test.ts` carries the
+planted case (rule 27): it recomputes the boundary the naive way and shows the same story
+falling out of `high` purely because the app did not check its event linkage.
+
+**Outstanding, and not silently dropped:** §3 also requires **user-adjustable severity
+weights**. The engine already takes a weights argument — `severityOf(story, weights)` and
+`significanceOf(story, weights)` both accept one — so this is a control surface, not a
+model change. It is not built, and the feed currently renders
+`DEFAULT_SIGNIFICANCE_WEIGHTS`. Named here rather than left for a reader to notice.
+
+**Corpus limit, stated on the surface:** the feed reads the captured article fixtures.
+GDELT is recorded UNREACHABLE after six of six attempts, so a live cross-source feed is
+blocked on the same thing the breaking board is. Both caveats render above the cards.

@@ -1538,3 +1538,125 @@ button.badge { cursor: pointer; }
 }
 
 .palette-empty { padding: 12px 14px; font-size: 12px; color: var(--text-faint); }
+
+/* ---- v2 section 3.1: the intel feed ---- */
+
+.intel[hidden] { display: none; }
+
+.intel {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 16px;
+}
+
+.intel-panel { max-width: 900px; margin: 0 auto; }
+
+.intel-header { display: flex; align-items: baseline; gap: 12px; }
+.intel-header h2 { margin: 0; font-size: 18px; }
+.intel-close { margin-left: auto; }
+
+.intel-caveat {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-left: 3px solid var(--accent);
+  background: var(--panel-2);
+}
+.intel-caveat--corpus { border-left-color: var(--border); color: var(--text-faint); }
+
+.intel-counters { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; font-size: 12px; }
+.intel-total { font-weight: 600; }
+.intel-count--high { color: var(--accent); }
+.intel-count--elevated { color: var(--warn); }
+.intel-count--routine { color: var(--text-faint); }
+
+.intel-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.intel-control { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--text-faint); }
+.intel-control input,
+.intel-control select {
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 7px;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.intel-undatable,
+.intel-empty {
+  margin: 10px 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-faint);
+  border: 1px dashed var(--border);
+}
+
+.intel-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+.intel-card {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.intel-image { width: 96px; height: 72px; object-fit: cover; border-radius: 3px; flex: 0 0 auto; }
+.intel-body { min-width: 0; flex: 1 1 auto; }
+.intel-title { margin: 0 0 4px; font-size: 14px; line-height: 1.35; }
+.intel-title a { color: var(--text); }
+
+.intel-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 6px; font-size: 11px; color: var(--text-faint); }
+.intel-time--unavailable { font-style: italic; }
+
+/* The band is a WORD plus a colour, never colour alone. */
+.intel-band {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.intel-band--high { border-color: var(--accent); }
+.intel-band--elevated { border-color: var(--warn); }
+.intel-band-why { color: var(--text-faint); text-decoration: underline; }
+
+.intel-pager { display: flex; gap: 12px; align-items: center; margin: 14px 0 4px; font-size: 12px; }
+
+.why-panel {
+  position: fixed;
+  inset: 8vh 50% auto auto;
+  transform: translateX(50%);
+  width: min(640px, 92vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 205;
+  padding: 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+}
+.why-header { display: flex; align-items: baseline; gap: 10px; }
+.why-header h3 { margin: 0; font-size: 14px; }
+.why-close { margin-left: auto; }
+.why-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+.why-table caption { text-align: left; color: var(--text-faint); font-size: 11px; padding-bottom: 6px; }
+.why-table th, .why-table td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--border); }
+.why-unconsulted { color: var(--text-faint); font-style: italic; }
+.why-total { font-size: 12px; margin: 8px 0; }
+.why-unconsulted-note { font-size: 11px; color: var(--text-faint); line-height: 1.5; }
+.why-articles-heading { font-size: 12px; margin: 10px 0 4px; }
+.why-articles { margin: 0; padding-left: 18px; font-size: 11px; color: var(--text-faint); }

@@ -37,6 +37,7 @@ import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
 import { mountLegislatureTab } from './ui/legislature';
 import { mountTour } from './ui/tour';
+import { mountIntel } from './ui/intel';
 import { mountLists } from './ui/lists';
 import { renderFlatMap, shouldAutoSwitch } from './ui/flatmap';
 import { mountPalette } from './ui/palette';
@@ -279,6 +280,7 @@ mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
 mountTour(must<HTMLElement>('#tour'), must<HTMLElement>('#tour-launch'));
 mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now);
+mountIntel(must<HTMLElement>('#intel'), must<HTMLElement>('#intel-launch'), () => now.getTime());
 
 flatRoot = must<HTMLElement>('#flatmap');
 const flatToggle = must<HTMLElement>('#flat-launch');
@@ -297,6 +299,7 @@ mountPalette(must<HTMLElement>('#palette'), {
   },
   runAction: (action) => {
     if (action === 'tour') must<HTMLElement>('#tour-launch').click();
+    if (action === 'intel') must<HTMLElement>('#intel-launch').click();
     if (action === 'flat') must<HTMLElement>('#flat-launch').click();
     if (action === 'coverage') store.setCoverageMode(!store.state.coverageMode);
   },

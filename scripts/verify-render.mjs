@@ -483,6 +483,7 @@ const ALL_STEPS = [
   '8b — universal list views',
   '8c — the flat-map fallback',
   '8d — the command palette',
+  '8e — the intel feed',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -2540,6 +2541,88 @@ check('it can reach a list view', /List: Events/i.test(listHit), listHit);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 check('Escape closes it', (await page.locator('.palette-panel').count()) === 0);
+
+step('8e — the intel feed');
+// ---- v2 section 3.1 (SPEC-WARWATCH §3): the chronological cross-source feed ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+
+check('the feed is closed until asked for', (await page.locator('.intel-panel').count()) === 0);
+await clickOrFail(page, '#intel-launch', 'intel feed launcher');
+await page.waitForTimeout(500);
+check('the launcher opens it', (await page.locator('.intel-panel').count()) === 1);
+check('and it renders cards', (await page.locator('.intel-card').count()) > 0,
+  `${await page.locator('.intel-card').count()} cards`);
+
+/**
+ * THE CAVEAT IS ON THE SURFACE, not in a tooltip. §3 requires the sentence
+ * about coverage volume, and a severity word without it invites exactly the
+ * reading the band cannot support.
+ */
+const intelCaveat = ((await page.locator('.intel-caveat').first().textContent()) ?? '').replace(/\s+/g, ' ');
+check('severity says what it measures', /coverage volume/i.test(intelCaveat), intelCaveat.slice(0, 120));
+check('and what it does NOT measure', /not editorial importance/i.test(intelCaveat), intelCaveat.slice(0, 160));
+
+check('the header counts the total', (await page.locator('.intel-total').count()) === 1);
+check('and counts each severity band', (await page.locator('.intel-count').count()) === 3);
+check('pagination states a total rather than implying one',
+  /Page \d+ of \d+ · \d+ items/.test(((await page.locator('.intel-page-state').textContent()) ?? '')),
+  (await page.locator('.intel-page-state').textContent()) ?? '');
+
+/**
+ * NO FUTURE TIMESTAMP RENDERS AS A COUNTDOWN. §3 names this as the reference
+ * implementation's bug and forbids copying it, so the whole feed is swept
+ * rather than one card sampled.
+ */
+const times = await page.locator('.intel-time').allTextContents();
+check('no item renders a future stamp as a countdown',
+  times.every((text) => !/\bin \d/.test(text)), times.filter((t) => /\bin \d/.test(t)).slice(0, 3).join(' | '));
+check('and every card carries some time statement', times.length > 0 && times.every((t) => t.trim() !== ''));
+
+/**
+ * THE ARITHMETIC IS REACHABLE AND IT ADDS UP. A composite rendered without
+ * visible arithmetic is the thing SPEC-EXPANSION prohibits outright.
+ */
+await clickOrFail(page, '.intel-list li:first-child .intel-band', 'why this severity');
+await page.waitForTimeout(400);
+check('the severity inspector opens', (await page.locator('.why-panel').count()) === 1);
+check('it shows a row per input', (await page.locator('.why-table tbody tr').count()) === 5,
+  `${await page.locator('.why-table tbody tr').count()} rows`);
+const whyTotal = ((await page.locator('.why-total').textContent()) ?? '').replace(/\s+/g, ' ');
+check('and states the score against what was ACHIEVABLE, not a fixed maximum',
+  /of \d+(\.\d+)? achievable/i.test(whyTotal), whyTotal.slice(0, 160));
+check('an unconsulted input is disclosed rather than absorbed',
+  (await page.locator('.why-unconsulted').count()) > 0);
+check('the inspector walks down to the source articles',
+  (await page.locator('.why-articles li').count()) > 0);
+
+await clickOrFail(page, '[data-why-close]', 'close the inspector');
+await page.waitForTimeout(300);
+check('closing the inspector leaves the feed open',
+  (await page.locator('.why-panel').count()) === 0 && (await page.locator('.intel-panel').count()) === 1);
+
+// Filtering to nothing blames the filters, per the app-owned-gap wording.
+await page.locator('[data-intel-search]').fill('zzzz-no-such-headline');
+await page.waitForTimeout(400);
+check('an empty result blames the filters and our corpus',
+  (await page.locator('.intel-empty').count()) === 1);
+const emptyText = ((await page.locator('.intel-empty').textContent()) ?? '').replace(/\s+/g, ' ');
+check('and never implies the world was quiet', /not about the world/i.test(emptyText), emptyText.slice(0, 140));
+
+/**
+ * TYPING MUST NOT STEAL FOCUS. The panel rebuilds its own innerHTML on every
+ * keystroke, which replaces the input — the rail's wholesale-rebuild bug, which
+ * cost L9's keyboard route once already.
+ */
+const intelSearchFocused = await page.evaluate(
+  () => document.activeElement?.getAttribute('data-intel-search') !== null,
+);
+check('the search box keeps focus across the redraw it triggers', intelSearchFocused);
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+check('Escape closes the feed', (await page.locator('.intel-panel').count()) === 0);
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----

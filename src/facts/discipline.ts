@@ -56,6 +56,8 @@ export const REGISTERED_RENDER_HELPERS: Record<string, string> = {
     'Composes one story card around a rank and a tie flag. The rank is a POSITION in a ranking this app computes, not a figure from any source, and it reaches the DOM through notAFact() inside. Every measured value on the card — outlet counts, days, countries — is rendered by the inspector below it, each through notAFact with its own justification, because they are counts of what OUR fifteen curated feeds carried rather than facts about the world.',
   asOfCaveat:
     'The time scrub\'s disclaimer. Every number in it describes THIS APP rather than the world: the year is the scrub control\'s position, and the counts are how many of our own findings the cutoff admits and holds in total. None is read from a source, and the sentence exists precisely to stop a reader taking the filtered view for a claim about the past.',
+  renderIntelFeed:
+    'Composes the whole intel feed. Every number that reaches the DOM through it describes THIS APP rather than the world — the size of our captured corpus, how many of our rows match the current filters, how many we could not date, our own page indices, and the counts of our own severity banding. Each one passes through notAFact() with its own justification at the point it is rendered, and the surface states in two caveats that the corpus is ours.',
   describeAge:
     'Age of an entry in OUR cache, coarsened to a phrase. It describes this app\'s request history, not the country — no source publishes it and no source could. The values it dates carry their own badges, and the figure it produces is deliberately imprecise because false precision on a cache age helps nobody.',
 };

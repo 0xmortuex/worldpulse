@@ -23,6 +23,19 @@
  * globe-*.js              1839.5 KB     three.js + globe.gl
  * index-*.js               495.6 KB     the app, topojson, i18n-iso-countries
  * index-*.css               25.7 KB
+ *
+ * ## Raised once, with the measurement
+ *
+ * 2026-08-16 — the stylesheet moved 25.7 KB → 34.2 KB across v2 Phase C and the
+ * intel feed: the flat map, the lists views, the tour, the command palette and
+ * the feed each brought their own block. Measured, not estimated, and the
+ * budget follows the same 15%-above rule the others do.
+ *
+ * The app chunk is the one to watch: this script measures 550.4 KB against
+ * 570 KB, leaving 19.6 KB. Two more surfaces of the intel feed's size will not
+ * fit, and the answer then is code-splitting rather than another raise —
+ * recorded here because a budget raised without saying why is a budget
+ * switched off.
  * ```
  *
  * Each budget sits about 15% above its observed value — enough headroom that
@@ -60,8 +73,8 @@ const BUDGETS = [
   {
     name: 'stylesheet',
     match: /^index-.*\.css$/,
-    observedKb: 25.7,
-    budgetKb: 32,
+    observedKb: 34.2,
+    budgetKb: 39,
     why: 'one stylesheet, hand-written. Growth here is usually a duplicated block rather than a feature.',
   },
 ];
