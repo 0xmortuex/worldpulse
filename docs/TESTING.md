@@ -1841,3 +1841,51 @@ mirror never disagrees with you, which is why it reads as passing.
 **This is rule 25 inverted.** Rule 25 says assert the invariant rather than an incidental
 property of the fixture. Here the incidental property was promoted to an invariant and given a
 rule number in its title — the citation made it look considered.
+
+## 44. Piping a check into `tail` throws away its verdict — twice over
+
+**`cmd | tail -2` reports the exit code of `tail`, which is always 0.** And it shows the last
+two lines, which for a compiler is the last two *errors*, not the count of them.
+
+### Measured, on this repository
+
+```
+npm run typecheck 2>&1 | tail -2 && git add -A && git commit …
+```
+
+The typecheck **failed with many errors**. `tail` exited 0, so `&&` proceeded and the commit
+landed with a red typecheck. Two of the errors were visible; the rest were scrolled off by the
+same pipe that hid the failure.
+
+The errors were not cosmetic. A test file had invented `InputKind` values —
+`'bloc'`, `'treaty'`, `'conflict'` — which are not members of the union. At runtime
+`weights[finding.kind]` returned `undefined`, every weight resolved to 0 through `?? 0`, and
+**every assertion in the file passed for the wrong reason**: "an empty input contributes nothing
+to the score" is trivially true when no input contributes anything.
+
+**The test run was green and the typecheck was red, and the pipe made them agree.**
+
+### The rule
+
+- **Never pipe a gate into `head`, `tail`, or `grep` when its exit code is going to be used.**
+  Run it bare, or capture the exit code explicitly:
+
+```bash
+npm run typecheck; echo "EXIT=$?"          # verdict visible
+npm run typecheck > /dev/null 2>&1; echo "EXIT=$?"   # verdict only
+```
+
+- **Never chain a commit off a piped gate.** `gate | tail && commit` is `commit`.
+- If output must be trimmed to read it, run the command **twice**: once bare for the verdict,
+  once piped for the excerpt. The second run is cheap next to a committed red gate.
+
+### Why this is rule 6's shape, not a shell tip
+
+This project already had the lesson — *"the failure line is the verdict; the counts are
+commentary"* — recorded after a red suite was committed because the failing line printed first
+and the summary looked fine. That lesson was about **reading** output. This is about
+**destroying** it: the pipe removed the verdict before anyone could misread it.
+
+**A test that passes for the wrong reason is worse than one that fails**, because it is counted
+as coverage. The file involved now asserts its own premise — that every kind it uses resolves to
+a non-zero weight — so the vacuity fails loudly instead of passing quietly.
