@@ -2198,6 +2198,22 @@ check('the list has exactly one entry per marker on the globe',
  * is that a keyboard user can GET here — an element that is only reachable
  * programmatically is not a keyboard route.
  */
+/**
+ * PARK THE CAMERA AWAY FROM THE TARGET FIRST.
+ *
+ * This assertion failed for a while and the app was innocent. Step 7 leaves the
+ * camera on an event's coordinates, and the first list entry is that same
+ * event — so pressing Enter flew correctly to a place the camera already
+ * occupied, and "the camera moved" read false.
+ *
+ * A test that cannot distinguish "the interaction did nothing" from "the
+ * interaction did exactly the right thing" is not testing the interaction. The
+ * camera is moved somewhere unrelated first, so any movement afterwards is the
+ * keyboard route's doing.
+ */
+await page.evaluate(() => window.__worldpulse?.parkCamera(-30, 25));
+await page.waitForTimeout(300);
+
 const viewBeforeEntry = await page.evaluate(() => window.__worldpulse?.pointOfView());
 await entries.first().focus();
 const focused = await page.evaluate(() => document.activeElement?.className ?? '');

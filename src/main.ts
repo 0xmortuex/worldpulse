@@ -559,6 +559,12 @@ declare global {
        */
       clusterCount(): number;
       firstClusterPosition(): { lat: number; lng: number } | null;
+      /**
+       * Park the camera somewhere known before testing that an interaction
+       * moves it. Without this the keyboard-route assertion can start with the
+       * camera already ON its target and read a correct fly as "did not move".
+       */
+      parkCamera(lat: number, lng: number): void;
       tooltipFor(id: string): string | null;
       /** Swap the economy panel's fetch scenario without reloading the page. */
       setEconScenario(scenario: ScenarioName | null): void;
@@ -603,6 +609,7 @@ window.__worldpulse = {
     store.refresh();
   },
   clusterCount: () => renderedClusters.length,
+  parkCamera: (lat, lng) => globe.flyTo(lat, lng, 0),
   firstClusterPosition: () => {
     const first = renderedClusters[0];
     return first ? { lat: first.lat, lng: first.lng } : null;
