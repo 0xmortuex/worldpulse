@@ -86,6 +86,60 @@ describe('World Bank indicator contract', () => {
   });
 });
 
+/**
+ * `worldbank-milex` — its own contract, because it is its own registry entry.
+ *
+ * It shares an origin and a response envelope with `worldbank`, and it would
+ * have been easy to treat the economy capture as covering it. It does not: the
+ * deploy gate counts sources, not hosts, and "the same server answered a
+ * different question once" is not evidence about this question.
+ *
+ * Captured live on 2026-08-17 to move this source from `documentation` to
+ * `live`. The parser is the shared one, which is the point — if the military
+ * indicator's envelope ever diverges from the economy one, this fails rather
+ * than the military panel quietly rendering nothing.
+ */
+describe('World Bank military expenditure contract', () => {
+  it('parses the captured response through the shared parser', async () => {
+    const sample = await liveOrInconclusive('worldbank-milex');
+    if (!sample) return;
+
+    const series = worldbank.parse(sample.body, 'worldbank-milex');
+    assert.ok(series.observations.length > 0, 'no observations parsed');
+    assert.equal(series.indicatorId, 'MS.MIL.XPND.GD.ZS');
+  });
+
+  /**
+   * THE MOST RECENT YEAR IS REPORTED WITH A NULL VALUE, in the real data.
+   *
+   * The World Bank publishes the row for a year before it has the figure, so
+   * the newest observation is routinely `value: null`. That is rule 30 arriving
+   * in genuine bytes rather than in a hand-written planted case: a panel that
+   * read it as zero would render a country as spending nothing on its military
+   * in the year the source simply has not filled in yet.
+   *
+   * Asserted as a property of the SOURCE, so if the World Bank ever stops
+   * emitting these rows the test says so rather than the guarantee silently
+   * losing its subject.
+   */
+  it('carries year rows whose value is not yet published, as null and not zero', async () => {
+    const sample = await liveOrInconclusive('worldbank-milex');
+    if (!sample) return;
+
+    const rows = (sample.body as [unknown, Array<{ date: string; value: number | null }>])[1];
+    const unpublished = rows.filter((row) => row.value === null);
+    assert.ok(
+      unpublished.length > 0,
+      'no null-valued row in the capture — the null-vs-zero guarantee has lost its subject',
+    );
+
+    // And none of them is a zero wearing a null's meaning.
+    for (const row of unpublished) {
+      assert.notEqual(row.value, 0, `${row.date} reported 0 where the value is unpublished`);
+    }
+  });
+});
+
 describe('USGS earthquake feed contract', () => {
   it('parses features and range-checks coordinates and magnitude', async () => {
     const sample = await liveOrInconclusive('usgs-quakes');

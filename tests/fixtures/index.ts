@@ -1,4 +1,5 @@
 import worldbankIndicator from './worldbank-indicator.json';
+import worldbankMilex from './worldbank-milex.json';
 import wikidataSparql from './wikidata-sparql.json';
 import usgsQuakes from './usgs-quakes.json';
 import gdeltDoc from './gdelt-doc.json';
@@ -28,6 +29,7 @@ import { commonsImageinfoUrl } from '../../src/dossier/portrait';
 import { buildCountryQueryUrl } from '../../src/sources/wikidata-dossier';
 import { buildChokepointQueryUrl } from '../../src/sources/portwatch';
 import { buildDonQueryUrl } from '../../src/sources/who-don';
+import { buildUrl as worldbankBuildUrl } from '../../src/sources/worldbank';
 import { buildPopulationUrl } from '../../src/sources/unhcr';
 import { buildCatalogUrl } from '../../src/sources/cisa-kev';
 import { buildYearlyUrl as emberYearlyUrl } from '../../src/sources/ember';
@@ -146,6 +148,27 @@ export const FIXTURES: Record<string, Fixture> = {
     sourceId: 'who-don',
     requestUrl: buildDonQueryUrl({ count: 10 }),
     body: whoDon,
+  },
+  /**
+   * Military expenditure — a real capture, taken to clear this source from
+   * `documentation` to `live`.
+   *
+   * `worldbank-milex` shares an origin with `worldbank` but is a SEPARATE
+   * registry entry with its own panel and its own indicator, so the economy
+   * capture says nothing about it. The deploy gate counts them separately, and
+   * it is right to.
+   *
+   * The URL comes from `buildUrl` rather than being written out beside the
+   * body, following the PortWatch precedent: a fixture whose request was typed
+   * by hand can drift away from the request the app actually makes, and then it
+   * proves the shape of something nobody fetches.
+   *
+   * Pinned to USA and four rows so re-capturing returns the same window.
+   */
+  'worldbank-milex': {
+    sourceId: 'worldbank-milex',
+    requestUrl: worldbankBuildUrl('USA', 'MS.MIL.XPND.GD.ZS', 4),
+    body: worldbankMilex,
   },
   /**
    * Carries BOTH of rule 30's states in real captured data: reported zeros as

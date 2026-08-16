@@ -82,7 +82,7 @@
       "keyRequired": false,
       "keyEnv": null,
       "notes": "Used in place of a direct SIPRI ingest: SIPRI publishes no API and restricts redistribution, but the World Bank redistributes the same series under CC BY 4.0. Indicators: MS.MIL.XPND.CD, MS.MIL.XPND.GD.ZS, MS.MIL.TOTL.P1.",
-      "verifiedAgainst": "documentation",
+      "verifiedAgainst": "live",
       "origin": "https://api.worldbank.org",
       "transport": "direct",
       "schemaVersion": 1
