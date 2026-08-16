@@ -1974,3 +1974,54 @@ was still alive. Node processes exist for many reasons, so it kept watching afte
 finished and flagged legitimate post-run work as contamination. **The permanent guard keys on
 the LOCK** — `readLock()` plus `processIsAlive(lock.pid)` — so "is the measurement still
 running" is answered by the thing that actually knows, not by a proxy that is usually right.
+
+## 46. Exercise a parse-failure path with a REAL wrong body, not a synthetic one
+
+**Rule 33 solved from the other direction.** Rule 33 says a synthetic input must describe a
+state the real system can reach. The usual way to satisfy it is to construct a fake failure
+carefully. The better way, when it is available, is not to construct one at all: **borrow a real
+body from elsewhere in the suite that genuinely cannot parse.**
+
+### The worked example
+
+`tests/dossier-live.test.ts` drives the dossier header's parse-failure path by pointing it at
+the `fixtures` scenario, which serves **legislature captures**. Those are real Wikidata
+responses — captured live, through the app's own builder — and `parseCountryDossier` genuinely
+cannot read them.
+
+```ts
+const load = await loadDossierLive(fetcherFor('?econ=fixtures'), 'GBR');
+assert.equal(load.record, null);
+assert.equal(load.failure.reason, 'shape');   // and NOT a null record
+```
+
+The assertion that matters is the second one: the failure surfaces as a **shape failure**, never
+as a null record the header would render as *"no data"*. A synthetic malformed blob would have
+tested the same line of code while proving less — nobody doubts that garbage fails to parse.
+What was in question is whether a *plausible* wrong answer fails loudly, and only a real body
+answers that.
+
+### The asymmetry the same test exposed, which is the durable half
+
+Two parsers, two case structures, and **the difference comes from their domains rather than
+from their code**:
+
+| Parser | Empty middle case? | Why |
+| --- | --- | --- |
+| `parseCountryDossier` | **no** | a country either has a Wikidata entity or the response is unreadable. There is no "a country with no country in it" |
+| `parseLegislature` | **yes** | a country can legitimately have zero chambers recorded, which is a real fact about our source's coverage |
+| `parseCabinet` | **yes**, and more broadly than expected | it collects rows matching its variables, so a well-formed response with no matching rows yields an empty cabinet rather than a `ShapeError` |
+
+So the dossier's thrown parse is **always** a failed request, while the legislature's absence
+has two legitimate readings that the panel must keep apart.
+
+**Parsers inherit their case structure from their domain.** A suite that assumed one shape for
+both would have invented a state one of them cannot occupy — asserting an "empty dossier" that
+the world has no example of, and passing, because the assertion would never run.
+
+### How this was found
+
+By asserting the wrong thing first. Two tests expected `parseCabinet` to throw on a mismatched
+body; it returned empty. The tests were corrected to the measured behaviour and the reason
+recorded, because the finding — **shape failures on this source come from malformed envelopes,
+not from wrong-but-valid ones** — is more useful than the assertion that produced it.
