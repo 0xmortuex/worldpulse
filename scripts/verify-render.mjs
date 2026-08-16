@@ -485,6 +485,7 @@ const ALL_STEPS = [
   '7g — time scrub',
   '7d — coverage choropleth',
   '7b — economy fetch states',
+  '7h — breaking-news board',
   'cross-cutting — accessibility (step 14)',
   'cross-cutting — text fidelity (rule 9)',
   'cross-cutting — layout geometry (rule 8)',
@@ -2555,6 +2556,61 @@ await shot(page, `${SHOTS}/17e-economy-stale.png`);
  */
 await page.evaluate(() => window.__worldpulse.setEconScenario('fixtures'));
 await page.waitForTimeout(200);
+
+step('7h — breaking-news board');
+// ---- step 7h: item 7's board, against fixtures per the spec's build order ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+
+const board = ((await page.locator('.breaking').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+
+/**
+ * THE CAVEAT IS THE HEADLINE, NOT A FOOTNOTE — and it must say all three
+ * things. The third is the one surfaces omit: WHOSE coverage. A reader
+ * assuming a global corpus reads our fifteen-feed ceiling as a finding about
+ * the world.
+ */
+check('the board is tagged DERIVED as a whole',
+  (await page.locator('.breaking .badge--derived').count()) === 1);
+check('the caveat says it ranks coverage, not importance',
+  /COVERAGE VOLUME, not importance/i.test(board), board.slice(0, 200));
+check('and that an ignored story scores zero',
+  /scores zero/i.test(board), board.slice(0, 240));
+check('and WHOSE coverage it measures',
+  /15 curated/i.test(board), board.slice(0, 300));
+
+/**
+ * TIES ARE A BAND, NOT AN ORDERING. Two fixture stories sit inside the
+ * epsilon; presenting them as ranks 2 and 3 would assert precision the inputs
+ * do not have.
+ */
+check('tied stories are marked as tied',
+  (await page.locator('.breaking-card--tied').count()) >= 2,
+  `${await page.locator('.breaking-card--tied').count()} tied cards`);
+check('and say their order is not meaningful',
+  /order is not meaningful/i.test(board), board.slice(0, 400));
+
+/**
+ * NOT CONSULTED IS NOT ZERO — question 13's distinction, on a new surface.
+ */
+check('a story with an unchecked input discloses the shortfall',
+  /could not be checked/i.test(board), board.slice(0, 500));
+check('and says it differs from an input that came back empty',
+  /not the same as an input that came back empty/i.test(board), board.slice(0, 560));
+
+/**
+ * THE INSPECTOR SHOWS RAW BESIDE NORMALISED. Rule 22 makes the normalisation
+ * part of the score's definition, so a reader must be able to see that 15
+ * outlets became 1.0.
+ */
+check('every card carries a why-this-ranked inspector',
+  (await page.locator('.breaking-why').count()) >= 5);
+const arithmetic = ((await page.locator('.breaking-arith').first().textContent()) ?? '').replace(/\s+/g, ' ');
+check('the inspector shows the raw measurement and its normalised value',
+  /measured/.test(arithmetic) && /normalised/.test(arithmetic), arithmetic.slice(0, 160));
+check('a story nobody covered is listed rather than hidden',
+  /regional election result certified/i.test(board), board.slice(-200));
 
 step('cross-cutting — accessibility (step 14)');
 // ---- step 14's accessibility pass, as assertions rather than a sweep ----

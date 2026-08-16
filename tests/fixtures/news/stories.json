@@ -1,0 +1,68 @@
+{
+  "_comment": [
+    "Story fixtures for the breaking-news board — the regression suite, not a placeholder.",
+    "",
+    "GDELT failed six of six attempts and is recorded UNREACHABLE, so the board is built",
+    "against these and wired to the curated RSS feeds afterwards. Per D6 the fixtures ARE",
+    "the suite; the feed replaces the source, not the tests.",
+    "",
+    "Chosen by CASE, the way the iptv capture is:",
+    "  - a story near the corpus ceiling (every curated outlet carrying it)",
+    "  - two stories within the tie epsilon, so the tied band is exercised",
+    "  - a story with an UNCONSULTED event linkage, so null-not-zero is exercised",
+    "  - a story nobody covered, which must score zero rather than being hidden"
+  ],
+  "capturedOn": "2026-08-16",
+  "stories": [
+    {
+      "id": "story-ceiling",
+      "headline": "Fixture: summit concludes without agreement",
+      "outlets": 15,
+      "articles": 38,
+      "days": 9,
+      "countries": 7,
+      "linkedToTrackedEvent": true,
+      "note": "At the corpus ceiling on outlet breadth — 15 of 15 curated feeds."
+    },
+    {
+      "id": "story-tied-a",
+      "headline": "Fixture: central bank holds rates",
+      "outlets": 8,
+      "articles": 14,
+      "days": 4,
+      "countries": 3,
+      "linkedToTrackedEvent": false,
+      "note": "Tied with story-tied-b inside the epsilon."
+    },
+    {
+      "id": "story-tied-b",
+      "headline": "Fixture: port strike enters second week",
+      "outlets": 8,
+      "articles": 15,
+      "days": 4,
+      "countries": 3,
+      "linkedToTrackedEvent": false,
+      "note": "Tied with story-tied-a inside the epsilon."
+    },
+    {
+      "id": "story-unconsulted",
+      "headline": "Fixture: flooding displaces thousands",
+      "outlets": 6,
+      "articles": 9,
+      "days": 3,
+      "countries": 2,
+      "linkedToTrackedEvent": null,
+      "note": "The event index was unavailable — consulted-and-empty is NOT the same as checked-and-no."
+    },
+    {
+      "id": "story-ignored",
+      "headline": "Fixture: regional election result certified",
+      "outlets": 0,
+      "articles": 0,
+      "days": 0,
+      "countries": 0,
+      "linkedToTrackedEvent": false,
+      "note": "Nobody covered it. Scores zero, and is listed rather than hidden."
+    }
+  ]
+}

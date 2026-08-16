@@ -1,4 +1,5 @@
 import { BAND_ENCODING } from '../coverage';
+import { renderBreakingBoard } from './breaking';
 import { renderWatchlist } from './watchlist';
 
 /**
@@ -258,6 +259,8 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
         proportional to energy, area or damage — read values from the tooltip, not
         from the dot.</p>
       </section>
+
+      ${renderBreakingBoard()}
 
       ${renderWatchlist()}`;
 
