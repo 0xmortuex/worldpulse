@@ -1,0 +1,67 @@
+{
+  "_comment": [
+    "Watchlist predictions and their outcomes, surfaced in the app per step 13.",
+    "",
+    "WATCHLIST.md was written BEFORE any live response was seen, deliberately, so its",
+    "predictions would be falsifiable. WATCHLIST-RESULTS.md records what happened.",
+    "",
+    "This file is the machine-readable extract. It carries CONFIRMED and REFUTED alike:",
+    "a watchlist that shows only its hits is an advertisement, and the whole value of",
+    "writing predictions down first is destroyed by reporting them selectively.",
+    "",
+    "P13 governs additions: a prediction is checked against the tree before it is",
+    "recorded as an outcome, never assumed because several sessions repeated it."
+  ],
+  "measuredOn": "2026-08-12",
+  "source": "docs/WATCHLIST-RESULTS.md",
+  "predictions": [
+    {
+      "subject": "France",
+      "predicted": "rule 2 — semi-presidential, president leads",
+      "observed": "semi-presidential system",
+      "ruleFired": "2",
+      "verdict": "CONFIRMED",
+      "note": "The one that matters most for the other direction: the prediction was that a rule WOULD fire, and it did, on the exact label predicted. The rules work where they are supposed to work."
+    },
+    {
+      "subject": "Switzerland",
+      "predicted": "undetermined; may need a collective rule",
+      "observed": "federal republic",
+      "ruleFired": "none",
+      "verdict": "CONFIRMED",
+      "note": "Returns an office where a person is expected — the collective-executive case the rules deliberately refuse rather than guess at."
+    },
+    {
+      "subject": "Bosnia and Herzegovina",
+      "predicted": "undetermined; three-member presidency",
+      "observed": "republic",
+      "ruleFired": "none",
+      "verdict": "CONFIRMED",
+      "note": null
+    },
+    {
+      "subject": "Andorra",
+      "predicted": "undetermined; two co-princes, one a foreign head of state",
+      "observed": "parliamentary coprincipality",
+      "ruleFired": "none",
+      "verdict": "CONFIRMED",
+      "note": null
+    },
+    {
+      "subject": "China",
+      "predicted": "undetermined; rule-1 override candidate",
+      "observed": "people's republic",
+      "ruleFired": "none",
+      "verdict": "CONFIRMED",
+      "note": null
+    },
+    {
+      "subject": "Saudi Arabia",
+      "predicted": "rule 4 — king is also prime minister",
+      "observed": "monarchy",
+      "ruleFired": "4",
+      "verdict": "CONFIRMED",
+      "note": "The first attempt returned HTTP 502. That was transient, not a refutation — re-run, the same person holds both offices exactly as predicted. Recorded because a transport failure read as a data answer is the confusion this project keeps having to unpick."
+    }
+  ]
+}

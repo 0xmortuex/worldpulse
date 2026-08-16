@@ -1,4 +1,5 @@
 import { BAND_ENCODING } from '../coverage';
+import { renderWatchlist } from './watchlist';
 
 /**
  * The scrub's travel.
@@ -256,7 +257,9 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
         <p class="rail-help">Size encodes magnitude on a bounded scale. It is not
         proportional to energy, area or damage — read values from the tooltip, not
         from the dot.</p>
-      </section>`;
+      </section>
+
+      ${renderWatchlist()}`;
 
     /**
      * The guard itself. Identical markup means nothing a reader can see has
