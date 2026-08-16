@@ -3,7 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.18.0"
+  },
   "scripts": {
+    "preflight": "node scripts/preflight.mjs",
+    "predev": "node scripts/preflight.mjs",
+    "prebuild": "node scripts/preflight.mjs",
+    "pretest": "node scripts/preflight.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",

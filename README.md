@@ -187,7 +187,14 @@ express that state; no production provider emits it yet. A test fails the moment
 
 ## Running it
 
+**Requires Node 20.18.0 or newer.** On an older Node the dev server fails inside the
+bundler with `does not provide an export named 'styleText'`, which is a symptom rather
+than the cause — so `npm run dev`, `build` and `test` each run a preflight that says which
+version you need and why. The floor is set by `--env-file-if-exists` (20.18), with
+`styleText` needing 20.12 and `import.meta.dirname` 20.11.
+
 ```bash
+node --version    # must be >= 20.18.0
 npm install
 npm run dev        # http://localhost:5173
 npm test           # unit and contract tests
