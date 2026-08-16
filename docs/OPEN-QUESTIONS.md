@@ -1498,3 +1498,42 @@ a query and built on it in one motion, the fix looked convincing and dropped a U
 **What is blocked:** nothing. The panel renders honestly today either way.
 **What is NOT blocked:** step 9 proceeds; this decides only whether a live party breakdown ships
 with it.
+
+### Disposition, 2026-08-16 — LANDED, and the blocker moved rather than vanished
+
+Item 4c of `CORE-GOAL.md` directed this to land with step 10, and it has. `ScoredInput.weight`
+is now `number | null`, `Finding` carries an optional `empty: true`, and `score()` keeps an
+empty finding in `inputs` with a null weight.
+
+**What is now provably true**, in `tests/relations-empty-input.test.ts`:
+
+| Layer | Behaviour |
+| --- | --- |
+| the score | an empty input changes neither score nor tier — proven by comparison against the same set without it, not against a magic number |
+| the stale share | empties stay out of the denominator, so they cannot dilute a staleness warning |
+| ordering | empties sort last, not among genuinely weightless evidence |
+| `nodata` | an all-empty input set is **not** `nodata` — it was investigated; a pair with no findings still is |
+| the arithmetic | empties are excluded from the sum and counted in words: `+2 = 2 (1 consulted, no value)` |
+| the DOM | `signedWeight(null)` renders "no value", never `0` or `+0` |
+
+**`contributingShortfall` now fires on a real score**, which it never could before — the
+mechanism shipped in commit 5 with twelve planted tests and no construction site able to hand it
+the state.
+
+**What did NOT close: §14.** The type no longer forbids the state; **no production provider
+emits it**, because relations run on a hand-checked seed table where every entry has a value by
+construction. So the caveat is still unreachable in production, for a different reason than
+before — and that difference is the useful part, because the remaining work is a *provider*
+rather than another change to the engine.
+
+`tests/p3-reachability.test.ts` records the move in the site table itself, so the next reader
+learns where the blocker went rather than rediscovering that it exists. It flips to reachable
+the first time a live ingest answers "asked, nothing there".
+
+**The three-way distinction the engine can now express**, which is the whole point:
+
+```
+never consulted        ->  not in the array
+consulted, empty       ->  in the array, weight null      <- new
+consulted, has a value ->  in the array, weight a number
+```

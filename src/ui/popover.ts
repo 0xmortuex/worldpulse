@@ -47,12 +47,19 @@ export function relationPopover(
   const rows = result.inputs
     .map((input) => {
       const staleClass = input.stale ? ' pop-row--stale' : '';
+      /**
+       * Question 13's state, marked so a reader can see it is a question rather
+       * than a weightless piece of evidence. Stale and empty are independent —
+       * a source can be out of date AND have answered with nothing — so the
+       * classes compose rather than one replacing the other.
+       */
+      const emptyClass = input.weight === null ? ' pop-row--empty' : '';
       const age = input.stale
         ? `<span class="pop-age">${notAFact(input.ageYears, 'age of the evidence, derived from the coverage year already shown on this row — describes the fact rather than being one')}y old</span>`
         : '';
       const note = input.note ? `<div class="pop-caveat">${escapeHtml(input.note)}</div>` : '';
       return `
-        <div class="pop-row${staleClass}">
+        <div class="pop-row${staleClass}${emptyClass}">
           <div class="pop-row-main">
             <span class="pop-kind">${escapeHtml(INPUT_LABELS[input.kind])}</span>
             <span class="pop-weight">${signedWeight(input.weight)}</span>

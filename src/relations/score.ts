@@ -56,7 +56,18 @@ export const INPUT_LABELS: Record<InputKind, string> = {
  * into a string on the way to the DOM: the discipline rule sees a `string` and
  * waves it through, so an unsanctioned wrapper is a hole in the rule.
  */
-export function signedWeight(value: number): string {
+export function signedWeight(value: number | null): string {
+  /**
+   * A null weight is a question that was asked and not answered, and it must
+   * not render as a number.
+   *
+   * Rendering it as "0" or "+0" would put an unanswered question into the
+   * arithmetic as though it were evidence that weighed nothing — the exact
+   * conflation question 13 removed from the model, reintroduced at the last
+   * step before the DOM.
+   */
+  if (value === null) return 'no value';
+
   const text = notAFact(
     value,
     'relation weight set by the user with a slider — this app\'s editable opinion about what counts, not data from any source',
@@ -100,20 +111,34 @@ export function score(
     const ageYears = Math.max(0, currentYear - finding.coverageEnd);
     return {
       ...finding,
-      weight: weights[finding.kind],
+      /**
+       * Question 13: a finding the source was asked for and did not supply
+       * keeps its row and gets a null weight. It is not the same as a finding
+       * nobody asked about, which is simply not here.
+       */
+      weight: finding.empty === true ? null : weights[finding.kind],
       ageYears,
       stale: ageYears > STALE_AFTER_YEARS,
     };
   });
 
-  const total = inputs.reduce((sum, input) => sum + input.weight, 0);
+  /**
+   * Empty inputs contribute nothing to any total.
+   *
+   * Treating a null as 0 would be the quiet version of the bug this fix
+   * exists to remove: it would make an unanswered question look like evidence
+   * that netted out to nothing, which is precisely the confusion between "no
+   * answer" and "an answer of none".
+   */
+  const answered = inputs.filter((input) => input.weight !== null);
+  const total = answered.reduce((sum, input) => sum + (input.weight ?? 0), 0);
 
   // Share is computed over absolute weight so a stale +2 and a stale -2 both
   // count as evidence we are leaning on, regardless of which way they push.
-  const absoluteTotal = inputs.reduce((sum, input) => sum + Math.abs(input.weight), 0);
-  const staleAbsolute = inputs
+  const absoluteTotal = answered.reduce((sum, input) => sum + Math.abs(input.weight ?? 0), 0);
+  const staleAbsolute = answered
     .filter((input) => input.stale)
-    .reduce((sum, input) => sum + Math.abs(input.weight), 0);
+    .reduce((sum, input) => sum + Math.abs(input.weight ?? 0), 0);
   const staleWeightShare = absoluteTotal === 0 ? 0 : staleAbsolute / absoluteTotal;
 
   const tier = resolveTier(total, thresholds);
@@ -126,8 +151,18 @@ export function score(
   // Only 'nodata' is exempt, having no evidence to be stale about.
   const lowConfidence = staleWeightShare > 0.5 && tier !== 'nodata';
 
-  // Strongest evidence first, so the popover leads with what drove the call.
-  inputs.sort((a, b) => Math.abs(b.weight) - Math.abs(a.weight));
+  /**
+   * Strongest evidence first, so the popover leads with what drove the call —
+   * and consulted-but-empty inputs sort LAST rather than as zero-weight.
+   *
+   * Sorting them by |0| would scatter them among genuinely neutral findings,
+   * where a reader would take them for evidence that weighed nothing rather
+   * than for questions that went unanswered.
+   */
+  inputs.sort((a, b) => {
+    if ((a.weight === null) !== (b.weight === null)) return a.weight === null ? 1 : -1;
+    return Math.abs(b.weight ?? 0) - Math.abs(a.weight ?? 0);
+  });
 
   return { subject, other, tier, score: total, inputs, staleWeightShare, lowConfidence };
 }

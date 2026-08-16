@@ -44,11 +44,42 @@ export interface Finding {
   coverageEnd: number;
   /** Caveat shown in the popover — contested membership, frozen status, etc. */
   note?: string;
+  /**
+   * The source was asked about this pair and returned no value.
+   *
+   * Absent (the normal case) means the finding carries a value. Present and
+   * true means it does not, and the difference must survive into `ScoredInput`
+   * rather than being flattened by omitting the row.
+   */
+  empty?: true;
 }
 
-/** A finding with its weight applied and its age resolved. */
+/**
+ * A finding with its weight applied and its age resolved.
+ *
+ * ## `weight: null` means CONSULTED AND EMPTY — question 13's fix
+ *
+ * The engine used to have one representation for two different facts:
+ *
+ * | Fact about the world | How it was recorded |
+ * | --- | --- |
+ * | we never consulted this finding | not in the array |
+ * | we consulted it and it had no value | **also not in the array** |
+ *
+ * That is rule 30 conflated by omission, in the app's own scoring engine — the
+ * one place it did not enforce the distinction it enforces everywhere else.
+ *
+ * A null weight is an input that WAS consulted and returned nothing. It stays
+ * in `inputs` so the count of what was consulted stays honest, contributes
+ * nothing to the score, and makes `contributingShortfall` reachable: the
+ * disclosure mechanism shipped in commit 5 had no caller that could trigger it.
+ *
+ * It does not bite on the seed table, where every entry has a weight by
+ * construction. It bites the moment a live ingest answers "asked, nothing
+ * there".
+ */
 export interface ScoredInput extends Finding {
-  weight: number;
+  weight: number | null;
   ageYears: number;
   stale: boolean;
 }

@@ -79,10 +79,16 @@ const CONTRIBUTING_SITES = new Map<string, Site>([
       canBeEmpty: false,
       demonstration: false,
       why:
-        'each input fact takes its value from ScoredInput.weight, typed `number` in ' +
-        'relations/types.ts. A finding with no value is absent from the array rather than ' +
-        'present-and-empty, which is OPEN-QUESTIONS 13 — the same rule-30 conflation the app ' +
-        'refuses everywhere else, inside its own scoring engine',
+        'THE BLOCKER MOVED, 2026-08-16, and this entry is the record of where it moved TO. ' +
+        'It used to read: ScoredInput.weight is typed `number`, so a finding with no value is ' +
+        'absent from the array rather than present-and-empty. That was OPEN-QUESTIONS 13, and ' +
+        'it is now fixed — the type is `number | null`, score() retains an empty finding with a ' +
+        'null weight, and contributingShortfall can therefore see one. ' +
+        'What remains is DATA, not model: no production provider emits `empty: true`, because ' +
+        'relations run on a hand-checked seed table where every entry has a value by ' +
+        'construction. The caveat becomes reachable in production the first time a live ingest ' +
+        'answers "asked, nothing there" — which is step 10\'s per-panel conversion, not another ' +
+        'change to the engine. Flip this to true, with the provider named, when that lands',
     },
   ],
   [

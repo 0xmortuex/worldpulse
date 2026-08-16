@@ -25,10 +25,22 @@ function seedProvenance(input: ScoredInput, compiledAt: string): SeedProvenance 
 }
 
 export function scoreFact(result: RelationResult, compiledAt: string): Fact<number> {
-  const formula =
-    result.inputs.length === 0
+  /**
+   * The arithmetic shows only inputs that HAVE a value, and says how many did
+   * not.
+   *
+   * Writing "+2 null -1 = 1" would be arithmetic nobody can check. Omitting the
+   * empty ones without saying so would restate the bug question 13 fixed — the
+   * formula would look complete while resting on fewer inputs than were
+   * consulted. So they are excluded from the sum and counted in words.
+   */
+  const answered = result.inputs.filter((input) => input.weight !== null);
+  const unanswered = result.inputs.length - answered.length;
+  const sum =
+    answered.length === 0
       ? 'no inputs'
-      : `${result.inputs.map((input) => (input.weight > 0 ? `+${input.weight}` : String(input.weight))).join(' ')} = ${result.score}`;
+      : `${answered.map((input) => ((input.weight ?? 0) > 0 ? `+${input.weight}` : String(input.weight))).join(' ')} = ${result.score}`;
+  const formula = unanswered === 0 ? sum : `${sum} (${unanswered} consulted, no value)`;
 
   const provenance: DerivedProvenance = {
     kind: 'derived',
