@@ -2398,3 +2398,20 @@ Rule 31 says test a common cause before classifying errors individually. This is
 sibling: **an explanation that fits the evidence is not thereby the cause**, and the cheap
 test — does anything of ours touch this layer when it should not? — was one instrumented
 counter away for the entire time.
+
+### The diff requirement was never implemented, and something adjacent hid that
+
+Searching `docs/` and `src/` for the original requirement — *"diff against existing events so
+unchanged points don't re-animate"* — found **nothing**: no spec line, no comment, no removed
+implementation in the history. It reads as never built rather than silently dropped.
+
+**What made it look handled was `animateIn: false`**, set on the globe at construction. That
+disables the *globe's own entry animation*. It does nothing about globe.gl's **per-point
+transition**, which is what re-assigning `pointsData` restarts — and the two are close enough
+in name and effect that the presence of one reads as coverage of the other.
+
+**That is how a spec requirement dies: something adjacent resembles it.** Not deletion, not
+disagreement — a nearby line that answers a similar-sounding question, so nobody ever asks
+whether the actual one was answered. The doc-versus-tree audit catches a doc asserting
+behaviour the tree lacks; this is the inverse and harder case, a tree that appears to satisfy
+a requirement nobody wrote down.

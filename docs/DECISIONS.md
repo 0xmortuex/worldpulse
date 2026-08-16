@@ -760,3 +760,28 @@ of zero.
 **The one exemption, and its evidence bar.** A sourced statement that a country does not publish
 machine-readable votes may render as such — with a citation. The bar is a reading, not an
 absence: our not having an adapter is not evidence about anyone's publishing practice.
+
+## L9 — RESOLVED BY CAUSE REMOVAL — 2026-08-16
+
+| # | Decision |
+| --- | --- |
+| L17 | **L9 moves from MITIGATED to RESOLVED-BY-CAUSE-REMOVAL.** The marker layer was being rebuilt on every store commit — including `setHovered` — which destroyed and recreated the marker a click was aimed at. Removing that cause turned five canaries green across three consecutive full runs. **The caveat stands verbatim: globe.gl's raycast is not proven innocent, three runs is strong evidence and not proof, and the canaries stay in place as passing sentries.** Per rule 21a they are not deleted for going green; a canary that is removed the moment it stops singing is a canary nobody will miss. |
+
+**Why "resolved by cause removal" rather than "fixed" or "closed".** Nothing was fixed *in
+globe.gl*. A cause **of ours** was removed and the symptom stopped. That is a different claim
+from having explained the raycast, and the label keeps the difference visible — if the failure
+ever returns, the next reader needs to know that the dependency was never cleared.
+
+**Measured**, `scripts/diagnose-points.mjs`:
+
+```
+                          before   after
+after load                   1        1
+after selecting a country    2        1
+after 8 hover moves          3        1
+```
+
+**The regression guard is the marker-identity assertion** in verify step 7i, kept as this
+class's standing sentry: selecting, hovering and switching tabs must not re-assign
+`pointsData`, and toggling a layer must — because a guard that never rebuilds is broken in
+the other direction.
