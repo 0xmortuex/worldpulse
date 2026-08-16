@@ -1618,3 +1618,70 @@ uncited boolean in a fixture.
 gates:** the live military ingest cannot set this field from any source currently registered,
 so step 10's military conversion either ships with the curated list or ships without the
 abolished/absent distinction, and the second is not acceptable.
+
+---
+
+## 32. Population-exposed significance is blocked on a licence nobody can read
+
+**Raised 2026-08-16, Phase C.2.** `V2-GOAL.md` asks for HDX/WorldPop intersected with event
+footprints. Probed before designing against it, and there are three blockers — one of which is
+an emergency-2 concern rather than an inconvenience.
+
+```
+WorldPop API root              200   2770ms   ACAO=(none)   23,441 B
+WorldPop pop density service   TimeoutError   30,015ms
+WorldPop licence page          404   1853ms
+HDX package metadata           200   1200ms   ACAO=*
+     "isopen": false, "license_id": "hdx-other",
+     "license_other": "[WorldPop licence information](https://hub...)"  -> the 404 above
+```
+
+1. **No CORS.** WorldPop's API answers but sends no `access-control-allow-origin`, so it is
+   not client-fetchable. That alone is a Worker, not a blocker.
+2. **The service that could answer the question times out.** The stats endpoint — the one that
+   takes an area and returns a population — did not respond in 30 seconds.
+3. **The licence cannot be read.** HDX records the dataset as `isopen: false` with
+   `license_id: "hdx-other"`, and the "other" licence links to a page that returns 404.
+
+**Three is the one that decides it.** This project's protocol lists "shipping content whose
+terms we have not read" as one of four things that stop work immediately, and every licence
+actually read here has been narrower than the plan assumed — five for six, with iptv-org the
+lone exception. Ingesting a dataset whose terms 404 would be the exact failure that rule exists
+to prevent.
+
+### What was built anyway, and why that is not a consolation prize
+
+The **mechanism** is complete and tested: footprint radius from magnitude, the intersection,
+and the decomposition the inspector needs so the figure can be taken apart rather than trusted
+(rule 22, and the no-composite-scores prohibition).
+
+Most of the value is in what it does with **no data at all**: `exposed` is `null` with a
+stated reason, never `0`. Zero would claim nobody lives near the event; null states a gap in
+this app. **An empty grid, by contrast, IS zero** — a source answered and found nobody. Both
+directions are asserted, which is question 13's distinction applied *before* the data exists
+rather than retrofitted after it caused a defect.
+
+### The options
+
+**A. Serve it through a Worker, once the licence is readable.** Solves CORS and lets the
+timeout be retried server-side with a cache. **Blocked on the licence, not on the transport.**
+
+**B. Find the licence elsewhere.** WorldPop is widely cited as CC BY 4.0 in academic papers,
+but a citation in a third party's methods section is not the licensor's grant. Reading it means
+finding a page WorldPop actually serves.
+
+**C. Use a different gridded source.** GHSL (JRC) and GPWv4 (SEDAC/NASA) both publish gridded
+population. Each needs its own gate pass, and SEDAC requires an Earthdata login, which is a
+credential the reviewer would have to provide.
+
+**D. Ship the mechanism as-is, reporting "not computed".** Which is where it currently sits: the
+input exists, the arithmetic is proven, and the surface says the source is not connected.
+
+### My recommendation
+
+**D now, C later — GHSL first**, because it is the one of the three that is both gridded and
+served without a credential. A is not available until B succeeds, and B may simply not be
+possible from outside the organisation.
+
+**What is blocked:** the exposure figure itself. **What is not:** everything else in C.2 — the
+footprint convention, the intersection, and the decomposition are shipped and tested.
