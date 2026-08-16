@@ -9,9 +9,11 @@ import {
   clusterEvents,
   CLUSTER_RADIUS_KM,
   radiusForMagnitude,
+  ringCentroid,
   type EventCluster,
   type GlobeEvent,
 } from './layers/events';
+import { arcsFor, largestRing } from './relations/arcs';
 import { colorFor, filterEvents, loadEvents } from './layers/provider';
 import { countLayers, mountLayersRail } from './ui/layers-rail';
 import { eventListHtml, mountEventList } from './ui/event-list';
@@ -100,6 +102,33 @@ const coverageByCountry = new Map<string, CountryCoverage>(
  * and a colour that sits just below "Nothing" would put it there.
  */
 const UNASSESSED_FILL = '#1a1a20';
+
+/**
+ * Where a country's arc terminates, resolved from the same geometry the
+ * polygons are drawn from and cached because it never changes.
+ */
+const centroidCache = new Map<string, { lat: number; lng: number } | null>();
+
+function centroidOf(iso3: string): { lat: number; lng: number } | null {
+  const cached = centroidCache.get(iso3);
+  if (cached !== undefined) return cached;
+
+  const country = byCode.get(iso3);
+  const geometry = country?.feature.geometry;
+  let result: { lat: number; lng: number } | null = null;
+
+  if (geometry) {
+    const rings =
+      geometry.type === 'Polygon'
+        ? (geometry.coordinates as Array<Array<[number, number]>>)
+        : (geometry.coordinates as Array<Array<Array<[number, number]>>>).flat();
+    const ring = largestRing(rings);
+    if (ring) result = ringCentroid(ring);
+  }
+
+  centroidCache.set(iso3, result);
+  return result;
+}
 let renderedEvents: GlobeEvent[] = [];
 let renderedClusters: EventCluster[] = [];
 
@@ -267,6 +296,58 @@ store.subscribe((state) => {
    * equality that makes this L9's mitigation rather than a partial listing.
    */
   eventListRoot.innerHTML = eventListHtml(renderedClusters);
+
+  /**
+   * Step 12's arcs, built from the SAME results the panel lists.
+   *
+   * Not from a second scoring pass — the arc and the relation row are one claim
+   * rendered twice, and two computations of one claim eventually disagree.
+   *
+   * Coverage mode clears them: that mode repaints every polygon to mean
+   * something else, and leaving relation arcs over it would put two unrelated
+   * claims in one picture.
+   */
+  if (subject && !state.coverageMode) {
+    const results = countries
+      .filter((country) => country.code !== subject.code)
+      .map((country) =>
+        score(
+          subject.code,
+          country.code,
+          findings.get(pairKey(subject.code, country.code)),
+          state.weights,
+          state.thresholds,
+          currentYear,
+        ),
+      );
+
+    globe.setArcs(
+      arcsFor(results, {
+        subjectName: subject.name,
+        nameOf: (iso3) => byCode.get(iso3)?.name ?? iso3,
+      })
+        .map((arc) => {
+          const from = centroidOf(arc.subject);
+          const to = centroidOf(arc.other);
+          // A country whose geometry we cannot resolve gets no arc rather than
+          // an arc to (0,0) — the Gulf of Guinea is where bad coordinates go.
+          if (!from || !to) return null;
+          return {
+            startLat: from.lat,
+            startLng: from.lng,
+            endLat: to.lat,
+            endLng: to.lng,
+            color: arc.color,
+            stroke: arc.stroke,
+            dashed: arc.dashed,
+            label: arc.label,
+          };
+        })
+        .filter((arc): arc is NonNullable<typeof arc> => arc !== null),
+    );
+  } else {
+    globe.setArcs([]);
+  }
 
   renderModeIndicator(state.selected.length);
 });

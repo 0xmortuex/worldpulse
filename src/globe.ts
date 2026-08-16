@@ -4,6 +4,24 @@ import type { Country } from './countries';
 import type { EventCluster } from './layers/events';
 import { BASE_STROKE, GLOBE_COLOR } from './theme';
 
+/**
+ * An arc with its endpoints already resolved to coordinates.
+ *
+ * The globe never looks a country up — the caller supplies positions from the
+ * same geometry the polygons are drawn from, so an arc cannot terminate
+ * somewhere its country is not.
+ */
+export interface ArcDatum {
+  startLat: number;
+  startLng: number;
+  endLat: number;
+  endLng: number;
+  color: string;
+  stroke: number;
+  dashed: boolean;
+  label: string;
+}
+
 export interface PolygonStyle {
   cap: string;
   side: string;
@@ -148,6 +166,29 @@ export class CountryGlobe {
       .pointColor((d) => this.#pointStyle(d as unknown as EventCluster).color)
       .pointAltitude((d) => this.#pointStyle(d as unknown as EventCluster).altitude)
       .pointLabel((d) => this.#pointStyle(d as unknown as EventCluster).label);
+  }
+
+  /**
+   * Relation arcs — step 12's second half.
+   *
+   * Endpoints are resolved by the CALLER, from the same country geometry the
+   * polygons use, so an arc cannot land somewhere the country is not. Passing
+   * codes and looking them up here would put a second source of position in the
+   * app, and two sources of position eventually disagree.
+   */
+  setArcs(arcs: readonly ArcDatum[]): void {
+    this.#globe
+      .arcsData(arcs as unknown as object[])
+      .arcStartLat((d) => (d as unknown as ArcDatum).startLat)
+      .arcStartLng((d) => (d as unknown as ArcDatum).startLng)
+      .arcEndLat((d) => (d as unknown as ArcDatum).endLat)
+      .arcEndLng((d) => (d as unknown as ArcDatum).endLng)
+      .arcColor((d: object) => (d as unknown as ArcDatum).color)
+      .arcStroke((d) => (d as unknown as ArcDatum).stroke)
+      .arcDashLength((d) => ((d as unknown as ArcDatum).dashed ? 0.4 : 1))
+      .arcDashGap((d) => ((d as unknown as ArcDatum).dashed ? 0.2 : 0))
+      .arcAltitudeAutoScale(0.4)
+      .arcLabel((d) => (d as unknown as ArcDatum).label);
   }
 
   /**
