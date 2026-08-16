@@ -257,3 +257,45 @@ Either alone passes on a mechanism that fires always or never:
 
 The step-8 mutation exists to prove that pairing: it makes the card render everywhere, and was
 **caught by the card-ABSENCE half**, not by its presence check.
+
+## Item 4e — per-panel live conversion: status, measured — 2026-08-16
+
+`CORE-GOAL.md` item 4e requires every panel converted to live per 20b, each in its own commit.
+**It is partially achievable, and the reasons are measured rather than estimated.**
+
+| Panel | State | Evidence |
+| --- | --- | --- |
+| **economy** | **converted** | `loadEconomyLive` + the scenario harness. 20b's worked example, already shipped |
+| **legislature** | convertible, harness not ready | `wikidata-sparql` is CLIENT-FETCH with a 146-byte probe response; the queries are fixed, bounded and measured at 1–2s |
+| **government** | convertible, harness not ready | same source, same verdict |
+| **dossier header** | convertible, harness not ready | Wikidata + Wikipedia + Commons, all CLIENT-FETCH |
+| **tv** | **blocked — payload** | `channels.json` is **1,274,245 bytes gzipped, 9.8 MB raw**; `streams.json` 548,960 gzipped. Not fetchable per panel view |
+| **military** | **blocked — no source** | `hasArmedForces` has none that works. OPEN-QUESTIONS 31: the Wikidata route is wrong for Costa Rica, Panama and Iceland |
+| **news** | **blocked — source unreachable** | GDELT: 6 of 6 attempts failed across a full session. `SPEC-BREAKING-NEWS` orders the curated RSS fallback first |
+
+### The harness is the actual blocker for the three convertible panels
+
+`ScenarioFetcher.request` reads `spec.path.split('/indicator/')` and branches on
+`NY.GDP` — **it is World-Bank-shaped**, because it was built for the one panel that needed it.
+Converting a Wikidata panel through it means generalising the scenario harness first, and that
+is its own piece of work with its own gate: scenarios per source, fixtures per scenario, and the
+four fetch states asserted for each.
+
+**Forcing a conversion through a harness that is not ready would manufacture the completion at
+the cost of what the conversion is for.** That is the Phase A lesson verbatim — six sources were
+recorded with their blockers rather than pushed through guessed endpoints, and the goal's
+amendment clause covered it.
+
+### What the TV blocker actually needs
+
+Not a fetch. A **build-time extract**, the way `scripts/extract-ucdp.mjs` already handles
+417,968 events: pull the index at build time, keep the fields the panel uses, ship a small
+artefact. The measurement says so plainly — no amount of caching makes a 9.8 MB index a
+per-view fetch, and the blocklist must be applied at extract time so the excluded channels never
+reach the bundle at all.
+
+### Disposition
+
+Recorded, not forced. The next concrete step for 4e is **generalising the scenario harness**,
+after which legislature, government and the dossier header convert in three commits against a
+source already verified CLIENT-FETCH.
