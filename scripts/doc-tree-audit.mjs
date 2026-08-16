@@ -17,6 +17,7 @@
  * Exit 1 when any claim in the docs is not backed by the tree.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
 import { join, resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname, '..');
@@ -145,6 +146,42 @@ check(
   'the census is not wildly out of step with the suite',
   `${censusNames.length} names against ${testFiles.length} files`,
   censusNames.length >= testFiles.length,
+);
+
+/* ---- 7. Every live-verified source has a contract test naming it ---- */
+
+/**
+ * Step 14's "contract tests completion", as a check rather than a belief.
+ *
+ * `verifiedAgainst: 'live'` is a claim that we have seen this source's real
+ * response and pinned its shape. A source carrying that claim with no test
+ * naming it has the claim and not the evidence — and the registry is exactly
+ * where that drifts, because flipping the field is one line and writing the
+ * test is not.
+ *
+ * Naming the id (rather than merely testing the adapter) is deliberate: it is
+ * what lets this check find the gap at all, and it makes the test greppable
+ * from the registry entry.
+ */
+const registry = JSON.parse(read('data/sources.json'));
+const registrySources = registry.sources ?? registry;
+const suiteText = readdirSync(join(ROOT, 'tests'))
+  .filter((file) => file.endsWith('.test.ts'))
+  .map((file) => readFileSync(join(ROOT, 'tests', file), 'utf8'))
+  .join('\n');
+
+const liveSources = registrySources.filter((source) => !source.excluded && source.verifiedAgainst === 'live');
+const untested = liveSources.filter((source) => !suiteText.includes(source.id));
+
+check(
+  'the registry declares some live sources at all',
+  `${liveSources.length} live-verified`,
+  liveSources.length > 0,
+);
+check(
+  'every live-verified source is named by a contract test',
+  untested.length === 0 ? `all ${liveSources.length} named` : `unnamed: ${untested.map((s) => s.id).join(', ')}`,
+  untested.length === 0,
 );
 
 /* ---- report ---- */

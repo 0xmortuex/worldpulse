@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import registry from '../data/sources.json';
 import { readFileSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 import { describe, it } from 'node:test';
@@ -24,6 +25,18 @@ import {
  * cannot supply rather than producing a fixture that silently cannot exercise
  * them.
  */
+/**
+ * The registry ids this file is the contract test FOR.
+ *
+ * Named explicitly because `verifiedAgainst: 'live'` is a claim that we have
+ * seen a source's real response and pinned its shape, and the doc-tree audit
+ * checks that claim by looking for the id in the suite. This file covered all
+ * three sources and named none of them, so the audit reported them as untested
+ * — correctly, since a test nobody can trace back to a registry entry does not
+ * discharge that entry's claim.
+ */
+const COVERS = ['iptv-org-channels', 'iptv-org-streams', 'iptv-org-blocklist'] as const;
+
 function fixture(name: string): unknown {
   return JSON.parse(readFileSync(resolvePath(import.meta.dirname, 'fixtures/iptv', `${name}.json`), 'utf8'));
 }
@@ -31,6 +44,24 @@ function fixture(name: string): unknown {
 const CHANNELS = parseChannels(fixture('channels'));
 const STREAMS = parseStreams(fixture('streams'));
 const BLOCKLIST = parseBlocklist(fixture('blocklist'));
+
+describe('iptv: this file is the contract test for three registry entries', () => {
+  it('covers every iptv source the registry marks live', () => {
+    /**
+     * Asserted rather than merely commented, so the list cannot drift from the
+     * registry silently. If a fourth iptv source is registered live and not
+     * added here, the doc-tree audit reports it and this test is where the fix
+     * goes.
+     */
+    const registered = (registry as { sources: Array<{ id: string; verifiedAgainst?: string; excluded?: boolean }> }).sources
+      .filter((source) => !source.excluded && source.verifiedAgainst === 'live' && source.id.startsWith('iptv-org'))
+      .map((source) => source.id)
+      .sort();
+
+    assert.ok(registered.length > 0, 'no live iptv source is registered — this file would prove nothing');
+    assert.deepEqual([...COVERS].sort(), registered);
+  });
+});
 
 describe('iptv: the blocklist is a legal requirement, not a filter', () => {
   it('the fixture actually contains blocked channels, or this file proves nothing', () => {
