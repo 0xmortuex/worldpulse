@@ -2267,3 +2267,62 @@ it *pauses*, and a paused run looks exactly like a slow one until someone checks
 chain what can be separate. Do not narrate what the command already prints. Do not inline what
 belongs in a file. Each of those is also, independently, better practice — which is the part
 worth keeping when the classifier eventually changes.
+
+---
+
+## The party clause returned the Monarch, a library, and an Enquete Commission
+
+**2026-08-16. OPEN-QUESTIONS 30, decided: option C — fixtures-only, with the gap stated.**
+
+The legislature query's party clause read `P527` — *has part(s)* — and called whatever came
+back a party. Here is the roll-call, verbatim, measured across eight countries:
+
+```
+GBR   Monarch of the United Kingdom
+      House of Lords
+      House of Commons
+
+DEU   Member of the Bundesrat of Germany
+      Bundesrat Library
+      Enquete Commission "Lessons from Afghanistan"
+      Q132798745                        (unlabelled)
+
+ISL   Member of the Althing
+NZL   Member of the New Zealand Parliament
+IND   member of Rajya Sabha · Member of the Lok Sabha
+ESP   member of the Senate of Spain · Member of the Congress of Deputies
+SWE   member of the Swedish Riksdag
+FRA   Finance Committee · European Affairs Committee · Q59709026 · Q59315848
+```
+
+**Not one political party in any of them.** Constraining `?party` to actually be a political
+party returns **zero rows for every country tried**.
+
+### Why it passed for the life of the panel
+
+Because **only fixtures ever fed it.** `legislature-bicameral.json` contains "Fixture Labour"
+411, "Fixture Conservative" 121, "Fixture Liberal" 72, "Fixture Independent" 46 — summing to
+exactly 650, so `partyBreakdownIsComplete` returns true and the stacked bar renders
+beautifully. Every test passed. The bar has never once drawn real data and could not.
+
+That is **rule 33's exact condition**: a synthetic input must describe a state the real system
+can reach, and this one describes a state no live capture has ever produced. The fixture was
+not wrong to be synthetic — D6 says the people in fixtures are synthetic and the invariant is
+which rule fires. It was wrong to be *unreachable*, and nothing checked that.
+
+### The disposition, and what option A inherits
+
+The clause now constrains to real parties, which returns nothing, and the panel states **"this
+app has no party-composition source connected"** — the app-owned-gap wording from the step-8
+card, never an implication that a chamber has no parties. The bar stays fixtures-only and
+labelled as such.
+
+**When option A is drafted it inherits the WDQS discipline whole**, and the reason is this
+finding: characterise across the size range FIRST, with Germany as the known-good case
+(`P1410` yields *CDU/CSU Bundestag fraction = 246`) and the United Kingdom as the known trap
+(the same property yields **constituencies** — Cardiganshire 1, Shipley 1). Then tier it per
+country: a country where `P1410` yields groups renders the bar; one where it does not states
+the gap.
+
+**Never one query's shape assumed for all countries.** That assumption is precisely what
+`P527` just disproved, across eight of them at once.

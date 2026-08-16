@@ -124,9 +124,10 @@ export const NO_PARTY_COMPOSITION =
  * and saying so once is more honest than repeating a per-chamber shrug.
  */
 export const PARTY_COMPOSITION_UNSOURCED =
-  'Party composition is not currently sourced. The reference data records chamber membership in ' +
-  'a form that does not distinguish political parties from committees and offices, so no ' +
-  'breakdown is shown rather than an unreliable one.';
+  'This app has no party-composition source connected. That is a gap in what has been ' +
+  'connected here, not a finding that these chambers have no parties — the reference data ' +
+  'records chamber membership in a form that does not distinguish political parties from ' +
+  'committees and offices, so no breakdown is shown rather than an unreliable one.';
 
 export function statusSentence(profile: LegislatureProfile): string | null {
   switch (profile.status) {

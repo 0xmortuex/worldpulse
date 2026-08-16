@@ -1699,8 +1699,15 @@ check('an appointed upper chamber says it is appointed, not merely smaller',
  * committees and offices. Measured across eight countries: the source records
  * chamber membership in a form containing no political parties at all.
  */
-check('the missing party composition is explained, not silently omitted',
-  /not currently sourced/i.test(gbrLeg), gbrLeg.slice(0, 240));
+/**
+ * The app-owned-gap wording, per the step-8 card precedent and the decision on
+ * OPEN-QUESTIONS 30. The subject has to be THIS APP: "no party composition"
+ * would read as a finding that these chambers have no parties.
+ */
+check('the missing party composition is named as OUR gap',
+  /this app has no party-composition source connected/i.test(gbrLeg), gbrLeg.slice(0, 260));
+check('and explicitly not as a finding about the chambers',
+  /not a finding that these chambers have no parties/i.test(gbrLeg), gbrLeg.slice(0, 300));
 check('and no party bar is drawn from unsourced data',
   (await page.locator('.legislature .party-bar').count()) === 0);
 

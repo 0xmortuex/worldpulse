@@ -172,6 +172,13 @@ export function parse(payload: unknown): TradeReport {
        *
        * These are kept as they arrive so a caller can qualify a QUANTITY fact
        * with them, and nothing here is interpreted into a value's tier.
+       *
+       * DECIDED (OPEN-QUESTIONS 25): keep ignoring them, with a tripwire.
+       * Inventing semantics for an undocumented code would be authoring, so the
+       * codes stay uninterpreted — but the ignorance is now explicit rather
+       * than silent. `OBSERVED_LEGACY_FLAGS` records the set actually seen, and
+       * the contract test fails on a fifth value. **"We do not interpret these"
+       * is a decision; "we would not notice a new one" is a defect.**
        */
       quantityEstimated: flag(row['isQtyEstimated'], `data[${index}].isQtyEstimated`),
       weightEstimated:
@@ -255,6 +262,27 @@ export function tradeValueFact(row: TradeRow, ctx: FetchContext): Fact<number> {
 }
 
 /** Rows for real partner countries, excluding Comtrade's World aggregate (code 0). */
+/**
+ * The `legacyEstimationFlag` values this app has actually observed.
+ *
+ * Comtrade does not document what they mean, and this app does not guess — see
+ * OPEN-QUESTIONS 25. The set exists so the ignorance is **explicit**: a value
+ * outside it means the field carries a meaning nobody here has seen, and the
+ * contract test fails rather than letting it pass unnoticed.
+ *
+ * Measured 2026-08-15 across one full USA→World 2023 response: 6,536 rows,
+ * four distinct values.
+ *
+ * If UN documentation for the flag ever surfaces, that is a FINDING to bring to
+ * the reviewer — not a licence to reinterpret these silently.
+ */
+export const OBSERVED_LEGACY_FLAGS: readonly number[] = [0, 2, 4, 6];
+
+export function unknownLegacyFlags(rows: ReadonlyArray<{ legacyEstimationFlag: number }>): number[] {
+  const known = new Set(OBSERVED_LEGACY_FLAGS);
+  return [...new Set(rows.map((row) => row.legacyEstimationFlag))].filter((value) => !known.has(value)).sort();
+}
+
 export const PARTNER_WORLD = 0;
 
 export function partnersOnly(rows: readonly TradeRow[]): TradeRow[] {

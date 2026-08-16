@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   CMD_TOTAL,
+  OBSERVED_LEGACY_FLAGS,
   PARTNER_WORLD,
+  unknownLegacyFlags,
   buildAnnualTradeUrl,
   parse,
   partnersOnly,
@@ -84,6 +86,35 @@ describe('Comtrade — the captured response', () => {
     assert.equal(fact.tier, 'OFFICIAL');
     assert.match(fact.note ?? '', /UN-computed total/i);
     assert.equal(factState(fact), 'ok', 'the value is present and unqualified in state');
+  });
+});
+
+describe('Comtrade — the undocumented flag we deliberately do not interpret', () => {
+  it('the captured response contains only the four observed codes', () => {
+    /**
+     * OPEN-QUESTIONS 25, decided: keep ignoring them, with a tripwire.
+     *
+     * `legacyEstimationFlag` is an undocumented CODE — measured values 0, 2, 4
+     * and 6 across 6,536 rows. Inventing semantics for it would be authoring,
+     * so nothing here interprets it. But the ignorance is explicit rather than
+     * silent: **"we do not interpret these" is a decision; "we would not notice
+     * a fifth one" is a defect.**
+     */
+    assert.deepEqual(unknownLegacyFlags(LIVE.rows), [],
+      'a legacyEstimationFlag value outside the observed set appeared — that is a FINDING to ' +
+        'bring to the reviewer, not a licence to reinterpret the field');
+  });
+
+  it('the observed set is not empty, or the tripwire is vacuous', () => {
+    // Rule 27's shape: a guard whose known-set is empty accepts everything.
+    assert.ok(OBSERVED_LEGACY_FLAGS.length > 0);
+    const seen = new Set(LIVE.rows.map((row) => row.legacyEstimationFlag));
+    assert.ok(seen.size > 1, `only ${seen.size} distinct flag value(s) in the fixture — the check proves little`);
+  });
+
+  it('PLANTED: a fifth code fails, rather than passing unnoticed', () => {
+    assert.deepEqual(unknownLegacyFlags([{ legacyEstimationFlag: 7 }]), [7]);
+    assert.deepEqual(unknownLegacyFlags([{ legacyEstimationFlag: 0 }]), [], 'a known code must still pass');
   });
 });
 
