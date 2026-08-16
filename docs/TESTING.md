@@ -2076,3 +2076,43 @@ They are the same number at three points in its life: **where it came from**, **
 outlives the rows that produced it**, and **what a stored copy of it can still honestly claim**.
 Each failure mode produces a plausible number rather than an obvious error, which is why none
 of them is caught by a type and all three need saying.
+
+## 48. Do not ask a SPARQL endpoint for a join you can do in JavaScript
+
+**Three occurrences in one project is a pattern, not bad luck.** Every time, the expensive
+clause was attaching an ISO country code — `?country wdt:P298 ?iso` — to a result set that was
+otherwise cheap.
+
+| Query | Without the ISO join | With it |
+| --- | --- | --- |
+| cabinet ministers | fine | **504 at 65s** |
+| armed-forces entities | 338 rows, 820ms | **504 at 65s** |
+| upcoming elections | 131 counted, 4.7s | **502 at 50s** |
+
+The fix is the same each time and takes minutes: **two cheap queries, joined locally.** A few
+hundred rows against a few hundred costs nothing in JavaScript, and the endpoint never has to
+build the product.
+
+### Why this keeps happening, which is the useful part
+
+The join looks free in the query. `?country wdt:P298 ?iso` is one line, reads as a lookup, and
+the property has only a few hundred subjects — so the instinct is that it *narrows*. What it
+actually does is give the optimizer a second large set to reconcile, and the plan it picks may
+scan that set per row.
+
+**A cheap-looking clause is not a cheap clause, and only measurement tells them apart.**
+
+### The diagnostic that settles it in two minutes
+
+When a query dies, do not start rewriting it. Run these:
+
+1. **A trivial control** — is the endpoint healthy at all? A 502 is a gateway error and a 504 is
+   a timeout, and they point at different causes. Confusing "the endpoint is unwell" with "my
+   query is too expensive" wastes rewrites on a healthy query.
+2. **The same query with COUNT and no projection** — does the join set even resolve?
+3. **Remove one clause at a time**, timing each. The one whose removal changes the outcome is
+   the cost, and it is frequently not the one that looks expensive.
+
+That sequence found the answer here in three queries after four rewrites had failed, and the
+same sequence had already found it twice before — which is why it is written down rather than
+rediscovered a fourth time.
