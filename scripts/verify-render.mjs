@@ -6,7 +6,7 @@
  * Usage: node scripts/verify-render.mjs [baseUrl]
  */
 import { chromium } from 'playwright';
-import { mkdir, readdir, stat } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { findChromiumCandidates, resolveChromium } from './chromium-path.mjs';
@@ -479,6 +479,7 @@ const ALL_STEPS = [
   '6c — legislature tab',
   '6d — live TV tab',
   '7 — globe event layers',
+  '8a — the guided tour',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -832,6 +833,25 @@ const browser = await chromium.launch({
   args: glArgs(),
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
+
+/**
+ * The guided tour opens on first run, and every fresh browser context IS a
+ * first run — so without this it covers the globe with a modal scrim and every
+ * click in the suite lands on it.
+ *
+ * That is correct behaviour meeting a harness that did not expect it, not a
+ * bug in either. The flag is set before any navigation so the rest of the suite
+ * sees the returning-visitor state; step 8a clears it deliberately to test the
+ * first-run path, which is the only place that path should be exercised.
+ */
+await page.addInitScript(() => {
+  try {
+    localStorage.setItem('worldpulse.tour.seen.v1', '1');
+  } catch {
+    // A context that refuses storage will simply show the tour; the 8a step
+    // handles its own state either way.
+  }
+});
 
 /**
  * Print the renderer the run ACTUALLY got, and refuse a silent fallback.
@@ -2173,6 +2193,97 @@ check('the unreviewed magnitude still shows its value and its revision caveat',
 check('a magnitude the source never published reads "no data", not a number',
   /no data/.test(noMagLabel ?? '') && !/fact-value">[\d.]/.test(noMagLabel ?? ''),
   (noMagLabel ?? '').slice(0, 200));
+
+step('8a — the guided tour');
+// ---- v2 section 1.1: every claim the tour makes, against the real UI ----
+
+/**
+ * SHOWS ONCE, ON FIRST RUN.
+ *
+ * The harness sets the seen flag for every other step, so this clears it and
+ * reloads to reach the genuine first-run state — the only place in the suite
+ * where that path is exercised, and it must be exercised somewhere.
+ */
+/**
+ * A SEPARATE PAGE, because the harness's init script re-sets the seen flag on
+ * every navigation — including a reload, which is how the first attempt at
+ * this failed. Clearing storage and reloading cannot reach the first-run state
+ * while that script exists, so the genuine first run needs a context without
+ * it.
+ */
+const firstRun = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+await firstRun.goto(BASE, { waitUntil: 'domcontentloaded' });
+await firstRun.waitForTimeout(1800);
+
+check('the tour opens on first run', (await firstRun.locator('.tour-card').count()) === 1);
+check('and it is a labelled dialog', (await firstRun.getAttribute('.tour-card', 'role')) === 'dialog');
+
+/**
+ * Shown once: dismissing then reloading in the SAME context must not reopen it.
+ * Asserted here, on the only page whose storage is not being overwritten.
+ */
+await firstRun.locator('[data-tour-skip]').click();
+await firstRun.waitForTimeout(300);
+await firstRun.reload({ waitUntil: 'domcontentloaded' });
+await firstRun.waitForTimeout(1500);
+check('it does not reopen on the next visit', (await firstRun.locator('.tour-card').count()) === 0);
+check('but the launcher is still there', (await firstRun.locator('#tour-launch').count()) === 1);
+await firstRun.close();
+
+/**
+ * EVERY STEP'S SELECTOR RESOLVES AGAINST THE REAL UI.
+ *
+ * This is the assertion that makes the tour checkable rather than a second
+ * description of the app free to drift from it. A step pointing at a feature
+ * that moved fails here — which is a doc-versus-tree defect caught before a new
+ * user meets it with no way to know the tour is wrong rather than the app.
+ */
+const tourFile = JSON.parse(await readFile(new URL('../data/tour.json', import.meta.url), 'utf8'));
+const tourStepDefs = tourFile.steps;
+check('the tour declares steps at all', tourStepDefs.length > 0, `${tourStepDefs.length} steps`);
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+await selectCountry('France');
+await page.waitForTimeout(700);
+
+const missing = [];
+for (const stepDef of tourStepDefs) {
+  const found = await page.locator(stepDef.selector).count();
+  if (found === 0) missing.push(`${stepDef.id} -> ${stepDef.selector}`);
+}
+check('every tour step points at something that exists',
+  missing.length === 0, missing.join(' | '));
+
+/**
+ * The provenance claims specifically, because they are the ones a new reader
+ * most needs to be true: the tour says badges exist, the inspector opens, and
+ * panels state their gaps.
+ */
+const tourText = JSON.stringify(tourStepDefs);
+check('the tour explains what the tier badges mean',
+  /OFFICIAL/.test(tourText) && /DERIVED/.test(tourText) && /UNVERIFIED/.test(tourText));
+check('and why a panel saying "no data" is honesty',
+  /honesty, not an omission/i.test(tourText));
+check('and it distinguishes not-recorded from none-recorded',
+  /not recorded/i.test(tourText) && /none recorded/i.test(tourText));
+
+/**
+ * RELAUNCHABLE, SKIPPABLE AT EVERY STEP, KEYBOARD-NAVIGABLE. Each is a stated
+ * requirement, so each is asserted rather than assumed from the markup.
+ */
+await clickOrFail(page, '#tour-launch', 'tour launcher');
+await page.waitForTimeout(300);
+check('the tour relaunches from the help button', (await page.locator('.tour-card').count()) === 1);
+
+await page.keyboard.press('ArrowRight');
+await page.waitForTimeout(200);
+const secondStep = ((await page.locator('.tour-progress').textContent()) ?? '').replace(/\s+/g, ' ');
+check('arrow keys move between steps', /Step 2 of/.test(secondStep), secondStep);
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(250);
+check('Escape skips the tour from any step', (await page.locator('.tour-card').count()) === 0);
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----

@@ -1251,3 +1251,81 @@ button.badge { cursor: pointer; }
   border-left: 3px solid var(--accent);
   background: rgb(255 255 255 / 3%);
 }
+
+/* ---- v2: the first-run guided tour ---- */
+
+.tour-launch {
+  font: inherit;
+  font-size: 11px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  margin-left: auto;
+}
+.tour-launch:hover { border-color: var(--accent); }
+
+.tour[hidden] { display: none; }
+
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tour-scrim { position: absolute; inset: 0; background: rgb(0 0 0 / 62%); }
+
+.tour-card {
+  position: relative;
+  max-width: 460px;
+  margin: 16px;
+  padding: 18px 20px;
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  animation: tour-in 160ms ease-out;
+}
+
+/* prefers-reduced-motion removes the transition ENTIRELY rather than
+   shortening it. A 60ms animation is still an animation. */
+.tour-card--still { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tour-card { animation: none; }
+}
+
+@keyframes tour-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.tour-progress {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+
+.tour-title { margin: 0 0 8px; font-size: 16px; color: var(--text); }
+.tour-body { margin: 0 0 16px; font-size: 13px; line-height: 1.5; color: var(--text-dim); }
+
+.tour-actions { display: flex; gap: 8px; align-items: center; }
+
+.tour-actions button {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.tour-next { border-color: var(--accent); color: var(--accent); }
+.tour-skip { margin-right: auto; }
+.tour-actions button[disabled] { opacity: 0.4; cursor: default; }

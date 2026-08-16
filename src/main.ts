@@ -36,6 +36,7 @@ import type { ScenarioName } from './fetch/scenario';
 import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
 import { mountLegislatureTab } from './ui/legislature';
+import { mountTour } from './ui/tour';
 import { mountDossierHeader } from './ui/header';
 import { mountLeaderSheet } from './ui/leader-sheet';
 import { mountPanel } from './ui/panel';
@@ -245,6 +246,7 @@ mountPanel(panelRoot, store, {
 
 mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
+mountTour(must<HTMLElement>('#tour'), must<HTMLElement>('#tour-launch'));
 
 store.subscribe((state) => {
   const styles = new Map<string, PolygonStyle>();

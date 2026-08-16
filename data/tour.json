@@ -1,0 +1,98 @@
+{
+  "_comment": [
+    "First-run guided tour steps.",
+    "",
+    "DATA-DRIVEN so a new panel extends the tour rather than orphaning it. A tour hardcoded",
+    "in a component is one that silently stops covering the app the first time someone adds",
+    "a surface without remembering it exists.",
+    "",
+    "EVERY STEP NAMES THE SELECTOR IT POINTS AT, and a browser test asserts each one resolves",
+    "against the real UI. That is what makes the tour checkable rather than a second",
+    "description of the app free to drift from it: a tour describing a feature that moved is a",
+    "doc-versus-tree defect with a spotlight on it, and the worst version of that class,",
+    "because a new user meets it first and has no way to know it is wrong.",
+    "",
+    "`requiresSelection` marks a step whose target only exists once a country is selected, so",
+    "the test knows to select one before looking rather than reporting a false miss."
+  ],
+  "version": 1,
+  "steps": [
+    {
+      "id": "globe",
+      "title": "The globe",
+      "selector": "#globe canvas",
+      "requiresSelection": false,
+      "body": "Click a country to select it. Ctrl or Cmd-click adds another and opens the compare view. Colours show how the selected country relates to each other country."
+    },
+    {
+      "id": "tiers",
+      "title": "Every number carries a badge",
+      "selector": ".badge",
+      "requiresSelection": true,
+      "body": "OFFICIAL comes from a government or IGO source. ESTIMATE comes from a research body that publishes it as an estimate. DERIVED is computed by this app. UNVERIFIED means the provenance could not be established."
+    },
+    {
+      "id": "inspector",
+      "title": "Open the provenance inspector",
+      "selector": ".relation-list li",
+      "requiresSelection": true,
+      "body": "Click any value to see where it came from: the request URL, the HTTP status, when it was fetched, the raw response, the licence, and for computed values the full arithmetic."
+    },
+    {
+      "id": "nodata",
+      "title": "Why panels say \"no data\"",
+      "selector": ".panel",
+      "requiresSelection": true,
+      "body": "This app never writes prose about a country. Where a source has nothing, it says so — and it distinguishes \"not recorded\" (we did not ask) from \"none recorded\" (we asked and there was nothing) from a gap that is ours rather than the country's. That is honesty, not an omission."
+    },
+    {
+      "id": "tabs",
+      "title": "Dossier tabs",
+      "selector": ".tab",
+      "requiresSelection": true,
+      "body": "Government, Legislature, Military, Economy, News and Live TV for the selected country. Each panel states what it does not have."
+    },
+    {
+      "id": "layers",
+      "title": "Globe layers",
+      "selector": "[data-layer]",
+      "requiresSelection": false,
+      "body": "Toggle event layers on the globe — earthquakes, wildfires, storms. Stale events are kept and labelled rather than hidden, because hiding them would misreport coverage."
+    },
+    {
+      "id": "events",
+      "title": "Every marker, as a list",
+      "selector": ".event-entry",
+      "requiresSelection": false,
+      "body": "Every marker on the globe is also a keyboard-reachable entry here. Use it if a marker does not respond, or if you prefer not to aim at a sphere."
+    },
+    {
+      "id": "coverage",
+      "title": "A map of our own gaps",
+      "selector": "[data-coverage-toggle]",
+      "requiresSelection": false,
+      "body": "Colours countries by how many of this app's panels have anything for them. It is a map of what we have connected, not of the world — and \"not assessed\" is shown distinctly from a score of zero."
+    },
+    {
+      "id": "scrub",
+      "title": "Score as of a past date",
+      "selector": "[data-scrub]",
+      "requiresSelection": false,
+      "body": "Shows what this app's PRESENT evidence says about an earlier year. Not what was known then, and not a claim about what was true."
+    },
+    {
+      "id": "breaking",
+      "title": "Breaking news",
+      "selector": ".breaking",
+      "requiresSelection": false,
+      "body": "Stories ranked by a computed significance score over five normalised inputs. It ranks coverage volume, not importance — and only the coverage of the feeds this app has captured."
+    },
+    {
+      "id": "watchlist",
+      "title": "Predictions, including the wrong ones",
+      "selector": ".watchlist",
+      "requiresSelection": false,
+      "body": "Predictions written before this app saw live data, with what actually happened. Refutations are shown as prominently as confirmations — a watchlist that only shows its hits is an advertisement."
+    }
+  ]
+}
