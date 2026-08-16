@@ -481,6 +481,7 @@ const ALL_STEPS = [
   '7 — globe event layers',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
+  '7f — URL view state',
   '7d — coverage choropleth',
   '7b — economy fetch states',
   'cross-cutting — text fidelity (rule 9)',
@@ -2230,6 +2231,53 @@ check('and lands on that entry\'s coordinates, not just anywhere',
 
 check('the list explains itself to someone whose clicks are failing',
   /if a marker does not respond/i.test((await page.locator('.event-list').textContent()) ?? ''));
+
+step('7f — URL view state');
+// ---- step 7f: step 13 / Phase B2, a link that opens what the sender saw ----
+
+await selectCountry('Japan');
+await clickOrFail(page, '[data-tab="military"]', 'military tab');
+await page.waitForTimeout(400);
+
+const shared = page.url();
+check('selecting a country writes it into the URL', /[?&]c=JPN/.test(shared), shared);
+check('and the open tab too', /[?&]tab=military/.test(shared), shared);
+
+/**
+ * THE ASSERTION THAT MAKES A LINK WORTH SHARING: open the URL fresh and the
+ * page must show what the sender saw. A round-trip unit test cannot prove
+ * this — it proves the serialiser is self-consistent, not that the app reads
+ * its own output.
+ */
+await page.goto(shared, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+
+const restoredTab = ((await page.locator('.tab--active').innerText().catch(() => '')) ?? '').trim();
+check('a shared link reopens on the sender\'s tab', restoredTab === 'Military', restoredTab);
+
+const restoredPanel = ((await page.locator('.panel').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('and on the sender\'s country', /Japan/.test(restoredPanel), restoredPanel.slice(0, 120));
+
+/**
+ * A DEFAULT VIEW LEAVES A SHORT URL. Writing every weight at its default
+ * freezes today's defaults into every link ever shared, so a later change to a
+ * default would silently not apply to anyone holding an old one.
+ */
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(900);
+check('a default view does not write every weight into the URL',
+  /w\./.test(page.url()) === false, page.url());
+
+/**
+ * A MALFORMED URL MUST NOT PRODUCE A CONFIDENTLY WRONG PAGE. `Number('banana')`
+ * is NaN, and NaN fails every comparison silently, so one hand-edited weight
+ * would reclassify every relation rather than erroring.
+ */
+await page.goto(`${BASE}?c=USA&w.sharedDefenseBloc=banana`, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+const afterBad = ((await page.locator('.panel').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
+check('a malformed weight still renders a working panel', /United States/.test(afterBad), afterBad.slice(0, 120));
+check('and no relation row reads as NaN', /NaN/.test(afterBad) === false, afterBad.slice(0, 200));
 
 step('7e — the relations SEED badge, in both states');
 // ---- step 7e: one global badge, and the assertion that it can go away ----

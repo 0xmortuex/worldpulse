@@ -135,4 +135,21 @@ export class Store {
   resetWeights(): void {
     this.#commit({ weights: { ...DEFAULT_WEIGHTS }, thresholds: { ...DEFAULT_THRESHOLDS } });
   }
+
+  /**
+   * Restore several fields at once — for the URL, and only for the URL.
+   *
+   * ONE commit rather than five setters, because restoring a shared link is a
+   * single event. Calling `select`, `setTab`, `setWeight`… in sequence would
+   * notify subscribers five times and render five intermediate views, one of
+   * which briefly shows the sender's countries with the reader's weights — a
+   * view neither of them ever chose.
+   *
+   * Deliberately not a general "set anything" escape hatch: every field it
+   * accepts is one the URL carries, and `hovered` is absent because a pointer
+   * position is not a view.
+   */
+  hydrate(next: Partial<Omit<AppState, 'hovered'>>): void {
+    this.#commit(next);
+  }
 }

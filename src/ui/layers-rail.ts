@@ -91,6 +91,17 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
           }).join('')}
         </ul>
 
+        <button type="button" class="layer-stale${state.includeStale ? ' layer-stale--on' : ''}"
+          data-stale-toggle aria-pressed="${state.includeStale}">
+          ${state.includeStale ? 'Hiding nothing' : 'Hiding'} ${n(
+            layerCounts.staleHidden,
+            'count of events flagged stale by the staleness policy',
+          )} stale event(s)
+        </button>
+        <p class="rail-help">An event still marked "open" but not updated for six months
+        is a data-quality artifact, not something happening now. Stale events are kept and
+        labelled, never deleted.</p>
+
         <button type="button" class="coverage-toggle${state.coverageMode ? ' coverage-toggle--on' : ''}"
           data-coverage-toggle aria-pressed="${state.coverageMode}">
           ${state.coverageMode ? 'Showing our coverage gaps' : 'Show our coverage gaps'}
@@ -120,17 +131,6 @@ export function mountLayersRail(root: HTMLElement, store: Store, counts: () => L
               </div>`
             : ''
         }
-
-        <button type="button" class="layer-stale${state.includeStale ? ' layer-stale--on' : ''}"
-          data-stale-toggle aria-pressed="${state.includeStale}">
-          ${state.includeStale ? 'Hiding nothing' : 'Hiding'} ${n(
-            layerCounts.staleHidden,
-            'count of events flagged stale by the staleness policy',
-          )} stale event(s)
-        </button>
-        <p class="rail-help">An event still marked "open" but not updated for six months
-        is a data-quality artifact, not something happening now. Stale events are kept and
-        labelled, never deleted.</p>
 
         ${
           layerCounts.clusteredAway > 0

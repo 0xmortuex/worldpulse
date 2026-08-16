@@ -14,6 +14,7 @@ import {
   type GlobeEvent,
 } from './layers/events';
 import { arcsFor, largestRing } from './relations/arcs';
+import { fromSearch, specifiesLayers, toSearch } from './url-state';
 import { colorFor, filterEvents, loadEvents } from './layers/provider';
 import { countLayers, mountLayersRail } from './ui/layers-rail';
 import { eventListHtml, mountEventList } from './ui/event-list';
@@ -205,6 +206,36 @@ mountPanel(panelRoot, store, {
     return relationsSeededOverride ?? facts.seed;
   },
 });
+/**
+ * Step 13 / Phase B2 — the URL is the view.
+ *
+ * Applied once on load, then written on every change. `replaceState` rather
+ * than `pushState`: a weight slider fires continuously, and every drag would
+ * otherwise become a history entry a reader has to press Back through dozens of
+ * times to escape.
+ */
+{
+  const initial = fromSearch(window.location.search);
+  store.hydrate({
+    ...(initial.selected.length > 0 ? { selected: initial.selected } : {}),
+    tab: initial.tab,
+    weights: initial.weights,
+    thresholds: initial.thresholds,
+    includeStale: initial.includeStale,
+    coverageMode: initial.coverageMode,
+    // Missing vs empty: only override the defaults when the URL actually said.
+    ...(specifiesLayers(window.location.search) ? { layers: new Set(initial.layers) } : {}),
+  });
+
+  store.subscribe((state) => {
+    const search = toSearch(state);
+    const next = `${window.location.pathname}${search ? `?${search}` : ''}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(null, '', next);
+    }
+  });
+}
+
 mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
 
