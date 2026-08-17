@@ -2,6 +2,7 @@ import type { Country } from '../countries';
 import { renderLegislatureTab } from './legislature';
 import { renderMilitaryTab } from './military';
 import { renderTvTab } from './tv';
+import { renderRiskChokepoints } from './chokepoints';
 import { factHtml } from '../facts/badge';
 import { notAFact } from '../facts/discipline';
 import { asOfCaveat, findingsAsOf } from '../relations/as-of';
@@ -265,6 +266,7 @@ function tabBody(subject: Country, tab: TabId, context: PanelContext): string {
   if (tab === 'military') return renderMilitaryTab(subject.code, subject.name);
   if (tab === 'legislature') return renderLegislatureTab(subject.code, subject.name);
   if (tab === 'tv') return renderTvTab(subject.code, subject.name);
+  if (tab === 'risk') return renderRiskChokepoints(subject.code);
   const entry = TABS.find((candidate) => candidate.id === tab);
   return `<div class="gov"><p class="gov-pending"><strong>Not built yet.</strong>
     The ${escapeHtml(entry?.label ?? tab)} tab arrives with ${escapeHtml(entry?.step ?? 'a later step')}.

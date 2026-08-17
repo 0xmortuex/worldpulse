@@ -485,6 +485,7 @@ const ALL_STEPS = [
   '8d — the command palette',
   '8e — the intel feed',
   '8f — the dashboard',
+  '8g — the chokepoint monitor',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -1444,7 +1445,22 @@ await page.waitForTimeout(300);
 await page.keyboard.press('7');
 await page.waitForTimeout(300);
 check('number keys switch dossier tabs', (await page.locator('.tab--active').innerText()).trim() === 'Risk');
-check('an unbuilt tab names the step that fills it', /step 10/.test(await page.locator('.gov').innerText()));
+
+/*
+ * THE UNBUILT-TAB CHECK IS DELETED, on the instruction of the comment above.
+ *
+ * It said: "when NO tab is unbuilt, delete the second check rather than
+ * weakening it, and say in the commit that the path is gone because the
+ * condition it tested cannot occur." Risk was the last placeholder, and the
+ * chokepoint monitor fills it — so every tab in TABS now dispatches to a real
+ * renderer and no tab can render the pending card.
+ *
+ * It went out the way rule 39 intends: not quietly, but by FAILING. The check
+ * read `.gov` from the pending card, the risk tab stopped emitting one, and the
+ * step aborted on a 90-second timeout pointing straight at the line. A comment
+ * that predicts a specific future mistake does work no test can do — and this
+ * one predicted its own deletion two steps in advance.
+ */
 await page.keyboard.press('1');
 await page.waitForTimeout(300);
 
@@ -2728,6 +2744,80 @@ check('and it actually removes them from storage, not just from the view',
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 check('Escape closes the dashboard', (await page.locator('.dash-panel').count()) === 0);
+
+step('8g — the chokepoint monitor');
+// ---- SPEC-WARWATCH §2's Hormuz panel, as amended to IMF PortWatch ----
+//
+// The amendment replaced per-vessel AIS tracking with an IGO's aggregated
+// per-day counts, which retires most of what made the original dangerous. What
+// it does NOT retire is the sensing limitation, because PortWatch is built on
+// AIS too — so requirement 1 says the caveat must render AND a browser
+// assertion must prove it renders. This is that assertion.
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+await selectCountry('Iran');
+await clickOrFail(page, '[data-tab="risk"]', 'risk tab');
+await page.locator('.choke').first().waitFor({ state: 'visible', timeout: 15_000 });
+
+check('the chokepoint panel renders', (await page.locator('.choke').count()) > 0);
+
+const chokeText = ((await page.locator('.choke').first().textContent()) ?? '').replace(/\s+/g, ' ');
+
+/**
+ * REQUIREMENT 1 and 2 — the caveat renders, as OURS, with its basis on the
+ * surface. A reader who never opens a provenance inspector still learns whose
+ * claim this is and what it rests on.
+ */
+check('the AIS caveat reaches the page', /AIS vessel broadcasts/i.test(chokeText), chokeText.slice(0, 120));
+check('and it is OURS, not attributed to the IMF',
+  /Our caveat, not the IMF/i.test(chokeText), chokeText.slice(0, 100));
+check('and its basis is on the surface, not only in the inspector',
+  /Arslanalp, Koepke & Verschuur, IMF WP\/2021\/225/i.test(chokeText), chokeText.slice(0, 200));
+check('and it says a vessel can switch off',
+  /can switch off/i.test(chokeText) && /not counted/i.test(chokeText));
+
+/**
+ * REQUIREMENT 3 — the tier split survives to the badge. A modelled tonnage
+ * rendering as OFFICIAL would assert a measurement the IMF calls an estimate.
+ */
+const transitBadge = ((await page.locator('.choke-transits').first().textContent()) ?? '');
+const volumeBadge = ((await page.locator('.choke-volume').first().textContent()) ?? '');
+check('transit counts render OFFICIAL', /OFFICIAL/.test(transitBadge), transitBadge.slice(0, 80));
+check('estimated payload renders ESTIMATE', /ESTIMATE/.test(volumeBadge), volumeBadge.slice(0, 80));
+check('and a modelled tonnage never renders as OFFICIAL',
+  !/OFFICIAL/.test(volumeBadge), volumeBadge.slice(0, 80));
+
+/**
+ * REQUIREMENT 4 — a transit is a crossing. "Traffic through the strait" is the
+ * phrase the spec names, and the panel must never assert it.
+ */
+check('the panel defines a transit as one crossing',
+  /one crossing of the chokepoint boundary/i.test(chokeText));
+check('and states the 48-hour re-count threshold', /48-hour threshold/i.test(chokeText));
+check('and refuses the phrase "traffic through the strait" as a claim',
+  /not a measure of traffic through the strait/i.test(chokeText) &&
+    !/traffic through the strait/i.test(chokeText.replace(/not a measure of traffic through the strait/gi, '')),
+  chokeText.slice(0, 200));
+
+/** REQUIREMENT 5 — attribution and a link back, with no claim to redistribute. */
+check('attribution names the source and links back',
+  (await page.locator('.choke-attribution a').count()) === 1);
+check('and disclaims redistributing the dataset',
+  /does not redistribute the dataset/i.test(chokeText));
+
+/**
+ * The app-owned gap, per decision #32: a country this app does not route a
+ * chokepoint to is told so in this app's own voice, never left silent and never
+ * implied to be unaffected.
+ */
+await selectCountry('France');
+await page.locator('.choke-none').first().waitFor({ state: 'visible', timeout: 15_000 });
+const noneText = ((await page.locator('.choke-none').textContent()) ?? '').replace(/\s+/g, ' ');
+check('an unrouted country states the gap as OURS',
+  /limit of what is wired here/i.test(noneText), noneText.slice(0, 160));
+check('and never implies no chokepoint affects it',
+  /not a statement that no chokepoint affects this one/i.test(noneText), noneText.slice(0, 200));
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----

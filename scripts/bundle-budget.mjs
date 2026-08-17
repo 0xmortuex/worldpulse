@@ -31,11 +31,20 @@
  * the feed each brought their own block. Measured, not estimated, and the
  * budget follows the same 15%-above rule the others do.
  *
- * The app chunk is the one to watch: this script measures 550.4 KB against
- * 570 KB, leaving 19.6 KB. Two more surfaces of the intel feed's size will not
- * fit, and the answer then is code-splitting rather than another raise —
- * recorded here because a budget raised without saying why is a budget
- * switched off.
+ * The app chunk is the one to watch, and it is now the binding constraint:
+ * **564.8 KB against 570 KB, leaving 5.2 KB.** The dashboard and the chokepoint
+ * monitor consumed the headroom the intel feed left.
+ *
+ * **The next surface does not fit, and must not be made to fit by raising this
+ * number.** The answer is code-splitting: the chokepoint capture and the news
+ * fixtures are committed artefacts loaded eagerly by modules the first paint
+ * does not need, and a dynamic `import()` behind the tab that uses them is the
+ * shape this project already applies to large artefacts elsewhere. That is a
+ * real refactor — the panel's render path is synchronous today — so it is named
+ * here rather than started at the end of an unrelated commit.
+ *
+ * Recorded because a budget raised without saying why is a budget switched off,
+ * and a budget raised twice in a row is one nobody believes.
  * ```
  *
  * Each budget sits about 15% above its observed value — enough headroom that
