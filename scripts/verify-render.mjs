@@ -3390,7 +3390,8 @@ await assertTextFits(page, '.relation-list li .relation-tier', 'relation tier la
 
 await selectCountry('Germany');
 await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
-await page.waitForTimeout(400);
+// Wait for the values, not a clock — see the Zimbabwe block below for why.
+await page.locator('.econ-block .fact-value').first().waitFor({ state: 'visible', timeout: 15_000 });
 await assertTextFits(page, '.econ-block .fact-value', 'economy values');
 await assertTextFits(page, '.econ-block .econ-name', 'economy indicator names');
 await assertTextFits(page, '.econ-block .econ-asof', 'economy as-of labels');
@@ -3399,7 +3400,21 @@ await assertSvgTextFits(page, '.econ-block .chart-axis', 42, 'economy axis label
 // The extreme-value fixture: the longest plausible strings on this surface.
 await selectCountry('Zimbabwe');
 await clickOrFail(page, '[data-tab="economy"]', 'economy tab');
-await page.waitForTimeout(400);
+
+/**
+ * WAIT FOR THE VALUES, don't sleep and hope.
+ *
+ * This was `waitForTimeout(400)`, and it passed on one run and failed on the
+ * next with "matched no visible non-empty element" — the vacuity guard
+ * correctly reporting that it had nothing to measure, because the panel had not
+ * finished rendering yet. A fixed sleep encodes a guess about a machine's speed;
+ * the thing actually being waited for is a state, so wait for the state.
+ *
+ * If it never arrives this still fails — but as a timeout naming the selector,
+ * which is the true statement, rather than as a text-fitting assertion that
+ * measured nothing.
+ */
+await page.locator('.econ-block .fact-value').first().waitFor({ state: 'visible', timeout: 15_000 });
 await assertTextFits(page, '.econ-block .fact-value', 'economy values at extreme magnitude');
 await assertSvgTextFits(page, '.econ-block .chart-axis', 42, 'economy axis labels at extreme magnitude');
 const zweAxis = await page.locator('.econ-block[data-indicator="gdp"] .chart-axis').allTextContents();

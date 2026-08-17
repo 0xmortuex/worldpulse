@@ -67,6 +67,60 @@ test('planted: a backslash escape defeats the shape check and the origin check s
   assert.ok(!result.reason.includes('evil.test'), 'refusals must not reflect attacker input');
 });
 
+/**
+ * THE HOSTILE CORPUS — the permanent home for every string aimed at this check.
+ *
+ * One planted case proves the check survives one attack. The property being
+ * claimed is stronger than that: **no path composes into a different host.** So
+ * the nasty strings live in a list that grows, and every new one anybody thinks
+ * of goes here rather than into a new test that can be deleted in isolation.
+ *
+ * Each entry is asserted twice, and the first assertion matters as much as the
+ * second: the escape must be REAL against a bare `new URL(path, origin)`, or
+ * the case is a string that was never dangerous and the row proves nothing.
+ * That is rule 33 — a synthetic input must describe a state the real system can
+ * reach — applied to attacks.
+ */
+const HOSTILE_PATHS: Array<{ path: string; why: string }> = [
+  { path: '//evil.test/x', why: 'protocol-relative: changes host while looking relative' },
+  { path: '/\\evil.test/x', why: 'backslash normalised to a slash by WHATWG parsing' },
+  { path: '/\\\\evil.test/x', why: 'double backslash, same normalisation' },
+  { path: '//\\evil.test/x', why: 'mixed slash and backslash' },
+  { path: '/\t/evil.test/x', why: 'tab is stripped, which can re-form a leading //' },
+];
+
+test('planted corpus: no hostile path composes into a different host', () => {
+  const registered = new URL('https://feeds.npr.org');
+  const escaped: string[] = [];
+
+  for (const { path, why } of HOSTILE_PATHS) {
+    let host: string | null = null;
+    try {
+      host = new URL(`${path}`, registered).host;
+    } catch {
+      host = null;
+    }
+    // Record which ones genuinely escape a naive compose, so this list cannot
+    // silently fill up with harmless strings that make the suite look thorough.
+    if (host !== null && host !== registered.host) escaped.push(`${path} → ${host} (${why})`);
+
+    const result = route(`${PROXY_PREFIX}/rss-npr${path}`);
+    if (result.ok) {
+      assert.ok(
+        result.upstream.startsWith('https://feeds.npr.org/'),
+        `${path} resolved off-origin: ${result.upstream}`,
+      );
+    } else {
+      assert.ok(!result.reason.includes('evil.test'), `refusal for ${path} reflected attacker input`);
+    }
+  }
+
+  assert.ok(
+    escaped.length > 0,
+    'not one entry in the hostile corpus actually escapes a naive compose — the corpus proves nothing',
+  );
+});
+
 test('a dot-dot path cannot climb out of the origin', () => {
   const result = route(`${PROXY_PREFIX}/rss-npr/../../secret`);
   // It either normalises within the origin or is refused — never another host.

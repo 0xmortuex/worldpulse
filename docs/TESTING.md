@@ -589,6 +589,45 @@ linear sequence, so an exception anywhere blinds every assertion after it.** The
 now prints on `uncaughtException` and `unhandledRejection` too, recording the aborting
 step and naming every step that never ran.
 
+### 18a. A verdict names a CAUSE, and the name can be wrong
+
+**Recorded 2026-08-17, after I misreported four of them.**
+
+`BUILD-FAILED` is defined above as *the compiler noticed*. That is what it means when the
+build fails because the mutation was not compilable — which is the case it was written
+for. But a build can fail for reasons that have nothing to do with the code, and the
+verdict does not know the difference.
+
+**What happened.** A mutation run reported `BUILD-FAILED` on four consecutive mutants. I
+recorded them as results. They were not: the volume had filled, and child processes were
+failing to spawn at all — on Windows, `0xC0000142`, before any compiler ran. The same run
+then died outright on a `git status` subprocess. Nothing had been learned about those four
+behaviours, and four rows saying `BUILD-FAILED` beside eight saying `CAUGHT` invited
+exactly the reading rule 3 forbids.
+
+**The tell was in the timing and I had it in front of me.** The four failed in seconds;
+a real build takes minutes. On a fresh run with space available, the same mutant took
+minutes and passed. *A verdict that arrives far faster than the work it claims to have
+done is a verdict about the harness, not the tree.*
+
+**Two responses, both landed:**
+
+1. **The name is not the cause.** When a run reports a build failure, ask what failed to
+   build before recording it. A compiler error names a file and a line; a spawn failure
+   names nothing, because nothing ran.
+2. **Check the precondition up front.** `scripts/disk-guard.mjs` refuses to start a
+   mutation run below a measured free-space floor, in the same shape as the run lock:
+   a precondition checked before the work rather than discovered as a corpse an hour in.
+   The floor is derived from measurement — runs consumed ~100 MB, died between 0 and
+   78 MB free — and `tests/disk-guard.test.ts` plants the exact 78 MB reading the real
+   run died at.
+
+**The general form:** every verdict in this harness attributes a cause. `CAUGHT` says the
+assertion noticed; `BUILD-FAILED` says the compiler noticed; `TIMEOUT` says it hung.
+**When the environment fails, it fails through whichever of those doors is nearest, and
+wears that door's name.** A verdict is not stronger than its evidence — and it is not
+more accurate than its label, either.
+
 ## 19. Ask whether content fits its box, not whether the box reached zero
 
 `assertLayout` flagged a child only at exactly zero width or height. A mutation forcing
@@ -2116,3 +2155,62 @@ When a query dies, do not start rewriting it. Run these:
 That sequence found the answer here in three queries after four rewrites had failed, and the
 same sequence had already found it twice before — which is why it is written down rather than
 rediscovered a fourth time.
+
+## 49. An origin, path or host check is only as good as the nastiest string aimed at it — and the planted case IS that string
+
+**Found 2026-08-17, while writing the edge Worker, by planting before shipping.**
+
+The Worker proxies 27 sources. The client names a registered source id, never a
+destination, so the upstream comes from `data/sources.json` and the reachable host set is
+the set someone committed after reading a licence. The composition is the dangerous line:
+
+```js
+const upstream = new URL(`${upstreamPath}${search}`, registered);
+```
+
+I wrote a shape check first — reject a path starting with `//`, because a protocol-relative
+path changes host while wearing the shape of a path. Then I wrote a test asserting that
+`/\evil.test/x` does **not** escape, reasoning that only a leading `//` was dangerous.
+
+**The test failed, and it was right.** WHATWG URL parsing normalises the backslash to a
+slash, so `/\evil.test/x` resolves to `https://evil.test/x`. A single leading slash sails
+straight past a `//` check. The only thing standing between this Worker and being an open
+relay wearing our origin was the second defence:
+
+```js
+if (upstream.origin !== registered.origin) return refuse(400, 'composed URL left the registered origin');
+```
+
+### What this generalises to
+
+**Any check that decides whether a string stays inside a trusted origin, host or directory
+is a claim about an infinite set, and you are testing it with the finite set you thought
+of.** The check will be exactly as strong as the nastiest input someone aimed at it —
+never stronger, because the inputs nobody tried are the ones it silently admits.
+
+So:
+
+1. **Compare the RESULT, never the input.** Shape checks on the input are heuristics over
+   a syntax you do not control the parser for. Compose the thing, then ask what it
+   actually became — `upstream.origin !== registered.origin` is decidable; "does this look
+   relative" is not.
+2. **Keep the shape check anyway, as a second door.** Two independent refusals for one
+   attack is not redundancy, it is depth. Ours are independent: one rejects by syntax, one
+   by outcome, and the case that defeats the first is caught by the second.
+3. **The planted case IS the evil string.** Not a paraphrase of it, not a comment
+   describing it — the literal input, in a corpus that grows. `tests/worker-router.test.ts`
+   keeps `HOSTILE_PATHS`, and every entry is asserted **twice**: that it genuinely escapes
+   a naive `new URL(path, origin)`, and that the router refuses it. The first assertion is
+   the one that stops the corpus filling with harmless strings that make the suite look
+   thorough — rule 33 applied to attacks.
+4. **A refusal must not echo the attacker's input.** The reason strings here are fixed
+   text, so a caller cannot get their own host reflected back out of us.
+
+### Why this belongs beside rule 27
+
+Rule 27 says plant the case before you trust the guard. This is the sharpest instance of
+it in the repo, because the planted case did not confirm my reasoning — **it overturned
+it.** I believed the shape check was sufficient and wrote a test to demonstrate that
+belief; the test demonstrated the opposite, before any of it shipped. A guard whose
+planted case has only ever agreed with its author has not been tested, it has been
+illustrated.

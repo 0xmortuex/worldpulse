@@ -34,6 +34,7 @@ import { dirname, join, resolve } from 'node:path';
 import { INCONCLUSIVE, anchorProblem, classifyMutation, failingLabels } from './mutation-verdict.mjs';
 import { freshnessProblem, readBranchState } from './branch-freshness.mjs';
 import { acquireRunLock } from './run-lock.mjs';
+import { requireFreeSpace } from './disk-guard.mjs';
 import { glLabel } from './gl-config.mjs';
 import { planFrom } from './mutation-journal.mjs';
 import { appendFileSync, readFileSync as readSync } from 'node:fs';
@@ -565,6 +566,15 @@ try {
   // to close on the way out, and a lock handler calling process.exit() would cut
   // that short. It leaked a worktree exactly once, which is how this was found.
   releaseLock = acquireRunLock('mutate', head, undefined, { exitOnSignal: false });
+
+  /**
+   * Free disk, checked BEFORE the first mutant rather than discovered at the
+   * third. See `disk-guard.mjs` for where the floor comes from — it is measured
+   * on this machine, not guessed. Ordered after the lock so that a refusal here
+   * still releases it.
+   */
+  const disk = requireFreeSpace(ROOT, { what: 'a full mutation run' });
+  console.log(`disk: ${disk.reason}`);
 
   const profile = machineProfile();
   console.log(
