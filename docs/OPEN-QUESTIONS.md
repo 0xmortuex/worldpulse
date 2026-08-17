@@ -1737,3 +1737,55 @@ under the biohazard heading trains a reader to expect a map that will never be t
 
 **What is blocked:** the choropleth, the sub-selector and the count markers — all of §2's
 biohazard mode. **What is not:** everything after it in the build order.
+
+---
+
+## 35. Polymarket is technically ready and licence-blocked, and only you can clear it
+
+**Raised 2026-08-17, Phase 0 for SPEC-WARWATCH §5 (prediction markets).**
+
+**Everything measurable is green.** Measured from this machine, with our deployed origin in
+the `Origin` header:
+
+```
+https://gamma-api.polymarket.com/markets?limit=1
+  HTTP 200 · access-control-allow-origin: * · content-type: application/json
+```
+
+So it is **CLIENT-FETCH**, needs **no key**, and the published rate limits are far above
+anything this app would use (Gamma general 4,000 per 10s; `/markets` 300 per 10s). Reads on
+all three of Polymarket's API surfaces are unauthenticated — only trading requires signing,
+and this app will never trade.
+
+**The licence could not be read.** `https://polymarket.com/tos` renders its terms in
+JavaScript, and fetching it returns metadata and navigation with no terms text. I could not
+establish what it says about third-party display or redistribution of market prices.
+
+**L15 settles it: an unread licence is not permission.** That standard has already blocked
+WorldPop and Stooq in this project, and it only means something if it also blocks a source
+that is otherwise perfect — which this one is.
+
+### What is NOT the blocker
+
+Not CORS, not a key, not rate limits, and not §5's rendering rules, which are
+straightforward and already understood: the price renders `OFFICIAL` **as a price**, never
+converted to a probability, never aggregated into any composite, with the label permanent
+and on the widget rather than in a tooltip. *"A market at 34% is a price."*
+
+### The options
+
+**A. You read the terms and tell me.** Open <https://polymarket.com/tos> in a browser and
+paste the sections on data use, redistribution and third-party display. One minute of your
+time clears a blocker I cannot clear myself.
+
+**B. Find the terms somewhere machine-readable.** A developer-terms page under
+`docs.polymarket.com`, if one exists that is not JS-rendered.
+
+**C. Park it and continue.** Public cameras (§6), conflict presets (§7) and broadcast
+traffic (§8) follow it in build order.
+
+### My recommendation
+
+**A** — because this is a one-line unblock for you and an unbounded one for me, and because
+the alternative is either parking a source that is otherwise ready or reading a licence by
+guesswork, which is the thing L15 exists to forbid.
