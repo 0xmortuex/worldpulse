@@ -484,6 +484,7 @@ const ALL_STEPS = [
   '8c — the flat-map fallback',
   '8d — the command palette',
   '8e — the intel feed',
+  '8f — the dashboard',
   '7i — marker layer stability',
   '7c — L9 keyboard route to events',
   '7e — the relations SEED badge, in both states',
@@ -2401,6 +2402,29 @@ check('the flat map is reachable', (await page.locator('#flat-launch').count()) 
  * on its own, it must say so. A silent degrade is the failure this notice
  * exists to prevent, and this harness is the only place it can be observed.
  */
+/**
+ * Drive the map to a state, rather than sampling one and acting on it.
+ *
+ * The auto-switch fires on a 4-second wall-clock timer, so between "is the
+ * globe showing?" and the click that follows it, the app can open the flat map
+ * on its own — and the click then CLOSES what it was meant to open. That is
+ * exactly how this step failed after two more mounts shifted startup timing by
+ * a few hundred milliseconds: nothing was broken, the observation was just
+ * stale by the time it was used.
+ *
+ * Bounded, and it reports failure rather than looping: three attempts is more
+ * than the one race that exists, and a map that will not reach the requested
+ * state is a real defect that must not be retried into silence.
+ */
+async function ensureFlatMap(want) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (((await page.locator('.flatmap[hidden]').count()) === 0) === want) return true;
+    await clickOrFail(page, '#flat-launch', 'flat map toggle');
+    await page.waitForTimeout(600);
+  }
+  return ((await page.locator('.flatmap[hidden]').count()) === 0) === want;
+}
+
 const autoSwitched = (await page.locator('.flatmap[hidden]').count()) === 0;
 if (autoSwitched) {
   const notice = ((await page.locator('.flat-notice').textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ');
@@ -2410,9 +2434,11 @@ if (autoSwitched) {
     /not a change to the data/i.test(notice), notice.slice(0, 200));
 } else {
   check('the globe shows by default when the frame rate is fine', true);
-  await clickOrFail(page, '#flat-launch', 'flat map toggle');
-  await page.waitForTimeout(600);
 }
+
+// Whichever branch we came through, the flat map must be open for the content
+// assertions below to mean anything.
+check('the flat map can be reached and held open', await ensureFlatMap(true));
 
 check('switching shows the flat map', (await page.locator('.flat-svg').count()) === 1);
 check('it draws countries', (await page.locator('.flat-country').count()) > 100,
@@ -2454,19 +2480,15 @@ check('and it says what the map may not be read for', /never for size/i.test(fla
  * arrival is a chosen one. Asserting only the half the harness happened to land
  * in would leave the other half untested on every machine.
  */
-if (autoSwitched) {
-  await clickOrFail(page, '#flat-launch', 'flat map toggle');
-  await page.waitForTimeout(400);
-  await clickOrFail(page, '#flat-launch', 'flat map toggle');
-  await page.waitForTimeout(500);
-}
+// Leave and re-enter so the arrival is unambiguously a CHOSEN one, whichever
+// way we got here. Driven, not sampled, for the same reason as above.
+check('the globe can be returned to', await ensureFlatMap(false));
+check('and the flat map re-entered by choice', await ensureFlatMap(true));
+
 check('a chosen flat map carries no switch notice',
   (await page.locator('.flat-notice').count()) === 0);
 
-await clickOrFail(page, '#flat-launch', 'flat map toggle');
-await page.waitForTimeout(500);
-check('switching back returns to the globe',
-  (await page.locator('.flatmap[hidden]').count()) === 1);
+check('switching back returns to the globe', await ensureFlatMap(false));
 check('and the globe canvas is still there',
   (await page.locator('#globe canvas').count()) === 1);
 
@@ -2623,6 +2645,89 @@ check('the search box keeps focus across the redraw it triggers', intelSearchFoc
 await page.keyboard.press('Escape');
 await page.waitForTimeout(300);
 check('Escape closes the feed', (await page.locator('.intel-panel').count()) === 0);
+
+step('8f — the dashboard');
+// ---- v2 section 3.2 (SPEC-WARWATCH §4): per-user, local-only, no tiers ----
+
+await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1200);
+
+check('the dashboard is closed until asked for', (await page.locator('.dash-panel').count()) === 0);
+await clickOrFail(page, '#dash-launch', 'dashboard launcher');
+await page.waitForTimeout(400);
+check('the launcher opens it', (await page.locator('.dash-panel').count()) === 1);
+
+/**
+ * §4's PROHIBITION, checked against what actually rendered.
+ *
+ * "No clearance level, no tier badge, no 'access' language." A clearance
+ * indicator over a public dataset implies the data is privileged when it is
+ * not — theatre with a false claim inside it. The unit test asserts the same
+ * vocabulary against the template; this asserts it against the page, because
+ * the two can diverge through CSS content or a stray wrapper.
+ */
+const dashText = ((await page.locator('.dash-panel').textContent()) ?? '').toLowerCase();
+const bannedWords = ['clearance', 'classified', 'access level', 'unlock', 'premium', 'upgrade'];
+const foundBanned = bannedWords.filter((word) => dashText.includes(word));
+check('no clearance, tier or access language reaches the page',
+  foundBanned.length === 0, foundBanned.join(', '));
+
+check('it says the data is local to this browser',
+  /stored in this browser only/i.test(dashText.replace(/\s+/g, ' ')));
+check('and that nothing is sent anywhere',
+  /nothing is sent anywhere/i.test(dashText.replace(/\s+/g, ' ')));
+
+check('empty state says nothing is saved rather than showing an empty box',
+  (await page.locator('.dash-empty').count()) > 0);
+
+/**
+ * THE CLEAR-ALL IS VISIBLE, which §4 requires in those words. A destructive
+ * control hidden behind a menu is one a reader cannot find when they want it,
+ * and this is the only way to remove what the app has stored about them.
+ */
+const clearVisible = await page.locator('[data-dash-clear]').isVisible();
+check('the clear-all control is visible, not hidden behind a menu', clearVisible);
+
+/**
+ * SAVING PERSISTS ACROSS A RELOAD — the only claim "saved" makes. Written
+ * through the same key the app reads, then read back through the UI.
+ */
+await page.evaluate(() => {
+  const now = Date.now();
+  window.localStorage.setItem(
+    'worldpulse.saved',
+    JSON.stringify([{ code: 'FRA', name: 'France', savedAt: now }]),
+  );
+  window.localStorage.setItem(
+    'worldpulse.history',
+    JSON.stringify([{ code: 'JPN', name: 'Japan', seenAt: now }]),
+  );
+});
+await page.reload({ waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(1000);
+await clickOrFail(page, '#dash-launch', 'dashboard launcher');
+await page.waitForTimeout(400);
+
+check('a saved country survives a reload', (await page.locator('.dash-saved .dash-item').count()) === 1);
+check('and history survives it too', (await page.locator('.dash-history .dash-item').count()) === 1);
+
+// Clearing removes BOTH lists, which is what "everything" has to mean.
+await clickOrFail(page, '[data-dash-clear]', 'clear everything');
+await page.waitForTimeout(400);
+check('clear-all empties the saved list', (await page.locator('.dash-saved .dash-item').count()) === 0);
+check('and the history as well', (await page.locator('.dash-history .dash-item').count()) === 0);
+
+const clearedStorage = await page.evaluate(() => ({
+  saved: window.localStorage.getItem('worldpulse.saved'),
+  history: window.localStorage.getItem('worldpulse.history'),
+}));
+check('and it actually removes them from storage, not just from the view',
+  clearedStorage.saved === null && clearedStorage.history === null,
+  JSON.stringify(clearedStorage));
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+check('Escape closes the dashboard', (await page.locator('.dash-panel').count()) === 0);
 
 step('7i — marker layer stability');
 // ---- step 7i: hovering a country must not rebuild the points layer ----

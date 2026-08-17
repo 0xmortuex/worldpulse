@@ -56,6 +56,10 @@ export const REGISTERED_RENDER_HELPERS: Record<string, string> = {
     'Composes one story card around a rank and a tie flag. The rank is a POSITION in a ranking this app computes, not a figure from any source, and it reaches the DOM through notAFact() inside. Every measured value on the card — outlet counts, days, countries — is rendered by the inspector below it, each through notAFact with its own justification, because they are counts of what OUR fifteen curated feeds carried rather than facts about the world.',
   asOfCaveat:
     'The time scrub\'s disclaimer. Every number in it describes THIS APP rather than the world: the year is the scrub control\'s position, and the counts are how many of our own findings the cutoff admits and holds in total. None is read from a source, and the sentence exists precisely to stop a reader taking the filtered view for a claim about the past.',
+  relative:
+    'Age of an entry in the READER\'S OWN browser storage — when they saved a country, or when they last viewed one. It describes their session history and nothing about the world; no source publishes it and none could. A stamp in the future is a corrupt local value and renders as "time unavailable" rather than as a negative age.',
+  renderDashboard:
+    'Composes the dashboard. Every number reaching the DOM through it counts the reader\'s own locally-stored rows — how many countries they saved, how many they have viewed — and each passes through notAFact() where it is rendered. Nothing here is read from a source, and the panel states in its own text that the data is local to this browser.',
   renderIntelFeed:
     'Composes the whole intel feed. Every number that reaches the DOM through it describes THIS APP rather than the world — the size of our captured corpus, how many of our rows match the current filters, how many we could not date, our own page indices, and the counts of our own severity banding. Each one passes through notAFact() with its own justification at the point it is rendered, and the surface states in two caveats that the corpus is ours.',
   describeAge:

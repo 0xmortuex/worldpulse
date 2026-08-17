@@ -37,6 +37,7 @@ import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
 import { mountLegislatureTab } from './ui/legislature';
 import { mountTour } from './ui/tour';
+import { mountDashboard } from './ui/dashboard';
 import { mountIntel } from './ui/intel';
 import { mountLists } from './ui/lists';
 import { renderFlatMap, shouldAutoSwitch } from './ui/flatmap';
@@ -282,6 +283,21 @@ mountTour(must<HTMLElement>('#tour'), must<HTMLElement>('#tour-launch'));
 mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now);
 mountIntel(must<HTMLElement>('#intel'), must<HTMLElement>('#intel-launch'), () => now.getTime());
 
+/**
+ * The dashboard, with real `localStorage` injected here and nowhere deeper.
+ *
+ * `src/ui/dashboard.ts` takes a `Store`, so its behaviour — including a storage
+ * that throws on every call, which is what a blocked origin looks like — is
+ * asserted without a browser.
+ */
+mountDashboard(
+  must<HTMLElement>('#dash'),
+  must<HTMLElement>('#dash-launch'),
+  window.localStorage,
+  () => Date.now(),
+  { selectCountry: (code) => store.select(code) },
+);
+
 flatRoot = must<HTMLElement>('#flatmap');
 const flatToggle = must<HTMLElement>('#flat-launch');
 
@@ -300,6 +316,7 @@ mountPalette(must<HTMLElement>('#palette'), {
   runAction: (action) => {
     if (action === 'tour') must<HTMLElement>('#tour-launch').click();
     if (action === 'intel') must<HTMLElement>('#intel-launch').click();
+    if (action === 'dash') must<HTMLElement>('#dash-launch').click();
     if (action === 'flat') must<HTMLElement>('#flat-launch').click();
     if (action === 'coverage') store.setCoverageMode(!store.state.coverageMode);
   },

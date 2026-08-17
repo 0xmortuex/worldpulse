@@ -1660,3 +1660,65 @@ button.badge { cursor: pointer; }
 .why-unconsulted-note { font-size: 11px; color: var(--text-faint); line-height: 1.5; }
 .why-articles-heading { font-size: 12px; margin: 10px 0 4px; }
 .why-articles { margin: 0; padding-left: 18px; font-size: 11px; color: var(--text-faint); }
+
+/* ---- v2 section 3.2: the dashboard (SPEC-WARWATCH §4) ---- */
+
+.dash[hidden] { display: none; }
+
+.dash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 16px;
+}
+
+.dash-panel { max-width: 720px; margin: 0 auto; }
+
+.dash-header { display: flex; align-items: baseline; gap: 12px; }
+.dash-header h2 { margin: 0; font-size: 18px; }
+.dash-close { margin-left: auto; }
+
+.dash-note {
+  margin: 10px 0 16px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  border-left: 3px solid var(--border);
+  background: var(--panel-2);
+}
+
+.dash-section { margin-bottom: 18px; }
+.dash-section h3 { font-size: 13px; margin: 0 0 8px; display: flex; gap: 8px; align-items: baseline; }
+.dash-count { font-size: 11px; color: var(--text-faint); }
+
+.dash-saved, .dash-history { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+
+.dash-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 8px;
+  font-size: 13px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+.dash-item a { color: var(--text); }
+.dash-when { margin-left: auto; font-size: 11px; color: var(--text-faint); }
+.dash-item button { font: inherit; font-size: 11px; }
+
+.dash-empty { font-size: 12px; color: var(--text-faint); margin: 0; }
+
+.dash-clear {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--warn);
+  border-radius: 3px;
+  cursor: pointer;
+}

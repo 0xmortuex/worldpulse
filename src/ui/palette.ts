@@ -52,6 +52,7 @@ export function allCommands(): Command[] {
   const actions: Command[] = [
     { id: 'action:tour', label: 'Show the guided tour', kind: 'action', payload: 'tour' },
     { id: 'action:intel', label: 'Open the intel feed', kind: 'action', payload: 'intel' },
+    { id: 'action:dash', label: 'Open your dashboard', kind: 'action', payload: 'dash' },
     { id: 'action:flat', label: 'Toggle the flat map', kind: 'action', payload: 'flat' },
     { id: 'action:coverage', label: 'Toggle the coverage map', kind: 'action', payload: 'coverage' },
   ];
