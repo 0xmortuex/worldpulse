@@ -27,14 +27,16 @@ import { colorFor, loadEvents } from '../layers/provider';
  * specific thing, and a list is keyboard-complete by construction.
  */
 
-export type ListId = 'events' | 'countries' | 'sources' | 'watchlist';
-
-export const LISTS: ReadonlyArray<{ id: ListId; label: string }> = [
-  { id: 'events', label: 'Events' },
-  { id: 'countries', label: 'Countries' },
-  { id: 'sources', label: 'Sources' },
-  { id: 'watchlist', label: 'Watchlist' },
-];
+/**
+ * Re-exported from `lists-registry.ts`, which holds the declaration alone so the
+ * palette can read it without dragging these renderers into the entry chunk.
+ * Existing importers keep working; nothing here is a second copy.
+ *
+ * Imported as well as re-exported because a bare `export … from` does not bring
+ * the names into this module's own scope, and the renderers below use both.
+ */
+export { LISTS, type ListId } from './lists-registry';
+import { LISTS, type ListId } from './lists-registry';
 
 interface SourceRow {
   id: string;

@@ -31,17 +31,26 @@
  * the feed each brought their own block. Measured, not estimated, and the
  * budget follows the same 15%-above rule the others do.
  *
- * The app chunk is the one to watch, and it is now the binding constraint:
- * **564.8 KB against 570 KB, leaving 5.2 KB.** The dashboard and the chokepoint
- * monitor consumed the headroom the intel feed left.
+ * ## The split, done rather than another raise
  *
- * **The next surface does not fit, and must not be made to fit by raising this
- * number.** The answer is code-splitting: the chokepoint capture and the news
- * fixtures are committed artefacts loaded eagerly by modules the first paint
- * does not need, and a dynamic `import()` behind the tab that uses them is the
- * shape this project already applies to large artefacts elsewhere. That is a
- * real refactor — the panel's render path is synchronous today — so it is named
- * here rather than started at the end of an unrelated commit.
+ * 2026-08-17 — the app chunk reached **564.8 KB against 570 KB, leaving 5.2 KB**,
+ * at which point the next surface could not land at all. The note here said the
+ * answer was code-splitting rather than a second raise, and that is what
+ * happened: the lists, intel feed and dashboard now load on first launch
+ * instead of at boot.
+ *
+ *   app chunk   564.8 KB  ->  550.0 KB     headroom 5.2 KB -> 20.0 KB
+ *   + lists      3.5 KB   \
+ *   + intel     10.3 KB    >  fetched when a reader opens them
+ *   + dashboard  3.4 KB   /
+ *
+ * The tour is deliberately still eager: it opens itself on a first visit, so
+ * deferring it to a click would mean it never appears for the reader it is for.
+ *
+ * **20 KB is one more surface, not several.** The remaining 550 KB is topojson,
+ * the country tables and the dossier tabs — all of which the first paint really
+ * does use, so the next reduction is a harder question than this one was, and
+ * the honest answer may be that this app is simply 550 KB.
  *
  * Recorded because a budget raised without saying why is a budget switched off,
  * and a budget raised twice in a row is one nobody believes.

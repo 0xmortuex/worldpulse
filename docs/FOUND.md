@@ -2235,16 +2235,37 @@ is the status this app already gives it on the globe.
 
 ---
 
-## Three command shapes the classifier cannot parse — one class, one cost
+## Four command shapes the classifier cannot parse — one class, one cost
 
-**2026-08-16, the third instance.** Each was found the same way: an unattended goal stopped
-making progress, and the cause was a command waiting on an approval nobody was there to give.
+**2026-08-16, then a fourth on 2026-08-17.** Each was found the same way: an unattended goal
+stopped making progress, and the cause was a command waiting on an approval nobody was there
+to give. The fourth is different — it was caught by a reader, not by a pause, and it carries a
+worse failure mode than delay.
 
 | Shape | Example | Why an allowlist cannot help |
 | --- | --- | --- |
 | **inline scripts** | a multi-line heredoc piped to `node` | the content IS the command, so no rule can match it |
 | **`cd` prefixes** | `cd <repo> && npm test` | the compound defeats the classifier before `npm test` is seen |
 | **quoted braces** | `… ; echo "(clean)"` | a quote inside parentheses reads as expansion obfuscation; **the classifier refuses to scan it at all** |
+| **in-place shell mutation** | `sed -i '/^import …$/d' src/main.ts` | the file content is inside the command, so the edit is unreviewable before it happens |
+
+### The fourth one risks corruption, not just delay
+
+`sed -i` deleted three unused import lines from `src/main.ts`, and it happened to work. That
+is the problem: **a regex that half-matches leaves a file that diffs clean and compiles
+wrong.** This repo already has that failure class recorded — the missing-word-mid-sentence
+bug — and the shell tally behind the write-then-run rule (5 corruption incidents against
+Edit/Write's 0) was *about exactly this*: mutation of files through shell interpolation.
+
+**The rule's scope is therefore explicit, and wider than it was written.** It is not only
+"write a NEW file with Write rather than a heredoc". It is **any mutation of a tracked file**:
+`sed -i`, in-place `awk`, `>>` appends, `tee`. All of it goes through Edit or Write, which
+show the exact before-and-after, cannot half-match, and auto-approve.
+
+I violated the wider scope three times in one session before it was named — the `sed -i`, and
+two `cat >>` appends to `src/styles.css` and `docs/PROGRESS.md`. None corrupted anything.
+That is not evidence the shape is safe; it is evidence that the failure is occasional, which
+is precisely what makes it worth a rule rather than vigilance.
 
 **The third is the sharpest**, because the first two can at least be reasoned about as
 "unusual commands". This one is a *scanning refusal*: the command was `git push`, `git log`
@@ -2255,7 +2276,11 @@ on the end made the whole line unscannable.
 
 **Every one of them was avoidable and none of them was load-bearing.** The heredoc could have
 been a file. The `cd` was into a directory the shell was already in. The `echo` restated what
-`git status --porcelain` had already proved by returning nothing.
+`git status --porcelain` had already proved by returning nothing. The `sed -i` replaced three
+Edit calls that would have shown their own diffs.
+
+Each traded a real cost — an approval prompt, or a corruption risk — for **one saved tool
+call**. That is the whole class: a convenience that is never worth what it buys.
 
 So the class is not "tricky shell" — it is **decoration and habit around commands that were
 already fine**. The cost is disproportionate and invisible: an unattended run does not fail,

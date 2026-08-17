@@ -1,6 +1,6 @@
 import { loadCountries } from '../countries';
 import { escapeHtml } from '../facts/badge';
-import { LISTS } from './lists';
+import { LISTS } from './lists-registry';
 import { TOUR_STEPS } from './tour';
 
 /**

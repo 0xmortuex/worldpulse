@@ -37,9 +37,6 @@ import { mountGovernmentTab } from './ui/government';
 import { mountNewsTab } from './ui/news';
 import { mountLegislatureTab } from './ui/legislature';
 import { mountTour } from './ui/tour';
-import { mountDashboard } from './ui/dashboard';
-import { mountIntel } from './ui/intel';
-import { mountLists } from './ui/lists';
 import { renderFlatMap, shouldAutoSwitch } from './ui/flatmap';
 import { mountPalette } from './ui/palette';
 import { mountDossierHeader } from './ui/header';
@@ -279,9 +276,68 @@ mountPanel(panelRoot, store, {
 
 mountGallery(must<HTMLElement>('#gallery'), store);
 mountSeedBanner(must<HTMLElement>('#seed-banner'), facts);
+/**
+ * MODAL SURFACES LOAD ON FIRST USE, not at boot.
+ *
+ * The lists, intel feed, dashboard and command palette are each behind a
+ * launcher, and none of them is on screen at first paint — but every byte of
+ * them, and of the captures they import, was in the initial chunk. That chunk
+ * reached 564.8 KB against a 570 KB budget, which meant the next surface could
+ * not land at all.
+ *
+ * ## Why a click replay rather than an `open()` export
+ *
+ * Each surface mounts by attaching its own listener to its launcher. Mounting
+ * on the first click means that click has already happened by the time the
+ * listener exists, so the surface would stay shut until a second click — the
+ * first one silently doing nothing, which is worse than a slow open.
+ *
+ * Replaying the click after mount keeps ONE code path: the surface opens
+ * through exactly the handler every later click uses, rather than through a
+ * separate first-time route that could drift from it. The guard makes the
+ * replay a no-op here, so it reaches the newly attached listener and nothing
+ * else.
+ *
+ * The tour is deliberately NOT lazy: it opens itself on a first visit, so
+ * deferring it until a click would mean it never appears for the reader it
+ * exists for.
+ */
+function lazyOnClick(launcher: HTMLElement, load: () => Promise<unknown>): () => Promise<unknown> {
+  let loading: Promise<unknown> | null = null;
+  const ensure = () => {
+    loading ??= load();
+    return loading;
+  };
+
+  launcher.addEventListener('click', (event) => {
+    if (loading !== null) return;
+    event.preventDefault();
+    void ensure().then(() => {
+      launcher.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+  });
+
+  /**
+   * Returned so a caller that needs the surface PRESENT rather than merely
+   * opening can wait for it. The palette's "List: …" commands do exactly that —
+   * they click the launcher and then reach inside for a row, which used to be
+   * safe because the surface was always mounted. It is not safe against a
+   * dynamic import, and the fix is to await rather than to sleep.
+   */
+  return ensure;
+}
+
 mountTour(must<HTMLElement>('#tour'), must<HTMLElement>('#tour-launch'));
-mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now);
-mountIntel(must<HTMLElement>('#intel'), must<HTMLElement>('#intel-launch'), () => now.getTime());
+
+const ensureLists = lazyOnClick(must<HTMLElement>('#lists-launch'), async () => {
+  const { mountLists } = await import('./ui/lists');
+  mountLists(must<HTMLElement>('#lists'), must<HTMLElement>('#lists-launch'), now);
+});
+
+lazyOnClick(must<HTMLElement>('#intel-launch'), async () => {
+  const { mountIntel } = await import('./ui/intel');
+  mountIntel(must<HTMLElement>('#intel'), must<HTMLElement>('#intel-launch'), () => now.getTime());
+});
 
 /**
  * The dashboard, with real `localStorage` injected here and nowhere deeper.
@@ -290,13 +346,16 @@ mountIntel(must<HTMLElement>('#intel'), must<HTMLElement>('#intel-launch'), () =
  * that throws on every call, which is what a blocked origin looks like — is
  * asserted without a browser.
  */
-mountDashboard(
-  must<HTMLElement>('#dash'),
-  must<HTMLElement>('#dash-launch'),
-  window.localStorage,
-  () => Date.now(),
-  { selectCountry: (code) => store.select(code) },
-);
+lazyOnClick(must<HTMLElement>('#dash-launch'), async () => {
+  const { mountDashboard } = await import('./ui/dashboard');
+  mountDashboard(
+    must<HTMLElement>('#dash'),
+    must<HTMLElement>('#dash-launch'),
+    window.localStorage,
+    () => Date.now(),
+    { selectCountry: (code) => store.select(code) },
+  );
+});
 
 flatRoot = must<HTMLElement>('#flatmap');
 const flatToggle = must<HTMLElement>('#flat-launch');
@@ -310,8 +369,12 @@ mountPalette(must<HTMLElement>('#palette'), {
   selectCountry: (iso3) => store.select(iso3),
   openTab: (tab) => store.setTab(tab as never),
   openList: (list) => {
-    must<HTMLElement>('#lists-launch').click();
-    must<HTMLElement>('#lists').querySelector<HTMLElement>(`[data-list="${list}"]`)?.click();
+    // Await the surface rather than assuming it is mounted: it now loads on
+    // demand, so reaching inside it synchronously would find an empty element.
+    void ensureLists().then(() => {
+      must<HTMLElement>('#lists-launch').click();
+      must<HTMLElement>('#lists').querySelector<HTMLElement>(`[data-list="${list}"]`)?.click();
+    });
   },
   runAction: (action) => {
     if (action === 'tour') must<HTMLElement>('#tour-launch').click();
