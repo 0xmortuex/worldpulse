@@ -360,3 +360,34 @@ model change. It is not built, and the feed currently renders
 **Corpus limit, stated on the surface:** the feed reads the captured article fixtures.
 GDELT is recorded UNREACHABLE after six of six attempts, so a live cross-source feed is
 blocked on the same thing the breaking board is. Both caveats render above the cards.
+
+---
+
+## The session's closing observation
+
+**The best catches came from the machinery rather than the operator.**
+
+Four, from one session:
+
+- A **planted test overturned security reasoning**. The Worker's origin check rejected
+  paths beginning `//`, and a test was written to confirm that `/\evil.test/x` was
+  therefore safe. It is not: WHATWG parsing normalises the backslash and the path
+  resolves to a different host entirely. The test failed, the belief was wrong, and the
+  second defence — comparing the composed URL's origin against the registry's — is the
+  only thing that stood between this Worker and being an open relay. Written before it
+  shipped, not after an incident.
+- The **fact discipline refused untiered facts**. A tier assertion built on synthetic
+  facts rendered `UNTRACEABLE`, because a fact with no provenance cannot claim a tier.
+  The fixture was wrong, not the code, and the assertion now runs against a real capture.
+- The **coverage scanner caught a masquerading homepage**. `portwatch.imf.org` was
+  hardcoded as an attribution link; it is the homepage, not the registered origin, and so
+  it was a host in `src/` that nobody had registered.
+- An **eight-word comment deleted its own obsolete check by failing loudly**. It had said:
+  *"when NO tab is unbuilt, delete the second check rather than weakening it."* Building
+  the Risk tab removed the last pending card, the check that read it aborted a step on a
+  90-second timeout pointing straight at the line, and it went out exactly as instructed.
+
+**That is the green being real, which is the only thing worth having.** A suite that only
+ever agrees with the person who wrote it has been illustrated, not tested. Every one of
+these contradicted the operator — and each was cheaper to hear then than to discover from
+a reader who had trusted a number.
