@@ -1685,3 +1685,55 @@ possible from outside the organisation.
 
 **What is blocked:** the exposure figure itself. **What is not:** everything else in C.2 — the
 footprint convention, the intersection, and the decomposition are shipped and tested.
+
+---
+
+## 34. Biohazard mode is specified as a case-count choropleth, and no case-count source is connected
+
+**Raised 2026-08-17, reaching SPEC-WARWATCH §2's biohazard mode in build order.**
+
+**Context.** The spec asks for "a choropleth plus per-country count markers", a disease
+sub-selector, and legend bands that are **case counts** with the counting basis named —
+confirmed or suspected, cumulative or incident, over what window (rule 22).
+
+**The only health source registered is `who-don`, and it does not carry counts.**
+`OutbreakReport` is `{ id, title, published, url }`: WHO's own headline, its publication
+date, and a link back. There is no country field and no case number anywhere in the
+adapter or the capture.
+
+So the choropleth cannot be drawn from anything this app has. Drawing one would mean
+inventing the numbers it colours — and this is the surface where the spec itself says the
+stakes are highest:
+
+> *"No reported cases" and "no surveillance data" are different claims, and conflating them
+> misinforms about exactly the countries least able to report — painting a surveillance gap
+> as good news.*
+
+A fabricated or inferred count would do precisely that, on the map where it does the most
+damage.
+
+### The options
+
+**A. Phase 0 for a case-count source, then build as specified.** WHO's own APIs, ECDC's
+downloads and national agency feeds all publish counts, but each needs the full gate —
+licence read (L15), probe, live capture, contract test — and the per-country-per-pathogen
+registration the spec asks for is a larger registry change than any source added so far.
+**Correct, and not small.**
+
+**B. Build what `who-don` actually supports, under a different name.** An outbreak
+*reports* surface: WHO's headlines, dates and links, ordered, with no map and no counts.
+Honest, useful, and clearly not what §2 asked for — so it would need renaming rather than
+shipping as "biohazard mode", or it becomes a choropleth-shaped promise with a list inside.
+
+**C. Park it and continue in build order.** Prediction markets (§5) is next and has a
+public keyless API; cameras, conflict presets and broadcast traffic follow.
+
+### My recommendation
+
+**C now, A as its own goal** — the same disposition the market ticker got, and for the same
+reason: the gap is a missing *dataset*, not a missing surface, and inventing the dataset is
+the one thing that cannot be done. B is tempting and I would rather not: a reports list
+under the biohazard heading trains a reader to expect a map that will never be there.
+
+**What is blocked:** the choropleth, the sub-selector and the count markers — all of §2's
+biohazard mode. **What is not:** everything after it in the build order.
